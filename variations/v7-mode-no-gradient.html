@@ -596,7 +596,9 @@
             document.getElementById('card-automatic').classList.toggle('selected', option === 'automatic');
             document.getElementById('card-manual').classList.toggle('selected', option === 'manual');
             document.getElementById('sub-options').classList.toggle('visible', option === 'automatic');
-            if (option === 'manual') {
+            if (option === 'automatic') {
+                selectSubOption('all');
+            } else {
                 document.querySelectorAll('.sub-option').forEach(s => s.classList.remove('selected'));
             }
         }
