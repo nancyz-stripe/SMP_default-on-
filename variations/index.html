@@ -391,7 +391,7 @@ function saveVariations() {
 const isLocal = window.location.protocol === 'file:' || window.location.hostname === 'localhost';
 
 // Force reset stale localStorage (bump version to reset)
-const STORAGE_VERSION = '4';
+const STORAGE_VERSION = '5';
 if (localStorage.getItem('variations-version') !== STORAGE_VERSION) {
   localStorage.removeItem('variations-order');
   localStorage.removeItem('variations-deleted');
