@@ -1,0 +1,5 @@
+{
+  "redirects": [
+    { "source": "/", "destination": "/variations/index.html", "permanent": false }
+  ]
+}
