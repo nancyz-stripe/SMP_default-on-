@@ -401,8 +401,7 @@
             display: none;
             flex-direction: row;
             gap: 12px;
-            padding: 0 0 0 28px;
-            margin-bottom: 4px;
+            margin-top: 12px;
         }
         .sub-options.visible {
             display: flex;
@@ -517,21 +516,21 @@
                                     <span class="badge-recommended">Recommended</span>
                                 </div>
                                 <div class="option-description">Stripe manages tax, fraud, and disputes maximizing revenue while lowering your operational overhead.</div>
-                            </div>
-                        </div>
-                        <div class="sub-options" id="sub-options">
-                            <div class="sub-option" id="sub-all" onclick="selectSubOption('all')">
-                                <div class="sub-radio"><div class="sub-radio-inner"></div></div>
-                                <div class="sub-option-content">
-                                    <div class="sub-option-title">All payments</div>
-                                    <div class="sub-option-desc">Includes all domestic and international payments.</div>
-                                </div>
-                            </div>
-                            <div class="sub-option" id="sub-crossborder" onclick="selectSubOption('crossborder')">
-                                <div class="sub-radio"><div class="sub-radio-inner"></div></div>
-                                <div class="sub-option-content">
-                                    <div class="sub-option-title">Cross-border only</div>
-                                    <div class="sub-option-desc">Apply to only international payments.</div>
+                                <div class="sub-options" id="sub-options">
+                                    <div class="sub-option" id="sub-all" onclick="event.stopPropagation(); selectSubOption('all')">
+                                        <div class="sub-radio"><div class="sub-radio-inner"></div></div>
+                                        <div class="sub-option-content">
+                                            <div class="sub-option-title">All payments</div>
+                                            <div class="sub-option-desc">Includes all domestic and international payments.</div>
+                                        </div>
+                                    </div>
+                                    <div class="sub-option" id="sub-crossborder" onclick="event.stopPropagation(); selectSubOption('crossborder')">
+                                        <div class="sub-radio"><div class="sub-radio-inner"></div></div>
+                                        <div class="sub-option-content">
+                                            <div class="sub-option-title">Cross-border only</div>
+                                            <div class="sub-option-desc">Apply to only international payments.</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
