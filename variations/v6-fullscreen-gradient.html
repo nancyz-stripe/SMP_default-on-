@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FOX Onboarding – V5 Globe Behind</title>
+  <title>FOX Onboarding – V6 Full-screen Gradient</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -144,10 +144,19 @@
       width: 90%;
       height: 90%;
       position: relative;
-      overflow-x: hidden;
-      overflow-y: auto;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
+      padding: 16px;
+    }
+
+    .modal-gradient {
+      position: absolute;
+      inset: 16px;
+      background: linear-gradient(135deg, #e8edf8 0%, #dce4f5 25%, #ecddf7 65%, #e8d5f3 100%);
+      border-radius: 8px;
+      z-index: 0;
+      opacity: 0.6;
     }
 
     .modal-header {
@@ -156,6 +165,8 @@
       justify-content: space-between;
       padding: 32px 42px 0;
       flex-shrink: 0;
+      position: relative;
+      z-index: 1;
     }
 
     .stripe-logo svg {
@@ -427,6 +438,7 @@
 
 <div class="modal-backdrop">
   <div class="modal-dialog">
+    <div class="modal-gradient"></div>
     <div class="globe-ring"></div>
     <div id="globe-container"></div>
     <div class="modal-header">
@@ -458,11 +470,11 @@ const state = { step: 0, selections: {} };
 
 const steps = [
   {
-    heading: `Where should Stripe manage payments for you? <span class="muted">We'll increase your revenue while managing tax, fraud, and disputes for you. </span>`,
+    heading: `Choose how your payments should be managed. <span class="muted">Stripe can handle tax, fraud, and disputes for you — or you can manage them yourself.</span>`,
     field: 'paymentScope',
     options: [
-      { id: 'cross_border', title: 'Cross-border payments only', description: 'Hand off the complexity of global selling and grow your cross-border revenue by x%.' },
-      { id: 'all', title: 'All of my payments', description: 'Hand off operational burdens and maximize revenue at home and globally.' },
+      { id: 'automatic', title: 'Automatic', description: 'Stripe manages tax, fraud, and disputes across all your domestic and cross-border payments — maximizing revenue while lowering your operational overhead.', recommended: true },
+      { id: 'manual', title: 'Manual', description: 'You handle tax, fraud, and disputes yourself. You control which payment methods are shown and manage compliance on your own.' },
     ],
     progress: 5,
   },
@@ -480,13 +492,13 @@ function renderStep() {
       <div class="option-card ${isSelected ? 'selected' : ''}" onclick="selectOption('${step.field}', '${opt.id}')">
         <div class="radio-outer"><div class="radio-inner"></div></div>
         <div class="option-text">
-          <div class="option-title">${opt.title}</div>
+          <div class="option-title">${opt.title}${opt.recommended ? ' <span style="display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;background:#efeaff;color:#635bff;margin-left:8px;">Recommended</span>' : ''}</div>
           ${opt.description ? `<div class="option-description">${opt.description}</div>` : ''}
         </div>
       </div>`;
   });
   html += `</div>`;
-  html += `<button class="link-later">I'll decide this later</button>`;
+  html += `<p style="font-size:12px;color:#99a5b8;margin-top:4px;">Changes can be made anytime in Managed Payment settings</p>`;
   container.innerHTML = html;
 
   document.getElementById('progressFill').style.width = step.progress + '%';
@@ -532,14 +544,16 @@ renderStep();
   scene.add(globeContainer);
 
   const globeGeometry = new THREE.SphereGeometry(globeRadius, globeSegments, globeSegments);
-  const globeMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('#f1f2f8'), shininess: 5 });
+  const globeMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('#f7f6fc'), shininess: 3, transparent: true, opacity: 0.85 });
   globeContainer.add(new THREE.Mesh(globeGeometry, globeMaterial));
 
-  scene.add(new THREE.AmbientLight(new THREE.Color('#ECEBF5'), 1.0));
-  const backLight = new THREE.PointLight(new THREE.Color('#222222'), 0.2, 0, 2);
+  scene.add(new THREE.AmbientLight(new THREE.Color('#F8F7FC'), 1.3));
+  const backLight = new THREE.PointLight(new THREE.Color('#666677'), 0.08, 0, 2);
   backLight.position.set(-1000, -1100, -3300); scene.add(backLight);
-  const frontLight = new THREE.PointLight(new THREE.Color('#44444f'), 0.8, 0, 20);
+  const frontLight = new THREE.PointLight(new THREE.Color('#777788'), 0.5, 0, 20);
   frontLight.position.set(-3000, 3000, 3300); scene.add(frontLight);
+  const fillLight = new THREE.DirectionalLight(new THREE.Color('#FFFFFF'), 0.35);
+  fillLight.position.set(2, -2, 2); scene.add(fillLight);
 
   const DOT_COUNT = 40000;
   const dotVertexShader = `
@@ -572,7 +586,7 @@ renderStep();
       if (radius > 0.95) discard;
       float edgeFade = smoothstep(0.0, 0.6, v_facing);
       float blink = 0.75 + 0.25 * sin(u_time * 2.0 + v_random * 12.56);
-      vec3 darkenedColor = u_color * 0.75;
+      vec3 darkenedColor = u_color * 0.55;
       gl_FragColor = vec4(darkenedColor, blink * edgeFade);
     }
   `;

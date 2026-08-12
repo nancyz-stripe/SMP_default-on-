@@ -63,12 +63,12 @@
     // --- Config from URL params ---
     const urlParams = new URLSearchParams(window.location.search);
     let config = {
-      globeColor: '#' + (urlParams.get('globeColor') || '102038'),
-      dotColor: '#' + (urlParams.get('dotColor') || '306ba6'),
-      ambientLight: '#' + (urlParams.get('ambientLight') || '99e6fc'),
-      backLight: '#' + (urlParams.get('backLight') || 'c2f0fd'),
-      frontLight: '#' + (urlParams.get('frontLight') || 'a1a5af'),
-      background: '#' + (urlParams.get('background') || '092540'),
+      globeColor: '#' + (urlParams.get('globeColor') || 'f1f2f8'),
+      dotColor: '#' + (urlParams.get('dotColor') || 'b8c0f0'),
+      ambientLight: '#' + (urlParams.get('ambientLight') || 'ECEBF5'),
+      backLight: '#' + (urlParams.get('backLight') || '222222'),
+      frontLight: '#' + (urlParams.get('frontLight') || '44444f'),
+      background: '#' + (urlParams.get('background') || 'ffffff'),
     };
     Object.keys(config).forEach(k => {
       const el = document.getElementById(k);
@@ -126,11 +126,18 @@
 
     const dotVertexShader = `
       uniform float u_time;
+      uniform vec3 u_cameraDir;
       attribute float a_random;
       varying float v_random;
+      varying float v_facing;
 
       void main() {
         v_random = a_random;
+
+        // Compute how much this dot faces the camera (1.0 = dead center, 0.0 = edge)
+        vec3 worldNormal = normalize((modelMatrix * vec4(normalize(position), 0.0)).xyz);
+        v_facing = dot(worldNormal, u_cameraDir);
+
         vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
         gl_Position = projectionMatrix * mvPosition;
 
@@ -142,8 +149,12 @@
       uniform float u_time;
       uniform vec3 u_color;
       varying float v_random;
+      varying float v_facing;
 
       void main() {
+        // Hide back-facing dots
+        if (v_facing < 0.0) discard;
+
         // Pentagon shape - slightly rotated per dot for organic feel
         vec2 uv = gl_PointCoord * 2.0 - 1.0;
         float rotAngle = v_random * 6.28;
@@ -162,15 +173,22 @@
         if (d > edge) discard;
         if (radius > 0.95) discard;
 
+        // Edge falloff: dots at center of globe are fully visible, fade toward edges
+        float edgeFade = smoothstep(0.0, 0.6, v_facing);
+
         // Blink between 50% and 100% opacity, each dot on its own phase
         float blink = 0.75 + 0.25 * sin(u_time * 2.0 + v_random * 12.56);
-        gl_FragColor = vec4(u_color, blink);
+
+        // Darken the base color slightly and apply edge falloff
+        vec3 darkenedColor = u_color * 0.75;
+        gl_FragColor = vec4(darkenedColor, blink * edgeFade);
       }
     `;
 
     const dotUniforms = {
       u_time: { value: 0 },
       u_color: { value: new THREE.Color(config.dotColor) },
+      u_cameraDir: { value: new THREE.Vector3(0, 0, 1) },
     };
 
     const mapImg = new Image();
@@ -234,10 +252,10 @@
 
     // --- Arc system (gradient-colored, curved, fading) ---
     const arcColors = [
-      [new THREE.Color(0xf94148), new THREE.Color(0xffcb57)],
-      [new THREE.Color(0xab63ea), new THREE.Color(0x90e0ff)],
-      [new THREE.Color(0xf94148), new THREE.Color(0xab63ea)],
-      [new THREE.Color(0xffcb57), new THREE.Color(0x90e0ff)],
+      [new THREE.Color(0xf94148), new THREE.Color(0xFF8352)],
+      [new THREE.Color(0x533AFD), new THREE.Color(0x0D8EFF)],
+      [new THREE.Color(0xf94148), new THREE.Color(0x533AFD)],
+      [new THREE.Color(0xFF8352), new THREE.Color(0x0D8EFF)],
     ];
     const arcs = [];
     const MAX_ARCS = 5;
@@ -417,8 +435,9 @@
         revealProgress = Math.min(1, (Date.now() - revealStart) / revealDuration);
       }
 
-      // Update dot shader time
+      // Update dot shader time and camera direction
       dotUniforms.u_time.value = elapsed;
+      dotUniforms.u_cameraDir.value.copy(camera.position).normalize();
 
       // Rotate leftward (Americas → Europe → Asia)
       globeContainer.rotation.y -= autoRotateSpeed;
@@ -497,7 +516,7 @@
     });
 
     function applyWhiteTheme() {
-      const t = { globeColor:'#f1f5f5', dotColor:'#b3ccff', ambientLight:'#dde6ef', backLight:'#222222', frontLight:'#44444f', background:'#ffffff' };
+      const t = { globeColor:'#f1f2f8', dotColor:'#b8c0f0', ambientLight:'#ECEBF5', backLight:'#222222', frontLight:'#44444f', background:'#ffffff' };
       Object.keys(t).forEach(k => { document.getElementById(k).value = t[k]; });
       updateColors();
     }

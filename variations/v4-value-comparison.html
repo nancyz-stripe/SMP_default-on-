@@ -302,20 +302,41 @@
 
         /* Footer */
         .modal-footer {
-            margin-top: 24px;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 42px 32px;
+            flex-shrink: 0;
         }
 
-        .modal-footer a {
-            font-size: 13px;
+        .back-link {
+            font-size: 16px;
+            line-height: 24px;
+            letter-spacing: -0.31px;
             color: var(--text-action-primary);
-            text-decoration: none;
             cursor: pointer;
+            background: none;
+            border: none;
+            font-family: inherit;
         }
+        .back-link:hover { text-decoration: underline; }
 
-        .modal-footer a:hover {
-            text-decoration: underline;
+        .btn-continue {
+            background: #675dff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            letter-spacing: -0.15px;
+            line-height: 20px;
+            box-shadow: 0px 1px 1px 0px rgba(47, 14, 99, 0.32);
+            transition: background 0.15s;
         }
+        .btn-continue:hover { background: #5b52e6; }
     </style>
 </head>
 <body>
@@ -437,10 +458,12 @@
                     </div>
                 </div>
 
-                <!-- Footer -->
-                <div class="modal-footer">
-                    <a href="#">I'll decide later</a>
-                </div>
+            </div>
+
+            <!-- Footer pinned at bottom -->
+            <div class="modal-footer">
+                <button class="back-link">← Back </button>
+                <button class="btn-continue">Continue</button>
             </div>
         </div>
     </div>

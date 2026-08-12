@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SMP default-on in onboarding</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+      --text-default: #353a44;
+      --text-subdued: #596171;
+      --text-muted: #99a5b8;
+      --bg-surface: #ffffff;
+      --bg-offset: #f5f6f8;
+      --border: #ebeef1;
+      --primary: #635bff;
+      --primary-hover: #5b52e6;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-offset);
+      min-height: 100vh;
+      padding: 48px;
+    }
+
+    .header {
+      max-width: 960px;
+      margin: 0 auto 40px;
+    }
+    .header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-default);
+      letter-spacing: -0.3px;
+      margin-bottom: 8px;
+    }
+    .header p {
+      font-size: 15px;
+      color: var(--text-subdued);
+      line-height: 1.5;
+    }
+
+    .grid {
+      max-width: 960px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--bg-surface);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      transition: box-shadow 0.2s, transform 0.15s;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .card:hover {
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      transform: translateY(-2px);
+    }
+
+    .card-preview {
+      height: 200px;
+      background: var(--bg-offset);
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .card-preview iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 1280px;
+      height: 800px;
+      transform-origin: top left;
+      border: none;
+      pointer-events: none;
+    }
+    .card-preview-placeholder {
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .card-body {
+      padding: 16px 20px;
+    }
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-default);
+      margin-bottom: 4px;
+      letter-spacing: -0.15px;
+    }
+    .card-description {
+      font-size: 13px;
+      color: var(--text-subdued);
+      line-height: 1.4;
+    }
+    .card-tag {
+      display: inline-block;
+      margin-top: 10px;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: #efeaff;
+      color: var(--primary);
+    }
+
+    /* Drag and drop */
+    .card { position: relative; }
+    .card.dragging { opacity: 0.4; }
+    .card.drag-over { box-shadow: 0 0 0 2px var(--primary); }
+    .card-order {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 2;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-subdued);
+    }
+    .overflow-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 3;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 18px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 8px;
+      line-height: 1;
+    }
+    .overflow-btn:hover { background: var(--bg-offset); color: var(--text-default); }
+
+    .overflow-menu {
+      position: absolute;
+      top: 38px;
+      right: 12px;
+      z-index: 10;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      min-width: 140px;
+      padding: 4px;
+      display: none;
+    }
+    .overflow-menu.open { display: block; }
+    .overflow-menu-item {
+      display: block;
+      width: 100%;
+      padding: 8px 12px;
+      font-size: 13px;
+      color: var(--text-default);
+      text-align: left;
+      background: none;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .overflow-menu-item:hover { background: var(--bg-offset); }
+    .overflow-menu-item.danger { color: #df1b41; }
+    .overflow-menu-item.danger:hover { background: #fef0f2; }
+
+    /* Rename modal */
+    .rename-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+      z-index: 300;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .rename-modal {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.15);
+    }
+    .rename-modal h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-default);
+      margin-bottom: 16px;
+    }
+    .rename-field {
+      margin-bottom: 12px;
+    }
+    .rename-field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-subdued);
+      margin-bottom: 4px;
+    }
+    .rename-field input,
+    .rename-field textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+    }
+    .rename-field input:focus,
+    .rename-field textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.1);
+    }
+    .rename-field textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+    .rename-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .rename-actions button {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .rename-btn-cancel {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-subdued);
+    }
+    .rename-btn-cancel:hover { background: var(--bg-offset); }
+    .rename-btn-save {
+      background: var(--primary);
+      border: none;
+      color: white;
+    }
+    .rename-btn-save:hover { background: #5b52e6; }
+
+    /* Add new card */
+    .card-add {
+      border: 2px dashed var(--border);
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 260px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .card-add:hover {
+      border-color: var(--primary);
+      background: rgba(99, 91, 255, 0.02);
+      transform: none;
+      box-shadow: none;
+    }
+    .card-add-content {
+      text-align: center;
+    }
+    .card-add-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--bg-offset);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+      font-size: 20px;
+      color: var(--text-muted);
+    }
+    .card-add:hover .card-add-icon {
+      background: #efeaff;
+      color: var(--primary);
+    }
+    .card-add-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-subdued);
+    }
+    .card-add:hover .card-add-label {
+      color: var(--primary);
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>SMP default-on in onboarding</h1>
+  <p>Different variants of the SMP modal in intent capture.</p>
+</div>
+
+<div class="grid" id="grid">
+  <!-- Cards rendered by JS -->
+</div>
+
+<script>
+const defaultVariations = [
+  {
+    id: 'baseline',
+    title: 'Baseline',
+    description: 'Default baseline following FOX patterns',
+    file: 'baseline.html',
+  },
+  {
+    id: 'v1-globe-crossborder',
+    title: 'V1: Mode',
+    description: 'Split modal with globe. Automatic vs Manual payment management.',
+    file: 'v1-globe-crossborder.html',
+  },
+  {
+    id: 'v2-globe-all-volume',
+    title: 'V2: Globe Hero — All Volume',
+    description: 'Split modal with globe, all-volume "autopilot mode" recommended.',
+    file: 'v2-globe-all-volume.html',
+  },
+  {
+    id: 'v4-value-comparison',
+    title: 'V4: Value Comparison',
+    description: 'Side-by-side product cards for deliberate comparison. No globe.',
+    file: 'v4-value-comparison.html',
+  },
+  {
+    id: 'v5-globe-behind',
+    title: 'V5: Globe Behind Choices',
+    description: 'Animated globe behind the options, offset right. Matches Figma spec.',
+    file: 'v5-globe-behind.html',
+  },
+  {
+    id: 'v6-fullscreen-gradient',
+    title: 'V6: Full-screen Gradient',
+    description: 'Full gradient background with globe behind. V1 content (Automatic/Manual).',
+    file: 'v6-fullscreen-gradient.html',
+  },
+  {
+    id: 'v7-mode-no-gradient',
+    title: 'V7: Mode — No Gradient',
+    description: 'Same as Mode (Automatic/Manual) but with white globe background instead of gradient.',
+    file: 'v7-mode-no-gradient.html',
+  },
+];
+
+function loadDeletedIds() {
+  try { return JSON.parse(localStorage.getItem('variations-deleted') || '[]'); } catch(e) { return []; }
+}
+
+function saveDeletedIds(ids) {
+  localStorage.setItem('variations-deleted', JSON.stringify(ids));
+}
+
+function loadVariations() {
+  const deleted = new Set(loadDeletedIds());
+  // Always ensure v7-mode-no-gradient is not in deleted list
+  if (deleted.has('v7-mode-no-gradient')) {
+    deleted.delete('v7-mode-no-gradient');
+    saveDeletedIds([...deleted]);
+  }
+  const defaultsMap = Object.fromEntries(defaultVariations.map(v => [v.id, v]));
+  const saved = localStorage.getItem('variations-order');
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved).map(v => {
+        const def = defaultsMap[v.id];
+        if (def) return { ...def, ...v, description: v.description || def.description || '' };
+        return { ...v, description: v.description || '' };
+      });
+      const savedIds = new Set(parsed.map(v => v.id));
+      defaultVariations.forEach(v => {
+        if (!savedIds.has(v.id) && !deleted.has(v.id)) parsed.push(v);
+      });
+      return parsed;
+    } catch(e) {}
+  }
+  return defaultVariations.filter(v => !deleted.has(v.id));
+}
+
+function saveVariations() {
+  localStorage.setItem('variations-order', JSON.stringify(variations));
+}
+
+// Force reset stale localStorage (bump version to reset)
+const STORAGE_VERSION = '2';
+if (localStorage.getItem('variations-version') !== STORAGE_VERSION) {
+  localStorage.removeItem('variations-order');
+  localStorage.removeItem('variations-deleted');
+  localStorage.setItem('variations-version', STORAGE_VERSION);
+}
+
+const variations = loadVariations();
+
+function getLabel(index) {
+  return index === 0 ? 'Baseline' : `V${index}`;
+}
+
+function renderGrid() {
+  const grid = document.getElementById('grid');
+  let html = '';
+
+  variations.forEach((v, i) => {
+    const label = getLabel(i);
+    const displayTitle = v.title.replace(/^V\d+:\s*/, '');
+    html += `
+      <a class="card" href="${v.file}" draggable="true" data-index="${i}">
+        <span class="overflow-btn" onclick="event.preventDefault(); event.stopPropagation(); toggleMenu(${i})">⋯</span>
+        <div class="overflow-menu" id="menu-${i}">
+          <button class="overflow-menu-item" onclick="event.preventDefault(); event.stopPropagation(); renameVariation(${i})">Rename</button>
+          <button class="overflow-menu-item danger" onclick="event.preventDefault(); event.stopPropagation(); deleteVariation(${i})">Delete</button>
+        </div>
+        <div class="card-preview" data-src="${v.file}"></div>
+        <div class="card-body">
+          <div class="card-title">${displayTitle}</div>
+          <div class="card-description">${v.description}</div>
+        </div>
+      </a>
+    `;
+  });
+
+
+  grid.innerHTML = html;
+  initDragAndDrop();
+}
+
+function addVariation() {
+  const title = prompt('Variation name:');
+  if (!title) return;
+  const description = prompt('Short description:') || '';
+  const id = title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  variations.push({ id, title, description, file: id + '.html' });
+  saveVariations();
+  renderGrid();
+  setTimeout(scalePreviews, 100);
+  alert(`Created entry for "${title}".\nYou'll need to create the file: variations/${id}.html`);
+}
+
+function toggleMenu(index) {
+  const menu = document.getElementById('menu-' + index);
+  const isOpen = menu.classList.contains('open');
+  closeAllMenus();
+  if (!isOpen) menu.classList.add('open');
+}
+
+function closeAllMenus() {
+  document.querySelectorAll('.overflow-menu.open').forEach(m => m.classList.remove('open'));
+}
+
+function renameVariation(index) {
+  closeAllMenus();
+  const v = variations[index];
+  const currentTitle = v.title.replace(/^V\d+:\s*/, '');
+  const currentDesc = v.description || '';
+
+  const overlay = document.createElement('div');
+  overlay.className = 'rename-overlay';
+  overlay.innerHTML = `
+    <div class="rename-modal">
+      <h3>Edit variation</h3>
+      <div class="rename-field">
+        <label>Title</label>
+        <input type="text" id="rename-title" value="${currentTitle.replace(/"/g, '&quot;')}">
+      </div>
+      <div class="rename-field">
+        <label>Description</label>
+        <textarea id="rename-desc">${currentDesc}</textarea>
+      </div>
+      <div class="rename-actions">
+        <button class="rename-btn-cancel" onclick="this.closest('.rename-overlay').remove()">Cancel</button>
+        <button class="rename-btn-save" onclick="saveRename(${index})">Save</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  document.getElementById('rename-title').focus();
+}
+
+function saveRename(index) {
+  const title = document.getElementById('rename-title').value;
+  const desc = document.getElementById('rename-desc').value;
+  variations[index].title = title;
+  variations[index].description = desc;
+  saveVariations();
+  document.querySelector('.rename-overlay').remove();
+  renderGrid();
+  setTimeout(scalePreviews, 100);
+}
+
+function deleteVariation(index) {
+  closeAllMenus();
+  if (confirm(`Delete "${variations[index].title}"?`)) {
+    const deleted = loadDeletedIds();
+    deleted.push(variations[index].id);
+    saveDeletedIds(deleted);
+    variations.splice(index, 1);
+    saveVariations();
+    renderGrid();
+    setTimeout(scalePreviews, 100);
+  }
+}
+
+document.addEventListener('click', () => closeAllMenus());
+
+let dragIndex = null;
+
+function initDragAndDrop() {
+  const cards = document.querySelectorAll('.card[draggable]');
+  cards.forEach(card => {
+    card.addEventListener('dragstart', (e) => {
+      dragIndex = parseInt(card.dataset.index);
+      card.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    card.addEventListener('dragend', () => {
+      card.classList.remove('dragging');
+      document.querySelectorAll('.card.drag-over').forEach(c => c.classList.remove('drag-over'));
+      dragIndex = null;
+    });
+    card.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      card.classList.add('drag-over');
+    });
+    card.addEventListener('dragleave', () => {
+      card.classList.remove('drag-over');
+    });
+    card.addEventListener('drop', (e) => {
+      e.preventDefault();
+      card.classList.remove('drag-over');
+      const dropIndex = parseInt(card.dataset.index);
+      if (dragIndex !== null && dragIndex !== dropIndex) {
+        const [moved] = variations.splice(dragIndex, 1);
+        variations.splice(dropIndex, 0, moved);
+        saveVariations();
+        renderGrid();
+        setTimeout(scalePreviews, 100);
+      }
+    });
+    // Prevent navigation when dragging
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('.drag-handle')) {
+        e.preventDefault();
+      }
+    });
+  });
+}
+
+renderGrid();
+
+function scalePreviews() {
+  document.querySelectorAll('.card-preview[data-src]').forEach(container => {
+    if (container.querySelector('iframe')) return;
+    const iframe = document.createElement('iframe');
+    iframe.src = container.dataset.src;
+    iframe.loading = 'lazy';
+    container.appendChild(iframe);
+
+    const containerWidth = container.offsetWidth;
+    const containerHeight = container.offsetHeight;
+    const scale = Math.max(containerWidth / 1280, containerHeight / 800);
+    iframe.style.transform = `scale(${scale})`;
+    iframe.style.left = ((containerWidth - 1280 * scale) / 2) + 'px';
+    iframe.style.top = ((containerHeight - 800 * scale) / 2) + 'px';
+  });
+}
+
+setTimeout(scalePreviews, 100);
+window.addEventListener('resize', () => {
+  document.querySelectorAll('.card-preview iframe').forEach(f => f.remove());
+  scalePreviews();
+});
+</script>
+</body>
+</html>
