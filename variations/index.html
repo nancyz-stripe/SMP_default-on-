@@ -388,6 +388,8 @@ function saveVariations() {
   localStorage.setItem('variations-order', JSON.stringify(variations));
 }
 
+const isLocal = window.location.protocol === 'file:' || window.location.hostname === 'localhost';
+
 // Force reset stale localStorage (bump version to reset)
 const STORAGE_VERSION = '4';
 if (localStorage.getItem('variations-version') !== STORAGE_VERSION) {
@@ -411,11 +413,11 @@ function renderGrid() {
     const displayTitle = v.title.replace(/^V\d+:\s*/, '');
     html += `
       <a class="card" href="${v.file}" draggable="true" data-index="${i}">
-        <span class="overflow-btn" onclick="event.preventDefault(); event.stopPropagation(); toggleMenu(${i})">⋯</span>
+        ${isLocal ? `<span class="overflow-btn" onclick="event.preventDefault(); event.stopPropagation(); toggleMenu(${i})">⋯</span>
         <div class="overflow-menu" id="menu-${i}">
           <button class="overflow-menu-item" onclick="event.preventDefault(); event.stopPropagation(); renameVariation(${i})">Rename</button>
           <button class="overflow-menu-item danger" onclick="event.preventDefault(); event.stopPropagation(); deleteVariation(${i})">Delete</button>
-        </div>
+        </div>` : ''}
         <div class="card-preview" data-src="${v.file}"></div>
         <div class="card-body">
           <div class="card-title">${displayTitle}</div>
