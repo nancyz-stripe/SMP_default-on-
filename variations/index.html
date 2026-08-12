@@ -319,45 +319,27 @@
 <script>
 const defaultVariations = [
   {
-    id: 'baseline',
-    title: 'Baseline',
-    description: 'Default baseline following FOX patterns',
-    file: 'baseline.html',
-  },
-  {
     id: 'v1-globe-crossborder',
-    title: 'V1: Mode',
+    title: 'Mode',
     description: 'Split modal with globe. Automatic vs Manual payment management.',
     file: 'v1-globe-crossborder.html',
   },
   {
-    id: 'v2-globe-all-volume',
-    title: 'V2: Globe Hero — All Volume',
-    description: 'Split modal with globe, all-volume "autopilot mode" recommended.',
-    file: 'v2-globe-all-volume.html',
-  },
-  {
-    id: 'v4-value-comparison',
-    title: 'V4: Value Comparison',
-    description: 'Side-by-side product cards for deliberate comparison. No globe.',
-    file: 'v4-value-comparison.html',
-  },
-  {
     id: 'v5-globe-behind',
-    title: 'V5: Globe Behind Choices',
+    title: 'Globe Behind Choices',
     description: 'Animated globe behind the options, offset right. Matches Figma spec.',
     file: 'v5-globe-behind.html',
   },
   {
     id: 'v6-fullscreen-gradient',
-    title: 'V6: Full-screen Gradient',
-    description: 'Full gradient background with globe behind. V1 content (Automatic/Manual).',
+    title: 'Full-screen Gradient',
+    description: 'Full gradient background with globe behind. Automatic/Manual content.',
     file: 'v6-fullscreen-gradient.html',
   },
   {
     id: 'v7-mode-no-gradient',
-    title: 'V7: Mode — No Gradient',
-    description: 'Same as Mode (Automatic/Manual) but with white globe background instead of gradient.',
+    title: 'Globe with Value Cards',
+    description: 'White globe with animated feature cards (Disputes, Tax, Fraud).',
     file: 'v7-mode-no-gradient.html',
   },
 ];
@@ -401,7 +383,7 @@ function saveVariations() {
 }
 
 // Force reset stale localStorage (bump version to reset)
-const STORAGE_VERSION = '2';
+const STORAGE_VERSION = '3';
 if (localStorage.getItem('variations-version') !== STORAGE_VERSION) {
   localStorage.removeItem('variations-order');
   localStorage.removeItem('variations-deleted');
