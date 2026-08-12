@@ -319,6 +319,12 @@
 <script>
 const defaultVariations = [
   {
+    id: 'baseline',
+    title: 'Baseline',
+    description: 'Default baseline following FOX patterns.',
+    file: 'baseline.html',
+  },
+  {
     id: 'v1-globe-crossborder',
     title: 'Mode',
     description: 'Split modal with globe. Automatic vs Manual payment management.',
@@ -383,7 +389,7 @@ function saveVariations() {
 }
 
 // Force reset stale localStorage (bump version to reset)
-const STORAGE_VERSION = '3';
+const STORAGE_VERSION = '4';
 if (localStorage.getItem('variations-version') !== STORAGE_VERSION) {
   localStorage.removeItem('variations-order');
   localStorage.removeItem('variations-deleted');
