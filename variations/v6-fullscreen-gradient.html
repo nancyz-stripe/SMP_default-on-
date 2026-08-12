@@ -218,6 +218,57 @@
       color: var(--text-muted);
     }
 
+    .switch-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px;
+      background: var(--bg-surface);
+      border-radius: 8px;
+      border: 1px solid var(--neutral-50);
+      margin-top: 16px;
+    }
+    .switch-card-content { flex: 1; }
+    .switch-card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-default);
+      margin-bottom: 4px;
+      letter-spacing: -0.15px;
+    }
+    .switch-card-desc {
+      font-size: 13px;
+      color: var(--text-subdued);
+      line-height: 1.5;
+    }
+    .switch-toggle {
+      width: 44px;
+      height: 24px;
+      border-radius: 12px;
+      background: var(--neutral-200);
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .switch-toggle.on {
+      background: var(--icon-action-primary);
+    }
+    .switch-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: white;
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+    .switch-toggle.on .switch-thumb {
+      transform: translateX(20px);
+    }
+
     .options-list {
       display: flex;
       flex-direction: column;
@@ -468,57 +519,31 @@
 <script>
 const state = { step: 0, selections: {} };
 
-const steps = [
-  {
-    heading: `Choose how your payments should be managed. <span class="muted">Stripe can handle tax, fraud, and disputes for you — or you can manage them yourself.</span>`,
-    field: 'paymentScope',
-    options: [
-      { id: 'automatic', title: 'Automatic', description: 'Stripe manages tax, fraud, and disputes across all your domestic and cross-border payments — maximizing revenue while lowering your operational overhead.', recommended: true },
-      { id: 'manual', title: 'Manual', description: 'You handle tax, fraud, and disputes yourself. You control which payment methods are shown and manage compliance on your own.' },
-    ],
-    progress: 5,
-  },
-];
+let domesticEnabled = false;
 
-function renderStep() {
-  const step = steps[state.step];
+function renderContent() {
   const container = document.getElementById('questionContainer');
-  const selected = state.selections[step.field];
-
-  let html = `<div class="question-heading">${step.heading}</div><div class="options-list">`;
-  step.options.forEach(opt => {
-    const isSelected = selected === opt.id;
-    html += `
-      <div class="option-card ${isSelected ? 'selected' : ''}" onclick="selectOption('${step.field}', '${opt.id}')">
-        <div class="radio-outer"><div class="radio-inner"></div></div>
-        <div class="option-text">
-          <div class="option-title">${opt.title}${opt.recommended ? ' <span style="display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;background:#efeaff;color:#635bff;margin-left:8px;">Recommended</span>' : ''}</div>
-          ${opt.description ? `<div class="option-description">${opt.description}</div>` : ''}
-        </div>
-      </div>`;
-  });
-  html += `</div>`;
-  html += `<p style="font-size:12px;color:#99a5b8;margin-top:4px;">Changes can be made anytime in Managed Payment settings</p>`;
-  container.innerHTML = html;
-
-  document.getElementById('progressFill').style.width = step.progress + '%';
-  document.getElementById('continueBtn').disabled = !selected;
+  container.innerHTML = `
+    <div class="question-heading">Expand your payment management coverage. <span class="muted">Stripe already handles tax, fraud, and disputes on your cross-border payments. Extend that same coverage to your domestic payments too.</span></div>
+    <div class="switch-card">
+      <div class="switch-card-content">
+        <div class="switch-card-title">Manage my domestic payments as well</div>
+        <div class="switch-card-desc">Apply the same automated tax, fraud, and dispute handling to all your domestic transactions — zero additional setup required.</div>
+      </div>
+      <div class="switch-toggle ${domesticEnabled ? 'on' : ''}" onclick="toggleSwitch()">
+        <div class="switch-thumb"></div>
+      </div>
+    </div>
+    <p style="font-size:12px;color:#99a5b8;margin-top:8px;">Changes can be made anytime in Managed Payment settings</p>
+  `;
 }
 
-function selectOption(field, value) {
-  state.selections[field] = value;
-  renderStep();
+function toggleSwitch() {
+  domesticEnabled = !domesticEnabled;
+  renderContent();
 }
 
-function nextStep() {
-  if (state.step < steps.length - 1) { state.step++; renderStep(); }
-}
-
-function prevStep() {
-  if (state.step > 0) { state.step--; renderStep(); }
-}
-
-renderStep();
+renderContent();
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
