@@ -303,6 +303,23 @@
     .card-add:hover .card-add-label {
       color: var(--primary);
     }
+    .section {
+      max-width: 960px;
+      margin: 0 auto 48px;
+    }
+    .section-heading {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: var(--text-default);
+      margin-bottom: 4px;
+    }
+    .section-date {
+      font-size: 13px;
+      color: var(--text-subdued);
+      margin-bottom: 20px;
+    }
   </style>
 </head>
 <body>
@@ -312,23 +329,33 @@
   <p>Different variants of the SMP modal in intent capture.</p>
 </div>
 
-<div class="grid" id="grid">
-  <!-- Cards rendered by JS -->
+<div class="section">
+  <div class="section-heading">Latest explorations</div>
+  <div class="section-date">Updated Aug 13</div>
+  <div class="grid" id="grid-latest"></div>
+</div>
+
+<div class="section">
+  <div class="section-heading">Past explorations</div>
+  <div class="grid" id="grid-past"></div>
 </div>
 
 <script>
-const defaultVariations = [
+const latestVariations = [
+  {
+    id: 'v8-latest',
+    title: 'v1',
+    description: 'Nested options under "Automatic" and animated value prop cards on the globe.',
+    file: 'v8-latest.html',
+  },
+];
+
+const pastVariations = [
   {
     id: 'baseline',
     title: 'Baseline',
     description: 'Default baseline following FOX patterns.',
     file: 'baseline.html',
-  },
-  {
-    id: 'v1-globe-crossborder',
-    title: 'Automatic vs Manual',
-    description: 'Split modal with globe. Automatic vs Manual payment management.',
-    file: 'v1-globe-crossborder.html',
   },
   {
     id: 'v5-globe-behind',
@@ -337,10 +364,10 @@ const defaultVariations = [
     file: 'v5-globe-behind.html',
   },
   {
-    id: 'v6-fullscreen-gradient',
-    title: 'Default-on & expand',
-    description: 'Cross-border is the default + ability to expand domestic coverage.',
-    file: 'v6-fullscreen-gradient.html',
+    id: 'v1-globe-crossborder',
+    title: 'Automatic vs Manual',
+    description: 'Split modal with globe. Automatic vs Manual payment management.',
+    file: 'v1-globe-crossborder.html',
   },
   {
     id: 'v7-mode-no-gradient',
@@ -348,7 +375,15 @@ const defaultVariations = [
     description: 'Nested options under "Automatic" and animated value prop cards on the globe.',
     file: 'v7-mode-no-gradient.html',
   },
+  {
+    id: 'v6-fullscreen-gradient',
+    title: 'Default-on & expand',
+    description: 'Cross-border is the default + ability to expand domestic coverage.',
+    file: 'v6-fullscreen-gradient.html',
+  },
 ];
+
+const defaultVariations = [...latestVariations, ...pastVariations];
 
 function loadDeletedIds() {
   try { return JSON.parse(localStorage.getItem('variations-deleted') || '[]'); } catch(e) { return []; }
@@ -391,7 +426,7 @@ function saveVariations() {
 const isLocal = window.location.protocol === 'file:' || window.location.hostname === 'localhost';
 
 // Force reset stale localStorage (bump version to reset)
-const STORAGE_VERSION = '5';
+const STORAGE_VERSION = '6';
 if (localStorage.getItem('variations-version') !== STORAGE_VERSION) {
   localStorage.removeItem('variations-order');
   localStorage.removeItem('variations-deleted');
@@ -404,31 +439,36 @@ function getLabel(index) {
   return index === 0 ? 'Baseline' : `V${index}`;
 }
 
+function renderCard(v, i, section) {
+  const displayTitle = v.title.replace(/^V\d+:\s*/, '');
+  return `
+    <a class="card" href="${v.file}" draggable="true" data-index="${i}" data-section="${section}">
+      ${isLocal ? `<span class="overflow-btn" onclick="event.preventDefault(); event.stopPropagation(); toggleMenu('${section}-${i}')">⋯</span>
+      <div class="overflow-menu" id="menu-${section}-${i}">
+        <button class="overflow-menu-item" onclick="event.preventDefault(); event.stopPropagation(); renameVariation(${i}, '${section}')">Rename</button>
+        <button class="overflow-menu-item danger" onclick="event.preventDefault(); event.stopPropagation(); deleteVariation(${i}, '${section}')">Delete</button>
+      </div>` : ''}
+      <div class="card-preview" data-src="${v.file}"></div>
+      <div class="card-body">
+        <div class="card-title">${displayTitle}</div>
+        <div class="card-description">${v.description}</div>
+      </div>
+    </a>
+  `;
+}
+
 function renderGrid() {
-  const grid = document.getElementById('grid');
-  let html = '';
+  const gridLatest = document.getElementById('grid-latest');
+  const gridPast = document.getElementById('grid-past');
 
-  variations.forEach((v, i) => {
-    const label = getLabel(i);
-    const displayTitle = v.title.replace(/^V\d+:\s*/, '');
-    html += `
-      <a class="card" href="${v.file}" draggable="true" data-index="${i}">
-        ${isLocal ? `<span class="overflow-btn" onclick="event.preventDefault(); event.stopPropagation(); toggleMenu(${i})">⋯</span>
-        <div class="overflow-menu" id="menu-${i}">
-          <button class="overflow-menu-item" onclick="event.preventDefault(); event.stopPropagation(); renameVariation(${i})">Rename</button>
-          <button class="overflow-menu-item danger" onclick="event.preventDefault(); event.stopPropagation(); deleteVariation(${i})">Delete</button>
-        </div>` : ''}
-        <div class="card-preview" data-src="${v.file}"></div>
-        <div class="card-body">
-          <div class="card-title">${displayTitle}</div>
-          <div class="card-description">${v.description}</div>
-        </div>
-      </a>
-    `;
-  });
+  let latestHtml = '';
+  latestVariations.forEach((v, i) => { latestHtml += renderCard(v, i, 'latest'); });
+  gridLatest.innerHTML = latestHtml;
 
+  let pastHtml = '';
+  pastVariations.forEach((v, i) => { pastHtml += renderCard(v, i, 'past'); });
+  gridPast.innerHTML = pastHtml;
 
-  grid.innerHTML = html;
   initDragAndDrop();
 }
 

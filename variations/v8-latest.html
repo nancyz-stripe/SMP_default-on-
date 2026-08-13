@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V1 - Globe Cross-Border Onboarding</title>
+    <style>
+        :root {
+            --bg-surface: #ffffff;
+            --bg-offset: #f5f6f8;
+            --text-default: #353a44;
+            --text-subdued: #596171;
+            --text-heading: #21252c;
+            --text-muted: #99a5b8;
+            --text-action-primary: #533afd;
+            --icon-action-primary: #675dff;
+            --border-action-primary: #675dff;
+            --bg-form-accent: #675dff;
+            --border-form-default: #d4dee9;
+            --neutral-200: #b6c0cd;
+            --neutral-50: #ebeef1;
+            --shadow-overlay: 0px 15px 35px 0px rgba(48, 49, 61, 0.08), 0px 5px 15px 0px rgba(0, 0, 0, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+            background: var(--bg-offset);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Back button */
+        .back-button {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: var(--bg-surface);
+            border: 1px solid var(--neutral-50);
+            border-radius: 8px;
+            color: var(--text-subdued);
+            font-size: 13px;
+            text-decoration: none;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            transition: background 0.15s;
+        }
+        .back-button:hover {
+            background: var(--bg-offset);
+        }
+
+        /* Dashboard shell */
+        .dashboard {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .sidebar {
+            width: 240px;
+            background: var(--bg-surface);
+            border-right: 1px solid var(--neutral-50);
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .sidebar-logo {
+            padding: 8px 12px;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-logo svg {
+            width: 60px;
+            height: 24px;
+        }
+
+        .nav-item {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            color: var(--text-subdued);
+            cursor: pointer;
+        }
+
+        .nav-item.active {
+            background: var(--bg-offset);
+            color: var(--text-default);
+            font-weight: 500;
+        }
+
+        .main-content {
+            flex: 1;
+            background: var(--bg-offset);
+            padding: 32px;
+        }
+
+        .content-placeholder {
+            height: 200px;
+            background: var(--bg-surface);
+            border-radius: 8px;
+            border: 1px solid var(--neutral-50);
+        }
+
+        /* Modal backdrop */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(182, 192, 205, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        /* Modal */
+        .modal {
+            width: 90%;
+            height: 90%;
+            background: var(--bg-surface);
+            border-radius: 12px;
+            box-shadow: var(--shadow-overlay);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .modal-split {
+            flex: 1;
+            display: flex;
+            min-height: 0;
+        }
+
+        /* Left half - Content */
+        .modal-left {
+            flex: 1;
+            padding: 48px 56px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow-y: auto;
+        }
+
+        /* Right half - Globe */
+        .modal-right-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: stretch;
+            padding: 16px 16px 16px 0;
+        }
+
+        .modal-right {
+            flex: 1;
+            background: var(--bg-surface);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 12px;
+        }
+
+        .globe-glow-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background: white;
+            box-shadow:
+                -10px 0 20px 5px rgba(255, 140, 200, 0.2),
+                10px 0 20px 5px rgba(140, 100, 255, 0.2);
+            z-index: 0;
+        }
+
+        .modal-right canvas {
+            position: relative;
+            z-index: 1;
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .globe-card {
+            position: absolute;
+            z-index: 2;
+            background: white;
+            border-radius: 5px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 30px -2px rgba(0, 55, 112, 0.1), 0 4px 14px -2px rgba(0, 59, 137, 0.04);
+            opacity: 0;
+            transform: translateY(6px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            pointer-events: none;
+            width: 39%;
+        }
+        .globe-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .globe-card-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            border: 1px solid #d6d9fc;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .globe-card-icon svg { width: 12px; height: 12px; }
+        .globe-card-text { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+        .globe-card-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #061b31;
+            letter-spacing: -0.1px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .globe-card-subtitle { font-size: 10px; color: #667691; }
+        .globe-card-check {
+            width: 12px;
+            height: 12px;
+            flex-shrink: 0;
+            color: #30b271;
+        }
+
+        .globe-card.disputes { top: 25%; left: 53%; }
+        .globe-card.tax { top: 40%; left: 10%; }
+        .globe-card.fraud { top: 64%; left: 56%; }
+
+        /* Footer pinned at bottom */
+        .modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 42px 32px;
+            flex-shrink: 0;
+        }
+
+        .back-link {
+            font-size: 16px;
+            line-height: 24px;
+            letter-spacing: -0.31px;
+            color: var(--text-action-primary);
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-family: inherit;
+        }
+        .back-link:hover { text-decoration: underline; }
+
+        .btn-continue {
+            background: var(--bg-form-accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            letter-spacing: -0.15px;
+            line-height: 20px;
+            box-shadow: 0px 1px 1px 0px rgba(47, 14, 99, 0.32);
+            transition: background 0.15s;
+        }
+        .btn-continue:hover { background: #5b52e6; }
+
+        .stripe-logo {
+            margin-bottom: 32px;
+        }
+
+        .stripe-logo svg {
+            width: 64px;
+            height: 26px;
+        }
+
+        .modal-headline {
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 28px;
+            letter-spacing: 0.3px;
+            color: var(--text-heading);
+            margin-bottom: 16px;
+        }
+
+        .modal-headline .muted {
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+
+        /* Option cards */
+        .option-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .option-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            background: var(--bg-offset);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .option-card.selected {
+            background: var(--bg-surface);
+            border-color: var(--border-action-primary);
+        }
+
+        .radio-circle {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid var(--border-form-default);
+            flex-shrink: 0;
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+
+        .option-card.selected .radio-circle {
+            border-color: var(--bg-form-accent);
+            background: var(--bg-form-accent);
+        }
+
+        .radio-inner-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: white;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+
+        .option-card.selected .radio-inner-dot {
+            opacity: 1;
+        }
+
+        .option-content {
+            flex: 1;
+        }
+
+        .option-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-default);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .badge-recommended {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: #efeaff;
+            color: #635bff;
+        }
+
+        .option-description {
+            font-size: 13px;
+            color: var(--text-subdued);
+            line-height: 1.5;
+        }
+
+        /* Sub-options (revealed when Automatic selected) */
+        .sub-options {
+            display: none;
+            flex-direction: row;
+            gap: 12px;
+            margin-top: 12px;
+            margin-left: -26px;
+            background: linear-gradient(135deg, #f4f0ff 0%, #f0eeff 50%, #eee9ff 100%);
+            border-radius: 10px;
+            padding: 12px;
+        }
+        .sub-options.visible {
+            display: flex;
+        }
+        .sub-option {
+            flex: 1;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid var(--neutral-50);
+            background: var(--bg-surface);
+            cursor: pointer;
+            transition: border-color 0.15s;
+        }
+        .sub-option:hover {
+            border-color: var(--neutral-200);
+        }
+        .sub-option.selected {
+            border-color: var(--neutral-50);
+            background: white;
+        }
+        .sub-radio {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid var(--border-form-default);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+            transition: border-color 0.15s, background 0.15s;
+        }
+        .sub-option.selected .sub-radio {
+            border-color: var(--bg-form-accent);
+            background: var(--bg-form-accent);
+        }
+        .sub-radio-inner {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: white;
+            transform: scale(0);
+            transition: transform 0.15s;
+        }
+        .sub-option.selected .sub-radio-inner {
+            transform: scale(1);
+        }
+        .sub-option-content { flex: 1; }
+        .sub-option-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-default);
+            margin-bottom: 2px;
+        }
+        .sub-option-desc {
+            font-size: 12px;
+            color: var(--text-subdued);
+            line-height: 1.4;
+        }
+
+        /* Reassurance */
+        .reassurance {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 28px;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Back button -->
+    <a href="index.html" class="back-button">&larr; All variations</a>
+
+    <!-- Dashboard shell -->
+    <div class="dashboard">
+        <div class="sidebar">
+            <div class="sidebar-logo">
+                <svg viewBox="0 0 60 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M8.8 4.4C8.8 3.2 9.7 2.7 11.2 2.7C13.4 2.7 16.2 3.4 18.4 4.7V0.5C16 -0.4 13.6 -0.1 11.2 0C5.6 0 2 3 2 7.4C2 14.2 11.6 13 11.6 15.9C11.6 17.3 10.4 17.8 8.9 17.8C6.5 17.8 3.4 16.8 1 15.3V19.6C3.6 20.8 6.3 21.3 8.9 21.3C14.6 21.3 18.4 18.5 18.4 14C18.4 6.7 8.8 8.1 8.8 4.4Z" fill="#635BFF"/>
+                </svg>
+            </div>
+            <div class="nav-item active">Home</div>
+            <div class="nav-item">Payments</div>
+            <div class="nav-item">Balances</div>
+            <div class="nav-item">Customers</div>
+            <div class="nav-item">Products</div>
+            <div class="nav-item">Settings</div>
+        </div>
+        <div class="main-content">
+            <div class="content-placeholder"></div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-backdrop">
+        <div class="modal">
+            <div class="modal-split">
+                <!-- Left half: Content -->
+                <div class="modal-left">
+                    <div class="modal-headline">Choose how your payments should be managed. <span class="muted">Stripe can handle tax, fraud, and disputes for you — or you can manage them yourself.</span></div>
+
+                    <div class="option-cards" id="option-cards">
+                        <div class="option-card" id="card-automatic" onclick="selectMainOption('automatic')">
+                            <div class="radio-circle">
+                                <div class="radio-inner-dot"></div>
+                            </div>
+                            <div class="option-content">
+                                <div class="option-title">
+                                    Automatic
+                                    <span class="badge-recommended">Recommended</span>
+                                </div>
+                                <div class="option-description">Stripe manages tax, fraud, and disputes maximizing revenue while lowering your operational overhead.</div>
+                                <div class="sub-options" id="sub-options">
+                                    <div class="sub-option" id="sub-all" onclick="event.stopPropagation(); selectSubOption('all')">
+                                        <div class="sub-radio"><div class="sub-radio-inner"></div></div>
+                                        <div class="sub-option-content">
+                                            <div class="sub-option-title">All payments</div>
+                                            <div class="sub-option-desc">Includes all domestic and international payments.</div>
+                                        </div>
+                                    </div>
+                                    <div class="sub-option" id="sub-crossborder" onclick="event.stopPropagation(); selectSubOption('crossborder')">
+                                        <div class="sub-radio"><div class="sub-radio-inner"></div></div>
+                                        <div class="sub-option-content">
+                                            <div class="sub-option-title">Cross-border only</div>
+                                            <div class="sub-option-desc">Includes only international payments.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="option-card" id="card-manual" onclick="selectMainOption('manual')">
+                            <div class="radio-circle">
+                                <div class="radio-inner-dot"></div>
+                            </div>
+                            <div class="option-content">
+                                <div class="option-title">Manual</div>
+                                <div class="option-description">You handle tax, fraud, and disputes yourself.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="reassurance">Changes can be made anytime in Managed Payment settings</p>
+                </div>
+
+                <!-- Right half: Globe -->
+                <div class="modal-right-wrapper">
+                    <div class="modal-right" id="globe-container">
+                        <div class="globe-glow-circle" id="globe-glow-circle"></div>
+
+                        <div class="globe-card disputes" id="card-disputes">
+                            <div class="globe-card-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M8 1.5L2 4v4c0 3.5 2.5 6 6 7.5 3.5-1.5 6-4 6-7.5V4L8 1.5z" stroke="#635bff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                            <div class="globe-card-text">
+                                <span class="globe-card-title">Dispute handling <svg class="globe-card-check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                                <span class="globe-card-subtitle">Dispute countered by Stripe</span>
+                            </div>
+                        </div>
+
+                        <div class="globe-card tax" id="card-tax">
+                            <div class="globe-card-icon"><svg viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="#635bff" stroke-width="1.5"/><path d="M5 7h6M5 9.5h4" stroke="#635bff" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+                            <div class="globe-card-text">
+                                <span class="globe-card-title">Tax collection and remittance <svg class="globe-card-check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                                <span class="globe-card-subtitle">Automated tax operations</span>
+                            </div>
+                        </div>
+
+                        <div class="globe-card fraud" id="card-fraud">
+                            <div class="globe-card-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M8 1.5L2 4v4c0 3.5 2.5 6 6 7.5 3.5-1.5 6-4 6-7.5V4L8 1.5z" stroke="#635bff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 8l1.5 1.5L10 7" stroke="#635bff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                            <div class="globe-card-text">
+                                <span class="globe-card-title">Fraud detection <svg class="globe-card-check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                                <span class="globe-card-subtitle">Proactive fraud prevention</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer pinned at bottom -->
+            <div class="modal-footer">
+                <button class="back-link">← Back </button>
+                <button class="btn-continue">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Radio selection
+        function selectMainOption(option) {
+            document.getElementById('card-automatic').classList.toggle('selected', option === 'automatic');
+            document.getElementById('card-manual').classList.toggle('selected', option === 'manual');
+            document.getElementById('sub-options').classList.toggle('visible', option === 'automatic');
+            if (option === 'automatic') {
+                selectSubOption('all');
+            } else {
+                document.querySelectorAll('.sub-option').forEach(s => s.classList.remove('selected'));
+            }
+        }
+        function selectSubOption(sub) {
+            document.querySelectorAll('.sub-option').forEach(s => s.classList.remove('selected'));
+            document.getElementById('sub-' + sub).classList.add('selected');
+        }
+
+        // Globe (exact replica from /globe-prototype/index.html, non-interactive)
+        (function() {
+            const container = document.getElementById('globe-container');
+            const w = container.clientWidth, h = container.clientHeight;
+
+            const scene = new THREE.Scene();
+            const camera = new THREE.OrthographicCamera(-w/2, w/2, h/2, -h/2, 1, 10000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(w, h);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.setClearColor(0x000000, 0);
+            renderer.sortObjects = false;
+            container.appendChild(renderer.domElement);
+
+            const globeRadius = (100 + Math.min(w, h) * 0.25) * 0.85;
+            const globeSegments = Math.floor((globeRadius / 250) * 10) + 20;
+            camera.position.z = globeRadius * 4;
+
+            // Size the glow circle to match the globe
+            const glowCircle = document.getElementById('globe-glow-circle');
+            const circleDiameter = globeRadius * 2;
+            glowCircle.style.width = circleDiameter + 'px';
+            glowCircle.style.height = circleDiameter + 'px';
+
+            const globeContainer = new THREE.Group();
+            globeContainer.rotation.x = Math.PI * 0.1111;
+            globeContainer.rotation.y = Math.PI * 0.55;
+            scene.add(globeContainer);
+
+            const globeGeometry = new THREE.SphereGeometry(globeRadius, globeSegments, globeSegments);
+            const globeMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('#f7f6fc'), shininess: 3, transparent: true, opacity: 0.85 });
+            globeContainer.add(new THREE.Mesh(globeGeometry, globeMaterial));
+
+            scene.add(new THREE.AmbientLight(new THREE.Color('#F8F7FC'), 1.3));
+            const backLight = new THREE.PointLight(new THREE.Color('#666677'), 0.08, 0, 2);
+            backLight.position.set(-1000, -1100, -3300);
+            scene.add(backLight);
+            const frontLight = new THREE.PointLight(new THREE.Color('#777788'), 0.5, 0, 20);
+            frontLight.position.set(-3000, 3000, 3300);
+            scene.add(frontLight);
+            // Soft fill from the lower right to lift the shaded side of the sphere
+            const fillLight = new THREE.DirectionalLight(new THREE.Color('#FFFFFF'), 0.35);
+            fillLight.position.set(2, -2, 2);
+            scene.add(fillLight);
+
+            const DOT_COUNT = 40000;
+            const dotVertexShader = `
+              uniform float u_time;
+              uniform vec3 u_cameraDir;
+              attribute float a_random;
+              varying float v_random;
+              varying float v_facing;
+              void main() {
+                v_random = a_random;
+                vec3 worldNormal = normalize((modelMatrix * vec4(normalize(position), 0.0)).xyz);
+                v_facing = dot(worldNormal, u_cameraDir);
+                vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                gl_Position = projectionMatrix * mvPosition;
+                gl_PointSize = 3.0;
+              }
+            `;
+            const dotFragmentShader = `
+              uniform float u_time;
+              uniform vec3 u_color;
+              varying float v_random;
+              varying float v_facing;
+              void main() {
+                if (v_facing < 0.0) discard;
+                vec2 uv = gl_PointCoord * 2.0 - 1.0;
+                float rotAngle = v_random * 6.28;
+                float cs = cos(rotAngle), sn = sin(rotAngle);
+                uv = vec2(uv.x * cs - uv.y * sn, uv.x * sn + uv.y * cs);
+                float angle = atan(uv.y, uv.x);
+                float radius = length(uv);
+                float a = 3.14159 / 5.0;
+                float sector = floor(angle / (2.0 * a) + 0.5);
+                float sectorAngle = sector * 2.0 * a;
+                vec2 tip = vec2(cos(sectorAngle), sin(sectorAngle));
+                float d = dot(uv, tip);
+                if (d > cos(a)) discard;
+                if (radius > 0.95) discard;
+                float edgeFade = smoothstep(0.0, 0.6, v_facing);
+                float blink = 0.75 + 0.25 * sin(u_time * 2.0 + v_random * 12.56);
+                vec3 darkenedColor = u_color * 0.55;
+                gl_FragColor = vec4(darkenedColor, blink * edgeFade);
+              }
+            `;
+            const dotUniforms = {
+              u_time: { value: 0 },
+              u_color: { value: new THREE.Color('#b8c0f0') },
+              u_cameraDir: { value: new THREE.Vector3(0, 0, 1) },
+            };
+
+            const mapImg = new Image();
+            mapImg.crossOrigin = 'anonymous';
+            mapImg.src = 'https://images.ctfassets.net/fzn2n1nzq965/11064gUb2CgTJXKVwAt5J9/297a98a65d04d4fbb979072ce60466ab/map_fill-a78643e8.png';
+            mapImg.onload = () => {
+              const c = document.createElement('canvas');
+              c.width = mapImg.width; c.height = mapImg.height;
+              const ctx = c.getContext('2d');
+              ctx.drawImage(mapImg, 0, 0);
+              const imgData = ctx.getImageData(0, 0, c.width, c.height);
+              const positions = [], randoms = [];
+              for (let i = 0; i < DOT_COUNT; i++) {
+                const phi = Math.acos(-1 + (2 * i) / DOT_COUNT);
+                const theta = Math.sqrt(DOT_COUNT * Math.PI) * phi;
+                const latDeg = 90 - (phi * 180 / Math.PI);
+                const lngDeg = ((theta * 180 / Math.PI) % 360) - 180;
+                const u = (lngDeg + 180) / 360;
+                const v = (90 - latDeg) / 180;
+                const px = Math.floor(u * c.width) % c.width;
+                const py = Math.floor(v * c.height) % c.height;
+                const idx = (py * c.width + px) * 4;
+                if (imgData.data[idx + 3] > 128) {
+                  const latRad = latDeg * Math.PI / 180;
+                  const lngRad = lngDeg * Math.PI / 180;
+                  positions.push(globeRadius * Math.cos(latRad) * Math.sin(lngRad), globeRadius * Math.sin(latRad), globeRadius * Math.cos(latRad) * Math.cos(lngRad));
+                  randoms.push(Math.random());
+                }
+              }
+              const geo = new THREE.BufferGeometry();
+              geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+              geo.setAttribute('a_random', new THREE.Float32BufferAttribute(randoms, 1));
+              const mat = new THREE.ShaderMaterial({ uniforms: dotUniforms, vertexShader: dotVertexShader, fragmentShader: dotFragmentShader, transparent: true, depthWrite: false });
+              globeContainer.add(new THREE.Points(geo, mat));
+            };
+
+            // Arcs
+            const arcColors = [
+              [new THREE.Color(0xf94148), new THREE.Color(0xFF8352)],
+              [new THREE.Color(0x533AFD), new THREE.Color(0x0D8EFF)],
+              [new THREE.Color(0xf94148), new THREE.Color(0x533AFD)],
+              [new THREE.Color(0xFF8352), new THREE.Color(0x0D8EFF)],
+            ];
+            const arcs = [];
+            const MAX_ARCS = 5;
+            const majorCities = [
+              {lat:40.7,lng:-74},{lat:37.8,lng:-122.4},{lat:19.4,lng:-99.1},{lat:-23.5,lng:-46.6},{lat:51.5,lng:-0.1},
+              {lat:48.9,lng:2.3},{lat:52.5,lng:13.4},{lat:55.8,lng:37.6},{lat:25.2,lng:55.3},{lat:19.1,lng:72.9},
+              {lat:39.9,lng:116.4},{lat:35.7,lng:139.7},{lat:1.3,lng:103.8},{lat:-33.9,lng:151.2},{lat:6.5,lng:3.4},
+              {lat:30,lng:31.2},{lat:-26.2,lng:28},{lat:43.7,lng:-79.4},{lat:41.9,lng:-87.6}
+            ];
+            function cityToVec3(city) {
+              const r = globeRadius + 1, latRad = city.lat * Math.PI / 180, lngRad = city.lng * Math.PI / 180;
+              return new THREE.Vector3(r * Math.cos(latRad) * Math.sin(lngRad), r * Math.sin(latRad), r * Math.cos(latRad) * Math.cos(lngRad));
+            }
+            function createEndpointMarker(color) {
+              const group = new THREE.Group();
+              const dotMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 1, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+              group.add(new THREE.Mesh(new THREE.SphereGeometry(2.2, 12, 12), dotMat));
+              const ringMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 1, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+              group.add(new THREE.Mesh(new THREE.TorusGeometry(5.5, 0.6, 8, 32), ringMat));
+              group.userData = { dotMat, ringMat };
+              return group;
+            }
+            function setMarkerOpacity(marker, opacity) { marker.userData.dotMat.opacity = opacity; marker.userData.ringMat.opacity = opacity; }
+
+            function createArc() {
+              if (arcs.length >= MAX_ARCS) return;
+              const cityA = majorCities[Math.floor(Math.random() * majorCities.length)];
+              let cityB = majorCities[Math.floor(Math.random() * majorCities.length)];
+              while (cityB === cityA) cityB = majorCities[Math.floor(Math.random() * majorCities.length)];
+              const start = cityToVec3(cityA), end = cityToVec3(cityB);
+              const dist = start.distanceTo(end);
+              const arcHeight = 1.8 + (dist / (globeRadius * 2)) * 1.5;
+              const mid = start.clone().add(end).multiplyScalar(0.5).normalize().multiplyScalar(globeRadius * arcHeight);
+              const ctrl1 = start.clone().lerp(mid, 0.4), ctrl2 = end.clone().lerp(mid, 0.4);
+              const curve = new THREE.CubicBezierCurve3(start, ctrl1, ctrl2, end);
+              const points = curve.getPoints(64);
+              const colorPair = arcColors[Math.floor(Math.random() * arcColors.length)];
+              const geometry = new THREE.BufferGeometry().setFromPoints(points);
+              const material = new THREE.LineBasicMaterial({ color: colorPair[0].clone().lerp(colorPair[1], 0.5), transparent: true, opacity: 1 });
+              const line = new THREE.Line(geometry, material);
+              globeContainer.add(line);
+              const glowStart = createEndpointMarker(colorPair[0]);
+              const glowEnd = createEndpointMarker(colorPair[1]);
+              glowStart.position.copy(start); glowEnd.position.copy(end);
+              glowStart.lookAt(start.clone().multiplyScalar(2)); glowEnd.lookAt(end.clone().multiplyScalar(2));
+              setMarkerOpacity(glowStart, 1); setMarkerOpacity(glowEnd, 0);
+              globeContainer.add(glowStart); globeContainer.add(glowEnd);
+              line.geometry.setDrawRange(0, 0);
+              arcs.push({ line, glowStart, glowEnd, totalPoints: 65, created: Date.now(), drawDuration: 600, holdDuration: 3000, fadeDuration: 800 });
+            }
+            setTimeout(createArc, 500);
+            setInterval(createArc, 1000);
+
+            const clock = new THREE.Clock();
+            function animate() {
+              requestAnimationFrame(animate);
+              const elapsed = clock.getElapsedTime();
+              dotUniforms.u_time.value = elapsed;
+              dotUniforms.u_cameraDir.value.copy(camera.position).normalize();
+              globeContainer.rotation.y -= 0.001;
+              const now = Date.now();
+              for (let i = arcs.length - 1; i >= 0; i--) {
+                const arc = arcs[i], age = now - arc.created;
+                const totalLife = arc.drawDuration + arc.holdDuration + arc.fadeDuration;
+                if (age > totalLife) {
+                  globeContainer.remove(arc.line); globeContainer.remove(arc.glowStart); globeContainer.remove(arc.glowEnd);
+                  arc.line.geometry.dispose(); arc.line.material.dispose();
+                  arc.glowStart.userData.dotMat.dispose(); arc.glowStart.userData.ringMat.dispose();
+                  arc.glowEnd.userData.dotMat.dispose(); arc.glowEnd.userData.ringMat.dispose();
+                  arcs.splice(i, 1);
+                } else if (age < arc.drawDuration) {
+                  const p = age / arc.drawDuration;
+                  arc.line.geometry.setDrawRange(0, Math.floor(p * arc.totalPoints));
+                  arc.line.material.opacity = 1; setMarkerOpacity(arc.glowStart, 1);
+                  setMarkerOpacity(arc.glowEnd, p > 0.9 ? (p - 0.9) / 0.1 : 0);
+                } else if (age < arc.drawDuration + arc.holdDuration) {
+                  arc.line.geometry.setDrawRange(0, arc.totalPoints);
+                  arc.line.material.opacity = 1; setMarkerOpacity(arc.glowStart, 1); setMarkerOpacity(arc.glowEnd, 1);
+                } else {
+                  const fadeProgress = 1 - ((age - arc.drawDuration - arc.holdDuration) / arc.fadeDuration);
+                  arc.line.geometry.setDrawRange(0, arc.totalPoints);
+                  arc.line.material.opacity = fadeProgress; setMarkerOpacity(arc.glowStart, fadeProgress); setMarkerOpacity(arc.glowEnd, fadeProgress);
+                }
+              }
+              renderer.render(scene, camera);
+            }
+            animate();
+
+            window.addEventListener('resize', () => {
+              const nw = container.clientWidth, nh = container.clientHeight;
+              camera.left = -nw/2; camera.right = nw/2; camera.top = nh/2; camera.bottom = -nh/2;
+              camera.updateProjectionMatrix();
+              renderer.setSize(nw, nh);
+            });
+        })();
+
+        // Animated cards: fade in one by one, then fade out one by one, loop
+        (function() {
+            const cards = [
+                document.getElementById('card-disputes'),
+                document.getElementById('card-tax'),
+                document.getElementById('card-fraud'),
+            ];
+            const fadeInDelay = 900;   // delay between each card fading in
+            const holdTime = 2000;     // time all cards stay visible
+            const fadeOutDelay = 600;  // delay between each card fading out
+            const pauseTime = 1200;    // pause before restarting
+
+            function runCycle() {
+                let t = 0;
+
+                // Fade in: disputes, tax, fraud
+                cards.forEach((card, i) => {
+                    setTimeout(() => card.classList.add('visible'), t + i * fadeInDelay);
+                });
+                t += cards.length * fadeInDelay + holdTime;
+
+                // Fade out: disputes, tax, fraud
+                cards.forEach((card, i) => {
+                    setTimeout(() => card.classList.remove('visible'), t + i * fadeOutDelay);
+                });
+                t += cards.length * fadeOutDelay + pauseTime;
+
+                setTimeout(runCycle, t);
+            }
+
+            setTimeout(runCycle, 1000);
+        })();
+    </script>
+</body>
+</html>
