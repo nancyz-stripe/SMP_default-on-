@@ -305,82 +305,63 @@
             color: var(--text-muted);
         }
 
-        /* Option cards */
-        .option-cards {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .option-card {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 16px;
-            border-radius: 8px;
-            border: 2px solid transparent;
-            background: var(--bg-surface);
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-
-        .option-card.selected {
-            background: var(--bg-surface);
-            border-color: var(--border-action-primary);
-        }
-
-        .radio-circle {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            border: 2px solid var(--border-form-default);
-            flex-shrink: 0;
-            margin-top: 2px;
+        /* Switch card (from "Default-on & expand") */
+        .switch-card {
             display: flex;
             align-items: center;
-            justify-content: center;
-            transition: all 0.15s;
+            gap: 16px;
+            padding: 20px;
+            background: var(--bg-surface);
+            border-radius: 8px;
+            border: 1px solid var(--neutral-50);
+            margin-top: 16px;
         }
-
-        .option-card.selected .radio-circle {
-            border-color: var(--bg-form-accent);
-            background: var(--bg-form-accent);
-        }
-
-        .radio-inner-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: white;
-            opacity: 0;
-            transition: opacity 0.15s;
-        }
-
-        .option-card.selected .radio-inner-dot {
-            opacity: 1;
-        }
-
-        .option-content {
-            flex: 1;
-        }
-
-        .option-title {
+        .switch-card-content { flex: 1; }
+        .switch-card-title {
             font-size: 14px;
             font-weight: 600;
             color: var(--text-default);
             margin-bottom: 4px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            letter-spacing: -0.15px;
         }
-
-        .option-description {
+        .switch-card-desc {
             font-size: 13px;
             color: var(--text-subdued);
             line-height: 1.5;
         }
+        .switch-toggle {
+            width: 44px;
+            height: 24px;
+            border-radius: 12px;
+            background: var(--neutral-200);
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+        .switch-toggle.on {
+            background: var(--icon-action-primary);
+        }
+        .switch-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        }
+        .switch-toggle.on .switch-thumb {
+            transform: translateX(20px);
+        }
 
+        .reassurance {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
 
     </style>
 </head>
@@ -426,37 +407,19 @@
             <div class="modal-split">
                 <!-- Left half: Content -->
                 <div class="modal-left">
-                    <div class="modal-headline">Where should Stripe manage payments for you? <span class="muted">We'll increase your revenue while managing tax, fraud, and disputes for you. </span></div>
+                    <div class="modal-headline">Expand your payment management coverage. <span class="muted">Stripe already handles tax, fraud, and disputes on your cross-border payments. Extend that same coverage to your domestic payments too.</span></div>
 
-                    <div class="option-cards" id="option-cards">
-                        <div class="option-card selected" id="card-cross_border" onclick="selectOption('cross_border')">
-                            <div class="radio-circle">
-                                <div class="radio-inner-dot"></div>
-                            </div>
-                            <div class="option-content">
-                                <div class="option-title">Cross-border payments only</div>
-                                <div class="option-description">Hand off the complexity of global selling and grow your cross-border revenue by x%.</div>
-                            </div>
+                    <div class="switch-card">
+                        <div class="switch-toggle" id="switch-toggle" onclick="toggleSwitch()">
+                            <div class="switch-thumb"></div>
                         </div>
-                        <div class="option-card" id="card-all" onclick="selectOption('all')">
-                            <div class="radio-circle">
-                                <div class="radio-inner-dot"></div>
-                            </div>
-                            <div class="option-content">
-                                <div class="option-title">All of my payments</div>
-                                <div class="option-description">Hand off operational burdens and maximize revenue at home and globally.</div>
-                            </div>
-                        </div>
-                        <div class="option-card" id="card-manual" onclick="selectOption('manual')">
-                            <div class="radio-circle">
-                                <div class="radio-inner-dot"></div>
-                            </div>
-                            <div class="option-content">
-                                <div class="option-title">Handle payments myself</div>
-                                <div class="option-description">I'll take care of all the tax, fraud, and disputes myself.</div>
-                            </div>
+                        <div class="switch-card-content">
+                            <div class="switch-card-title">Manage my domestic payments as well</div>
+                            <div class="switch-card-desc">Apply the same automated tax, fraud, and dispute handling to all your domestic transactions — zero additional setup required.</div>
                         </div>
                     </div>
+
+                    <p class="reassurance">Changes can be made anytime in Managed Payment settings</p>
                 </div>
 
                 <!-- Right half: Globe -->
@@ -479,10 +442,9 @@
     <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        // Radio selection
-        function selectOption(option) {
-            document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
-            document.getElementById('card-' + option).classList.add('selected');
+        // Toggle for domestic coverage
+        function toggleSwitch() {
+            document.getElementById('switch-toggle').classList.toggle('on');
         }
 
         // Globe (exact replica from /globe-prototype/index.html, non-interactive)
