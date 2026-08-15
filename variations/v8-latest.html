@@ -380,101 +380,27 @@
             gap: 8px;
         }
 
-        .badge-recommended {
-            display: inline-block;
-            font-size: 11px;
-            font-weight: 600;
-            padding: 2px 8px;
-            border-radius: 4px;
-            background: #efeaff;
-            color: #635bff;
-        }
-
         .option-description {
             font-size: 13px;
             color: var(--text-subdued);
             line-height: 1.5;
         }
 
-        /* Sub-options (revealed when Automatic selected) */
-        .sub-options {
-            display: none;
-            flex-direction: row;
-            gap: 12px;
-            margin-top: 12px;
-            margin-left: -26px;
-            background: linear-gradient(135deg, #f4f0ff 0%, #f0eeff 50%, #eee9ff 100%);
-            border-radius: 10px;
-            padding: 12px;
-        }
-        .sub-options.visible {
-            display: flex;
-        }
-        .sub-option {
-            flex: 1;
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            padding: 14px;
-            border-radius: 8px;
-            border: 1px solid var(--neutral-50);
-            background: var(--bg-surface);
+        /* Decide-later link */
+        .link-later {
+            font-size: 14px;
+            color: var(--text-action-primary);
             cursor: pointer;
-            transition: border-color 0.15s;
-        }
-        .sub-option:hover {
-            border-color: var(--neutral-200);
-        }
-        .sub-option.selected {
-            border-color: var(--neutral-50);
-            background: white;
-        }
-        .sub-radio {
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            border: 2px solid var(--border-form-default);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            margin-top: 2px;
-            transition: border-color 0.15s, background 0.15s;
-        }
-        .sub-option.selected .sub-radio {
-            border-color: var(--bg-form-accent);
-            background: var(--bg-form-accent);
-        }
-        .sub-radio-inner {
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: white;
-            transform: scale(0);
-            transition: transform 0.15s;
-        }
-        .sub-option.selected .sub-radio-inner {
-            transform: scale(1);
-        }
-        .sub-option-content { flex: 1; }
-        .sub-option-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-default);
-            margin-bottom: 2px;
-        }
-        .sub-option-desc {
-            font-size: 12px;
-            color: var(--text-subdued);
-            line-height: 1.4;
-        }
-
-        /* Reassurance */
-        .reassurance {
-            font-size: 12px;
-            color: var(--text-muted);
+            background: none;
+            border: none;
+            font-family: inherit;
+            padding: 0;
+            letter-spacing: -0.15px;
+            text-align: left;
+            align-self: flex-start;
             margin-bottom: 28px;
         }
+        .link-later:hover { text-decoration: underline; }
 
     </style>
 </head>
@@ -508,49 +434,30 @@
             <div class="modal-split">
                 <!-- Left half: Content -->
                 <div class="modal-left">
-                    <div class="modal-headline">Choose how your payments should be managed. <span class="muted">Stripe can handle tax, fraud, and disputes for you — or you can manage them yourself.</span></div>
+                    <div class="modal-headline">Where should Stripe manage payments for you? <span class="muted">We'll increase your revenue while managing tax, fraud, and disputes for you. </span></div>
 
                     <div class="option-cards" id="option-cards">
-                        <div class="option-card" id="card-automatic" onclick="selectMainOption('automatic')">
+                        <div class="option-card" id="card-cross_border" onclick="selectOption('cross_border')">
                             <div class="radio-circle">
                                 <div class="radio-inner-dot"></div>
                             </div>
                             <div class="option-content">
-                                <div class="option-title">
-                                    Automatic
-                                    <span class="badge-recommended">Recommended</span>
-                                </div>
-                                <div class="option-description">Stripe manages tax, fraud, and disputes maximizing revenue while lowering your operational overhead.</div>
-                                <div class="sub-options" id="sub-options">
-                                    <div class="sub-option" id="sub-all" onclick="event.stopPropagation(); selectSubOption('all')">
-                                        <div class="sub-radio"><div class="sub-radio-inner"></div></div>
-                                        <div class="sub-option-content">
-                                            <div class="sub-option-title">All payments</div>
-                                            <div class="sub-option-desc">Includes all domestic and international payments.</div>
-                                        </div>
-                                    </div>
-                                    <div class="sub-option" id="sub-crossborder" onclick="event.stopPropagation(); selectSubOption('crossborder')">
-                                        <div class="sub-radio"><div class="sub-radio-inner"></div></div>
-                                        <div class="sub-option-content">
-                                            <div class="sub-option-title">Cross-border only</div>
-                                            <div class="sub-option-desc">Includes only international payments.</div>
-                                        </div>
-                                    </div>
-                                </div>
+                                <div class="option-title">Cross-border payments only</div>
+                                <div class="option-description">Hand off the complexity of global selling and grow your cross-border revenue by x%.</div>
                             </div>
                         </div>
-                        <div class="option-card" id="card-manual" onclick="selectMainOption('manual')">
+                        <div class="option-card" id="card-all" onclick="selectOption('all')">
                             <div class="radio-circle">
                                 <div class="radio-inner-dot"></div>
                             </div>
                             <div class="option-content">
-                                <div class="option-title">Manual</div>
-                                <div class="option-description">You handle tax, fraud, and disputes yourself.</div>
+                                <div class="option-title">All of my payments</div>
+                                <div class="option-description">Hand off operational burdens and maximize revenue at home and globally.</div>
                             </div>
                         </div>
                     </div>
 
-                    <p class="reassurance">Changes can be made anytime in Managed Payment settings</p>
+                    <button class="link-later">I'll decide this later</button>
                 </div>
 
                 <!-- Right half: Globe -->
@@ -597,19 +504,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
         // Radio selection
-        function selectMainOption(option) {
-            document.getElementById('card-automatic').classList.toggle('selected', option === 'automatic');
-            document.getElementById('card-manual').classList.toggle('selected', option === 'manual');
-            document.getElementById('sub-options').classList.toggle('visible', option === 'automatic');
-            if (option === 'automatic') {
-                selectSubOption('all');
-            } else {
-                document.querySelectorAll('.sub-option').forEach(s => s.classList.remove('selected'));
-            }
-        }
-        function selectSubOption(sub) {
-            document.querySelectorAll('.sub-option').forEach(s => s.classList.remove('selected'));
-            document.getElementById('sub-' + sub).classList.add('selected');
+        function selectOption(option) {
+            document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+            document.getElementById('card-' + option).classList.add('selected');
         }
 
         // Globe (exact replica from /globe-prototype/index.html, non-interactive)
