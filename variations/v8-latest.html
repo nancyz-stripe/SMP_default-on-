@@ -137,6 +137,25 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            position: relative;
+            padding: 16px;
+        }
+
+        /* Full-screen gradient background (from "Default-on & expand") */
+        .modal-gradient {
+            position: absolute;
+            inset: 16px;
+            background: linear-gradient(135deg, #e8edf8 0%, #dce4f5 25%, #ecddf7 65%, #e8d5f3 100%);
+            border-radius: 8px;
+            z-index: 0;
+            opacity: 0.6;
+        }
+
+        .modal-header,
+        .modal-split,
+        .modal-footer {
+            position: relative;
+            z-index: 1;
         }
 
         .modal-header {
@@ -192,7 +211,7 @@
 
         .modal-right {
             flex: 1;
-            background: var(--bg-surface);
+            background: transparent;
             position: relative;
             display: flex;
             align-items: center;
@@ -443,6 +462,7 @@
     <!-- Modal -->
     <div class="modal-backdrop">
         <div class="modal">
+            <div class="modal-gradient"></div>
             <div class="modal-header">
                 <div class="stripe-logo">
                     <svg viewBox="0 0 60 25" fill="none" xmlns="http://www.w3.org/2000/svg">
