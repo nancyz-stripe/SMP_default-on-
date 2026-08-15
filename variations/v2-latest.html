@@ -194,7 +194,7 @@
         /* Left half - Content */
         .modal-left {
             flex: 1;
-            padding: 48px 56px;
+            padding: 48px 24px 48px 56px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -497,7 +497,7 @@
             renderer.sortObjects = false;
             container.appendChild(renderer.domElement);
 
-            const globeRadius = (100 + Math.min(w, h) * 0.25) * 0.85;
+            const globeRadius = (100 + Math.min(w, h) * 0.25) * 0.7225;
             const globeSegments = Math.floor((globeRadius / 250) * 10) + 20;
             camera.position.z = globeRadius * 4;
 
