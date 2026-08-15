@@ -235,6 +235,59 @@
             z-index: 0;
         }
 
+        /* Animated value prop cards (from v1, scaled to v3's globe) */
+        .globe-card {
+            position: absolute;
+            z-index: 2;
+            background: white;
+            border-radius: 5px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 30px -2px rgba(0, 55, 112, 0.1), 0 4px 14px -2px rgba(0, 59, 137, 0.04);
+            opacity: 0;
+            pointer-events: none;
+            /* v1's card geometry at full size; JS scales it to match this globe */
+            width: 240px;
+            transform-origin: top left;
+            transform: scale(var(--card-scale, 1)) translateY(6px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .globe-card.visible {
+            opacity: 1;
+            transform: scale(var(--card-scale, 1)) translateY(0);
+        }
+        .globe-card-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            border: 1px solid #d6d9fc;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .globe-card-icon svg { width: 12px; height: 12px; }
+        .globe-card-text { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+        .globe-card-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #061b31;
+            letter-spacing: -0.1px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .globe-card-subtitle { font-size: 10px; color: #667691; }
+        .globe-card-check {
+            width: 12px;
+            height: 12px;
+            flex-shrink: 0;
+            color: #30b271;
+        }
+
         .modal-right canvas {
             position: relative;
             z-index: 1;
@@ -591,6 +644,30 @@
                     <div class="modal-right" id="globe-container">
                         <div class="globe-glow-circle" id="globe-glow-circle"></div>
 
+                        <div class="globe-card disputes" id="card-disputes">
+                            <div class="globe-card-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M8 1.5L2 4v4c0 3.5 2.5 6 6 7.5 3.5-1.5 6-4 6-7.5V4L8 1.5z" stroke="#635bff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                            <div class="globe-card-text">
+                                <span class="globe-card-title">Dispute handling <svg class="globe-card-check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                                <span class="globe-card-subtitle">Dispute countered by Stripe</span>
+                            </div>
+                        </div>
+
+                        <div class="globe-card tax" id="card-tax">
+                            <div class="globe-card-icon"><svg viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="#635bff" stroke-width="1.5"/><path d="M5 7h6M5 9.5h4" stroke="#635bff" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+                            <div class="globe-card-text">
+                                <span class="globe-card-title">Tax collection and remittance <svg class="globe-card-check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                                <span class="globe-card-subtitle">Automated tax operations</span>
+                            </div>
+                        </div>
+
+                        <div class="globe-card fraud" id="card-fraud">
+                            <div class="globe-card-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M8 1.5L2 4v4c0 3.5 2.5 6 6 7.5 3.5-1.5 6-4 6-7.5V4L8 1.5z" stroke="#635bff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 8l1.5 1.5L10 7" stroke="#635bff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                            <div class="globe-card-text">
+                                <span class="globe-card-title">Fraud detection <svg class="globe-card-check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                                <span class="globe-card-subtitle">Proactive fraud prevention</span>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -634,6 +711,26 @@
             const circleDiameter = globeRadius * 2;
             glowCircle.style.width = circleDiameter + 'px';
             glowCircle.style.height = circleDiameter + 'px';
+
+            // Place the value prop cards relative to the globe, not the panel, so they
+            // sit exactly where they did in v1 despite this globe being smaller.
+            // Ratios below are v1's geometry expressed in globe diameters.
+            const CARD_BASE_W = 240;      // v1 card width at its own globe size
+            const CARD_W_RATIO = 0.565;   // card width / globe diameter in v1
+            const CARD_SPOTS = {
+                'card-disputes': { dx:  0.0435, dy: -0.353 },
+                'card-tax':      { dx: -0.579,  dy: -0.141 },
+                'card-fraud':    { dx:  0.087,  dy:  0.198 },
+            };
+            const D = globeRadius * 2;
+            const cardScale = (CARD_W_RATIO * D) / CARD_BASE_W;
+            Object.entries(CARD_SPOTS).forEach(([id, spot]) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.style.setProperty('--card-scale', cardScale);
+                el.style.left = (w / 2 + spot.dx * D) + 'px';
+                el.style.top = (h / 2 + spot.dy * D) + 'px';
+            });
 
             const globeContainer = new THREE.Group();
             globeContainer.rotation.x = Math.PI * 0.1111;
@@ -838,6 +935,37 @@
               camera.updateProjectionMatrix();
               renderer.setSize(nw, nh);
             });
+        })();
+
+        // Animated cards: fade in one by one, then fade out one by one, loop
+        (function() {
+            const cards = [
+                document.getElementById('card-disputes'),
+                document.getElementById('card-tax'),
+                document.getElementById('card-fraud'),
+            ];
+            const fadeInDelay = 900;   // delay between each card fading in
+            const holdTime = 2000;     // time all cards stay visible
+            const fadeOutDelay = 600;  // delay between each card fading out
+            const pauseTime = 1200;    // pause before restarting
+
+            function runCycle() {
+                let t = 0;
+
+                cards.forEach((card, i) => {
+                    setTimeout(() => card.classList.add('visible'), t + i * fadeInDelay);
+                });
+                t += cards.length * fadeInDelay + holdTime;
+
+                cards.forEach((card, i) => {
+                    setTimeout(() => card.classList.remove('visible'), t + i * fadeOutDelay);
+                });
+                t += cards.length * fadeOutDelay + pauseTime;
+
+                setTimeout(runCycle, t);
+            }
+
+            setTimeout(runCycle, 1000);
         })();
     </script>
 </body>
