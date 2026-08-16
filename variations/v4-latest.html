@@ -253,13 +253,13 @@
             position: absolute;
             left: 0;
             right: 0;
-            bottom: 8px;
+            bottom: 8px;  /* JS pins this just below the globe's edge instead */
             z-index: 2;
             text-align: center;
-            font-size: 20px;
+            font-size: 14px;
             font-weight: 400;
-            line-height: 28px;
-            letter-spacing: -0.31px;
+            line-height: 20px;
+            letter-spacing: -0.15px;
             color: var(--text-heading);
             pointer-events: none;
             transition: color 0.3s ease;
@@ -710,6 +710,11 @@
             const circleDiameter = globeRadius * 2;
             glowCircle.style.width = circleDiameter + 'px';
             glowCircle.style.height = circleDiameter + 'px';
+
+            // Sit the coverage label just under the globe, not at the container floor
+            const coverageLabel = document.querySelector('.globe-coverage');
+            coverageLabel.style.top = 'calc(50% + ' + Math.round(globeRadius + 16) + 'px)';
+            coverageLabel.style.bottom = 'auto';
 
             const globeContainer = new THREE.Group();
             globeContainer.rotation.x = Math.PI * 0.1111;
