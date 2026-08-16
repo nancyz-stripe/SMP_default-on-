@@ -793,15 +793,16 @@
                 if (radius > 0.95) discard;
                 float edgeFade = smoothstep(0.0, 0.6, v_facing);
                 float blink = 0.75 + 0.25 * sin(u_time * 2.0 + v_random * 12.56);
-                // Dormant markets stay legible but recede; managed markets come forward.
-                vec3 col = mix(u_colorDim * 0.55, u_colorLit, v_lit) + vec3(0.30) * v_front;
-                float alpha = mix(0.34, 1.0, v_lit) + 0.35 * v_front;
+                // Unmanaged markets read as a lighter purple rather than grey;
+                // managed markets come forward in full indigo.
+                vec3 col = mix(u_colorDim, u_colorLit, v_lit) + vec3(0.30) * v_front;
+                float alpha = mix(0.50, 1.0, v_lit) + 0.35 * v_front;
                 gl_FragColor = vec4(col, min(1.0, alpha) * blink * edgeFade);
               }
             `;
             const dotUniforms = {
               u_time: { value: 0 },
-              u_colorDim: { value: new THREE.Color('#b8c0f0') },
+              u_colorDim: { value: new THREE.Color('#b0a4f2') },  // unmanaged: light purple
               u_colorLit: { value: new THREE.Color('#6f66f2') },
               u_cameraDir: { value: new THREE.Vector3(0, 0, 1) },
               u_wave: { value: 0 },
