@@ -846,7 +846,12 @@
                 const theta = Math.sqrt(DOT_COUNT * Math.PI) * phi;
                 const latDeg = 90 - (phi * 180 / Math.PI);
                 const lngDeg = ((theta * 180 / Math.PI) % 360) - 180;
-                const u = (lngDeg + 180) / 360;
+                // The source map's left edge is the prime meridian, not 180degW.
+                // Sampling it as (lng + 180) draws the whole cloud spun 180deg in
+                // longitude, which still looks like Earth but puts every dot at the
+                // wrong coordinates - so region lighting and city arcs land on the
+                // wrong continent. Measured against 50 known land/sea points.
+                const u = (((lngDeg % 360) + 360) % 360) / 360;
                 const v = (90 - latDeg) / 180;
                 const px = Math.floor(u * c.width) % c.width;
                 const py = Math.floor(v * c.height) % c.height;
@@ -864,7 +869,7 @@
               }
               // Shader wants a_region: 0 = home, 1 = international. Normalise the
               // distances so u_wave = 1 always finishes sweeping the whole globe.
-              const maxDist = Math.max.apply(null, dists) || 1;
+              const maxDist = dists.reduce((m, d) => d > m ? d : m, 0) || 1;
               const regionAttr = regions.map(r => r === 1.0 ? 0.0 : 1.0);
               const distAttr = dists.map(d => d / maxDist);
 
