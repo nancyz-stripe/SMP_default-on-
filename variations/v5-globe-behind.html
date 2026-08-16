@@ -710,5 +710,15 @@ renderStep();
   });
 })();
 </script>
+    <!-- Dismiss on backdrop click: return to the variations index -->
+    <script>
+        (function () {
+            var backdrop = document.querySelector('.modal-backdrop');
+            if (!backdrop) return;
+            backdrop.addEventListener('click', function (e) {
+                if (e.target === backdrop) window.location.href = 'index.html';
+            });
+        })();
+    </script>
 </body>
 </html>
