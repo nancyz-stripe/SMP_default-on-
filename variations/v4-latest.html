@@ -959,7 +959,7 @@
             // All payments adds the home market on top of the 36 cross-border countries
             const COVERAGE = { self: 0, cross_border: 36, all: 37 };
             const elCountries = document.getElementById('stat-countries');
-            let countFrom = 0, countTo = 0, countStart = 0;
+            let countFrom = 0, countTo = 0, countStart = 0, countShown = 0;
             const COUNT_MS = 900;
 
             function fadeAllArcs() {
@@ -968,15 +968,22 @@
               arcs.forEach(a => { a.created = Math.min(a.created, now - (a.drawDuration + a.holdDuration)); });
             }
 
+            let currentMode = null;
             window.setGlobeMode = function (mode) {
               if (!(mode in COVERAGE)) return;
+              // A click on a scope card also bubbles to the Autopilot box handler, so
+              // this fires twice per click. Without this guard the second call reset
+              // countFrom to countTo and the counter never animated.
+              if (mode === currentMode) return;
+              currentMode = mode;
               arcMode = mode;
               gTarget.wave = mode === 'self' ? 0 : 1;
               gTarget.home = mode === 'all' ? 1 : 0;
               gTarget.intl = mode === 'self' ? 0 : 1;
               fadeAllArcs();
               container.classList.toggle('dormant', mode === 'self');
-              countFrom = countTo;
+              // Start from what's on screen, so switching mid-tween doesn't jump
+              countFrom = countShown;
               countTo = COVERAGE[mode];
               countStart = Date.now();
             };
@@ -1025,7 +1032,8 @@
               if (countFrom !== countTo) {
                 const p = Math.min(1, (now - countStart) / COUNT_MS);
                 const eased = 1 - Math.pow(1 - p, 3);
-                elCountries.textContent = Math.round(countFrom + (countTo - countFrom) * eased);
+                countShown = Math.round(countFrom + (countTo - countFrom) * eased);
+                elCountries.textContent = countShown;
                 if (p === 1) countFrom = countTo;
               }
               for (let i = arcs.length - 1; i >= 0; i--) {
