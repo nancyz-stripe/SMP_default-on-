@@ -15,6 +15,8 @@
             --text-action-primary: #533afd;
             --icon-action-primary: #675dff;
             --border-action-primary: #675dff;
+            --border-action-primary-strong: #533afd;
+            --border-default: #d4dee9;
             --bg-form-accent: #675dff;
             --border-form-default: #d4dee9;
             --neutral-200: #b6c0cd;
@@ -141,14 +143,18 @@
             padding: 16px;
         }
 
-        /* Full-screen gradient background (from "Default-on & expand") */
+        /* Full-screen gradient background (Figma 26296:43713 — offset panel + white scrim) */
         .modal-gradient {
             position: absolute;
             inset: 16px;
-            background: linear-gradient(135deg, #e8edf8 0%, #dce4f5 25%, #ecddf7 65%, #e8d5f3 100%);
+            background:
+                linear-gradient(133deg, rgba(255, 255, 255, 0.9) 33.4%, rgba(255, 255, 255, 0.6) 100%),
+                radial-gradient(circle at 78% 60%, rgba(255, 212, 232, 0.85) 0%, rgba(255, 212, 232, 0) 55%),
+                radial-gradient(circle at 94% 90%, rgba(255, 231, 212, 0.8) 0%, rgba(255, 231, 212, 0) 50%),
+                radial-gradient(circle at 18% 16%, rgba(224, 231, 252, 0.9) 0%, rgba(224, 231, 252, 0) 60%),
+                linear-gradient(135deg, #eef1fa 0%, #f4ecfb 45%, #fceff4 75%, #fdf4ee 100%);
             border-radius: 8px;
             z-index: 0;
-            opacity: 0.6;
         }
 
         .modal-header,
@@ -305,72 +311,211 @@
             color: var(--text-muted);
         }
 
-        /* Switch card (from "Default-on & expand") */
-        .switch-card {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 20px;
-            background: var(--bg-surface);
-            border-radius: 8px;
-            border: 1px solid var(--neutral-50);
-            margin-top: 16px;
-        }
-        .switch-card-content { flex: 1; }
-        .switch-card-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-default);
-            margin-bottom: 4px;
-            letter-spacing: -0.15px;
-        }
-        .switch-card-desc {
-            font-size: 13px;
-            color: var(--text-subdued);
-            line-height: 1.5;
-        }
-        .switch-toggle {
-            width: 44px;
-            height: 24px;
-            border-radius: 12px;
-            background: var(--neutral-200);
-            position: relative;
-            cursor: pointer;
-            transition: background 0.2s;
-            flex-shrink: 0;
-        }
-        .switch-toggle.on {
-            background: var(--icon-action-primary);
-        }
-        .switch-thumb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: white;
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            transition: transform 0.2s;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-        }
-        .switch-toggle.on .switch-thumb {
-            transform: translateX(20px);
+        /* Mode choices (Figma 26296:43742) */
+        .modal-headline {
+            margin-bottom: 34px;
         }
 
-        .link-later {
-            font-size: 14px;
-            color: var(--text-action-primary);
-            cursor: pointer;
-            background: none;
-            border: none;
-            font-family: inherit;
-            padding: 0;
-            letter-spacing: -0.15px;
-            text-align: left;
-            align-self: flex-start;
-            margin-top: 16px;
+        .mode-group {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
-        .link-later:hover { text-decoration: underline; }
+
+        /* Autopilot card with "Recommended" tag */
+        .autopilot-card {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            border-radius: 8px;
+        }
+
+        .highlight-tag {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 16px;
+            background: var(--icon-action-primary);
+            border: 2px solid var(--icon-action-primary);
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 16px;
+            letter-spacing: -0.02px;
+            color: #ffffff;
+            transition: background 0.15s, border-color 0.15s;
+        }
+
+        .autopilot-body {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            padding: 16px;
+            background: var(--bg-surface);
+            border: 2px solid var(--border-action-primary-strong);
+            border-radius: 0 8px 8px 8px;
+            transition: border-color 0.15s, background 0.15s;
+        }
+
+        /* Dimmed state when self-managed is chosen */
+        .autopilot-card.dimmed .highlight-tag {
+            background: var(--neutral-200);
+            border-color: var(--neutral-200);
+        }
+        .autopilot-card.dimmed .autopilot-body {
+            border-color: var(--border-form-default);
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        .mode-title {
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 24px;
+            letter-spacing: -0.31px;
+            color: var(--text-default);
+            margin-bottom: 4px;
+        }
+
+        .mode-desc {
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 20px;
+            letter-spacing: -0.15px;
+            color: var(--text-subdued);
+        }
+
+        /* Inner tinted panel holding the two scope options */
+        .scope-panel {
+            display: flex;
+            gap: 8px;
+            padding: 8px;
+            background: #ebecff;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        .autopilot-card.dimmed .scope-panel {
+            background: var(--bg-offset);
+        }
+
+        .scope-card {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: var(--bg-surface);
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: inset 0 0 0 1px transparent;
+            transition: box-shadow 0.15s;
+        }
+        .scope-card.selected {
+            box-shadow: inset 0 0 0 1px var(--border-action-primary);
+        }
+
+        .scope-card-group {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 16px 16px 8px;
+        }
+
+        .radio-circle {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 1px solid var(--border-form-default);
+            background: var(--bg-surface);
+            box-shadow: 0px 1px 1px 0px rgba(33, 37, 44, 0.16);
+            flex-shrink: 0;
+            margin-top: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+        .scope-card.selected .radio-circle {
+            border-color: var(--border-action-primary-strong);
+            background: var(--bg-form-accent);
+            box-shadow: 0px 1px 1px 0px rgba(10, 33, 86, 0.16);
+        }
+        .radio-inner-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: white;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+        .scope-card.selected .radio-inner-dot { opacity: 1; }
+
+        .scope-text {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .scope-title {
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 16px;
+            letter-spacing: -0.02px;
+            color: var(--text-default);
+        }
+        .scope-desc {
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 16px;
+            color: var(--text-subdued);
+        }
+
+        .scope-fee {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 8px;
+            background: var(--bg-offset);
+            border-radius: 0 0 8px 8px;
+            font-size: 12px;
+            line-height: 16px;
+            color: var(--text-subdued);
+        }
+        .scope-fee svg {
+            width: 12px;
+            height: 12px;
+            fill: #667691;
+            flex-shrink: 0;
+        }
+
+        /* Self-managed card */
+        .self-card {
+            padding: 16px;
+            background: var(--bg-offset);
+            border: 2px solid var(--border-default);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: border-color 0.15s, background 0.15s;
+        }
+        .self-card.selected {
+            background: var(--bg-surface);
+            border-color: var(--border-action-primary-strong);
+        }
+        .self-card .mode-title {
+            font-size: 14px;
+            line-height: 19px;
+            letter-spacing: -0.15px;
+            margin-bottom: 8px;
+        }
+        .self-card .mode-desc {
+            font-size: 12px;
+            line-height: 16px;
+            letter-spacing: 0;
+        }
 
     </style>
 </head>
@@ -416,19 +561,55 @@
             <div class="modal-split">
                 <!-- Left half: Content -->
                 <div class="modal-left">
-                    <div class="modal-headline">Expand your payment management coverage. <span class="muted">Stripe already handles tax, fraud, and disputes on your cross-border payments. Extend that same coverage to your domestic payments too.</span></div>
+                    <div class="modal-headline">Choose how your payments should be managed. <span class="muted">Stripe can handle tax, fraud, and disputes for you — or you can manage them yourself.</span></div>
 
-                    <div class="switch-card">
-                        <div class="switch-toggle" id="switch-toggle" onclick="toggleSwitch()">
-                            <div class="switch-thumb"></div>
+                    <div class="mode-group">
+                        <!-- Autopilot -->
+                        <div class="autopilot-card" id="autopilot-card">
+                            <div class="highlight-tag">Recommended</div>
+                            <div class="autopilot-body">
+                                <div>
+                                    <div class="mode-title">Autopilot</div>
+                                    <div class="mode-desc">Stripe runs tax, fraud, and disputes end to end, and takes on the work and the risk while lowering your operational overhead.</div>
+                                </div>
+
+                                <div class="scope-panel">
+                                    <div class="scope-card selected" id="scope-cross_border" onclick="selectMode('cross_border')">
+                                        <div class="scope-card-group">
+                                            <div class="radio-circle"><div class="radio-inner-dot"></div></div>
+                                            <div class="scope-text">
+                                                <div class="scope-title">Cross-border only</div>
+                                                <div class="scope-desc">Manage only international payments.</div>
+                                            </div>
+                                        </div>
+                                        <div class="scope-fee">
+                                            6.9% + 30c
+                                            <svg viewBox="0 0 12 12" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.75 1.75H3.25C2.42157 1.75 1.75 2.42157 1.75 3.25V8.75C1.75 9.57843 2.42157 10.25 3.25 10.25H8.75C9.57843 10.25 10.25 9.57843 10.25 8.75V3.25C10.25 2.42157 9.57843 1.75 8.75 1.75ZM3.25 0.25C1.59315 0.25 0.25 1.59315 0.25 3.25V8.75C0.25 10.4069 1.59315 11.75 3.25 11.75H8.75C10.4069 11.75 11.75 10.4069 11.75 8.75V3.25C11.75 1.59315 10.4069 0.25 8.75 0.25H3.25Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M4.48182 6.49998C4.48182 6.11338 4.79522 5.79998 5.18182 5.79998H6.27273C6.65933 5.79998 6.97273 6.11338 6.97273 6.49998V8.49998C6.97273 8.88658 6.65933 9.19998 6.27273 9.19998C5.88613 9.19998 5.57273 8.88658 5.57273 8.49998V7.19998H5.18182C4.79522 7.19998 4.48182 6.88658 4.48182 6.49998Z"/><path d="M4.99994 3.99999C4.99994 3.44858 5.44854 2.99999 5.99994 2.99999C6.55134 2.99999 6.99994 3.44858 6.99994 3.99999C6.99994 4.55139 6.55134 4.99999 5.99994 4.99999C5.44854 4.99999 4.99994 4.55139 4.99994 3.99999Z"/></svg>
+                                        </div>
+                                    </div>
+                                    <div class="scope-card" id="scope-all" onclick="selectMode('all')">
+                                        <div class="scope-card-group">
+                                            <div class="radio-circle"><div class="radio-inner-dot"></div></div>
+                                            <div class="scope-text">
+                                                <div class="scope-title">All payments</div>
+                                                <div class="scope-desc">Includes all domestic and International payments.</div>
+                                            </div>
+                                        </div>
+                                        <div class="scope-fee">
+                                            6.4% + 30c
+                                            <svg viewBox="0 0 12 12" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.75 1.75H3.25C2.42157 1.75 1.75 2.42157 1.75 3.25V8.75C1.75 9.57843 2.42157 10.25 3.25 10.25H8.75C9.57843 10.25 10.25 9.57843 10.25 8.75V3.25C10.25 2.42157 9.57843 1.75 8.75 1.75ZM3.25 0.25C1.59315 0.25 0.25 1.59315 0.25 3.25V8.75C0.25 10.4069 1.59315 11.75 3.25 11.75H8.75C10.4069 11.75 11.75 10.4069 11.75 8.75V3.25C11.75 1.59315 10.4069 0.25 8.75 0.25H3.25Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M4.48182 6.49998C4.48182 6.11338 4.79522 5.79998 5.18182 5.79998H6.27273C6.65933 5.79998 6.97273 6.11338 6.97273 6.49998V8.49998C6.97273 8.88658 6.65933 9.19998 6.27273 9.19998C5.88613 9.19998 5.57273 8.88658 5.57273 8.49998V7.19998H5.18182C4.79522 7.19998 4.48182 6.88658 4.48182 6.49998Z"/><path d="M4.99994 3.99999C4.99994 3.44858 5.44854 2.99999 5.99994 2.99999C6.55134 2.99999 6.99994 3.44858 6.99994 3.99999C6.99994 4.55139 6.55134 4.99999 5.99994 4.99999C5.44854 4.99999 4.99994 4.55139 4.99994 3.99999Z"/></svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="switch-card-content">
-                            <div class="switch-card-title">Manage my domestic payments as well</div>
-                            <div class="switch-card-desc">Apply the same automated tax, fraud, and dispute handling to all your domestic transactions — zero additional setup required.</div>
+
+                        <!-- Self-managed -->
+                        <div class="self-card" id="scope-self" onclick="selectMode('self')">
+                            <div class="mode-title">Self-managed</div>
+                            <div class="mode-desc">You handle tax, fraud, and disputes yourself.</div>
                         </div>
                     </div>
-
-                    <button class="link-later">I'll manage payments myself</button>
                 </div>
 
                 <!-- Right half: Globe -->
@@ -451,9 +632,13 @@
     <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        // Toggle for domestic coverage
-        function toggleSwitch() {
-            document.getElementById('switch-toggle').classList.toggle('on');
+        // Mode selection: two Autopilot scopes, or self-managed
+        function selectMode(mode) {
+            const isSelf = mode === 'self';
+            document.getElementById('scope-cross_border').classList.toggle('selected', mode === 'cross_border');
+            document.getElementById('scope-all').classList.toggle('selected', mode === 'all');
+            document.getElementById('scope-self').classList.toggle('selected', isSelf);
+            document.getElementById('autopilot-card').classList.toggle('dimmed', isSelf);
         }
 
         // Globe (exact replica from /globe-prototype/index.html, non-interactive)
