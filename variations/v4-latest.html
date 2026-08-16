@@ -249,33 +249,26 @@
         }
 
         /* Coverage readout — the globe's state, stated in words */
-        .globe-stats {
+        .globe-coverage {
             position: absolute;
             left: 0;
             right: 0;
             bottom: 8px;
             z-index: 2;
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            pointer-events: none;
-        }
-        .globe-stat { text-align: center; }
-        .globe-stat-value {
+            text-align: center;
             font-size: 20px;
-            font-weight: 600;
-            line-height: 26px;
+            font-weight: 400;
+            line-height: 28px;
             letter-spacing: -0.31px;
             color: var(--text-heading);
-            font-variant-numeric: tabular-nums;
+            pointer-events: none;
             transition: color 0.3s ease;
         }
-        .globe-stat-label {
-            font-size: 11px;
-            line-height: 16px;
-            color: var(--text-subdued);
+        .globe-coverage-count {
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
         }
-        .modal-right.dormant .globe-stat-value { color: var(--neutral-200); }
+        .modal-right.dormant .globe-coverage { color: var(--text-muted); }
 
         /* Glow recedes when nothing is managed */
         .globe-glow-circle {
@@ -657,15 +650,8 @@
                     <div class="modal-right" id="globe-container">
                         <div class="globe-glow-circle" id="globe-glow-circle"></div>
 
-                        <div class="globe-stats">
-                            <div class="globe-stat">
-                                <div class="globe-stat-value" id="stat-countries">3</div>
-                                <div class="globe-stat-label">Countries covered</div>
-                            </div>
-                            <div class="globe-stat">
-                                <div class="globe-stat-value" id="stat-scope">None</div>
-                                <div class="globe-stat-label">Managed by Stripe</div>
-                            </div>
+                        <div class="globe-coverage">
+                            <span class="globe-coverage-count" id="stat-countries">0</span> countries<br>covered by Stripe
                         </div>
                     </div>
                 </div>
@@ -965,14 +951,10 @@
             const gState = { wave: 0, home: 0, intl: 0, active: 0 };
             const gTarget = { wave: 0, home: 0, intl: 0 };
 
-            const COVERAGE = {
-              self:         { countries: 3,  scope: 'None' },
-              cross_border: { countries: 41, scope: 'Cross-border' },
-              all:          { countries: 41, scope: 'All payments' },
-            };
+            // All payments adds the home market on top of the 36 cross-border countries
+            const COVERAGE = { self: 0, cross_border: 36, all: 37 };
             const elCountries = document.getElementById('stat-countries');
-            const elScope = document.getElementById('stat-scope');
-            let countFrom = 3, countTo = 3, countStart = 0;
+            let countFrom = 0, countTo = 0, countStart = 0;
             const COUNT_MS = 900;
 
             function fadeAllArcs() {
@@ -982,7 +964,7 @@
             }
 
             window.setGlobeMode = function (mode) {
-              if (!COVERAGE[mode]) return;
+              if (!(mode in COVERAGE)) return;
               arcMode = mode;
               gTarget.wave = mode === 'self' ? 0 : 1;
               gTarget.home = mode === 'all' ? 1 : 0;
@@ -990,9 +972,8 @@
               fadeAllArcs();
               container.classList.toggle('dormant', mode === 'self');
               countFrom = countTo;
-              countTo = COVERAGE[mode].countries;
+              countTo = COVERAGE[mode];
               countStart = Date.now();
-              elScope.textContent = COVERAGE[mode].scope;
             };
 
             setTimeout(createArc, 500);
