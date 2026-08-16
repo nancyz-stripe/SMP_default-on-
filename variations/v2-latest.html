@@ -335,6 +335,7 @@
             flex-direction: column;
             align-items: flex-start;
             border-radius: 8px;
+            cursor: pointer;
         }
 
         .highlight-tag {
@@ -569,7 +570,7 @@
 
                     <div class="mode-group">
                         <!-- Autopilot -->
-                        <div class="autopilot-card" id="autopilot-card">
+                        <div class="autopilot-card" id="autopilot-card" onclick="selectAutopilot()">
                             <div class="highlight-tag">Recommended</div>
                             <div class="autopilot-body">
                                 <div>
@@ -643,6 +644,18 @@
             document.getElementById('scope-all').classList.toggle('selected', mode === 'all');
             document.getElementById('scope-self').classList.toggle('selected', isSelf);
             document.getElementById('autopilot-card').classList.toggle('dimmed', isSelf);
+        }
+
+        // Clicking anywhere in the Autopilot box selects Autopilot. Clicks on a
+        // scope card have already set the scope by the time this bubbles up; a
+        // click elsewhere in the box defaults to Cross-border, but never
+        // overwrites a scope the user has already chosen.
+        function selectAutopilot() {
+            const hasScope = document.getElementById('scope-cross_border').classList.contains('selected')
+                || document.getElementById('scope-all').classList.contains('selected');
+            if (!hasScope) selectMode('cross_border');
+            else document.getElementById('scope-self').classList.remove('selected');
+            document.getElementById('autopilot-card').classList.remove('dimmed');
         }
 
         // Globe (exact replica from /globe-prototype/index.html, non-interactive)
