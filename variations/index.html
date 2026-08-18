@@ -303,6 +303,34 @@
     .card-add:hover .card-add-label {
       color: var(--primary);
     }
+    /* Onboarding flow cards: a "Start flow" button stands in for the subtext */
+    .card-flow-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-default);
+      margin-bottom: 12px;
+      letter-spacing: -0.15px;
+    }
+    .btn-start-flow {
+      display: block;
+      width: 100%;
+      padding: 6px 12px;
+      background: var(--bg-surface);
+      border: 1px solid #d8dee7;
+      border-radius: 6px;
+      box-shadow: 0 1px 1px rgba(48, 49, 61, 0.05);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-default);
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn-start-flow:hover {
+      background: var(--bg-offset);
+      border-color: #c3cbd6;
+    }
     .section {
       max-width: 960px;
       margin: 0 auto 72px;
@@ -328,8 +356,14 @@
 <body>
 
 <div class="header">
-  <h1>SMP default-on in onboarding</h1>
+  <h1>SMP onboarding default-on</h1>
   <p>Different variants of the SMP modal in intent capture.</p>
+</div>
+
+<div class="section">
+  <div class="section-heading">Onboarding flow</div>
+  <div class="section-date">Updated Aug 18</div>
+  <div class="grid" id="grid-flow"></div>
 </div>
 
 <div class="section">
@@ -384,6 +418,26 @@ const latestVariations = [
     gradient: 'Spotlight gradient',
     globe: 'Medium',
     valueCards: false,
+  },
+];
+
+// Onboarding flow: the same three frameworks, entered as a flow rather than a
+// single screen. Titles mirror the Figma (26334:37667).
+const flowVariations = [
+  {
+    id: 'flow-v1',
+    title: 'V1 - Choose your scope',
+    file: 'v8-latest.html',
+  },
+  {
+    id: 'flow-v2',
+    title: 'V2 - Auto-pilot vs Self-managed',
+    file: 'v2-latest.html',
+  },
+  {
+    id: 'flow-v3',
+    title: 'V3 - Expand coverage',
+    file: 'v3-latest.html',
   },
 ];
 
@@ -502,9 +556,28 @@ function renderCard(v, i, section) {
   `;
 }
 
+// Flow cards aren't reorderable or editable, and a "Start flow" button stands
+// in for the description.
+function renderFlowCard(v) {
+  return `
+    <a class="card" href="${v.file}">
+      <div class="card-preview" data-src="${v.file}"></div>
+      <div class="card-body">
+        <div class="card-flow-title">${v.title}</div>
+        <span class="btn-start-flow">Start flow</span>
+      </div>
+    </a>
+  `;
+}
+
 function renderGrid() {
+  const gridFlow = document.getElementById('grid-flow');
   const gridLatest = document.getElementById('grid-latest');
   const gridPast = document.getElementById('grid-past');
+
+  let flowHtml = '';
+  flowVariations.forEach(v => { flowHtml += renderFlowCard(v); });
+  gridFlow.innerHTML = flowHtml;
 
   let latestHtml = '';
   latestVariations.forEach((v, i) => { latestHtml += renderCard(v, i, 'latest'); });
