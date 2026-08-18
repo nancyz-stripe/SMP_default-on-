@@ -104,15 +104,25 @@
       color: var(--text-subdued);
       line-height: 1.4;
     }
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
     .card-tag {
       display: inline-block;
-      margin-top: 10px;
       font-size: 11px;
       font-weight: 500;
       padding: 2px 8px;
       border-radius: 4px;
       background: #efeaff;
       color: var(--primary);
+    }
+    /* Framework = the decision structure; gradient = the visual treatment */
+    .card-tag.framework {
+      background: #e6edf9;
+      color: #3a5c94;
     }
 
     /* Drag and drop */
@@ -350,6 +360,7 @@ const latestVariations = [
     title: 'v1',
     description: '3 choices (xborder, all payments, manage myself)',
     file: 'v8-latest.html',
+    framework: 'Choose your scope',
     gradient: 'Full gradient background',
   },
   {
@@ -357,6 +368,7 @@ const latestVariations = [
     title: 'v2',
     description: 'Auto-pilot vs Self-managed',
     file: 'v2-latest.html',
+    framework: 'Autopilot vs Self-managed',
     gradient: 'Spotlight gradient',
   },
   {
@@ -364,6 +376,7 @@ const latestVariations = [
     title: 'v3',
     description: 'Xborder as default + expand to cover domestic',
     file: 'v3-latest.html',
+    framework: 'Expand coverage',
     gradient: 'Full gradient background',
   },
   {
@@ -371,6 +384,7 @@ const latestVariations = [
     title: 'v4',
     description: 'Auto-pilot vs Self-managed, with globe adapting to the choice',
     file: 'v4-latest.html',
+    framework: 'Autopilot vs Self-managed',
     gradient: 'Spotlight gradient',
   },
 ];
@@ -431,7 +445,7 @@ function loadVariations() {
     try {
       const parsed = JSON.parse(saved).map(v => {
         const def = defaultsMap[v.id];
-        if (def) return { ...def, ...v, description: v.description || def.description || '', gradient: v.gradient || def.gradient };
+        if (def) return { ...def, ...v, description: v.description || def.description || '', framework: v.framework || def.framework, gradient: v.gradient || def.gradient };
         return { ...v, description: v.description || '' };
       });
       const savedIds = new Set(parsed.map(v => v.id));
@@ -451,7 +465,7 @@ function saveVariations() {
 const isLocal = window.location.protocol === 'file:' || window.location.hostname === 'localhost';
 
 // Force reset stale localStorage (bump version to reset)
-const STORAGE_VERSION = '7';
+const STORAGE_VERSION = '8';
 if (localStorage.getItem('variations-version') !== STORAGE_VERSION) {
   localStorage.removeItem('variations-order');
   localStorage.removeItem('variations-deleted');
@@ -477,7 +491,10 @@ function renderCard(v, i, section) {
       <div class="card-body">
         <div class="card-title">${displayTitle}</div>
         <div class="card-description">${v.description}</div>
-        ${v.gradient ? `<span class="card-tag">${v.gradient}</span>` : ''}
+        ${v.framework || v.gradient ? `<div class="card-tags">
+          ${v.framework ? `<span class="card-tag framework">${v.framework}</span>` : ''}
+          ${v.gradient ? `<span class="card-tag">${v.gradient}</span>` : ''}
+        </div>` : ''}
       </div>
     </a>
   `;
