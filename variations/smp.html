@@ -15,6 +15,8 @@
             --text-action-primary: #533afd;
             --icon-action-primary: #675dff;
             --border-action-primary: #675dff;
+            --border-action-primary-strong: #533afd;
+            --border-default: #d4dee9;
             --bg-form-accent: #675dff;
             --border-form-default: #d4dee9;
             --neutral-200: #b6c0cd;
@@ -892,7 +894,6 @@
     <script>
     const PANELS = {
       scope: `
-    <div class="modal-left">
                         <div class="modal-headline">Where should Stripe manage payments for you? <span class="muted">We'll increase your revenue while managing tax, fraud, and disputes for you. </span></div>
     
                         <div class="option-cards" id="option-cards">
@@ -923,10 +924,8 @@
                         </div>
 
                         <button class="link-later">I'll handle payments myself</button>
-                    </div>
     `,
       autopilot: `
-    <div class="modal-left">
                         <div class="modal-headline">Choose how your payments should be managed. <span class="muted">You can change this anytime.</span></div>
     
                         <div class="mode-group">
@@ -976,10 +975,8 @@
                                 <div class="mode-desc">You handle tax, fraud, and disputes yourself.</div>
                             </div>
                         </div>
-                    </div>
     `,
       expand: `
-    <div class="modal-left">
                         <div class="modal-headline">Expand your payment management coverage. <span class="muted">You can change this anytime.</span></div>
     
                         <div class="coverage-card">
@@ -1020,7 +1017,6 @@
                         </div>
     
                         <button class="link-later">I'll manage payments myself</button>
-                    </div>
     `,
     };
     
