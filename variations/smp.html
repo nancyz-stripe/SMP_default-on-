@@ -550,6 +550,10 @@
         [data-fw="expand"] .switch-label { font-size: 14px; line-height: 20px; letter-spacing: -0.15px; color: var(--text-default); }
         [data-fw="expand"] .link-later { font-size: 14px; color: var(--text-action-primary); cursor: pointer; background: none; border: none; font-family: inherit; padding: 0; letter-spacing: -0.15px; text-align: left; align-self: flex-start; margin-top: 16px; }
         [data-fw="expand"] .link-later:hover { text-decoration: underline; }
+        /* The option list already carries a bottom margin, so the link relies on
+           that alone and matches the 16px gap used in the expand framework. */
+        [data-fw="scope"] .link-later { font-size: 14px; color: var(--text-action-primary); cursor: pointer; background: none; border: none; font-family: inherit; padding: 0; letter-spacing: -0.15px; text-align: left; align-self: flex-start; }
+        [data-fw="scope"] .link-later:hover { text-decoration: underline; }
         [data-fw="expand"] .fee-badge { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 2px 6px; border-radius: 4px; background: #f4f7fa; border: 1px solid #d4dee9; font-size: 12px; line-height: 16px; font-weight: 400; color: #50617a; white-space: nowrap; cursor: default; flex-shrink: 0; }
         [data-fw="expand"] .fee-badge .fee-icon { width: 12px; height: 12px; display: block; fill: #667691; flex-shrink: 0; }
         [data-fw="expand"] .modal-left { flex: 1.05; padding: 48px 32px 48px 100px; display: flex; flex-direction: column; justify-content: center; overflow-y: auto; }
@@ -916,16 +920,9 @@
                                     <div class="option-description">Hand off operational burdens and maximize revenue at home and globally.</div>
                                 </div>
                             </div>
-                            <div class="option-card" id="card-manual" onclick="selectOption('manual')">
-                                <div class="radio-circle">
-                                    <div class="radio-inner-dot"></div>
-                                </div>
-                                <div class="option-content">
-                                    <div class="option-title">Handle payments myself</div>
-                                    <div class="option-description">I'll take care of all the tax, fraud, and disputes myself.</div>
-                                </div>
-                            </div>
                         </div>
+
+                        <button class="link-later">I'll handle payments myself</button>
                     </div>
     `,
       autopilot: `
