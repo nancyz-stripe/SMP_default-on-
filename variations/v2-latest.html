@@ -910,12 +910,6 @@
             var standaloneBack = document.querySelector('.back-button');
             if (standaloneBack) standaloneBack.remove();
 
-            // Drop this page's placeholder shell and go transparent, so the
-            // flow's dashboard image is what sits behind the modal.
-            var shell = document.querySelector('.dashboard');
-            if (shell) shell.style.display = 'none';
-            document.body.style.background = 'transparent';
-
             var progress = params.get('progress');
             var fill = document.getElementById('progressFill');
             if (progress && fill) fill.style.width = progress + '%';
