@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V5 - Expand coverage (simplified)</title>
+    <style>
+        :root {
+            --bg-surface: #ffffff;
+            --bg-offset: #f5f6f8;
+            --text-default: #353a44;
+            --text-subdued: #596171;
+            --text-heading: #21252c;
+            --text-muted: #99a5b8;
+            --text-action-primary: #533afd;
+            --icon-action-primary: #675dff;
+            --border-action-primary: #675dff;
+            --bg-form-accent: #675dff;
+            --border-form-default: #d4dee9;
+            --neutral-200: #b6c0cd;
+            --neutral-50: #ebeef1;
+            --shadow-overlay: 0px 15px 35px 0px rgba(48, 49, 61, 0.08), 0px 5px 15px 0px rgba(0, 0, 0, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+            background: var(--bg-offset);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Back button */
+        .back-button {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: var(--bg-surface);
+            border: 1px solid var(--neutral-50);
+            border-radius: 8px;
+            color: var(--text-subdued);
+            font-size: 13px;
+            text-decoration: none;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            transition: background 0.15s;
+        }
+        .back-button:hover {
+            background: var(--bg-offset);
+        }
+
+        /* Dashboard shell */
+        .dashboard {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .sidebar {
+            width: 240px;
+            background: var(--bg-surface);
+            border-right: 1px solid var(--neutral-50);
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .sidebar-logo {
+            padding: 8px 12px;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-logo svg {
+            width: 60px;
+            height: 24px;
+        }
+
+        .nav-item {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            color: var(--text-subdued);
+            cursor: pointer;
+        }
+
+        .nav-item.active {
+            background: var(--bg-offset);
+            color: var(--text-default);
+            font-weight: 500;
+        }
+
+        .main-content {
+            flex: 1;
+            background: var(--bg-offset);
+            padding: 32px;
+        }
+
+        .content-placeholder {
+            height: 200px;
+            background: var(--bg-surface);
+            border-radius: 8px;
+            border: 1px solid var(--neutral-50);
+        }
+
+        /* Modal backdrop */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(182, 192, 205, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        /* Modal */
+        .modal {
+            width: 90%;
+            height: 90%;
+            background: var(--bg-surface);
+            border-radius: 12px;
+            box-shadow: var(--shadow-overlay);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            padding: 16px;
+        }
+
+        /* Full-screen gradient background (from "Default-on & expand") */
+        .modal-gradient {
+            position: absolute;
+            inset: 16px;
+            background: linear-gradient(135deg, #e8edf8 0%, #dce4f5 25%, #ecddf7 65%, #e8d5f3 100%);
+            border-radius: 8px;
+            z-index: 0;
+            opacity: 0.6;
+        }
+
+        .modal-header,
+        .modal-split,
+        .modal-footer {
+            position: relative;
+            z-index: 1;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 32px 42px 0;
+            flex-shrink: 0;
+        }
+
+        .stripe-logo svg {
+            width: 60px;
+            height: 25px;
+        }
+
+        .progress-bar {
+            width: 125px;
+            height: 5px;
+            background: var(--bg-offset);
+            border-radius: 100px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--icon-action-primary);
+            border-radius: 100px;
+            transition: width 0.4s ease;
+        }
+
+        .modal-split {
+            flex: 1;
+            display: flex;
+            min-height: 0;
+            /* Shift content + globe right by 5% of the split width */
+            transform: translateX(5%);
+        }
+
+        /* Left half - Content */
+        .modal-left {
+            flex: 1.05;
+            padding: 48px 32px 48px 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow-y: auto;
+        }
+
+        /* Right half - Globe */
+        .modal-right-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: stretch;
+            padding: 16px 100px 16px 0;
+        }
+
+        .modal-right {
+            flex: 1;
+            background: transparent;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 12px;
+        }
+
+        .globe-glow-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background: white;
+            box-shadow:
+                -10px 0 20px 5px rgba(255, 140, 200, 0.2),
+                10px 0 20px 5px rgba(140, 100, 255, 0.2);
+            z-index: 0;
+        }
+
+        /* Animated value prop cards (from v1, scaled to v3's globe) */
+        .globe-card {
+            position: absolute;
+            z-index: 2;
+            background: white;
+            border-radius: 5px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 30px -2px rgba(0, 55, 112, 0.1), 0 4px 14px -2px rgba(0, 59, 137, 0.04);
+            opacity: 0;
+            pointer-events: none;
+            /* v1's card geometry at full size; JS scales it to match this globe */
+            width: 240px;
+            transform-origin: top left;
+            transform: scale(var(--card-scale, 1)) translateY(6px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .globe-card.visible {
+            opacity: 1;
+            transform: scale(var(--card-scale, 1)) translateY(0);
+        }
+        .globe-card-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            border: 1px solid #d6d9fc;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .globe-card-icon svg { width: 12px; height: 12px; }
+        .globe-card-text { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+        .globe-card-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #061b31;
+            letter-spacing: -0.1px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .globe-card-subtitle { font-size: 10px; color: #667691; }
+        .globe-card-check {
+            width: 12px;
+            height: 12px;
+            flex-shrink: 0;
+            color: #30b271;
+        }
+
+        .modal-right canvas {
+            position: relative;
+            z-index: 1;
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+
+        /* Footer pinned at bottom */
+        .modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 42px 32px;
+            flex-shrink: 0;
+        }
+
+        .back-link {
+            font-size: 16px;
+            line-height: 24px;
+            letter-spacing: -0.31px;
+            color: var(--text-action-primary);
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-family: inherit;
+        }
+        .back-link:hover { text-decoration: underline; }
+
+        .btn-continue {
+            background: var(--bg-form-accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            letter-spacing: -0.15px;
+            line-height: 20px;
+            box-shadow: 0px 1px 1px 0px rgba(47, 14, 99, 0.32);
+            transition: background 0.15s;
+        }
+        .btn-continue:hover { background: #5b52e6; }
+
+        .stripe-logo {
+            margin-bottom: 32px;
+        }
+
+        .stripe-logo svg {
+            width: 64px;
+            height: 26px;
+        }
+
+        .modal-headline {
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 28px;
+            letter-spacing: 0.3px;
+            color: var(--text-heading);
+            margin-bottom: 16px;
+        }
+
+        .modal-headline .muted {
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+
+        /* Coverage card (Figma 26294:43068) */
+        .coverage-card {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding: 16px;
+            background: var(--bg-surface);
+            border: 2px solid #d4dee9;
+            border-radius: 8px;
+        }
+
+        .coverage-head {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .coverage-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .coverage-title {
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 19px;
+            letter-spacing: -0.15px;
+            color: var(--text-default);
+        }
+        .coverage-desc {
+            font-size: 12px;
+            line-height: 16px;
+            color: var(--text-subdued);
+        }
+
+        /* Benefit rows */
+        .benefit-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .benefit-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .benefit-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 3.75px;
+            background: #efecfc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .benefit-icon svg {
+            width: 10px;
+            height: 10px;
+            display: block;
+            fill: var(--icon-action-primary);
+        }
+        .benefit-text {
+            flex: 1;
+            font-size: 14px;
+            line-height: 20px;
+            letter-spacing: -0.15px;
+            color: #1a2c44;
+        }
+
+        .coverage-divider {
+            height: 1px;
+            border-top: 1px solid #d4dee9;
+        }
+
+        /* Domestic toggle row */
+        .coverage-toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            border-radius: 4px;
+        }
+        .coverage-toggle-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .switch-el {
+            width: 34px;
+            height: 18px;
+            border-radius: 999999px;
+            background: #ecf1f6;
+            border: 1px solid var(--border-form-default);
+            box-shadow: 0px 1px 1px 0px rgba(33, 37, 44, 0.16) inset;
+            position: relative;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .switch-el.on {
+            background: var(--bg-form-accent);
+            border-color: var(--bg-form-accent);
+        }
+        .switch-el .switch-thumb {
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            width: 18px;
+            height: 18px;
+            border-radius: 999999px;
+            background: white;
+            border: 1px solid var(--border-form-default);
+            box-shadow: 0px 1px 1px 0px rgba(33, 37, 44, 0.16);
+            transition: transform 0.2s;
+        }
+        .switch-el.on .switch-thumb {
+            transform: translateX(16px);
+        }
+        .switch-label {
+            font-size: 14px;
+            line-height: 20px;
+            letter-spacing: -0.15px;
+            color: var(--text-default);
+        }
+
+        /* Fee badge + tooltip (same pattern as v1) */
+        .fee-badge {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: #f4f7fa;
+            border: 1px solid #d4dee9;
+            font-size: 12px;
+            line-height: 16px;
+            font-weight: 400;
+            color: #50617a;
+            white-space: nowrap;
+            cursor: default;
+            flex-shrink: 0;
+        }
+        .fee-badge .fee-icon {
+            width: 12px;
+            height: 12px;
+            display: block;
+            fill: #667691;
+            flex-shrink: 0;
+        }
+        .fee-tooltip {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            right: 0;
+            width: 280px;
+            padding: 16px;
+            background: var(--bg-surface);
+            border: 1px solid #d4dee9;
+            border-radius: 8px;
+            box-shadow: 0px 2px 2.5px rgba(64, 68, 82, 0.08), 0px 3px 4.5px rgba(64, 68, 82, 0.08);
+            font-size: 14px;
+            line-height: 20px;
+            letter-spacing: -0.15px;
+            color: #1a2c44;
+            white-space: normal;
+            text-align: left;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.15s;
+            z-index: 5;
+        }
+        .fee-badge:hover .fee-tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Decide-later link */
+        .link-later {
+            font-size: 14px;
+            color: var(--text-action-primary);
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-family: inherit;
+            padding: 0;
+            letter-spacing: -0.15px;
+            text-align: left;
+            align-self: flex-start;
+            margin-top: 16px;
+        }
+        .link-later:hover { text-decoration: underline; }
+
+    </style>
+</head>
+<body>
+    <!-- Back button -->
+    <a href="index.html" class="back-button">&larr; Home</a>
+
+    <!-- Dashboard shell -->
+    <div class="dashboard">
+        <div class="sidebar">
+            <div class="sidebar-logo">
+                <svg viewBox="0 0 60 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M8.8 4.4C8.8 3.2 9.7 2.7 11.2 2.7C13.4 2.7 16.2 3.4 18.4 4.7V0.5C16 -0.4 13.6 -0.1 11.2 0C5.6 0 2 3 2 7.4C2 14.2 11.6 13 11.6 15.9C11.6 17.3 10.4 17.8 8.9 17.8C6.5 17.8 3.4 16.8 1 15.3V19.6C3.6 20.8 6.3 21.3 8.9 21.3C14.6 21.3 18.4 18.5 18.4 14C18.4 6.7 8.8 8.1 8.8 4.4Z" fill="#635BFF"/>
+                </svg>
+            </div>
+            <div class="nav-item active">Home</div>
+            <div class="nav-item">Payments</div>
+            <div class="nav-item">Balances</div>
+            <div class="nav-item">Customers</div>
+            <div class="nav-item">Products</div>
+            <div class="nav-item">Settings</div>
+        </div>
+        <div class="main-content">
+            <div class="content-placeholder"></div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-backdrop">
+        <div class="modal">
+            <div class="modal-gradient"></div>
+            <div class="modal-header">
+                <div class="stripe-logo">
+                    <svg viewBox="0 0 60 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M60 12.9C60 8.6 57.9 5.3 54 5.3C50.1 5.3 47.6 8.6 47.6 12.9C47.6 17.9 50.5 20.5 54.6 20.5C56.6 20.5 58.1 20 59.3 19.2V16C58.1 16.7 56.7 17.2 55 17.2C53.3 17.2 51.8 16.6 51.6 14.5H59.9C59.9 14.3 60 13.4 60 12.9ZM51.5 11.7C51.5 9.7 52.7 8.9 53.9 8.9C55.1 8.9 56.3 9.7 56.3 11.7H51.5ZM41.2 5.3C39.5 5.3 38.4 6.1 37.8 6.6L37.6 5.6H34V24.5L37.9 23.7V20.1C38.5 20.5 39.4 21.1 40.9 21.1C44.1 21.1 46.9 18.5 46.9 12.9C46.9 8 44 5.3 41.2 5.3ZM40.3 17.5C39.2 17.5 38.6 17.1 38.2 16.7L37.9 9.5C38.3 9.1 39 8.7 40 8.7C41.6 8.7 42.7 10.5 42.7 13.1C42.7 15.8 41.6 17.5 40.3 17.5ZM28.3 4.5L32.2 3.7V0.5L28.3 1.3V4.5ZM28.3 5.6H32.2V20.2H28.3V5.6ZM24.2 6.8L24 5.6H20.5V20.2H24.4V10C25.3 8.8 26.8 9 27.3 9.2V5.6C26.7 5.4 25 5.1 24.2 6.8ZM16.5 2L12.7 2.8V16.1C12.7 18.6 14.6 20.5 17.1 20.5C18.5 20.5 19.5 20.3 20 20V16.8C19.6 17 16.5 17.8 16.5 15.3V9H20V5.6H16.5V2ZM4.7 9.8C4.7 9.2 5.2 8.9 6 8.9C7.1 8.9 8.6 9.2 9.7 9.9V6.2C8.5 5.7 7.3 5.3 6 5.3C2.6 5.3 0.5 7 0.5 9.9C0.5 14.5 6.7 13.8 6.7 15.8C6.7 16.5 6.1 16.8 5.2 16.8C4 16.8 2.4 16.3 1.1 15.5V19.2C2.6 19.9 4 20.2 5.2 20.2C8.7 20.2 10.9 18.6 10.9 15.7C10.9 10.7 4.7 11.5 4.7 9.8Z" fill="#635BFF"/>
+                    </svg>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 5%;"></div>
+                </div>
+            </div>
+
+            <div class="modal-split">
+                <!-- Left half: Content -->
+                <div class="modal-left">
+                    <div class="modal-headline">Expand your payment management coverage. <span class="muted">You can change this anytime.</span></div>
+
+                    <div class="coverage-card">
+                        <div class="coverage-head">
+                            <div class="coverage-title-row">
+                                <div class="coverage-title">Stripe handles your cross-border payments</div>
+                                <span class="fee-badge">6.9% + 30c <svg class="fee-icon" viewBox="0 0 12 12" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.75 1.75H3.25C2.42157 1.75 1.75 2.42157 1.75 3.25V8.75C1.75 9.57843 2.42157 10.25 3.25 10.25H8.75C9.57843 10.25 10.25 9.57843 10.25 8.75V3.25C10.25 2.42157 9.57843 1.75 8.75 1.75ZM3.25 0.25C1.59315 0.25 0.25 1.59315 0.25 3.25V8.75C0.25 10.4069 1.59315 11.75 3.25 11.75H8.75C10.4069 11.75 11.75 10.4069 11.75 8.75V3.25C11.75 1.59315 10.4069 0.25 8.75 0.25H3.25Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M4.48182 6.49998C4.48182 6.11338 4.79522 5.79998 5.18182 5.79998H6.27273C6.65933 5.79998 6.97273 6.11338 6.97273 6.49998V8.49998C6.97273 8.88658 6.65933 9.19998 6.27273 9.19998C5.88613 9.19998 5.57273 8.88658 5.57273 8.49998V7.19998H5.18182C4.79522 7.19998 4.48182 6.88658 4.48182 6.49998Z"/><path d="M4.99994 3.99999C4.99994 3.44858 5.44854 2.99999 5.99994 2.99999C6.55134 2.99999 6.99994 3.44858 6.99994 3.99999C6.99994 4.55139 6.55134 4.99999 5.99994 4.99999C5.44854 4.99999 4.99994 4.55139 4.99994 3.99999Z"/></svg><span class="fee-tooltip">6.9% + 30c fee per successful Managed Payments transaction.</span></span>
+                            </div>
+                            <div class="coverage-desc">Stripe manages tax, fraud, and disputes maximizing revenue while lowering your operational overhead.</div>
+                        </div>
+
+                        <div class="benefit-list">
+                            <div class="benefit-row">
+                                <div class="benefit-icon"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M7.08064 0.148232C7.05113 0.0597092 6.96829 0 6.87498 0C6.78167 0 6.69883 0.0597093 6.66932 0.148232L6.24999 1.40624L5.15158 1.68084C5.0625 1.70311 5 1.78315 5 1.87498C5 1.96681 5.0625 2.04686 5.15158 2.06913L6.24997 2.34372L6.66932 3.60177C6.69883 3.69029 6.78167 3.75 6.87498 3.75C6.96829 3.75 7.05113 3.69029 7.08064 3.60177L7.49999 2.34374L8.59842 2.06913C8.6875 2.04686 8.75 1.96681 8.75 1.87498C8.75 1.78315 8.6875 1.70311 8.59842 1.68084L7.49997 1.40622L7.08064 0.148232Z"/><path d="M9.0625 5.625C9.58027 5.625 10 5.20527 10 4.6875C10 4.16973 9.58027 3.75 9.0625 3.75C8.54473 3.75 8.125 4.16973 8.125 4.6875C8.125 4.86202 8.17269 5.0254 8.25574 5.16533L6.69326 7.50905C6.65053 7.50308 6.60687 7.5 6.5625 7.5C6.41702 7.5 6.27928 7.53314 6.15642 7.59227L4.35124 6.14813C4.36679 6.08043 4.375 6.00992 4.375 5.9375C4.375 5.41973 3.95527 5 3.4375 5C2.91973 5 2.5 5.41973 2.5 5.9375C2.5 6.08302 2.53316 6.2208 2.59233 6.34369L1.14826 8.14878C1.08051 8.13322 1.00997 8.125 0.9375 8.125C0.419733 8.125 0 8.54473 0 9.0625C0 9.58027 0.419733 10 0.9375 10C1.45527 10 1.875 9.58027 1.875 9.0625C1.875 8.917 1.84185 8.77924 1.7827 8.65636L3.22681 6.85123C3.29453 6.86678 3.36506 6.875 3.4375 6.875C3.58305 6.875 3.72084 6.84183 3.84375 6.78265L5.6488 8.22668C5.63323 8.29445 5.625 8.36501 5.625 8.4375C5.625 8.95527 6.04473 9.375 6.5625 9.375C7.08027 9.375 7.5 8.95527 7.5 8.4375C7.5 8.26301 7.45233 8.09965 7.3693 7.95974L8.93182 5.61596C8.97453 5.62192 9.01815 5.625 9.0625 5.625Z"/><path d="M2.08462 1.94912C2.09937 1.90485 2.14079 1.875 2.18745 1.875C2.2341 1.875 2.27552 1.90485 2.29028 1.94912L2.47535 2.57195L3.04921 2.71541C3.09375 2.72655 3.125 2.76657 3.125 2.81249C3.125 2.8584 3.09375 2.89842 3.04921 2.90956L2.49743 3.0475C2.49209 3.06814 2.48603 3.08864 2.47925 3.10896L2.29028 3.67588C2.27552 3.72015 2.2341 3.75 2.18745 3.75C2.14079 3.75 2.09937 3.72015 2.08462 3.67588L1.89564 3.10896C1.88887 3.08863 1.8828 3.06812 1.87746 3.04748L1.32579 2.90956C1.28125 2.89842 1.25 2.8584 1.25 2.81249C1.25 2.76657 1.28125 2.72655 1.32579 2.71541L1.87747 2.57749L2.08462 1.94912Z"/></svg></div>
+                                <div class="benefit-text">Earn up to x% more on cross border revenue</div>
+                            </div>
+                            <div class="benefit-row">
+                                <div class="benefit-icon"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M3.28125 6.875C3.02237 6.875 2.8125 7.08487 2.8125 7.34375C2.8125 7.60263 3.02237 7.8125 3.28125 7.8125H6.71875C6.97763 7.8125 7.1875 7.60263 7.1875 7.34375C7.1875 7.08487 6.97763 6.875 6.71875 6.875H3.28125Z"/><path d="M2.8125 5.46875C2.8125 5.20987 3.02237 5 3.28125 5H6.71875C6.97763 5 7.1875 5.20987 7.1875 5.46875C7.1875 5.72763 6.97763 5.9375 6.71875 5.9375H3.28125C3.02237 5.9375 2.8125 5.72763 2.8125 5.46875Z"/><path d="M5.78125 3.125C5.52237 3.125 5.3125 3.33487 5.3125 3.59375C5.3125 3.85263 5.52237 4.0625 5.78125 4.0625H6.71875C6.97763 4.0625 7.1875 3.85263 7.1875 3.59375C7.1875 3.33487 6.97763 3.125 6.71875 3.125H5.78125Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M9.0625 8.4375V1.5625C9.0625 0.699555 8.36294 0 7.5 0H3.95527C3.62375 0 3.3058 0.131696 3.07138 0.366117L1.30362 2.13388C1.0692 2.3683 0.9375 2.68625 0.9375 3.01777V8.4375C0.9375 9.30045 1.63706 10 2.5 10H7.5C8.36294 10 9.0625 9.30044 9.0625 8.4375ZM8.125 1.5625C8.125 1.21732 7.84518 0.9375 7.5 0.9375H5V2.96875C5 3.57281 4.51031 4.0625 3.90625 4.0625H1.875V8.4375C1.875 8.78268 2.15482 9.0625 2.5 9.0625H7.5C7.84518 9.0625 8.125 8.78268 8.125 8.4375V1.5625ZM3.95527 0.9375H4.0625V2.96875C4.0625 3.05504 3.99254 3.125 3.90625 3.125H1.875V3.01777C1.875 2.93489 1.90792 2.8554 1.96653 2.7968L3.7343 1.02903C3.7929 0.970424 3.87239 0.9375 3.95527 0.9375Z"/></svg></div>
+                                <div class="benefit-text">Manages all tax liability</div>
+                            </div>
+                            <div class="benefit-row">
+                                <div class="benefit-icon"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M7.09876 3.86823C7.25033 3.65836 7.20307 3.36535 6.9932 3.21378C6.78333 3.0622 6.49032 3.10946 6.33875 3.31934L4.64747 5.6611L3.62967 4.53021C3.45649 4.33778 3.1601 4.32218 2.96768 4.49537C2.77525 4.66855 2.75965 4.96493 2.93283 5.15736L4.33908 6.71986C4.43386 6.82517 4.57118 6.88196 4.71265 6.87436C4.85412 6.86676 4.98456 6.79559 5.06751 6.68073L7.09876 3.86823Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M3.01764 8.88675L4.4275 9.82666C4.59705 9.93969 4.79625 10 5.00002 10C5.20379 10 5.40299 9.93969 5.57254 9.82667L6.9824 8.88675C8.29187 8.01377 9.1139 6.57522 9.20119 5.00386L9.3567 2.20484C9.36665 2.02572 9.22424 1.87407 9.0479 1.84105C7.96658 1.63858 6.23029 0.585496 5.57459 0.169404C5.40254 0.0602262 5.20379 0 5.00002 0C4.79625 0 4.5975 0.0602266 4.42545 0.169405C3.76975 0.585499 2.03347 1.63859 0.95214 1.84105C0.775803 1.87407 0.633393 2.02572 0.643344 2.20484L0.798845 5.00385C0.886143 6.57521 1.70817 8.01377 3.01764 8.88675ZM1.7349 4.95185L1.60652 2.64106C2.17193 2.46657 2.77332 2.1826 3.2829 1.91608C3.96644 1.55857 4.58884 1.17606 4.92777 0.960976C4.95618 0.942943 4.98177 0.9375 5.00002 0.9375C5.01827 0.9375 5.04386 0.942944 5.07227 0.960976C5.4112 1.17605 6.0336 1.55856 6.71714 1.91607C7.22672 2.18259 7.82811 2.46657 8.39352 2.64105L8.26514 4.95185C8.19421 6.22858 7.52631 7.39741 6.46237 8.1067L5.0525 9.04662C5.03696 9.05698 5.0187 9.06251 5.00002 9.06251C4.98134 9.06251 4.96308 9.05698 4.94754 9.04662L3.53767 8.1067C2.47373 7.39741 1.80583 6.22858 1.7349 4.95185Z"/></svg></div>
+                                <div class="benefit-text">Automate fraud prevention and disputes</div>
+                            </div>
+                        </div>
+
+                        <div class="coverage-divider"></div>
+
+                        <div class="coverage-toggle-row">
+                            <div class="coverage-toggle-left">
+                                <div class="switch-el" id="switch-domestic" onclick="toggleDomestic()">
+                                    <div class="switch-thumb"></div>
+                                </div>
+                                <div class="switch-label">Manage my domestic payments as well</div>
+                            </div>
+                            <span class="fee-badge">6.4% + 30c <svg class="fee-icon" viewBox="0 0 12 12" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.75 1.75H3.25C2.42157 1.75 1.75 2.42157 1.75 3.25V8.75C1.75 9.57843 2.42157 10.25 3.25 10.25H8.75C9.57843 10.25 10.25 9.57843 10.25 8.75V3.25C10.25 2.42157 9.57843 1.75 8.75 1.75ZM3.25 0.25C1.59315 0.25 0.25 1.59315 0.25 3.25V8.75C0.25 10.4069 1.59315 11.75 3.25 11.75H8.75C10.4069 11.75 11.75 10.4069 11.75 8.75V3.25C11.75 1.59315 10.4069 0.25 8.75 0.25H3.25Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M4.48182 6.49998C4.48182 6.11338 4.79522 5.79998 5.18182 5.79998H6.27273C6.65933 5.79998 6.97273 6.11338 6.97273 6.49998V8.49998C6.97273 8.88658 6.65933 9.19998 6.27273 9.19998C5.88613 9.19998 5.57273 8.88658 5.57273 8.49998V7.19998H5.18182C4.79522 7.19998 4.48182 6.88658 4.48182 6.49998Z"/><path d="M4.99994 3.99999C4.99994 3.44858 5.44854 2.99999 5.99994 2.99999C6.55134 2.99999 6.99994 3.44858 6.99994 3.99999C6.99994 4.55139 6.55134 4.99999 5.99994 4.99999C5.44854 4.99999 4.99994 4.55139 4.99994 3.99999Z"/></svg><span class="fee-tooltip">6.4% + 30c fee per successful Managed Payments transaction for domestic cards.</span></span>
+                        </div>
+                    </div>
+
+                    <button class="link-later">I'll manage payments myself</button>
+                </div>
+
+                <!-- Right half: Globe -->
+                <div class="modal-right-wrapper">
+                    <div class="modal-right" id="globe-container">
+                        <div class="globe-glow-circle" id="globe-glow-circle"></div>
+
+                        <div class="globe-card disputes" id="card-disputes">
+                            <div class="globe-card-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M8 1.5L2 4v4c0 3.5 2.5 6 6 7.5 3.5-1.5 6-4 6-7.5V4L8 1.5z" stroke="#635bff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                            <div class="globe-card-text">
+                                <span class="globe-card-title">Dispute handling <svg class="globe-card-check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                                <span class="globe-card-subtitle">Dispute countered by Stripe</span>
+                            </div>
+                        </div>
+
+                        <div class="globe-card tax" id="card-tax">
+                            <div class="globe-card-icon"><svg viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="#635bff" stroke-width="1.5"/><path d="M5 7h6M5 9.5h4" stroke="#635bff" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+                            <div class="globe-card-text">
+                                <span class="globe-card-title">Tax collection and remittance <svg class="globe-card-check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                                <span class="globe-card-subtitle">Automated tax operations</span>
+                            </div>
+                        </div>
+
+                        <div class="globe-card fraud" id="card-fraud">
+                            <div class="globe-card-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M8 1.5L2 4v4c0 3.5 2.5 6 6 7.5 3.5-1.5 6-4 6-7.5V4L8 1.5z" stroke="#635bff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 8l1.5 1.5L10 7" stroke="#635bff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                            <div class="globe-card-text">
+                                <span class="globe-card-title">Fraud detection <svg class="globe-card-check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                                <span class="globe-card-subtitle">Proactive fraud prevention</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer pinned at bottom -->
+            <div class="modal-footer">
+                <button class="back-link">← Back </button>
+                <button class="btn-continue">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Domestic coverage toggle
+        function toggleDomestic() {
+            document.getElementById('switch-domestic').classList.toggle('on');
+        }
+
+        // Globe (exact replica from /globe-prototype/index.html, non-interactive)
+        (function() {
+            const container = document.getElementById('globe-container');
+            const w = container.clientWidth, h = container.clientHeight;
+
+            const scene = new THREE.Scene();
+            const camera = new THREE.OrthographicCamera(-w/2, w/2, h/2, -h/2, 1, 10000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(w, h);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.setClearColor(0x000000, 0);
+            renderer.sortObjects = false;
+            container.appendChild(renderer.domElement);
+
+            const globeRadius = (100 + Math.min(w, h) * 0.25) * 0.830875;
+            const globeSegments = Math.floor((globeRadius / 250) * 10) + 20;
+            camera.position.z = globeRadius * 4;
+
+            // Size the glow circle to match the globe
+            const glowCircle = document.getElementById('globe-glow-circle');
+            const circleDiameter = globeRadius * 2;
+            glowCircle.style.width = circleDiameter + 'px';
+            glowCircle.style.height = circleDiameter + 'px';
+
+            // Place the value prop cards relative to the globe, not the panel, so they
+            // sit exactly where they did in v1 despite this globe being smaller.
+            // Ratios below are v1's geometry expressed in globe diameters.
+            const CARD_BASE_W = 240;      // v1 card width at its own globe size
+            const CARD_W_RATIO = 0.565;   // card width / globe diameter in v1
+            const CARD_SPOTS = {
+                'card-disputes': { dx:  0.0435, dy: -0.353 },
+                'card-tax':      { dx: -0.579,  dy: -0.141 },
+                'card-fraud':    { dx:  0.087,  dy:  0.198 },
+            };
+            const D = globeRadius * 2;
+            const cardScale = (CARD_W_RATIO * D) / CARD_BASE_W;
+            Object.entries(CARD_SPOTS).forEach(([id, spot]) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.style.setProperty('--card-scale', cardScale);
+                el.style.left = (w / 2 + spot.dx * D) + 'px';
+                el.style.top = (h / 2 + spot.dy * D) + 'px';
+            });
+
+            const globeContainer = new THREE.Group();
+            globeContainer.rotation.x = Math.PI * 0.1111;
+            globeContainer.rotation.y = Math.PI * 0.55;
+            scene.add(globeContainer);
+
+            const globeGeometry = new THREE.SphereGeometry(globeRadius, globeSegments, globeSegments);
+            const globeMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('#f7f6fc'), shininess: 3, transparent: true, opacity: 0.85 });
+            globeContainer.add(new THREE.Mesh(globeGeometry, globeMaterial));
+
+            scene.add(new THREE.AmbientLight(new THREE.Color('#F8F7FC'), 1.3));
+            const backLight = new THREE.PointLight(new THREE.Color('#666677'), 0.08, 0, 2);
+            backLight.position.set(-1000, -1100, -3300);
+            scene.add(backLight);
+            const frontLight = new THREE.PointLight(new THREE.Color('#777788'), 0.5, 0, 20);
+            frontLight.position.set(-3000, 3000, 3300);
+            scene.add(frontLight);
+            // Soft fill from the lower right to lift the shaded side of the sphere
+            const fillLight = new THREE.DirectionalLight(new THREE.Color('#FFFFFF'), 0.35);
+            fillLight.position.set(2, -2, 2);
+            scene.add(fillLight);
+
+            const DOT_COUNT = 40000;
+            const dotVertexShader = `
+              uniform float u_time;
+              uniform vec3 u_cameraDir;
+              attribute float a_random;
+              varying float v_random;
+              varying float v_facing;
+              void main() {
+                v_random = a_random;
+                vec3 worldNormal = normalize((modelMatrix * vec4(normalize(position), 0.0)).xyz);
+                v_facing = dot(worldNormal, u_cameraDir);
+                vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                gl_Position = projectionMatrix * mvPosition;
+                gl_PointSize = 3.0;
+              }
+            `;
+            const dotFragmentShader = `
+              uniform float u_time;
+              uniform vec3 u_color;
+              varying float v_random;
+              varying float v_facing;
+              void main() {
+                if (v_facing < 0.0) discard;
+                vec2 uv = gl_PointCoord * 2.0 - 1.0;
+                float rotAngle = v_random * 6.28;
+                float cs = cos(rotAngle), sn = sin(rotAngle);
+                uv = vec2(uv.x * cs - uv.y * sn, uv.x * sn + uv.y * cs);
+                float angle = atan(uv.y, uv.x);
+                float radius = length(uv);
+                float a = 3.14159 / 5.0;
+                float sector = floor(angle / (2.0 * a) + 0.5);
+                float sectorAngle = sector * 2.0 * a;
+                vec2 tip = vec2(cos(sectorAngle), sin(sectorAngle));
+                float d = dot(uv, tip);
+                if (d > cos(a)) discard;
+                if (radius > 0.95) discard;
+                float edgeFade = smoothstep(0.0, 0.6, v_facing);
+                float blink = 0.75 + 0.25 * sin(u_time * 2.0 + v_random * 12.56);
+                vec3 darkenedColor = u_color * 0.55;
+                gl_FragColor = vec4(darkenedColor, blink * edgeFade);
+              }
+            `;
+            const dotUniforms = {
+              u_time: { value: 0 },
+              u_color: { value: new THREE.Color('#b8c0f0') },
+              u_cameraDir: { value: new THREE.Vector3(0, 0, 1) },
+            };
+
+            const mapImg = new Image();
+            mapImg.crossOrigin = 'anonymous';
+            mapImg.src = 'https://images.ctfassets.net/fzn2n1nzq965/11064gUb2CgTJXKVwAt5J9/297a98a65d04d4fbb979072ce60466ab/map_fill-a78643e8.png';
+            mapImg.onload = () => {
+              const c = document.createElement('canvas');
+              c.width = mapImg.width; c.height = mapImg.height;
+              const ctx = c.getContext('2d');
+              ctx.drawImage(mapImg, 0, 0);
+              const imgData = ctx.getImageData(0, 0, c.width, c.height);
+              const positions = [], randoms = [];
+              for (let i = 0; i < DOT_COUNT; i++) {
+                const phi = Math.acos(-1 + (2 * i) / DOT_COUNT);
+                const theta = Math.sqrt(DOT_COUNT * Math.PI) * phi;
+                const latDeg = 90 - (phi * 180 / Math.PI);
+                const lngDeg = ((theta * 180 / Math.PI) % 360) - 180;
+                const u = (lngDeg + 180) / 360;
+                const v = (90 - latDeg) / 180;
+                const px = Math.floor(u * c.width) % c.width;
+                const py = Math.floor(v * c.height) % c.height;
+                const idx = (py * c.width + px) * 4;
+                if (imgData.data[idx + 3] > 128) {
+                  const latRad = latDeg * Math.PI / 180;
+                  const lngRad = lngDeg * Math.PI / 180;
+                  positions.push(globeRadius * Math.cos(latRad) * Math.sin(lngRad), globeRadius * Math.sin(latRad), globeRadius * Math.cos(latRad) * Math.cos(lngRad));
+                  randoms.push(Math.random());
+                }
+              }
+              const geo = new THREE.BufferGeometry();
+              geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+              geo.setAttribute('a_random', new THREE.Float32BufferAttribute(randoms, 1));
+              const mat = new THREE.ShaderMaterial({ uniforms: dotUniforms, vertexShader: dotVertexShader, fragmentShader: dotFragmentShader, transparent: true, depthWrite: false });
+              globeContainer.add(new THREE.Points(geo, mat));
+            };
+
+            // Arcs
+            const arcColors = [
+              [new THREE.Color(0xf94148), new THREE.Color(0xFF8352)],
+              [new THREE.Color(0x533AFD), new THREE.Color(0x0D8EFF)],
+              [new THREE.Color(0xf94148), new THREE.Color(0x533AFD)],
+              [new THREE.Color(0xFF8352), new THREE.Color(0x0D8EFF)],
+            ];
+            const arcs = [];
+            const MAX_ARCS = 5;
+            const majorCities = [
+              {lat:40.7,lng:-74},{lat:37.8,lng:-122.4},{lat:19.4,lng:-99.1},{lat:-23.5,lng:-46.6},{lat:51.5,lng:-0.1},
+              {lat:48.9,lng:2.3},{lat:52.5,lng:13.4},{lat:55.8,lng:37.6},{lat:25.2,lng:55.3},{lat:19.1,lng:72.9},
+              {lat:39.9,lng:116.4},{lat:35.7,lng:139.7},{lat:1.3,lng:103.8},{lat:-33.9,lng:151.2},{lat:6.5,lng:3.4},
+              {lat:30,lng:31.2},{lat:-26.2,lng:28},{lat:43.7,lng:-79.4},{lat:41.9,lng:-87.6}
+            ];
+            function cityToVec3(city) {
+              const r = globeRadius + 1, latRad = city.lat * Math.PI / 180, lngRad = city.lng * Math.PI / 180;
+              return new THREE.Vector3(r * Math.cos(latRad) * Math.sin(lngRad), r * Math.sin(latRad), r * Math.cos(latRad) * Math.cos(lngRad));
+            }
+            function createEndpointMarker(color) {
+              const group = new THREE.Group();
+              const dotMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 1, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+              group.add(new THREE.Mesh(new THREE.SphereGeometry(2.2, 12, 12), dotMat));
+              const ringMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 1, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+              group.add(new THREE.Mesh(new THREE.TorusGeometry(5.5, 0.6, 8, 32), ringMat));
+              group.userData = { dotMat, ringMat };
+              return group;
+            }
+            function setMarkerOpacity(marker, opacity) { marker.userData.dotMat.opacity = opacity; marker.userData.ringMat.opacity = opacity; }
+
+            function createArc() {
+              if (arcs.length >= MAX_ARCS) return;
+              const cityA = majorCities[Math.floor(Math.random() * majorCities.length)];
+              let cityB = majorCities[Math.floor(Math.random() * majorCities.length)];
+              while (cityB === cityA) cityB = majorCities[Math.floor(Math.random() * majorCities.length)];
+              const start = cityToVec3(cityA), end = cityToVec3(cityB);
+              const dist = start.distanceTo(end);
+              const arcHeight = 1.8 + (dist / (globeRadius * 2)) * 1.5;
+              const mid = start.clone().add(end).multiplyScalar(0.5).normalize().multiplyScalar(globeRadius * arcHeight);
+              const ctrl1 = start.clone().lerp(mid, 0.4), ctrl2 = end.clone().lerp(mid, 0.4);
+              const curve = new THREE.CubicBezierCurve3(start, ctrl1, ctrl2, end);
+              const points = curve.getPoints(64);
+              const colorPair = arcColors[Math.floor(Math.random() * arcColors.length)];
+              const geometry = new THREE.BufferGeometry().setFromPoints(points);
+              const material = new THREE.LineBasicMaterial({ color: colorPair[0].clone().lerp(colorPair[1], 0.5), transparent: true, opacity: 1 });
+              const line = new THREE.Line(geometry, material);
+              globeContainer.add(line);
+              const glowStart = createEndpointMarker(colorPair[0]);
+              const glowEnd = createEndpointMarker(colorPair[1]);
+              glowStart.position.copy(start); glowEnd.position.copy(end);
+              glowStart.lookAt(start.clone().multiplyScalar(2)); glowEnd.lookAt(end.clone().multiplyScalar(2));
+              setMarkerOpacity(glowStart, 1); setMarkerOpacity(glowEnd, 0);
+              globeContainer.add(glowStart); globeContainer.add(glowEnd);
+              line.geometry.setDrawRange(0, 0);
+              arcs.push({ line, glowStart, glowEnd, totalPoints: 65, created: Date.now(), drawDuration: 600, holdDuration: 3000, fadeDuration: 800 });
+            }
+            setTimeout(createArc, 500);
+            setInterval(createArc, 1000);
+
+            const clock = new THREE.Clock();
+            function animate() {
+              requestAnimationFrame(animate);
+              const elapsed = clock.getElapsedTime();
+              dotUniforms.u_time.value = elapsed;
+              dotUniforms.u_cameraDir.value.copy(camera.position).normalize();
+              globeContainer.rotation.y -= 0.001;
+              const now = Date.now();
+              for (let i = arcs.length - 1; i >= 0; i--) {
+                const arc = arcs[i], age = now - arc.created;
+                const totalLife = arc.drawDuration + arc.holdDuration + arc.fadeDuration;
+                if (age > totalLife) {
+                  globeContainer.remove(arc.line); globeContainer.remove(arc.glowStart); globeContainer.remove(arc.glowEnd);
+                  arc.line.geometry.dispose(); arc.line.material.dispose();
+                  arc.glowStart.userData.dotMat.dispose(); arc.glowStart.userData.ringMat.dispose();
+                  arc.glowEnd.userData.dotMat.dispose(); arc.glowEnd.userData.ringMat.dispose();
+                  arcs.splice(i, 1);
+                } else if (age < arc.drawDuration) {
+                  const p = age / arc.drawDuration;
+                  arc.line.geometry.setDrawRange(0, Math.floor(p * arc.totalPoints));
+                  arc.line.material.opacity = 1; setMarkerOpacity(arc.glowStart, 1);
+                  setMarkerOpacity(arc.glowEnd, p > 0.9 ? (p - 0.9) / 0.1 : 0);
+                } else if (age < arc.drawDuration + arc.holdDuration) {
+                  arc.line.geometry.setDrawRange(0, arc.totalPoints);
+                  arc.line.material.opacity = 1; setMarkerOpacity(arc.glowStart, 1); setMarkerOpacity(arc.glowEnd, 1);
+                } else {
+                  const fadeProgress = 1 - ((age - arc.drawDuration - arc.holdDuration) / arc.fadeDuration);
+                  arc.line.geometry.setDrawRange(0, arc.totalPoints);
+                  arc.line.material.opacity = fadeProgress; setMarkerOpacity(arc.glowStart, fadeProgress); setMarkerOpacity(arc.glowEnd, fadeProgress);
+                }
+              }
+              renderer.render(scene, camera);
+            }
+            animate();
+
+            window.addEventListener('resize', () => {
+              const nw = container.clientWidth, nh = container.clientHeight;
+              camera.left = -nw/2; camera.right = nw/2; camera.top = nh/2; camera.bottom = -nh/2;
+              camera.updateProjectionMatrix();
+              renderer.setSize(nw, nh);
+            });
+        })();
+
+        // Animated cards: fade in one by one, then fade out one by one, loop
+        (function() {
+            const cards = [
+                document.getElementById('card-disputes'),
+                document.getElementById('card-tax'),
+                document.getElementById('card-fraud'),
+            ];
+            const fadeInDelay = 900;   // delay between each card fading in
+            const holdTime = 2000;     // time all cards stay visible
+            const fadeOutDelay = 600;  // delay between each card fading out
+            const pauseTime = 1200;    // pause before restarting
+
+            function runCycle() {
+                let t = 0;
+
+                cards.forEach((card, i) => {
+                    setTimeout(() => card.classList.add('visible'), t + i * fadeInDelay);
+                });
+                t += cards.length * fadeInDelay + holdTime;
+
+                cards.forEach((card, i) => {
+                    setTimeout(() => card.classList.remove('visible'), t + i * fadeOutDelay);
+                });
+                t += cards.length * fadeOutDelay + pauseTime;
+
+                setTimeout(runCycle, t);
+            }
+
+            setTimeout(runCycle, 1000);
+        })();
+    </script>
+    <!-- Dismiss on backdrop click: return to the variations index -->
+    <script>
+        (function () {
+            // Not when embedded in flow.html — there the backdrop isn't an exit.
+            if (new URLSearchParams(location.search).get('flow') === '1') return;
+            var backdrop = document.querySelector('.modal-backdrop');
+            if (!backdrop) return;
+            backdrop.addEventListener('click', function (e) {
+                if (e.target === backdrop) window.location.href = 'index.html';
+            });
+        })();
+    </script>
+    <!-- Embedded in flow.html: take the progress from the flow and hand Back /
+         Continue back to it, so this screen is step 5 of the e2e onboarding. -->
+    <script>
+        (function () {
+            var params = new URLSearchParams(location.search);
+            if (params.get('flow') !== '1') return;
+            window.IN_FLOW = true;
+
+            var standaloneBack = document.querySelector('.back-button');
+            if (standaloneBack) standaloneBack.remove();
+
+            var progress = params.get('progress');
+            var fill = document.getElementById('progressFill');
+            if (progress && fill) fill.style.width = progress + '%';
+
+            function send(dir) {
+                parent.postMessage({ type: 'flow-nav', dir: dir }, '*');
+            }
+            var next = document.querySelector('.btn-continue');
+            if (next) next.addEventListener('click', function () { send('next'); });
+            var back = document.querySelector('.back-link');
+            if (back) back.addEventListener('click', function () { send('back'); });
+        })();
+    </script>
+</body>
+</html>
