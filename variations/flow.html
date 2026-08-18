@@ -723,11 +723,11 @@ for (const p of SMP_PROPS) {
 
 const CHECK = '<svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 5.2l2.2 2.2L8.5 2.6"/></svg>';
 
-// Selectable-row group. `name` keys the selection state, `multi` allows more
-// than one row (the Figma shows checkboxes on these steps).
+// Checkbox rows: multi-select, so any number of choices can be on at once.
+// `name` keys an array of selected indexes in `state`.
 function rows(name, items) {
   return `<div class="options">${items.map((it, i) => `
-    <div class="option-row${state[name] === i ? ' selected' : ''}" onclick="select('${name}', ${i})">
+    <div class="option-row${state[name].includes(i) ? ' selected' : ''}" onclick="toggle('${name}', ${i})">
       <span class="box">${CHECK}</span>
       <span style="flex:1">
         <span class="row-title">${it.title}</span>
@@ -901,7 +901,9 @@ const STEPS = [
 ];
 
 // Defaults mirror the pre-selected rows in the Figma.
-const state = { use: 1, sell: 0, setup: 0 };
+// `use` and `sell` are checkbox groups, so they hold arrays; `setup` is a
+// single choice between the two setup methods. Defaults mirror the Figma.
+const state = { use: [1], sell: [0], setup: 0 };
 let stepIndex = 0;
 
 const el = {
@@ -958,8 +960,18 @@ function render() {
   el.actions.innerHTML = (step.actions || []).map(a => ACTIONS[a]).join('');
 }
 
+// Single choice — the setup-method cards.
 function select(name, index) {
   state[name] = index;
+  render();
+}
+
+// Checkbox groups: add or remove, any number on at once.
+function toggle(name, index) {
+  const selected = state[name];
+  const at = selected.indexOf(index);
+  if (at === -1) selected.push(index);
+  else selected.splice(at, 1);
   render();
 }
 
