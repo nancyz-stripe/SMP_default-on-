@@ -562,6 +562,17 @@
 
         /* Gradient treatments: "full" is the V1/V3 wash (already defined on
            .modal-gradient); "spotlight" is V2's layered radials. */
+        /* Unselected choices need a border only against the near-white
+           spotlight background; on the full-screen wash the tinted backdrop
+           already separates them, so the border would be redundant.
+           :not(.selected) keeps this clear of the selected-state rules. */
+        [data-fw="scope"][data-grad="spotlight"] .option-card:not(.selected) {
+            border-color: var(--border-default);
+        }
+        [data-fw="expand"][data-grad="full"] .coverage-card {
+            border-color: transparent;
+        }
+
         .modal-gradient[data-grad="spotlight"] {
             opacity: 1;
             background:
@@ -782,7 +793,7 @@
                 </div>
             </div>
 
-            <div class="modal-split" id="modalSplit" data-fw="scope">
+            <div class="modal-split" id="modalSplit" data-fw="scope" data-grad="full">
                 <!-- Left half: Content -->
                 <div class="modal-left" id="modalLeft"></div>
 
@@ -1039,6 +1050,10 @@
 
     function applyPresentation() {
         document.getElementById('modalGradient').dataset.grad = CONFIG.gradient;
+        // Mirrored onto the split so panel CSS can key off framework and
+        // gradient together — the gradient decides whether unselected choices
+        // need a border to separate from the background.
+        document.getElementById('modalSplit').dataset.grad = CONFIG.gradient;
         document.getElementById('globe-container').classList.toggle('no-cards', CONFIG.cards === 'off');
     }
 
