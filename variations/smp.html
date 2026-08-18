@@ -1385,15 +1385,18 @@
             setTimeout(runCycle, 1000);
         })();
     </script>
-    <!-- Dismiss on backdrop click: return to the variations index -->
+    <!-- Dismiss on backdrop click: return home -->
     <script>
         (function () {
-            // Not when embedded in flow.html — there the backdrop isn't an exit.
-            if (new URLSearchParams(location.search).get('flow') === '1') return;
             var backdrop = document.querySelector('.modal-backdrop');
             if (!backdrop) return;
+            var inFlow = new URLSearchParams(location.search).get('flow') === '1';
             backdrop.addEventListener('click', function (e) {
-                if (e.target === backdrop) window.location.href = 'index.html';
+                if (e.target !== backdrop) return;
+                // Embedded in the flow, the parent owns navigation — otherwise
+                // only this iframe would move.
+                if (inFlow) parent.postMessage({ type: 'flow-home' }, '*');
+                else window.location.href = 'index.html';
             });
         })();
     </script>

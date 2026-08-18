@@ -976,10 +976,26 @@ function dismissSpotlight() {
   document.querySelector('.spotlight').style.display = 'none';
 }
 
-// The SMP step drives navigation through its own Continue / Back, and reports
-// control-panel changes so the flow can keep them.
+function goHome() {
+  window.location.href = 'index.html';
+}
+
+// Clicking outside the modal leaves the flow and returns home. Guarded on the
+// target so clicks inside the modal don't bubble up into an exit.
+el.backdrop.addEventListener('click', (e) => {
+  if (e.target === el.backdrop) goHome();
+});
+
+// The SMP step drives navigation through its own Continue / Back, reports
+// control-panel changes so the flow can keep them, and forwards backdrop
+// clicks since only the parent can navigate out of the flow.
 window.addEventListener('message', (e) => {
   if (!e.data) return;
+
+  if (e.data.type === 'flow-home') {
+    goHome();
+    return;
+  }
 
   if (e.data.type === 'flow-nav') {
     if (e.data.dir === 'next') goNext();
