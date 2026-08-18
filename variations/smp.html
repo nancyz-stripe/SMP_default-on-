@@ -862,11 +862,12 @@
         ],
     };
 
-    // The three named presets, i.e. the variants as they exist today.
+    // Where each variant starts. Gradient and cards follow the variant as it was
+    // designed; every variant defaults to the medium globe.
     const PRESETS = {
-        scope:     { gradient: 'full',      globe: 'large',  cards: 'on'  },
+        scope:     { gradient: 'full',      globe: 'medium', cards: 'on'  },
         autopilot: { gradient: 'spotlight', globe: 'medium', cards: 'off' },
-        expand:    { gradient: 'full',      globe: 'large',  cards: 'on'  },
+        expand:    { gradient: 'full',      globe: 'medium', cards: 'on'  },
     };
 
     const q = new URLSearchParams(location.search);
