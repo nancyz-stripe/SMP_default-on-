@@ -421,27 +421,28 @@ const latestVariations = [
   },
 ];
 
-// Onboarding flow: the same three frameworks, entered as an end-to-end flow
-// rather than a single screen. Titles mirror the Figma (26334:37667). `preview`
-// is the variant screen itself; `file` starts the flow at step 1.
+// Onboarding flow. All three run the same flow over the same merged SMP screen;
+// each card is a preset that sets the framework, and the control panel on the
+// SMP step can take it anywhere from there. Titles mirror the Figma
+// (26334:37667). `preview` is the SMP screen at that preset.
 const flowVariations = [
   {
     id: 'flow-v1',
     title: 'V1 - Choose your scope',
-    file: 'flow.html?variant=v1',
-    preview: 'v8-latest.html',
+    file: 'flow.html?framework=scope',
+    preview: 'smp.html?framework=scope&preview=1',
   },
   {
     id: 'flow-v2',
     title: 'V2 - Auto-pilot vs Self-managed',
-    file: 'flow.html?variant=v2',
-    preview: 'v2-latest.html',
+    file: 'flow.html?framework=autopilot',
+    preview: 'smp.html?framework=autopilot&preview=1',
   },
   {
     id: 'flow-v3',
     title: 'V3 - Expand coverage',
-    file: 'flow.html?variant=v3',
-    preview: 'v3-latest.html',
+    file: 'flow.html?framework=expand',
+    preview: 'smp.html?framework=expand&preview=1',
   },
 ];
 

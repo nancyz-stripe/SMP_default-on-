@@ -726,15 +726,30 @@
 // Which variant this run of the flow is threading through. The variant only
 // governs step 5; every other step is shared.
 // ---------------------------------------------------------------------------
+// Step 5 is one merged screen (smp.html) driven by four properties. The three
+// named frameworks are presets over it, not separate builds.
 const VARIANTS = {
-  v1: { label: 'V1', title: 'Choose your scope', file: 'v8-latest.html' },
-  v2: { label: 'V2', title: 'Auto-pilot vs Self-managed', file: 'v2-latest.html' },
-  v3: { label: 'V3', title: 'Expand coverage', file: 'v3-latest.html' },
+  v1: { label: 'V1', title: 'Choose your scope', framework: 'scope' },
+  v2: { label: 'V2', title: 'Auto-pilot vs Self-managed', framework: 'autopilot' },
+  v3: { label: 'V3', title: 'Expand coverage', framework: 'expand' },
 };
+const BY_FRAMEWORK = Object.fromEntries(
+  Object.entries(VARIANTS).map(([k, v]) => [v.framework, k])
+);
 
 const params = new URLSearchParams(location.search);
-const variantKey = VARIANTS[params.get('variant')] ? params.get('variant') : 'v1';
+// Accept either ?variant=v2 or ?framework=autopilot as the entry point.
+const variantKey = VARIANTS[params.get('variant')] ? params.get('variant')
+  : BY_FRAMEWORK[params.get('framework')] || 'v1';
 const variant = VARIANTS[variantKey];
+
+// Presentational overrides pass straight through to the SMP step, so a flow URL
+// can pin an exact combination.
+const SMP_PROPS = ['framework', 'gradient', 'globe', 'cards'];
+const smpConfig = { framework: variant.framework };
+for (const p of SMP_PROPS) {
+  if (p !== 'framework' && params.get(p)) smpConfig[p] = params.get(p);
+}
 
 const CHECK = '<svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 5.2l2.2 2.2L8.5 2.6"/></svg>';
 
@@ -960,8 +975,10 @@ function render() {
   el.backdrop.style.display = step.variantStep || step.dashboardStep ? 'none' : 'flex';
 
   if (step.variantStep) {
-    // Hand the variant its progress so the bar stays continuous across the seam.
-    const src = `${variant.file}?flow=1&progress=${progressFor(stepIndex)}`;
+    // Hand the SMP screen its progress so the bar stays continuous across the
+    // seam, plus whichever properties this run of the flow is pinning.
+    const qs = new URLSearchParams({ flow: '1', progress: progressFor(stepIndex), ...smpConfig });
+    const src = `smp.html?${qs}`;
     if (el.frame.dataset.src !== src) {
       el.frame.dataset.src = src;
       el.frame.src = src;
@@ -994,11 +1011,38 @@ function dismissSpotlight() {
   document.querySelector('.spotlight').style.display = 'none';
 }
 
-// The variant iframe drives navigation through its own Continue / Back.
+// The SMP step drives navigation through its own Continue / Back, and reports
+// control-panel changes so the flow can keep them.
 window.addEventListener('message', (e) => {
-  if (!e.data || e.data.type !== 'flow-nav') return;
-  if (e.data.dir === 'next') goNext();
-  if (e.data.dir === 'back') goBack();
+  if (!e.data) return;
+
+  if (e.data.type === 'flow-nav') {
+    if (e.data.dir === 'next') goNext();
+    if (e.data.dir === 'back') goBack();
+    return;
+  }
+
+  if (e.data.type === 'smp-config' && SMP_PROPS.includes(e.data.key)) {
+    smpConfig[e.data.key] = e.data.value;
+
+    const url = new URL(location.href);
+    url.searchParams.delete('variant');
+    for (const p of SMP_PROPS) url.searchParams.set(p, smpConfig[p] ?? '');
+    for (const p of SMP_PROPS) if (!smpConfig[p]) url.searchParams.delete(p);
+    history.replaceState(null, '', url);
+
+    // The iframe reloaded itself, so keep our record of its src in step.
+    const qs = new URLSearchParams({ flow: '1', progress: progressFor(stepIndex), ...smpConfig });
+    el.frame.dataset.src = `smp.html?${qs}`;
+
+    if (e.data.key === 'framework') {
+      const key = BY_FRAMEWORK[e.data.value];
+      if (key) {
+        el.chip.textContent = VARIANTS[key].label;
+        el.chip.title = VARIANTS[key].title;
+      }
+    }
+  }
 });
 
 // The dashboard covers the viewport, the way the v1 shell does. Anchored to the
