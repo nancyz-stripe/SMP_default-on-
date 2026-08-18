@@ -27,15 +27,17 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
-            background: #c8cfd9;
+            /* Matches the dashboard's own edges, so any letterboxing blends. */
+            background: #ffffff;
             overflow: hidden;
             height: 100vh;
             width: 100vw;
         }
 
         /* The whole flow is laid out on a fixed 1280x840 stage — the Figma frame
-           size — then scaled to fit. Keeps the dashboard image and the elements
-           positioned over it in register at any viewport size. */
+           size — then scaled to *cover* the viewport. Keeps the dashboard image
+           and everything positioned over it in register, while the modal still
+           fills the window the way it does in the standalone variants. */
         #stage {
             position: fixed;
             top: 50%;
@@ -43,7 +45,6 @@
             width: 1280px;
             height: 840px;
             transform-origin: center center;
-            overflow: hidden;
             background: var(--bg-offset);
         }
 
@@ -66,33 +67,15 @@
         }
         .back-button:hover { background: var(--bg-offset); }
 
-        /* Dashboard shell behind the modal — same as the variant files so the
-           background doesn't shift when the flow hands off to a variant. */
-        .dashboard { display: flex; height: 840px; width: 1280px; }
-        .sidebar {
-            width: 240px;
-            background: var(--bg-surface);
-            border-right: 1px solid var(--neutral-50);
-            padding: 24px 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .sidebar-logo { padding: 8px 12px; margin-bottom: 20px; }
-        .sidebar-logo svg { width: 60px; height: 24px; }
-        .nav-item {
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 14px;
-            color: var(--text-subdued);
-        }
-        .nav-item.active { background: var(--bg-offset); color: var(--text-default); font-weight: 500; }
-        .main-content { flex: 1; background: var(--bg-offset); padding: 32px; }
-        .content-placeholder {
-            height: 200px;
-            background: var(--bg-surface);
-            border-radius: 8px;
-            border: 1px solid var(--neutral-50);
+        /* The real dashboard sits behind every step — dimmed by the backdrop
+           while the modal is up, then revealed as the destination on the last
+           step. Same image the final step builds its components over. */
+        .dashboard-bg {
+            position: absolute;
+            inset: 0;
+            width: 1280px;
+            height: 840px;
+            display: block;
         }
 
         .modal-backdrop {
@@ -439,10 +422,9 @@
         .sandbox-window-right i:nth-child(2) { width: 84%; }
         .sandbox-window-right .block { height: 44px; border-radius: 6px; background: rgba(255,255,255,0.75); }
 
-        /* ---------- Final step: static dashboard + live components ---------- */
+        /* ---------- Final step: components over the dashboard image ---------- */
         #dashboard-step { position: absolute; inset: 0; z-index: 150; display: none; }
         #dashboard-step.active { display: block; }
-        .dashboard-img { position: absolute; inset: 0; width: 1280px; height: 840px; display: block; }
 
         /* Spotlight callout ("Next, set up recurring payments" + Got it) */
         .spotlight { position: absolute; left: 557px; top: 671px; width: 330px; }
@@ -547,6 +529,8 @@
         .floatie-manage:hover { text-decoration: underline; }
 
         /* Variant hand-off frame (step 5) */
+        /* Transparent, so the flow's dashboard shows through behind the
+           variant's own modal and backdrop. */
         #variant-frame {
             position: absolute;
             inset: 0;
@@ -555,7 +539,7 @@
             border: none;
             z-index: 150;
             display: none;
-            background: var(--bg-offset);
+            background: transparent;
         }
         #variant-frame.active { display: block; }
 
@@ -595,25 +579,8 @@
 </div>
 
 <div id="stage">
-    <!-- Dashboard shell behind the modal -->
-    <div class="dashboard">
-        <div class="sidebar">
-            <div class="sidebar-logo">
-                <svg viewBox="0 0 60 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M8.8 4.4C8.8 3.2 9.7 2.7 11.2 2.7C13.4 2.7 16.2 3.4 18.4 4.7V0.5C16 -0.4 13.6 -0.1 11.2 0C5.6 0 2 3 2 7.4C2 14.2 11.6 13 11.6 15.9C11.6 17.3 10.4 17.8 8.9 17.8C6.5 17.8 3.4 16.8 1 15.3V19.6C3.6 20.8 6.3 21.3 8.9 21.3C14.6 21.3 18.4 18.5 18.4 14C18.4 6.7 8.8 8.1 8.8 4.4Z" fill="#635BFF"/>
-                </svg>
-            </div>
-            <div class="nav-item active">Home</div>
-            <div class="nav-item">Payments</div>
-            <div class="nav-item">Balances</div>
-            <div class="nav-item">Customers</div>
-            <div class="nav-item">Products</div>
-            <div class="nav-item">Settings</div>
-        </div>
-        <div class="main-content">
-            <div class="content-placeholder"></div>
-        </div>
-    </div>
+    <!-- The dashboard, behind every step -->
+    <img class="dashboard-bg" src="assets/dashboard.png" alt="Stripe dashboard">
 
     <!-- Modal: logo + progress bar, step content, footer with the CTAs -->
     <div class="modal-backdrop" id="modalBackdrop">
@@ -641,10 +608,8 @@
     <!-- Step 5: hands off to the selected variant, which owns its own modal -->
     <iframe id="variant-frame" title="Managed payments intent capture"></iframe>
 
-    <!-- Step 8: static dashboard image, with the setup guide + callout built -->
+    <!-- Step 8: the setup guide + callout, built over the dashboard image -->
     <div id="dashboard-step">
-        <img class="dashboard-img" src="assets/dashboard.png" alt="Stripe dashboard">
-
         <div class="spotlight">
             <div class="spotlight-title">Next, set up recurring payments</div>
             <span class="spotlight-link" onclick="dismissSpotlight()">Got it</span>
@@ -985,9 +950,11 @@ window.addEventListener('message', (e) => {
   if (e.data.dir === 'back') goBack();
 });
 
-// Scale the 1280x840 stage down to fit smaller viewports.
+// Scale the dashboard up to fill as much of the window as it can without
+// cropping — the modal is then 90% of the dashboard, and nothing positioned
+// over the image (setup guide, callout) can fall off screen.
 function fitStage() {
-  const scale = Math.min(1, window.innerWidth / 1280, window.innerHeight / 840);
+  const scale = Math.min(window.innerWidth / 1280, window.innerHeight / 840);
   document.getElementById('stage').style.transform =
     `translate(-50%, -50%) scale(${scale})`;
 }
