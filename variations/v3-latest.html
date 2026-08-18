@@ -971,11 +971,37 @@
     <!-- Dismiss on backdrop click: return to the variations index -->
     <script>
         (function () {
+            // Not when embedded in flow.html — there the backdrop isn't an exit.
+            if (new URLSearchParams(location.search).get('flow') === '1') return;
             var backdrop = document.querySelector('.modal-backdrop');
             if (!backdrop) return;
             backdrop.addEventListener('click', function (e) {
                 if (e.target === backdrop) window.location.href = 'index.html';
             });
+        })();
+    </script>
+    <!-- Embedded in flow.html: take the progress from the flow and hand Back /
+         Continue back to it, so this screen is step 5 of the e2e onboarding. -->
+    <script>
+        (function () {
+            var params = new URLSearchParams(location.search);
+            if (params.get('flow') !== '1') return;
+            window.IN_FLOW = true;
+
+            var standaloneBack = document.querySelector('.back-button');
+            if (standaloneBack) standaloneBack.remove();
+
+            var progress = params.get('progress');
+            var fill = document.getElementById('progressFill');
+            if (progress && fill) fill.style.width = progress + '%';
+
+            function send(dir) {
+                parent.postMessage({ type: 'flow-nav', dir: dir }, '*');
+            }
+            var next = document.querySelector('.btn-continue');
+            if (next) next.addEventListener('click', function () { send('next'); });
+            var back = document.querySelector('.back-link');
+            if (back) back.addEventListener('click', function () { send('back'); });
         })();
     </script>
 </body>

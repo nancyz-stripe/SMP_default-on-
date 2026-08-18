@@ -421,23 +421,27 @@ const latestVariations = [
   },
 ];
 
-// Onboarding flow: the same three frameworks, entered as a flow rather than a
-// single screen. Titles mirror the Figma (26334:37667).
+// Onboarding flow: the same three frameworks, entered as an end-to-end flow
+// rather than a single screen. Titles mirror the Figma (26334:37667). `preview`
+// is the variant screen itself; `file` starts the flow at step 1.
 const flowVariations = [
   {
     id: 'flow-v1',
     title: 'V1 - Choose your scope',
-    file: 'v8-latest.html',
+    file: 'flow.html?variant=v1',
+    preview: 'v8-latest.html',
   },
   {
     id: 'flow-v2',
     title: 'V2 - Auto-pilot vs Self-managed',
-    file: 'v2-latest.html',
+    file: 'flow.html?variant=v2',
+    preview: 'v2-latest.html',
   },
   {
     id: 'flow-v3',
     title: 'V3 - Expand coverage',
-    file: 'v3-latest.html',
+    file: 'flow.html?variant=v3',
+    preview: 'v3-latest.html',
   },
 ];
 
@@ -561,7 +565,7 @@ function renderCard(v, i, section) {
 function renderFlowCard(v) {
   return `
     <a class="card" href="${v.file}">
-      <div class="card-preview" data-src="${v.file}"></div>
+      <div class="card-preview" data-src="${v.preview || v.file}"></div>
       <div class="card-body">
         <div class="card-flow-title">${v.title}</div>
         <span class="btn-start-flow">Start flow</span>
