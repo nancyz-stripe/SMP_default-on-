@@ -352,6 +352,8 @@ const latestVariations = [
     file: 'v8-latest.html',
     framework: 'Choose your scope',
     gradient: 'Full gradient background',
+    globe: 'Large',
+    valueCards: true,
   },
   {
     id: 'v2-latest',
@@ -360,6 +362,8 @@ const latestVariations = [
     file: 'v2-latest.html',
     framework: 'Autopilot vs Self-managed',
     gradient: 'Spotlight gradient',
+    globe: 'Medium',
+    valueCards: false,
   },
   {
     id: 'v3-latest',
@@ -368,6 +372,8 @@ const latestVariations = [
     file: 'v3-latest.html',
     framework: 'Expand coverage',
     gradient: 'Full gradient background',
+    globe: 'Large',
+    valueCards: true,
   },
   {
     id: 'v4-latest',
@@ -376,6 +382,8 @@ const latestVariations = [
     file: 'v4-latest.html',
     framework: 'Autopilot vs Self-managed',
     gradient: 'Spotlight gradient',
+    globe: 'Medium',
+    valueCards: false,
   },
 ];
 
@@ -435,7 +443,15 @@ function loadVariations() {
     try {
       const parsed = JSON.parse(saved).map(v => {
         const def = defaultsMap[v.id];
-        if (def) return { ...def, ...v, description: v.description || def.description || '', framework: v.framework || def.framework, gradient: v.gradient || def.gradient };
+        if (def) return {
+          ...def,
+          ...v,
+          description: v.description || def.description || '',
+          framework: v.framework ?? def.framework,
+          gradient: v.gradient ?? def.gradient,
+          globe: v.globe ?? def.globe,
+          valueCards: v.valueCards ?? def.valueCards,
+        };
         return { ...v, description: v.description || '' };
       });
       const savedIds = new Set(parsed.map(v => v.id));
@@ -455,7 +471,7 @@ function saveVariations() {
 const isLocal = window.location.protocol === 'file:' || window.location.hostname === 'localhost';
 
 // Force reset stale localStorage (bump version to reset)
-const STORAGE_VERSION = '8';
+const STORAGE_VERSION = '9';
 if (localStorage.getItem('variations-version') !== STORAGE_VERSION) {
   localStorage.removeItem('variations-order');
   localStorage.removeItem('variations-deleted');
