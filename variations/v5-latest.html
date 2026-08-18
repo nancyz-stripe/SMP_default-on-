@@ -561,7 +561,7 @@
             <div class="modal-split">
                 <!-- Left half: Content -->
                 <div class="modal-left">
-                    <!-- Headline bundles the cross-border given with the ask, so
+                    <!-- Headline bundles the international given with the ask, so
                          there's less to parse before the domestic toggle
                          (Figma 26340:50383). -->
                     <div class="modal-headline">Stripe handles your international payments. <span class="muted">Expand to cover your domestic payments as well.</span></div>
@@ -636,7 +636,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
         // Domestic coverage toggle. One price badge stands for whatever the
-        // switch currently covers: cross-border only, or cross-border plus
+        // switch currently covers: international only, or international plus
         // domestic at the blended rate.
         const PRICING = {
             crossBorder: {
@@ -645,7 +645,7 @@
             },
             withDomestic: {
                 rate: '6.4% + 30c',
-                note: '6.4% + 30c fee per successful Managed Payments transaction, domestic and cross-border.',
+                note: '6.4% + 30c fee per successful Managed Payments transaction, domestic and international.',
             },
         };
 
