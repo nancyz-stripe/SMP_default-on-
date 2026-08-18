@@ -350,24 +350,28 @@ const latestVariations = [
     title: 'v1',
     description: '3 choices (xborder, all payments, manage myself)',
     file: 'v8-latest.html',
+    gradient: 'Full gradient background',
   },
   {
     id: 'v2-latest',
     title: 'v2',
     description: 'Auto-pilot vs Self-managed',
     file: 'v2-latest.html',
+    gradient: 'Spotlight gradient',
   },
   {
     id: 'v3-latest',
     title: 'v3',
     description: 'Xborder as default + expand to cover domestic',
     file: 'v3-latest.html',
+    gradient: 'Full gradient background',
   },
   {
     id: 'v4-latest',
     title: 'v4',
     description: 'Auto-pilot vs Self-managed, with globe adapting to the choice',
     file: 'v4-latest.html',
+    gradient: 'Spotlight gradient',
   },
 ];
 
@@ -427,7 +431,7 @@ function loadVariations() {
     try {
       const parsed = JSON.parse(saved).map(v => {
         const def = defaultsMap[v.id];
-        if (def) return { ...def, ...v, description: v.description || def.description || '' };
+        if (def) return { ...def, ...v, description: v.description || def.description || '', gradient: v.gradient || def.gradient };
         return { ...v, description: v.description || '' };
       });
       const savedIds = new Set(parsed.map(v => v.id));
@@ -447,7 +451,7 @@ function saveVariations() {
 const isLocal = window.location.protocol === 'file:' || window.location.hostname === 'localhost';
 
 // Force reset stale localStorage (bump version to reset)
-const STORAGE_VERSION = '6';
+const STORAGE_VERSION = '7';
 if (localStorage.getItem('variations-version') !== STORAGE_VERSION) {
   localStorage.removeItem('variations-order');
   localStorage.removeItem('variations-deleted');
@@ -473,6 +477,7 @@ function renderCard(v, i, section) {
       <div class="card-body">
         <div class="card-title">${displayTitle}</div>
         <div class="card-description">${v.description}</div>
+        ${v.gradient ? `<span class="card-tag">${v.gradient}</span>` : ''}
       </div>
     </a>
   `;
