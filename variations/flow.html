@@ -293,7 +293,9 @@
             gap: 12px;
             padding: 16px;
             border-radius: 8px;
-            border: 1px solid transparent;
+            /* Only the selected state shows a border. Kept transparent rather
+               than absent so selecting doesn't shift the row by 2px. */
+            border: 2px solid transparent;
             background: var(--bg-offset);
             cursor: pointer;
             transition: background 0.15s, border-color 0.15s;
@@ -340,7 +342,7 @@
         .method-cards { display: flex; gap: 12px; }
         .method-card {
             width: 297px;
-            border: 1px solid transparent;
+            border: 2px solid transparent;
             border-radius: 8px;
             background: var(--bg-offset);
             overflow: hidden;
