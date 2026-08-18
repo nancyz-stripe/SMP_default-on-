@@ -641,10 +641,12 @@
         }
         .control-rows { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
         .control-rows.side-by-side { flex-direction: row; gap: 4px; }
+        /* Only the side-by-side pairs share the width; stacked rows keep their
+           own height, which flex-basis would otherwise collapse. */
+        .control-rows.side-by-side .opt { flex: 1; min-width: 0; }
 
         .opt {
-            flex: 1;
-            min-width: 0;
+            flex: none;
             height: 24px;
             padding: 0 8px;
             display: flex;
