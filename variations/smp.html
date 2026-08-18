@@ -536,12 +536,7 @@
         [data-fw="expand"] .coverage-head { display: flex; flex-direction: column; gap: 8px; }
         [data-fw="expand"] .coverage-title-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
         [data-fw="expand"] .coverage-title { font-size: 14px; font-weight: 500; line-height: 19px; letter-spacing: -0.15px; color: var(--text-default); }
-        [data-fw="expand"] .coverage-desc { font-size: 12px; line-height: 16px; color: var(--text-subdued); }
-        [data-fw="expand"] .benefit-list { display: flex; flex-direction: column; gap: 12px; }
-        [data-fw="expand"] .benefit-row { display: flex; align-items: center; gap: 8px; }
-        [data-fw="expand"] .benefit-icon { width: 20px; height: 20px; border-radius: 3.75px; background: #efecfc; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; }
-        [data-fw="expand"] .benefit-icon svg { width: 10px; height: 10px; display: block; fill: var(--icon-action-primary); }
-        [data-fw="expand"] .benefit-text { flex: 1; font-size: 14px; line-height: 20px; letter-spacing: -0.15px; color: #1a2c44; }
+        [data-fw="expand"] .coverage-desc { font-size: 14px; line-height: 20px; color: var(--text-subdued); }
         [data-fw="expand"] .coverage-divider { height: 1px; border-top: 1px solid #d4dee9; }
         [data-fw="expand"] .coverage-toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; border-radius: 4px; }
         [data-fw="expand"] .coverage-toggle-left { display: flex; align-items: center; gap: 12px; }
@@ -973,46 +968,34 @@
                         </div>
     `,
       expand: `
-                        <div class="modal-headline">Expand your payment management coverage. <span class="muted">You can change this anytime.</span></div>
-    
-                        <div class="coverage-card">
-                            <div class="coverage-head">
-                                <div class="coverage-title-row">
-                                    <div class="coverage-title">Stripe handles your cross-border payments</div>
-                                    <span class="fee-badge">6.9% + 30c <svg class="fee-icon" viewBox="0 0 12 12" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.75 1.75H3.25C2.42157 1.75 1.75 2.42157 1.75 3.25V8.75C1.75 9.57843 2.42157 10.25 3.25 10.25H8.75C9.57843 10.25 10.25 9.57843 10.25 8.75V3.25C10.25 2.42157 9.57843 1.75 8.75 1.75ZM3.25 0.25C1.59315 0.25 0.25 1.59315 0.25 3.25V8.75C0.25 10.4069 1.59315 11.75 3.25 11.75H8.75C10.4069 11.75 11.75 10.4069 11.75 8.75V3.25C11.75 1.59315 10.4069 0.25 8.75 0.25H3.25Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M4.48182 6.49998C4.48182 6.11338 4.79522 5.79998 5.18182 5.79998H6.27273C6.65933 5.79998 6.97273 6.11338 6.97273 6.49998V8.49998C6.97273 8.88658 6.65933 9.19998 6.27273 9.19998C5.88613 9.19998 5.57273 8.88658 5.57273 8.49998V7.19998H5.18182C4.79522 7.19998 4.48182 6.88658 4.48182 6.49998Z"/><path d="M4.99994 3.99999C4.99994 3.44858 5.44854 2.99999 5.99994 2.99999C6.55134 2.99999 6.99994 3.44858 6.99994 3.99999C6.99994 4.55139 6.55134 4.99999 5.99994 4.99999C5.44854 4.99999 4.99994 4.55139 4.99994 3.99999Z"/></svg><span class="fee-tooltip">6.9% + 30c fee per successful Managed Payments transaction.</span></span>
-                                </div>
-                                <div class="coverage-desc">Stripe manages tax, fraud, and disputes maximizing revenue while lowering your operational overhead.</div>
+                    <!-- Headline bundles the international given with the ask, so
+                         there's less to parse before the domestic toggle
+                         (Figma 26340:50383). -->
+                    <div class="modal-headline">Stripe handles your international payments. <span class="muted">Expand to cover your domestic payments as well.</span></div>
+
+                    <div class="coverage-card">
+                        <div class="coverage-head">
+                            <div class="coverage-title-row">
+                                <div class="coverage-title">Managed payments</div>
                             </div>
-    
-                            <div class="benefit-list">
-                                <div class="benefit-row">
-                                    <div class="benefit-icon"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M7.08064 0.148232C7.05113 0.0597092 6.96829 0 6.87498 0C6.78167 0 6.69883 0.0597093 6.66932 0.148232L6.24999 1.40624L5.15158 1.68084C5.0625 1.70311 5 1.78315 5 1.87498C5 1.96681 5.0625 2.04686 5.15158 2.06913L6.24997 2.34372L6.66932 3.60177C6.69883 3.69029 6.78167 3.75 6.87498 3.75C6.96829 3.75 7.05113 3.69029 7.08064 3.60177L7.49999 2.34374L8.59842 2.06913C8.6875 2.04686 8.75 1.96681 8.75 1.87498C8.75 1.78315 8.6875 1.70311 8.59842 1.68084L7.49997 1.40622L7.08064 0.148232Z"/><path d="M9.0625 5.625C9.58027 5.625 10 5.20527 10 4.6875C10 4.16973 9.58027 3.75 9.0625 3.75C8.54473 3.75 8.125 4.16973 8.125 4.6875C8.125 4.86202 8.17269 5.0254 8.25574 5.16533L6.69326 7.50905C6.65053 7.50308 6.60687 7.5 6.5625 7.5C6.41702 7.5 6.27928 7.53314 6.15642 7.59227L4.35124 6.14813C4.36679 6.08043 4.375 6.00992 4.375 5.9375C4.375 5.41973 3.95527 5 3.4375 5C2.91973 5 2.5 5.41973 2.5 5.9375C2.5 6.08302 2.53316 6.2208 2.59233 6.34369L1.14826 8.14878C1.08051 8.13322 1.00997 8.125 0.9375 8.125C0.419733 8.125 0 8.54473 0 9.0625C0 9.58027 0.419733 10 0.9375 10C1.45527 10 1.875 9.58027 1.875 9.0625C1.875 8.917 1.84185 8.77924 1.7827 8.65636L3.22681 6.85123C3.29453 6.86678 3.36506 6.875 3.4375 6.875C3.58305 6.875 3.72084 6.84183 3.84375 6.78265L5.6488 8.22668C5.63323 8.29445 5.625 8.36501 5.625 8.4375C5.625 8.95527 6.04473 9.375 6.5625 9.375C7.08027 9.375 7.5 8.95527 7.5 8.4375C7.5 8.26301 7.45233 8.09965 7.3693 7.95974L8.93182 5.61596C8.97453 5.62192 9.01815 5.625 9.0625 5.625Z"/><path d="M2.08462 1.94912C2.09937 1.90485 2.14079 1.875 2.18745 1.875C2.2341 1.875 2.27552 1.90485 2.29028 1.94912L2.47535 2.57195L3.04921 2.71541C3.09375 2.72655 3.125 2.76657 3.125 2.81249C3.125 2.8584 3.09375 2.89842 3.04921 2.90956L2.49743 3.0475C2.49209 3.06814 2.48603 3.08864 2.47925 3.10896L2.29028 3.67588C2.27552 3.72015 2.2341 3.75 2.18745 3.75C2.14079 3.75 2.09937 3.72015 2.08462 3.67588L1.89564 3.10896C1.88887 3.08863 1.8828 3.06812 1.87746 3.04748L1.32579 2.90956C1.28125 2.89842 1.25 2.8584 1.25 2.81249C1.25 2.76657 1.28125 2.72655 1.32579 2.71541L1.87747 2.57749L2.08462 1.94912Z"/></svg></div>
-                                    <div class="benefit-text">Earn up to x% more on cross border revenue</div>
-                                </div>
-                                <div class="benefit-row">
-                                    <div class="benefit-icon"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M3.28125 6.875C3.02237 6.875 2.8125 7.08487 2.8125 7.34375C2.8125 7.60263 3.02237 7.8125 3.28125 7.8125H6.71875C6.97763 7.8125 7.1875 7.60263 7.1875 7.34375C7.1875 7.08487 6.97763 6.875 6.71875 6.875H3.28125Z"/><path d="M2.8125 5.46875C2.8125 5.20987 3.02237 5 3.28125 5H6.71875C6.97763 5 7.1875 5.20987 7.1875 5.46875C7.1875 5.72763 6.97763 5.9375 6.71875 5.9375H3.28125C3.02237 5.9375 2.8125 5.72763 2.8125 5.46875Z"/><path d="M5.78125 3.125C5.52237 3.125 5.3125 3.33487 5.3125 3.59375C5.3125 3.85263 5.52237 4.0625 5.78125 4.0625H6.71875C6.97763 4.0625 7.1875 3.85263 7.1875 3.59375C7.1875 3.33487 6.97763 3.125 6.71875 3.125H5.78125Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M9.0625 8.4375V1.5625C9.0625 0.699555 8.36294 0 7.5 0H3.95527C3.62375 0 3.3058 0.131696 3.07138 0.366117L1.30362 2.13388C1.0692 2.3683 0.9375 2.68625 0.9375 3.01777V8.4375C0.9375 9.30045 1.63706 10 2.5 10H7.5C8.36294 10 9.0625 9.30044 9.0625 8.4375ZM8.125 1.5625C8.125 1.21732 7.84518 0.9375 7.5 0.9375H5V2.96875C5 3.57281 4.51031 4.0625 3.90625 4.0625H1.875V8.4375C1.875 8.78268 2.15482 9.0625 2.5 9.0625H7.5C7.84518 9.0625 8.125 8.78268 8.125 8.4375V1.5625ZM3.95527 0.9375H4.0625V2.96875C4.0625 3.05504 3.99254 3.125 3.90625 3.125H1.875V3.01777C1.875 2.93489 1.90792 2.8554 1.96653 2.7968L3.7343 1.02903C3.7929 0.970424 3.87239 0.9375 3.95527 0.9375Z"/></svg></div>
-                                    <div class="benefit-text">Manages all tax liability</div>
-                                </div>
-                                <div class="benefit-row">
-                                    <div class="benefit-icon"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M7.09876 3.86823C7.25033 3.65836 7.20307 3.36535 6.9932 3.21378C6.78333 3.0622 6.49032 3.10946 6.33875 3.31934L4.64747 5.6611L3.62967 4.53021C3.45649 4.33778 3.1601 4.32218 2.96768 4.49537C2.77525 4.66855 2.75965 4.96493 2.93283 5.15736L4.33908 6.71986C4.43386 6.82517 4.57118 6.88196 4.71265 6.87436C4.85412 6.86676 4.98456 6.79559 5.06751 6.68073L7.09876 3.86823Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M3.01764 8.88675L4.4275 9.82666C4.59705 9.93969 4.79625 10 5.00002 10C5.20379 10 5.40299 9.93969 5.57254 9.82667L6.9824 8.88675C8.29187 8.01377 9.1139 6.57522 9.20119 5.00386L9.3567 2.20484C9.36665 2.02572 9.22424 1.87407 9.0479 1.84105C7.96658 1.63858 6.23029 0.585496 5.57459 0.169404C5.40254 0.0602262 5.20379 0 5.00002 0C4.79625 0 4.5975 0.0602266 4.42545 0.169405C3.76975 0.585499 2.03347 1.63859 0.95214 1.84105C0.775803 1.87407 0.633393 2.02572 0.643344 2.20484L0.798845 5.00385C0.886143 6.57521 1.70817 8.01377 3.01764 8.88675ZM1.7349 4.95185L1.60652 2.64106C2.17193 2.46657 2.77332 2.1826 3.2829 1.91608C3.96644 1.55857 4.58884 1.17606 4.92777 0.960976C4.95618 0.942943 4.98177 0.9375 5.00002 0.9375C5.01827 0.9375 5.04386 0.942944 5.07227 0.960976C5.4112 1.17605 6.0336 1.55856 6.71714 1.91607C7.22672 2.18259 7.82811 2.46657 8.39352 2.64105L8.26514 4.95185C8.19421 6.22858 7.52631 7.39741 6.46237 8.1067L5.0525 9.04662C5.03696 9.05698 5.0187 9.06251 5.00002 9.06251C4.98134 9.06251 4.96308 9.05698 4.94754 9.04662L3.53767 8.1067C2.47373 7.39741 1.80583 6.22858 1.7349 4.95185Z"/></svg></div>
-                                    <div class="benefit-text">Automate fraud prevention and disputes</div>
-                                </div>
-                            </div>
-    
-                            <div class="coverage-divider"></div>
-    
-                            <div class="coverage-toggle-row">
-                                <div class="coverage-toggle-left">
-                                    <div class="switch-el" id="switch-domestic" onclick="toggleDomestic()">
-                                        <div class="switch-thumb"></div>
-                                    </div>
-                                    <div class="switch-label">Manage my domestic payments as well</div>
-                                </div>
-                                <span class="fee-badge">6.4% + 30c <svg class="fee-icon" viewBox="0 0 12 12" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.75 1.75H3.25C2.42157 1.75 1.75 2.42157 1.75 3.25V8.75C1.75 9.57843 2.42157 10.25 3.25 10.25H8.75C9.57843 10.25 10.25 9.57843 10.25 8.75V3.25C10.25 2.42157 9.57843 1.75 8.75 1.75ZM3.25 0.25C1.59315 0.25 0.25 1.59315 0.25 3.25V8.75C0.25 10.4069 1.59315 11.75 3.25 11.75H8.75C10.4069 11.75 11.75 10.4069 11.75 8.75V3.25C11.75 1.59315 10.4069 0.25 8.75 0.25H3.25Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M4.48182 6.49998C4.48182 6.11338 4.79522 5.79998 5.18182 5.79998H6.27273C6.65933 5.79998 6.97273 6.11338 6.97273 6.49998V8.49998C6.97273 8.88658 6.65933 9.19998 6.27273 9.19998C5.88613 9.19998 5.57273 8.88658 5.57273 8.49998V7.19998H5.18182C4.79522 7.19998 4.48182 6.88658 4.48182 6.49998Z"/><path d="M4.99994 3.99999C4.99994 3.44858 5.44854 2.99999 5.99994 2.99999C6.55134 2.99999 6.99994 3.44858 6.99994 3.99999C6.99994 4.55139 6.55134 4.99999 5.99994 4.99999C5.44854 4.99999 4.99994 4.55139 4.99994 3.99999Z"/></svg><span class="fee-tooltip">6.4% + 30c fee per successful Managed Payments transaction for domestic cards.</span></span>
-                            </div>
+                            <div class="coverage-desc">Stripe manages tax, fraud, and disputes maximizing revenue while lowering your operational overhead.</div>
                         </div>
-    
-                        <button class="link-later">I'll manage payments myself</button>
+
+                        <div class="coverage-divider"></div>
+
+                        <div class="coverage-toggle-row">
+                            <div class="coverage-toggle-left">
+                                <div class="switch-el" id="switch-domestic" onclick="toggleDomestic()">
+                                    <div class="switch-thumb"></div>
+                                </div>
+                                <div class="switch-label">Cover my domestic payments as well</div>
+                            </div>
+                            <!-- One price, reflecting whatever the switch currently covers -->
+                            <span class="fee-badge"><span id="fee-rate">6.9% + 30c</span> <svg class="fee-icon" viewBox="0 0 12 12" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.75 1.75H3.25C2.42157 1.75 1.75 2.42157 1.75 3.25V8.75C1.75 9.57843 2.42157 10.25 3.25 10.25H8.75C9.57843 10.25 10.25 9.57843 10.25 8.75V3.25C10.25 2.42157 9.57843 1.75 8.75 1.75ZM3.25 0.25C1.59315 0.25 0.25 1.59315 0.25 3.25V8.75C0.25 10.4069 1.59315 11.75 3.25 11.75H8.75C10.4069 11.75 11.75 10.4069 11.75 8.75V3.25C11.75 1.59315 10.4069 0.25 8.75 0.25H3.25Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M4.48182 6.49998C4.48182 6.11338 4.79522 5.79998 5.18182 5.79998H6.27273C6.65933 5.79998 6.97273 6.11338 6.97273 6.49998V8.49998C6.97273 8.88658 6.65933 9.19998 6.27273 9.19998C5.88613 9.19998 5.57273 8.88658 5.57273 8.49998V7.19998H5.18182C4.79522 7.19998 4.48182 6.88658 4.48182 6.49998Z"/><path d="M4.99994 3.99999C4.99994 3.44858 5.44854 2.99999 5.99994 2.99999C6.55134 2.99999 6.99994 3.44858 6.99994 3.99999C6.99994 4.55139 6.55134 4.99999 5.99994 4.99999C5.44854 4.99999 4.99994 4.55139 4.99994 3.99999Z"/></svg><span class="fee-tooltip" id="fee-tooltip">6.9% + 30c fee per successful Managed Payments transaction.</span></span>
+                        </div>
+                    </div>
+
+                    <button class="link-later">I'll manage payments myself</button>
     `,
     };
     
@@ -1038,8 +1021,24 @@
         document.getElementById('autopilot-card').classList.toggle('dimmed', isSelf);
     }
 
+    // The expand framework shows one price for whatever the switch covers:
+    // international only, or international plus domestic at the blended rate.
+    const PRICING = {
+        international: {
+            rate: '6.9% + 30c',
+            note: '6.9% + 30c fee per successful Managed Payments transaction.',
+        },
+        withDomestic: {
+            rate: '6.4% + 30c',
+            note: '6.4% + 30c fee per successful Managed Payments transaction, domestic and international.',
+        },
+    };
+
     function toggleDomestic() {
-        document.getElementById('switch-domestic').classList.toggle('on');
+        const on = document.getElementById('switch-domestic').classList.toggle('on');
+        const price = on ? PRICING.withDomestic : PRICING.international;
+        document.getElementById('fee-rate').textContent = price.rate;
+        document.getElementById('fee-tooltip').textContent = price.note;
     }
 
     // ---- Apply config ----
