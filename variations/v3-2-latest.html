@@ -600,30 +600,32 @@
         .fee-badge.upgraded .fee-icon { fill: var(--icon-action-primary); }
         .fee-badge.received { animation: fee-receive 0.72s cubic-bezier(0.34, 1.56, 0.64, 1); }
 
-        /* Bloom drawn from the spotlight gradient's own colours, blurred so it has
-           no edge at all. The lobes sit around the perimeter, leaving the middle
-           clear so the text underneath stays readable. */
+        /* Bloom sits exactly on the badge's outline: the pseudo-element matches its
+           box and radius, and layered blurred shadows radiate out from that shape.
+           Each shadow follows the rounded rect, so there's no stray silhouette, and
+           the offsets carry the spotlight gradient's colour direction — cool on the
+           left, lilac and pink to the right, peach below. */
         .fee-badge::after {
             content: '';
             position: absolute;
-            inset: -12px;
-            border-radius: 999px;
-            background:
-                radial-gradient(45% 60% at 8% 55%,  rgba(207, 226, 255, 0.70) 0%, rgba(207, 226, 255, 0) 70%),
-                radial-gradient(45% 60% at 92% 40%, rgba(216, 128, 236, 0.58) 0%, rgba(216, 128, 236, 0) 70%),
-                radial-gradient(40% 55% at 70% 92%, rgba(214, 159, 199, 0.62) 0%, rgba(214, 159, 199, 0) 72%),
-                radial-gradient(40% 55% at 30% 8%,  rgba(254, 180, 203, 0.68) 0%, rgba(254, 180, 203, 0) 72%);
-            filter: blur(9px);
+            inset: 0;
+            border-radius: inherit;
+            box-shadow:
+                -7px  0px 18px 3px rgba(207, 226, 255, 0.85),
+                 7px -4px 18px 3px rgba(216, 128, 236, 0.60),
+                 6px  6px 18px 3px rgba(214, 159, 199, 0.65),
+                -4px  7px 18px 3px rgba(254, 180, 203, 0.70);
             opacity: 0;
             pointer-events: none;
         }
         .fee-badge.received::after { animation: fee-bloom 1.15s ease-out; }
         @keyframes fee-bloom {
-            0%   { opacity: 0;    transform: scale(0.9); }
-            20%  { opacity: 1;    transform: scale(1); }
-            60%  { opacity: 0.7;  transform: scale(1.12); }
-            100% { opacity: 0;    transform: scale(1.24); }
+            0%   { opacity: 0;   transform: scale(0.92); }
+            20%  { opacity: 1;   transform: scale(1); }
+            60%  { opacity: 0.7; transform: scale(1.06); }
+            100% { opacity: 0;   transform: scale(1.14); }
         }
+
         @keyframes fee-receive {
             0%   { transform: scale(1); }
             40%  { transform: scale(1.14); }
