@@ -598,31 +598,31 @@
             color: var(--text-action-primary);
         }
         .fee-badge.upgraded .fee-icon { fill: var(--icon-action-primary); }
-        .fee-badge.received {
-            animation:
-                fee-receive 0.72s cubic-bezier(0.34, 1.56, 0.64, 1),
-                fee-glow 1.15s ease-out;
+        .fee-badge.received { animation: fee-receive 0.72s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+        /* Bloom drawn from the spotlight gradient's own colours, blurred so it has
+           no edge at all. The lobes sit around the perimeter, leaving the middle
+           clear so the text underneath stays readable. */
+        .fee-badge::after {
+            content: '';
+            position: absolute;
+            inset: -12px;
+            border-radius: 999px;
+            background:
+                radial-gradient(45% 60% at 8% 55%,  rgba(207, 226, 255, 0.42) 0%, rgba(207, 226, 255, 0) 70%),
+                radial-gradient(45% 60% at 92% 40%, rgba(216, 128, 236, 0.34) 0%, rgba(216, 128, 236, 0) 70%),
+                radial-gradient(40% 55% at 70% 92%, rgba(214, 159, 199, 0.36) 0%, rgba(214, 159, 199, 0) 72%),
+                radial-gradient(40% 55% at 30% 8%,  rgba(254, 180, 203, 0.40) 0%, rgba(254, 180, 203, 0) 72%);
+            filter: blur(9px);
+            opacity: 0;
+            pointer-events: none;
         }
-        /* A soft bloom rather than a ring. Two layers: a tight halo that gives it
-           definition against the white card, and a wider haze behind it. Held
-           near peak through the middle so it's actually readable at this size. */
-        @keyframes fee-glow {
-            0% {
-                box-shadow: 0 0 0 0 rgba(103, 93, 255, 0),
-                            0 0 0 0 rgba(103, 93, 255, 0);
-            }
-            18% {
-                box-shadow: 0 0 0 3px rgba(103, 93, 255, 0.30),
-                            0 0 14px 5px rgba(103, 93, 255, 0.50);
-            }
-            55% {
-                box-shadow: 0 0 0 5px rgba(103, 93, 255, 0.14),
-                            0 0 20px 7px rgba(103, 93, 255, 0.30);
-            }
-            100% {
-                box-shadow: 0 0 0 9px rgba(103, 93, 255, 0),
-                            0 0 30px 12px rgba(103, 93, 255, 0);
-            }
+        .fee-badge.received::after { animation: fee-bloom 1.15s ease-out; }
+        @keyframes fee-bloom {
+            0%   { opacity: 0;    transform: scale(0.9); }
+            20%  { opacity: 1;    transform: scale(1); }
+            60%  { opacity: 0.55; transform: scale(1.12); }
+            100% { opacity: 0;    transform: scale(1.24); }
         }
         @keyframes fee-receive {
             0%   { transform: scale(1); }
@@ -636,7 +636,7 @@
 
         @media (prefers-reduced-motion: reduce) {
             .save-badge, .fee-rate, .fee-badge, .switch-el { transition: none; }
-            .fee-badge.received { animation: none; }
+            .fee-badge.received, .fee-badge.received::after { animation: none; }
         }
 
     </style>
