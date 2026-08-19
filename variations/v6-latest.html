@@ -397,105 +397,11 @@
         /* Inner tinted panel holding the two scope options
            (Figma 26296:44368 — #ebecff base with an overlay gradient:
            lavender top-left -> pink bottom-right) */
-        .scope-panel {
-            display: flex;
-            gap: 8px;
-            padding: 8px;
-            background: linear-gradient(135deg, #f1efff 0%, #f6edff 50%, #fcebff 100%);
-            border-radius: 8px;
-            overflow: hidden;
-            position: relative;
-        }
-        .autopilot-card.dimmed .scope-panel {
-            background: var(--bg-offset);
-        }
 
-        .scope-card {
-            flex: 1;
-            min-width: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            background: var(--bg-surface);
-            border-radius: 8px;
-            cursor: pointer;
-        }
 
-        .scope-card-group {
-            display: flex;
-            gap: 12px;
-            align-items: flex-start;
-            padding: 16px 16px 8px;
-        }
 
-        .radio-circle {
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            border: 1px solid var(--border-form-default);
-            background: var(--bg-surface);
-            box-shadow: 0px 1px 1px 0px rgba(33, 37, 44, 0.16);
-            flex-shrink: 0;
-            margin-top: 1px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.15s;
-        }
-        .scope-card.selected .radio-circle {
-            border-color: var(--border-action-primary-strong);
-            background: var(--bg-form-accent);
-            box-shadow: 0px 1px 1px 0px rgba(10, 33, 86, 0.16);
-        }
-        .radio-inner-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: white;
-            opacity: 0;
-            transition: opacity 0.15s;
-        }
-        .scope-card.selected .radio-inner-dot { opacity: 1; }
 
-        .scope-text {
-            flex: 1;
-            min-width: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .scope-title {
-            font-size: 12px;
-            font-weight: 600;
-            line-height: 16px;
-            letter-spacing: -0.02px;
-            color: var(--text-default);
-        }
-        .scope-desc {
-            font-size: 12px;
-            font-weight: 400;
-            line-height: 16px;
-            color: var(--text-subdued);
-        }
 
-        .scope-fee {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            padding: 8px;
-            background: var(--bg-offset);
-            border-radius: 0 0 8px 8px;
-            font-size: 12px;
-            line-height: 16px;
-            color: var(--text-subdued);
-        }
-        .scope-fee svg {
-            width: 12px;
-            height: 12px;
-            fill: #667691;
-            flex-shrink: 0;
-        }
 
         /* Self-managed card */
         .self-card {
@@ -522,6 +428,112 @@
             letter-spacing: 0;
         }
 
+        /* Domestic toggle + fee badge, matching V5 */
+        .coverage-toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            border-radius: 4px;
+        }
+        .coverage-toggle-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .coverage-divider {
+            height: 1px;
+            border-top: 1px solid #d4dee9;
+        }
+        .switch-el {
+            width: 34px;
+            height: 18px;
+            border-radius: 999999px;
+            background: #ecf1f6;
+            border: 1px solid var(--border-form-default);
+            box-shadow: 0px 1px 1px 0px rgba(33, 37, 44, 0.16) inset;
+            position: relative;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .switch-el .switch-thumb {
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            width: 18px;
+            height: 18px;
+            border-radius: 999999px;
+            background: white;
+            border: 1px solid var(--border-form-default);
+            box-shadow: 0px 1px 1px 0px rgba(33, 37, 44, 0.16);
+            transition: transform 0.2s;
+        }
+        .switch-el.on {
+            background: var(--bg-form-accent);
+            border-color: var(--bg-form-accent);
+        }
+        .switch-el.on .switch-thumb {
+            transform: translateX(16px);
+        }
+        .switch-label {
+            font-size: 14px;
+            line-height: 20px;
+            letter-spacing: -0.15px;
+            color: var(--text-default);
+        }
+        .fee-badge {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: #f4f7fa;
+            border: 1px solid #d4dee9;
+            font-size: 12px;
+            line-height: 16px;
+            font-weight: 400;
+            color: #50617a;
+            white-space: nowrap;
+            cursor: default;
+            flex-shrink: 0;
+        }
+        .fee-badge .fee-icon {
+            width: 12px;
+            height: 12px;
+            display: block;
+            fill: #667691;
+            flex-shrink: 0;
+        }
+        .fee-tooltip {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            /* Centred on the badge */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 280px;
+            padding: 16px;
+            background: var(--bg-surface);
+            border: 1px solid #d4dee9;
+            border-radius: 8px;
+            box-shadow: 0px 2px 2.5px rgba(64, 68, 82, 0.08), 0px 3px 4.5px rgba(64, 68, 82, 0.08);
+            font-size: 14px;
+            line-height: 20px;
+            letter-spacing: -0.15px;
+            color: #1a2c44;
+            white-space: normal;
+            text-align: left;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.15s;
+            z-index: 50;
+        }
+        .fee-badge:hover .fee-tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
     </style>
 </head>
 <body>
@@ -566,51 +578,36 @@
             <div class="modal-split">
                 <!-- Left half: Content -->
                 <div class="modal-left">
-                    <div class="modal-headline">Choose how your payments should be managed. <span class="muted">You can change this anytime.</span></div>
+                    <div class="modal-headline">Choose how your payments should be managed. <span class="muted">Stripe can handle tax, fraud, and disputes for you &mdash; or you can manage them yourself.</span></div>
 
                     <div class="mode-group">
-                        <!-- Autopilot -->
+                        <!-- Auto-pilot: same Recommended container as before, with the
+                             nested scope choices replaced by a domestic toggle
+                             (Figma 26365:52051). -->
                         <div class="autopilot-card" id="autopilot-card" onclick="selectAutopilot()">
                             <div class="highlight-tag">Recommended</div>
                             <div class="autopilot-body">
                                 <div>
-                                    <div class="mode-title">Autopilot</div>
-                                    <div class="mode-desc">Stripe runs tax, fraud, and disputes end to end, and takes on the work and the risk while lowering your operational overhead.</div>
+                                    <div class="mode-title">Auto-pilot</div>
+                                    <div class="mode-desc">Stripe runs tax, fraud, and disputes end to end on your international payments, and takes on the work and the risk while lowering your operational overhead.</div>
                                 </div>
 
-                                <div class="scope-panel">
-                                    <div class="scope-card selected" id="scope-cross_border" onclick="selectMode('cross_border')">
-                                        <div class="scope-card-group">
-                                            <div class="radio-circle"><div class="radio-inner-dot"></div></div>
-                                            <div class="scope-text">
-                                                <div class="scope-title">Cross-border only</div>
-                                                <div class="scope-desc">Manage only international payments.</div>
-                                            </div>
+                                <div class="coverage-divider"></div>
+
+                                <div class="coverage-toggle-row">
+                                    <div class="coverage-toggle-left">
+                                        <div class="switch-el" id="switch-domestic" onclick="toggleDomestic()">
+                                            <div class="switch-thumb"></div>
                                         </div>
-                                        <div class="scope-fee">
-                                            3.5% fee
-                                            <svg viewBox="0 0 12 12" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.75 1.75H3.25C2.42157 1.75 1.75 2.42157 1.75 3.25V8.75C1.75 9.57843 2.42157 10.25 3.25 10.25H8.75C9.57843 10.25 10.25 9.57843 10.25 8.75V3.25C10.25 2.42157 9.57843 1.75 8.75 1.75ZM3.25 0.25C1.59315 0.25 0.25 1.59315 0.25 3.25V8.75C0.25 10.4069 1.59315 11.75 3.25 11.75H8.75C10.4069 11.75 11.75 10.4069 11.75 8.75V3.25C11.75 1.59315 10.4069 0.25 8.75 0.25H3.25Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M4.48182 6.49998C4.48182 6.11338 4.79522 5.79998 5.18182 5.79998H6.27273C6.65933 5.79998 6.97273 6.11338 6.97273 6.49998V8.49998C6.97273 8.88658 6.65933 9.19998 6.27273 9.19998C5.88613 9.19998 5.57273 8.88658 5.57273 8.49998V7.19998H5.18182C4.79522 7.19998 4.48182 6.88658 4.48182 6.49998Z"/><path d="M4.99994 3.99999C4.99994 3.44858 5.44854 2.99999 5.99994 2.99999C6.55134 2.99999 6.99994 3.44858 6.99994 3.99999C6.99994 4.55139 6.55134 4.99999 5.99994 4.99999C5.44854 4.99999 4.99994 4.55139 4.99994 3.99999Z"/></svg>
-                                        </div>
+                                        <div class="switch-label">Manage my domestic payments as well</div>
                                     </div>
-                                    <div class="scope-card" id="scope-all" onclick="selectMode('all')">
-                                        <div class="scope-card-group">
-                                            <div class="radio-circle"><div class="radio-inner-dot"></div></div>
-                                            <div class="scope-text">
-                                                <div class="scope-title">All payments</div>
-                                                <div class="scope-desc">Includes all domestic and International payments.</div>
-                                            </div>
-                                        </div>
-                                        <div class="scope-fee">
-                                            3.5% fee
-                                            <svg viewBox="0 0 12 12" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.75 1.75H3.25C2.42157 1.75 1.75 2.42157 1.75 3.25V8.75C1.75 9.57843 2.42157 10.25 3.25 10.25H8.75C9.57843 10.25 10.25 9.57843 10.25 8.75V3.25C10.25 2.42157 9.57843 1.75 8.75 1.75ZM3.25 0.25C1.59315 0.25 0.25 1.59315 0.25 3.25V8.75C0.25 10.4069 1.59315 11.75 3.25 11.75H8.75C10.4069 11.75 11.75 10.4069 11.75 8.75V3.25C11.75 1.59315 10.4069 0.25 8.75 0.25H3.25Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M4.48182 6.49998C4.48182 6.11338 4.79522 5.79998 5.18182 5.79998H6.27273C6.65933 5.79998 6.97273 6.11338 6.97273 6.49998V8.49998C6.97273 8.88658 6.65933 9.19998 6.27273 9.19998C5.88613 9.19998 5.57273 8.88658 5.57273 8.49998V7.19998H5.18182C4.79522 7.19998 4.48182 6.88658 4.48182 6.49998Z"/><path d="M4.99994 3.99999C4.99994 3.44858 5.44854 2.99999 5.99994 2.99999C6.55134 2.99999 6.99994 3.44858 6.99994 3.99999C6.99994 4.55139 6.55134 4.99999 5.99994 4.99999C5.44854 4.99999 4.99994 4.55139 4.99994 3.99999Z"/></svg>
-                                        </div>
-                                    </div>
+                                    <span class="fee-badge" onclick="event.stopPropagation()"><span>3.5% fee</span> <svg class="fee-icon" viewBox="0 0 12 12" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.75 1.75H3.25C2.42157 1.75 1.75 2.42157 1.75 3.25V8.75C1.75 9.57843 2.42157 10.25 3.25 10.25H8.75C9.57843 10.25 10.25 9.57843 10.25 8.75V3.25C10.25 2.42157 9.57843 1.75 8.75 1.75ZM3.25 0.25C1.59315 0.25 0.25 1.59315 0.25 3.25V8.75C0.25 10.4069 1.59315 11.75 3.25 11.75H8.75C10.4069 11.75 11.75 10.4069 11.75 8.75V3.25C11.75 1.59315 10.4069 0.25 8.75 0.25H3.25Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M4.48182 6.49998C4.48182 6.11338 4.79522 5.79998 5.18182 5.79998H6.27273C6.65933 5.79998 6.97273 6.11338 6.97273 6.49998V8.49998C6.97273 8.88658 6.65933 9.19998 6.27273 9.19998C5.88613 9.19998 5.57273 8.88658 5.57273 8.49998V7.19998H5.18182C4.79522 7.19998 4.48182 6.88658 4.48182 6.49998Z"/><path d="M4.99994 3.99999C4.99994 3.44858 5.44854 2.99999 5.99994 2.99999C6.55134 2.99999 6.99994 3.44858 6.99994 3.99999C6.99994 4.55139 6.55134 4.99999 5.99994 4.99999C5.44854 4.99999 4.99994 4.55139 4.99994 3.99999Z"/></svg><span class="fee-tooltip">3.5% add-on fee for each successful Managed Payments transaction</span></span>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Self-managed -->
-                        <div class="self-card" id="scope-self" onclick="selectMode('self')">
+                        <div class="self-card" id="scope-self" onclick="selectSelf()">
                             <div class="mode-title">Self-managed</div>
                             <div class="mode-desc">You handle tax, fraud, and disputes yourself.</div>
                         </div>
@@ -637,25 +634,23 @@
     <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        // Mode selection: two Autopilot scopes, or self-managed
-        function selectMode(mode) {
-            const isSelf = mode === 'self';
-            document.getElementById('scope-cross_border').classList.toggle('selected', mode === 'cross_border');
-            document.getElementById('scope-all').classList.toggle('selected', mode === 'all');
-            document.getElementById('scope-self').classList.toggle('selected', isSelf);
-            document.getElementById('autopilot-card').classList.toggle('dimmed', isSelf);
+        // Two modes: Auto-pilot (with an optional domestic expansion) or
+        // self-managed. Scope is no longer a nested pair of choices — it's the
+        // domestic toggle inside the Auto-pilot box.
+        function selectAutopilot() {
+            document.getElementById('autopilot-card').classList.remove('dimmed');
+            document.getElementById('scope-self').classList.remove('selected');
         }
 
-        // Clicking anywhere in the Autopilot box selects Autopilot. Clicks on a
-        // scope card have already set the scope by the time this bubbles up; a
-        // click elsewhere in the box defaults to Cross-border, but never
-        // overwrites a scope the user has already chosen.
-        function selectAutopilot() {
-            const hasScope = document.getElementById('scope-cross_border').classList.contains('selected')
-                || document.getElementById('scope-all').classList.contains('selected');
-            if (!hasScope) selectMode('cross_border');
-            else document.getElementById('scope-self').classList.remove('selected');
-            document.getElementById('autopilot-card').classList.remove('dimmed');
+        function selectSelf() {
+            document.getElementById('autopilot-card').classList.add('dimmed');
+            document.getElementById('scope-self').classList.add('selected');
+        }
+
+        // The switch sits inside the Auto-pilot box, so this bubbles up to
+        // selectAutopilot() — flipping coverage also picks Auto-pilot.
+        function toggleDomestic() {
+            document.getElementById('switch-domestic').classList.toggle('on');
         }
 
         // Globe (exact replica from /globe-prototype/index.html, non-interactive)
