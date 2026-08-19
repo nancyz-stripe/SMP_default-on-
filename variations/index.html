@@ -380,26 +380,6 @@
 <script>
 const latestVariations = [
   {
-    id: 'v8-latest',
-    title: 'v1',
-    description: '3 choices (xborder, all payments, manage myself)',
-    file: 'v8-latest.html',
-    framework: 'Choose your scope',
-    gradient: 'Full gradient background',
-    globe: 'Large',
-    valueCards: true,
-  },
-  {
-    id: 'v2-latest',
-    title: 'v2',
-    description: 'Auto-pilot vs Self-managed',
-    file: 'v2-latest.html',
-    framework: 'Autopilot vs Self-managed',
-    gradient: 'Spotlight gradient',
-    globe: 'Medium',
-    valueCards: false,
-  },
-  {
     id: 'v3-latest',
     title: 'v3',
     description: 'Xborder as default + expand to cover domestic',
@@ -408,40 +388,6 @@ const latestVariations = [
     gradient: 'Full gradient background',
     globe: 'Large',
     valueCards: true,
-  },
-  {
-    id: 'v4-latest',
-    title: 'v4',
-    description: 'Auto-pilot vs Self-managed, with globe adapting to the choice',
-    file: 'v4-latest.html',
-    framework: 'Autopilot vs Self-managed',
-    gradient: 'Spotlight gradient',
-    globe: 'Medium',
-    valueCards: false,
-  },
-  {
-    // Duplicated from v3, to be simplified: bundling the headline with the
-    // cross-border callout so there's less to parse before the domestic toggle.
-    id: 'v5-latest',
-    title: 'V5',
-    description: '[Simplified] Xboders as default + expand to cover domestic',
-    file: 'v5-latest.html',
-    framework: 'Expand coverage',
-    gradient: 'Full gradient background',
-    globe: 'Large',
-    valueCards: true,
-  },
-  {
-    // Duplicated from v2, to gain the domestic expand toggle on top of the
-    // autopilot framing.
-    id: 'v6-latest',
-    title: 'V6',
-    description: 'Auto-pilot vs Self-managed + expand toggle',
-    file: 'v6-latest.html',
-    framework: 'Autopilot vs Self-managed',
-    gradient: 'Spotlight gradient',
-    globe: 'Medium',
-    valueCards: false,
   },
 ];
 
@@ -471,6 +417,60 @@ const flowVariations = [
 ];
 
 const pastVariations = [
+  {
+    // Duplicated from v2, to gain the domestic expand toggle on top of the
+    // autopilot framing.
+    id: 'v6-latest',
+    title: 'V6',
+    description: 'Auto-pilot vs Self-managed + expand toggle',
+    file: 'v6-latest.html',
+    framework: 'Autopilot vs Self-managed',
+    gradient: 'Spotlight gradient',
+    globe: 'Medium',
+    valueCards: false,
+  },
+  {
+    // Duplicated from v3, to be simplified: bundling the headline with the
+    // cross-border callout so there's less to parse before the domestic toggle.
+    id: 'v5-latest',
+    title: 'V5',
+    description: '[Simplified] Xboders as default + expand to cover domestic',
+    file: 'v5-latest.html',
+    framework: 'Expand coverage',
+    gradient: 'Full gradient background',
+    globe: 'Large',
+    valueCards: true,
+  },
+  {
+    id: 'v4-latest',
+    title: 'v4',
+    description: 'Auto-pilot vs Self-managed, with globe adapting to the choice',
+    file: 'v4-latest.html',
+    framework: 'Autopilot vs Self-managed',
+    gradient: 'Spotlight gradient',
+    globe: 'Medium',
+    valueCards: false,
+  },
+  {
+    id: 'v2-latest',
+    title: 'v2',
+    description: 'Auto-pilot vs Self-managed',
+    file: 'v2-latest.html',
+    framework: 'Autopilot vs Self-managed',
+    gradient: 'Spotlight gradient',
+    globe: 'Medium',
+    valueCards: false,
+  },
+  {
+    id: 'v8-latest',
+    title: 'v1',
+    description: '3 choices (xborder, all payments, manage myself)',
+    file: 'v8-latest.html',
+    framework: 'Choose your scope',
+    gradient: 'Full gradient background',
+    globe: 'Large',
+    valueCards: true,
+  },
   {
     id: 'baseline',
     title: 'Baseline',
