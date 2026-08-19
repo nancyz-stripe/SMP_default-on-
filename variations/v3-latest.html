@@ -376,11 +376,12 @@
             flex-direction: column;
             gap: 8px;
         }
+        /* Badge sits directly beside the title, 8px after it, per the frame
+           (title ends at 133, badge starts at 141). */
         .coverage-title-row {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 16px;
+            gap: 8px;
         }
         .coverage-title {
             font-size: 14px;
@@ -544,7 +545,6 @@
            badge drops its rate and turns purple, the Save 2% incentive is spent,
            and the card gives a brief glow. */
         .save-badge {
-            margin-left: 12px;
             flex-shrink: 0;
             padding: 1px 8px;
             border-radius: 100px;
@@ -552,7 +552,6 @@
             border: 1px solid #d7cdfa;
             color: var(--text-action-primary);
             font-size: 12px;
-            font-weight: 600;
             line-height: 16px;
             white-space: nowrap;
             transform-origin: center;
@@ -561,7 +560,8 @@
         .save-badge.spent {
             opacity: 0;
             transform: scale(0.6) translateY(-4px);
-            margin-left: 0;
+            /* cancels the row's 12px gap so nothing is left behind */
+            margin-left: -12px;
             width: 0;
             padding: 1px 0;
             border-width: 0;
