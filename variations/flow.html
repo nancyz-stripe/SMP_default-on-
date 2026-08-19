@@ -82,6 +82,191 @@
             border: 1px solid var(--neutral-50);
         }
 
+        /* ---------------- Dashboard (Figma 26370:56250) ----------------
+           Built out rather than a screenshot, so later steps can interact with
+           it. Laid out at 1280x840 inside #dash-layer. */
+        .dash {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-surface);
+            font-size: 13px;
+            color: var(--text-default);
+            overflow: hidden;
+        }
+
+        /* Sandbox banner */
+        .dash-banner {
+            height: 56px;
+            flex-shrink: 0;
+            background: #0a2540;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            font-size: 13px;
+        }
+        .dash-banner-name { font-weight: 600; font-size: 14px; }
+        .dash-banner-copy { flex: 1; text-align: center; color: rgba(255,255,255,0.92); }
+        .dash-banner-copy b { font-weight: 600; color: #fff; }
+        .dash-banner-cta {
+            background: var(--bg-form-accent);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 7px 14px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .dash-body { flex: 1; display: flex; min-height: 0; }
+
+        /* Sidebar */
+        .dash-side {
+            width: 240px;
+            flex-shrink: 0;
+            border-right: 1px solid var(--neutral-50);
+            padding: 16px 12px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .dash-account { display: flex; align-items: center; gap: 10px; padding: 4px 8px 14px; }
+        .dash-account-icon {
+            width: 24px; height: 24px; border-radius: 6px; background: #c7cfd9;
+            flex-shrink: 0; position: relative;
+        }
+        .dash-account-icon::after {
+            content: ''; position: absolute; right: -2px; bottom: -2px;
+            width: 13px; height: 13px; border-radius: 3px; background: #8d99a8;
+        }
+        .dash-account-name { font-size: 13px; font-weight: 600; line-height: 17px; }
+        .dash-account-sub { font-size: 12px; color: var(--text-subdued); line-height: 16px; }
+
+        .dash-nav {
+            display: flex; align-items: center; gap: 10px;
+            padding: 7px 8px; border-radius: 6px;
+            font-size: 14px; color: var(--text-default); cursor: pointer;
+        }
+        .dash-nav:hover { background: var(--bg-offset); }
+        .dash-nav.active { color: var(--text-action-primary); font-weight: 500; }
+        .dash-nav svg { width: 16px; height: 16px; flex-shrink: 0; color: currentColor; }
+        .dash-nav .caret { margin-left: auto; width: 10px; height: 10px; color: var(--text-subdued); }
+        .dash-side-label {
+            font-size: 12px; color: var(--text-subdued);
+            padding: 16px 8px 4px;
+        }
+        .dash-side-foot { margin-top: auto; }
+
+        /* Main column */
+        .dash-main { flex: 1; min-width: 0; padding: 16px 32px 0; overflow: hidden; }
+        .dash-topbar { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+        .dash-search {
+            width: 240px; height: 32px; border-radius: 6px; background: var(--bg-offset);
+            display: flex; align-items: center; gap: 8px; padding: 0 10px;
+            color: var(--text-subdued); font-size: 13px;
+        }
+        .dash-search svg { width: 13px; height: 13px; }
+        .dash-topbar-icons { margin-left: auto; display: flex; align-items: center; gap: 18px; color: #4f5b6d; }
+        .dash-topbar-icons svg { width: 16px; height: 16px; cursor: pointer; }
+        .dash-topbar-icons .plus {
+            width: 22px; height: 22px; border-radius: 50%; background: var(--bg-form-accent);
+            color: #fff; display: flex; align-items: center; justify-content: center;
+        }
+        .dash-topbar-icons .plus svg { width: 11px; height: 11px; }
+
+        .dash-h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; color: var(--text-heading); }
+        .dash-rule { height: 1px; background: var(--neutral-50); margin: 14px 0 24px; }
+
+        .dash-cols { display: flex; gap: 40px; }
+        .dash-col-main { flex: 1; min-width: 0; }
+
+        .dash-metric-label {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 13px; font-weight: 600; color: var(--text-default);
+        }
+        .dash-metric-label svg { width: 10px; height: 10px; color: var(--text-subdued); }
+        .dash-metric-value { font-size: 20px; font-weight: 500; margin-top: 4px; letter-spacing: -0.3px; }
+
+        /* Empty chart: gridlines + baseline */
+        .dash-chart {
+            height: 112px;
+            margin-top: 16px;
+            border-bottom: 1px solid #c9d2dd;
+            background-image: repeating-linear-gradient(to right, var(--neutral-50) 0 1px, transparent 1px 47px);
+        }
+        .dash-chart-axis {
+            display: flex; justify-content: space-between;
+            font-size: 12px; color: var(--text-subdued); margin-top: 6px;
+        }
+
+        .dash-pair { display: flex; gap: 48px; margin-top: 26px; }
+        .dash-pair-item { flex: 1; max-width: 288px; }
+        .dash-pair-head { display: flex; align-items: center; }
+        .dash-pair-head .view { margin-left: auto; color: var(--text-action-primary); font-size: 13px; cursor: pointer; }
+
+        /* API keys card */
+        .dash-apikeys {
+            width: 292px; flex-shrink: 0;
+            background: var(--bg-offset); border-radius: 8px; padding: 16px;
+        }
+        .dash-apikeys-head { display: flex; align-items: center; margin-bottom: 12px; }
+        .dash-apikeys-head h3 { font-size: 16px; font-weight: 600; color: var(--text-heading); }
+        .dash-apikeys-head svg { margin-left: auto; width: 12px; height: 12px; color: var(--text-subdued); cursor: pointer; }
+        .dash-apikeys-row { display: flex; align-items: center; gap: 12px; font-size: 13px; padding: 3px 0; }
+        .dash-apikeys-row span:first-child { color: var(--text-default); }
+        .dash-apikeys-row .val { margin-left: auto; color: var(--text-default); }
+        .dash-apikeys-row .dots { letter-spacing: 1px; color: #4f5b6d; }
+        .dash-apikeys-row .eye { width: 13px; height: 13px; color: var(--text-subdued); }
+        .dash-apikeys-link { display: inline-block; margin-top: 12px; color: var(--text-action-primary); font-size: 13px; cursor: pointer; }
+
+        /* Your overview */
+        .dash-overview { margin-top: 40px; }
+        .dash-overview-head { display: flex; align-items: center; }
+        .dash-overview-head .dash-h1 { font-size: 22px; }
+        .dash-overview-actions { margin-left: auto; display: flex; gap: 8px; }
+        .dash-btn {
+            display: flex; align-items: center; gap: 6px;
+            padding: 6px 12px; border: 1px solid var(--border-default); border-radius: 6px;
+            background: var(--bg-surface); font-family: inherit; font-size: 13px; font-weight: 500;
+            color: var(--text-default); cursor: pointer;
+            box-shadow: 0px 1px 1px rgba(48,49,61,0.05);
+        }
+        .dash-btn svg { width: 11px; height: 11px; }
+        .dash-overview-rule { height: 1px; background: var(--neutral-50); margin: 14px 0 20px; }
+        .dash-overview-cols { display: flex; gap: 56px; }
+        .dash-overview-col { flex: 1; min-width: 0; }
+        .dash-bar { height: 8px; border-radius: 4px; background: #d9dee5; margin: 14px 0 8px; }
+        .dash-stat-row {
+            display: flex; align-items: center; gap: 10px;
+            padding: 11px 0; border-bottom: 1px solid var(--neutral-50);
+            font-size: 13px;
+        }
+        .dash-stat-row .dot { width: 10px; height: 10px; border-radius: 3px; background: #d9dee5; flex-shrink: 0; }
+        .dash-stat-row .amt { margin-left: auto; }
+
+        /* Guided state: the setup-guide moment dims the lower right and glows */
+        .dash-glow {
+            position: absolute;
+            right: -60px; bottom: -120px;
+            width: 760px; height: 520px;
+            border-radius: 50%;
+            background:
+                radial-gradient(45% 55% at 38% 42%, rgba(150, 190, 255, 0.55) 0%, rgba(150, 190, 255, 0) 70%),
+                radial-gradient(50% 50% at 62% 30%, rgba(196, 160, 255, 0.5) 0%, rgba(196, 160, 255, 0) 72%),
+                radial-gradient(45% 45% at 70% 62%, rgba(255, 138, 128, 0.55) 0%, rgba(255, 138, 128, 0) 70%),
+                radial-gradient(40% 40% at 32% 78%, rgba(255, 190, 150, 0.45) 0%, rgba(255, 190, 150, 0) 72%);
+            filter: blur(28px);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+        #dash-layer.guided .dash-glow { opacity: 1; }
+        #dash-layer.guided .dash-overview { opacity: 0.32; }
+
         /* The final step is the real dashboard: a 1280x840 layer scaled to cover
            the viewport. Scaling the layer rather than the image keeps the
            components built over it pinned to their Figma coordinates. */
@@ -479,7 +664,7 @@
         .floatie {
             position: absolute;
             left: 906px;
-            top: 443px;
+            top: 440px;
             width: 342px;
             background: var(--bg-surface);
             border-radius: 8px;
@@ -601,7 +786,118 @@
 
 <!-- Final step: the real dashboard, with its components registered to the image -->
 <div id="dash-layer">
-    <img class="dashboard-bg" src="assets/dashboard.png" alt="Stripe dashboard">
+    <!-- The dashboard, built out (Figma 26370:56250) -->
+    <div class="dash">
+        <div class="dash-banner">
+            <span class="dash-banner-name">Sandbox</span>
+            <span class="dash-banner-copy">Get set up using <b>test data</b> and copy your work when going live.</span>
+            <button class="dash-banner-cta">Get your live account</button>
+        </div>
+
+        <div class="dash-body">
+            <div class="dash-side">
+                <div class="dash-account">
+                    <span class="dash-account-icon"></span>
+                    <span>
+                        <span class="dash-account-name">Default sandbox</span>
+                        <span class="dash-account-sub">Cactus Practice</span>
+                    </span>
+                </div>
+                <div class="dash-nav active"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.5L8 2.5l5.5 4v6a1 1 0 01-1 1h-9a1 1 0 01-1-1v-6z"/><path d="M6.5 13.5V9h3v4.5"/></svg><span>Home</span></div>
+                <div class="dash-nav"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4.5h9M2 8h12M2 11.5h7"/><circle cx="12.5" cy="4.5" r="1.6"/><circle cx="9.5" cy="11.5" r="1.6"/></svg><span>Balances</span></div>
+                <div class="dash-nav"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5h9l-2.2-2.2M13 10.5H4l2.2 2.2"/></svg><span>Transactions</span></div>
+                <div class="dash-nav"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5.5" r="2.6"/><path d="M3 13.2c0-2.4 2.2-3.7 5-3.7s5 1.3 5 3.7"/></svg><span>Customers</span></div>
+                <div class="dash-nav"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2l5 2.8v6.4L8 14 3 11.2V4.8z"/><path d="M3 4.8l5 2.8 5-2.8M8 7.6V14"/></svg><span>Product catalog</span></div>
+
+                <span class="dash-side-label">Shortcuts</span>
+                <div class="dash-nav"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 2.5l3 3-2 1-3.5 3.5-1-1L4.5 12 4 11.5l2-2.5-1-1L8.5 4.5z"/></svg><span>Subscriptions</span></div>
+
+                <span class="dash-side-label">Products</span>
+                <div class="dash-nav"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5l5.5 3-5.5 3-5.5-3z"/><path d="M2.5 9l5.5 3 5.5-3"/></svg><span>Connect</span><svg class="caret" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 3 3-3"/></svg></div>
+                <div class="dash-nav"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="11" height="8" rx="1.6"/><path d="M2.5 7h11"/></svg><span>Payments</span><svg class="caret" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 3 3-3"/></svg></div>
+                <div class="dash-nav"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3" width="11" height="8.5" rx="1.6"/><path d="M5.5 13.5l2-2M5.5 6.5h5M5.5 8.8h3"/></svg><span>Billing</span><svg class="caret" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 3 3-3"/></svg></div>
+                <div class="dash-nav"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13V8M6.5 13V4M10 13V9.5M13.5 13V6"/></svg><span>Reporting</span><svg class="caret" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 3 3-3"/></svg></div>
+                <div class="dash-nav"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="8" r="1"/><circle cx="8" cy="8" r="1"/><circle cx="12" cy="8" r="1"/></svg><span>More</span><svg class="caret" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 3 3-3"/></svg></div>
+
+                <div class="dash-side-foot"><div class="dash-nav"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="12" height="10" rx="1.6"/><path d="M5 7l1.6 1.6L5 10.2M8.6 10.2h2.6"/></svg><span>Developer tools</span></div></div>
+            </div>
+
+            <div class="dash-main">
+                <div class="dash-topbar">
+                    <span class="dash-search"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="4.2"/><path d="M10.2 10.2L14 14"/></svg><span>Search</span></span>
+                    <span class="dash-topbar-icons">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="9" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="2.5" y="9" width="4.5" height="4.5" rx="1"/><path d="M11.2 9v4.5M9 11.2h4.5"/></svg><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="5.8"/><path d="M6.3 6.3c0-1 .8-1.7 1.7-1.7s1.7.7 1.7 1.6c0 1.2-1.7 1.3-1.7 2.4"/><circle cx="8" cy="11.2" r=".7" fill="currentColor" stroke="none"/></svg><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7a3.5 3.5 0 017 0c0 2.4 1 3.5 1 3.5H3.5s1-1.1 1-3.5z"/><path d="M6.8 12.4a1.4 1.4 0 002.4 0"/></svg><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="2"/><path d="M8 2.2v1.6M8 12.2v1.6M2.2 8h1.6M12.2 8h1.6M4 4l1.1 1.1M10.9 10.9L12 12M12 4l-1.1 1.1M5.1 10.9L4 12"/></svg>
+                        <span class="plus"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v10M3 8h10"/></svg></span>
+                    </span>
+                </div>
+
+                <div class="dash-h1">Today</div>
+                <div class="dash-rule"></div>
+
+                <div class="dash-cols">
+                    <div class="dash-col-main">
+                        <span class="dash-metric-label">Gross volume <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 3 3-3"/></svg></span>
+                        <div class="dash-metric-value">$0.00</div>
+                        <div class="dash-chart"></div>
+                        <div class="dash-chart-axis"><span>12:00 AM</span><span>11:59 PM</span></div>
+
+                        <div class="dash-pair">
+                            <div class="dash-pair-item">
+                                <div class="dash-pair-head">
+                                    <span class="dash-metric-label">USD Balance <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 3 3-3"/></svg></span>
+                                    <span class="view">View</span>
+                                </div>
+                                <div class="dash-metric-value">$0.00</div>
+                            </div>
+                            <div class="dash-pair-item">
+                                <div class="dash-pair-head">
+                                    <span class="dash-metric-label">Payouts</span>
+                                    <span class="view">View</span>
+                                </div>
+                                <div class="dash-metric-value">$0.00</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dash-apikeys">
+                        <div class="dash-apikeys-head"><h3>API keys</h3><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M2 2l8 8M10 2l-8 8"/></svg></div>
+                        <div class="dash-apikeys-row"><span>Publishable key</span><span class="val">phkey_123819238y9</span></div>
+                        <div class="dash-apikeys-row"><span>Secret key</span><span class="val dots">••••••••••••••••••</span><svg class="eye" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1 7s2.2-3.6 6-3.6S13 7 13 7s-2.2 3.6-6 3.6S1 7 1 7z"/><circle cx="7" cy="7" r="1.6"/></svg></div>
+                        <span class="dash-apikeys-link">View docs</span>
+                    </div>
+                </div>
+
+                <div class="dash-overview">
+                    <div class="dash-overview-head">
+                        <span class="dash-h1">Your overview</span>
+                        <span class="dash-overview-actions">
+                            <button class="dash-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 2v8M2 6h8"/></svg>Add</button>
+                            <button class="dash-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="6" cy="6" r="1.6"/><path d="M6 1.4v1.2M6 9.4v1.2M1.4 6h1.2M9.4 6h1.2"/></svg>Edit</button>
+                        </span>
+                    </div>
+                    <div class="dash-overview-rule"></div>
+                    <div class="dash-overview-cols">
+                        <div class="dash-overview-col">
+                            <span class="dash-metric-label">Payments <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="1.5" width="9" height="9" rx="2"/><path d="M6 5.4v3.2M6 3.6v.5"/></svg></span>
+                            <div class="dash-bar"></div>
+                            <div class="dash-stat-row"><span class="dot"></span><span>Succeeded</span><span class="amt">$0.00</span></div><div class="dash-stat-row"><span class="dot"></span><span>Succeeded</span><span class="amt">$0.00</span></div><div class="dash-stat-row"><span class="dot"></span><span>Refunded</span><span class="amt">$0.00</span></div><div class="dash-stat-row"><span class="dot"></span><span>Failed</span><span class="amt">$0.00</span></div>
+                        </div>
+                        <div class="dash-overview-col">
+                            <span class="dash-metric-label">Gross volume <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="1.5" width="9" height="9" rx="2"/><path d="M6 5.4v3.2M6 3.6v.5"/></svg></span>
+                            <div class="dash-metric-value">$0.00</div>
+                        </div>
+                        <div class="dash-overview-col">
+                            <span class="dash-metric-label">Net volume from sales <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="1.5" width="9" height="9" rx="2"/><path d="M6 5.4v3.2M6 3.6v.5"/></svg></span>
+                            <div class="dash-metric-value">$0.00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Glow behind the setup-guide moment -->
+        <div class="dash-glow"></div>
+    </div>
 
     <!-- Step 8: the setup guide + callout, built over the dashboard image -->
     <div id="dashboard-step">
@@ -941,6 +1237,7 @@ function render() {
   el.frame.classList.toggle('active', !!step.variantStep);
   el.dash.classList.toggle('active', !!step.dashboardStep);
   el.dashLayer.classList.toggle('active', !!step.dashboardStep);
+  el.dashLayer.classList.toggle('guided', !!step.dashboardStep);
   el.backdrop.style.display = step.variantStep || step.dashboardStep ? 'none' : 'flex';
 
   if (step.variantStep) {
