@@ -581,9 +581,9 @@
         .fee-rate.leaving { transform: translateY(-110%); opacity: 0; }
         .fee-rate.arriving { transform: translateY(110%); opacity: 0; }
 
-        /* The badge itself: grey -> purple, with a pop and a ring. */
+        /* The badge: grey -> purple, and a bump as it receives the saving. */
         .fee-badge {
-            transition: background 0.35s ease, border-color 0.35s ease, color 0.35s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: background 0.35s ease, border-color 0.35s ease, color 0.35s ease;
         }
         .fee-badge.upgraded {
             background: #f3f0ff;
@@ -591,40 +591,22 @@
             color: var(--text-action-primary);
         }
         .fee-badge.upgraded .fee-icon { fill: var(--icon-action-primary); }
-        .fee-badge.popping { transform: scale(1.12); }
-
-        .fee-badge::after {
-            content: '';
-            position: absolute;
-            inset: -3px;
-            border-radius: 6px;
-            border: 2px solid var(--icon-action-primary);
-            opacity: 0;
-            pointer-events: none;
-        }
-        .fee-badge.ringing::after { animation: fee-ring 0.7s ease-out; }
-        @keyframes fee-ring {
-            0%   { opacity: 0.85; transform: scale(0.9); }
-            100% { opacity: 0;    transform: scale(1.5); }
+        .fee-badge.received { animation: fee-receive 0.45s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        @keyframes fee-receive {
+            0%   { transform: scale(1); }
+            40%  { transform: scale(1.14); }
+            100% { transform: scale(1); }
         }
 
-        /* A sweep across the card, so the change registers as a whole-card event. */
-        .coverage-card { position: relative; overflow: hidden; }
-        .coverage-card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 45%;
-            left: -50%;
-            background: linear-gradient(100deg, rgba(103,93,255,0) 0%, rgba(103,93,255,0.10) 50%, rgba(103,93,255,0) 100%);
-            opacity: 0;
+        /* The saving travels from the toggle into the price, the way an item
+           travels into a cart. A clone of the pill flies the gap. */
+        .fly-pill {
+            position: fixed;
+            z-index: 999;
             pointer-events: none;
-        }
-        .coverage-card.upgrading::after { animation: card-sweep 0.85s ease-out; }
-        @keyframes card-sweep {
-            0%   { opacity: 1; left: -50%; }
-            100% { opacity: 0; left: 105%; }
+            margin: 0;
+            transform-origin: center;
+            will-change: transform, opacity;
         }
 
         /* The switch gets a matching pop as it lands. */
@@ -633,7 +615,7 @@
 
         @media (prefers-reduced-motion: reduce) {
             .save-badge, .fee-rate, .fee-badge, .switch-el { transition: none; }
-            .fee-badge.ringing::after, .coverage-card.upgrading::after { animation: none; }
+            .fee-badge.received { animation: none; }
         }
 
     </style>
@@ -798,6 +780,36 @@
             setTimeout(() => current.remove(), 420);
         }
 
+        // Fly a clone of the Save pill into the fee badge, then resolve. Returns
+        // a promise so the badge only reacts once the saving lands.
+        function flySavingToBadge(pill, badge) {
+            const from = pill.getBoundingClientRect();
+            const to = badge.getBoundingClientRect();
+
+            const clone = pill.cloneNode(true);
+            clone.removeAttribute('id');
+            clone.classList.remove('spent');
+            clone.classList.add('fly-pill');
+            clone.style.left = from.left + 'px';
+            clone.style.top = from.top + 'px';
+            clone.style.width = from.width + 'px';
+            clone.style.height = from.height + 'px';
+            document.body.appendChild(clone);
+
+            const dx = (to.left + to.width / 2) - (from.left + from.width / 2);
+            const dy = (to.top + to.height / 2) - (from.top + from.height / 2);
+
+            // A slight arc — it lifts before it drops in, which is what makes the
+            // motion read as "carried" rather than "slid".
+            const flight = clone.animate([
+                { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+                { transform: `translate(${dx * 0.55}px, ${dy * 0.5 - 30}px) scale(0.92)`, opacity: 1, offset: 0.55 },
+                { transform: `translate(${dx}px, ${dy}px) scale(0.5)`, opacity: 0 },
+            ], { duration: 520, easing: 'cubic-bezier(0.45, 0, 0.55, 1)' });
+
+            return flight.finished.then(() => clone.remove());
+        }
+
         let upgrading = false;
 
         function toggleDomestic() {
@@ -806,35 +818,44 @@
 
             const sw = document.getElementById('switch-domestic');
             const badge = document.getElementById('fee-badge');
-            const card = document.getElementById('coverage-card');
-            const save = document.getElementById('save-badge');
+            const pill = document.getElementById('save-badge');
 
             const on = sw.classList.toggle('on');
             const next = on ? RATES.on : RATES.off;
 
-            // the switch lands with a small pop
             sw.classList.add('popping');
             setTimeout(() => sw.classList.remove('popping'), 300);
 
-            // the incentive is spent on the way up, and offered again on the way down
-            save.classList.toggle('spent', on);
+            const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-            swapRate(next.rate);
-            document.getElementById('fee-tooltip').textContent = next.note;
-            badge.classList.toggle('upgraded', on);
+            // Applying the saving: the pill leaves the toggle, travels to the
+            // price, and the price only changes once it arrives.
+            function applyUpgrade() {
+                badge.classList.add('upgraded', 'received');
+                swapRate(next.rate);
+                document.getElementById('fee-tooltip').textContent = next.note;
+                setTimeout(() => badge.classList.remove('received'), 470);
+            }
 
             if (on) {
-                // celebrate only the upgrade, not the downgrade
-                card.classList.add('upgrading');
-                badge.classList.add('ringing');
-                setTimeout(() => badge.classList.add('popping'), 140);
-                setTimeout(() => badge.classList.remove('popping'), 460);
-                setTimeout(() => {
-                    card.classList.remove('upgrading');
-                    badge.classList.remove('ringing');
+                if (reduced) {
+                    pill.classList.add('spent');
+                    applyUpgrade();
                     upgrading = false;
-                }, 900);
+                    return;
+                }
+                flySavingToBadge(pill, badge).then(() => {
+                    applyUpgrade();
+                    upgrading = false;
+                });
+                // the original empties out as its copy takes flight
+                requestAnimationFrame(() => pill.classList.add('spent'));
             } else {
+                // Reverting is not a celebration: the saving is simply offered again.
+                pill.classList.remove('spent');
+                badge.classList.remove('upgraded');
+                swapRate(next.rate);
+                document.getElementById('fee-tooltip').textContent = next.note;
                 setTimeout(() => { upgrading = false; }, 420);
             }
         }
