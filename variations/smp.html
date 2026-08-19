@@ -200,7 +200,9 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            overflow-y: auto;
+            /* Not auto: overflow-y:auto makes overflow-x compute to auto too, which
+               clipped the fee tooltip at the panel edge. */
+            overflow: visible;
         }
 
         /* Right half - Globe */
@@ -463,7 +465,9 @@
         .fee-tooltip {
             position: absolute;
             bottom: calc(100% + 8px);
-            left: 0;
+            /* Centred on the badge */
+            left: 50%;
+            transform: translateX(-50%);
             width: 280px;
             padding: 16px;
             background: var(--bg-surface);
@@ -479,7 +483,7 @@
             opacity: 0;
             visibility: hidden;
             transition: opacity 0.15s;
-            z-index: 5;
+            z-index: 50;
         }
         .fee-badge:hover .fee-tooltip {
             opacity: 1;
@@ -501,7 +505,9 @@
         [data-fw="scope"] .radio-inner-dot { width: 6px; height: 6px; border-radius: 50%; background: white; opacity: 0; transition: opacity 0.15s; }
         [data-fw="scope"] .fee-badge { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 2px 6px; border-radius: 4px; background: #f4f7fa; border: 1px solid #d4dee9; font-size: 12px; line-height: 16px; font-weight: 400; color: #50617a; white-space: nowrap; cursor: default; }
         [data-fw="scope"] .fee-badge svg { width: 12px; height: 12px; display: block; fill: #667691; flex-shrink: 0; }
-        [data-fw="scope"] .modal-left { flex: 1; padding: 48px 32px 48px 100px; display: flex; flex-direction: column; justify-content: center; overflow-y: auto; }
+        [data-fw="scope"] .modal-left { flex: 1; padding: 48px 32px 48px 100px; display: flex; flex-direction: column; justify-content: center; /* Not auto: overflow-y:auto makes overflow-x compute to auto too, which
+               clipped the fee tooltip at the panel edge. */
+            overflow: visible; }
 
         /* ---------- autopilot framework ---------- */
         [data-fw="autopilot"] .mode-group { display: flex; flex-direction: column; gap: 16px; }
@@ -529,7 +535,9 @@
         [data-fw="autopilot"] .self-card .mode-desc { font-size: 12px; line-height: 16px; letter-spacing: 0; }
         [data-fw="autopilot"] .radio-circle { width: 14px; height: 14px; border-radius: 50%; border: 1px solid var(--border-form-default); background: var(--bg-surface); box-shadow: 0px 1px 1px 0px rgba(33, 37, 44, 0.16); flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
         [data-fw="autopilot"] .radio-inner-dot { width: 6px; height: 6px; border-radius: 50%; background: white; opacity: 0; transition: opacity 0.15s; }
-        [data-fw="autopilot"] .modal-left { flex: 1.25; padding: 48px 32px 48px 100px; display: flex; flex-direction: column; justify-content: center; overflow-y: auto; }
+        [data-fw="autopilot"] .modal-left { flex: 1.25; padding: 48px 32px 48px 100px; display: flex; flex-direction: column; justify-content: center; /* Not auto: overflow-y:auto makes overflow-x compute to auto too, which
+               clipped the fee tooltip at the panel edge. */
+            overflow: visible; }
 
         /* ---------- expand framework ---------- */
         [data-fw="expand"] .coverage-card { display: flex; flex-direction: column; gap: 16px; padding: 16px; background: var(--bg-surface); border: 2px solid #d4dee9; border-radius: 8px; }
@@ -553,7 +561,9 @@
         [data-fw="scope"] .link-later:hover { text-decoration: underline; }
         [data-fw="expand"] .fee-badge { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 2px 6px; border-radius: 4px; background: #f4f7fa; border: 1px solid #d4dee9; font-size: 12px; line-height: 16px; font-weight: 400; color: #50617a; white-space: nowrap; cursor: default; flex-shrink: 0; }
         [data-fw="expand"] .fee-badge .fee-icon { width: 12px; height: 12px; display: block; fill: #667691; flex-shrink: 0; }
-        [data-fw="expand"] .modal-left { flex: 1.05; padding: 48px 32px 48px 100px; display: flex; flex-direction: column; justify-content: center; overflow-y: auto; }
+        [data-fw="expand"] .modal-left { flex: 1.05; padding: 48px 32px 48px 100px; display: flex; flex-direction: column; justify-content: center; /* Not auto: overflow-y:auto makes overflow-x compute to auto too, which
+               clipped the fee tooltip at the panel edge. */
+            overflow: visible; }
 
         /* Gradient treatments: "full" is the V1/V3 wash (already defined on
            .modal-gradient); "spotlight" is V2's layered radials. */
