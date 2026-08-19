@@ -142,13 +142,22 @@
         }
 
         /* Full-screen gradient background (from "Default-on & expand") */
+        /* Spotlight gradient (same treatment as v2) */
         .modal-gradient {
             position: absolute;
             inset: 16px;
-            background: linear-gradient(135deg, #e8edf8 0%, #dce4f5 25%, #ecddf7 65%, #e8d5f3 100%);
+            background:
+                /* cool blue wash, left */
+                radial-gradient(52% 70% at 46% 70%, rgba(207, 226, 255, 0.24) 0%, rgba(207, 226, 255, 0) 94%),
+                /* lilac, right upper-mid */
+                radial-gradient(105% 45% at 93% 37%, rgba(216, 128, 236, 0.26) 0%, rgba(216, 128, 236, 0) 79%),
+                /* pink, right lower-mid */
+                radial-gradient(45% 83% at 136% 64%, rgba(214, 159, 199, 0.37) 0%, rgba(214, 159, 199, 0) 79%),
+                /* peach, bottom-right */
+                radial-gradient(60% 46% at 105% 72%, rgba(254, 180, 203, 0.52) 0%, rgba(254, 180, 203, 0) 103%),
+                #fefefe;
             border-radius: 8px;
             z-index: 0;
-            opacity: 0.6;
         }
 
         .modal-header,
@@ -814,7 +823,7 @@
             renderer.sortObjects = false;
             container.appendChild(renderer.domElement);
 
-            const globeRadius = (100 + Math.min(w, h) * 0.25) * 0.830875;
+            const globeRadius = (100 + Math.min(w, h) * 0.25) * 0.7225;  // medium
             const globeSegments = Math.floor((globeRadius / 250) * 10) + 20;
             camera.position.z = globeRadius * 4;
 
