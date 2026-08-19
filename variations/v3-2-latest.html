@@ -385,12 +385,12 @@
             flex-direction: column;
             gap: 8px;
         }
-        /* Badge sits directly beside the title, 8px after it, per the frame
-           (title ends at 133, badge starts at 141). */
+        /* Badge sits directly beside the title, 12px after it, per the frame
+           (title ends at 133, badge starts at 145). */
         .coverage-title-row {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
         }
         .coverage-title {
             font-size: 14px;
@@ -422,10 +422,8 @@
             color: var(--text-default);
         }
 
-        .coverage-divider {
-            height: 1px;
-            border-top: 1px solid #d4dee9;
-        }
+        /* Two stacked cards, 16px apart, as in the frame. */
+        .coverage-card + .coverage-card { margin-top: 16px; }
 
         /* Domestic toggle row */
         .coverage-toggle-row {
@@ -681,8 +679,11 @@
                             <div class="benefit-row"><svg class="benefit-check" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 6.3l3 3 6-6.6"/></svg><span class="benefit-text">Automate fraud prevention and disputes</span></div>
                         </div>
 
-                        <div class="coverage-divider"></div>
+                    </div>
 
+                    <!-- The toggle stands on its own card, separate from the
+                         coverage it expands (Figma 26377:65122). -->
+                    <div class="coverage-card toggle-card">
                         <div class="coverage-toggle-row">
                             <div class="coverage-toggle-left">
                                 <div class="switch-el" id="switch-domestic" onclick="toggleDomestic()">
