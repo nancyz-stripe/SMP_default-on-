@@ -457,7 +457,7 @@
             background: white;
             border: 1px solid var(--border-form-default);
             box-shadow: 0px 1px 1px 0px rgba(33, 37, 44, 0.16);
-            transition: transform 0.2s;
+            transition: transform 0.32s;
         }
         .switch-el.on .switch-thumb {
             transform: translateX(16px);
@@ -555,7 +555,7 @@
             line-height: 16px;
             white-space: nowrap;
             transform-origin: center;
-            transition: opacity 0.25s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), margin 0.3s ease;
+            transition: opacity 0.4s ease, transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1), margin 0.5s ease;
         }
         .save-badge.spent {
             opacity: 0;
@@ -576,14 +576,14 @@
         .fee-rate-slot > .fee-rate { grid-area: 1 / 1; }
         .fee-rate {
             display: block;
-            transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.32s ease;
+            transition: transform 0.52s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.52s ease;
         }
         .fee-rate.leaving { transform: translateY(-110%); opacity: 0; }
         .fee-rate.arriving { transform: translateY(110%); opacity: 0; }
 
         /* The badge: grey -> purple, and a bump as it receives the saving. */
         .fee-badge {
-            transition: background 0.35s ease, border-color 0.35s ease, color 0.35s ease;
+            transition: background 0.55s ease, border-color 0.55s ease, color 0.55s ease;
         }
         .fee-badge.upgraded {
             background: #f3f0ff;
@@ -591,7 +591,7 @@
             color: var(--text-action-primary);
         }
         .fee-badge.upgraded .fee-icon { fill: var(--icon-action-primary); }
-        .fee-badge.received { animation: fee-receive 0.45s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .fee-badge.received { animation: fee-receive 0.72s cubic-bezier(0.34, 1.56, 0.64, 1); }
         @keyframes fee-receive {
             0%   { transform: scale(1); }
             40%  { transform: scale(1.14); }
@@ -599,7 +599,7 @@
         }
 
         /* The switch gets a matching pop as it lands. */
-        .switch-el { transition: background 0.2s, border-color 0.2s, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .switch-el { transition: background 0.32s, border-color 0.32s, transform 0.48s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .switch-el.popping { transform: scale(1.1); }
 
         @media (prefers-reduced-motion: reduce) {
@@ -766,7 +766,7 @@
                 current.classList.add('leaving');
                 incoming.classList.remove('arriving');
             }));
-            setTimeout(() => current.remove(), 420);
+            setTimeout(() => current.remove(), 640);
         }
 
         let upgrading = false;
@@ -783,7 +783,7 @@
             const next = on ? RATES.on : RATES.off;
 
             sw.classList.add('popping');
-            setTimeout(() => sw.classList.remove('popping'), 300);
+            setTimeout(() => sw.classList.remove('popping'), 480);
 
             // The discount applies on the spot: the pill is spent, the price
             // drops, and the badge bumps to register that it changed.
@@ -794,10 +794,10 @@
 
             if (on) {
                 badge.classList.add('received');
-                setTimeout(() => badge.classList.remove('received'), 470);
+                setTimeout(() => badge.classList.remove('received'), 740);
             }
 
-            setTimeout(() => { upgrading = false; }, 420);
+            setTimeout(() => { upgrading = false; }, 760);
         }
 
         // Globe (exact replica from /globe-prototype/index.html, non-interactive)
