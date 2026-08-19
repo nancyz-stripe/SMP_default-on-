@@ -598,17 +598,6 @@
             100% { transform: scale(1); }
         }
 
-        /* The saving travels from the toggle into the price, the way an item
-           travels into a cart. A clone of the pill flies the gap. */
-        .fly-pill {
-            position: fixed;
-            z-index: 999;
-            pointer-events: none;
-            margin: 0;
-            transform-origin: center;
-            will-change: transform, opacity;
-        }
-
         /* The switch gets a matching pop as it lands. */
         .switch-el { transition: background 0.2s, border-color 0.2s, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .switch-el.popping { transform: scale(1.1); }
@@ -780,36 +769,6 @@
             setTimeout(() => current.remove(), 420);
         }
 
-        // Fly a clone of the Save pill into the fee badge, then resolve. Returns
-        // a promise so the badge only reacts once the saving lands.
-        function flySavingToBadge(pill, badge) {
-            const from = pill.getBoundingClientRect();
-            const to = badge.getBoundingClientRect();
-
-            const clone = pill.cloneNode(true);
-            clone.removeAttribute('id');
-            clone.classList.remove('spent');
-            clone.classList.add('fly-pill');
-            clone.style.left = from.left + 'px';
-            clone.style.top = from.top + 'px';
-            clone.style.width = from.width + 'px';
-            clone.style.height = from.height + 'px';
-            document.body.appendChild(clone);
-
-            const dx = (to.left + to.width / 2) - (from.left + from.width / 2);
-            const dy = (to.top + to.height / 2) - (from.top + from.height / 2);
-
-            // A slight arc — it lifts before it drops in, which is what makes the
-            // motion read as "carried" rather than "slid".
-            const flight = clone.animate([
-                { transform: 'translate(0, 0) scale(1)', opacity: 1 },
-                { transform: `translate(${dx * 0.55}px, ${dy * 0.5 - 30}px) scale(0.92)`, opacity: 1, offset: 0.55 },
-                { transform: `translate(${dx}px, ${dy}px) scale(0.5)`, opacity: 0 },
-            ], { duration: 520, easing: 'cubic-bezier(0.45, 0, 0.55, 1)' });
-
-            return flight.finished.then(() => clone.remove());
-        }
-
         let upgrading = false;
 
         function toggleDomestic() {
@@ -826,38 +785,19 @@
             sw.classList.add('popping');
             setTimeout(() => sw.classList.remove('popping'), 300);
 
-            const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            // The discount applies on the spot: the pill is spent, the price
+            // drops, and the badge bumps to register that it changed.
+            pill.classList.toggle('spent', on);
+            badge.classList.toggle('upgraded', on);
+            swapRate(next.rate);
+            document.getElementById('fee-tooltip').textContent = next.note;
 
-            // Applying the saving: the pill leaves the toggle, travels to the
-            // price, and the price only changes once it arrives.
-            function applyUpgrade() {
-                badge.classList.add('upgraded', 'received');
-                swapRate(next.rate);
-                document.getElementById('fee-tooltip').textContent = next.note;
+            if (on) {
+                badge.classList.add('received');
                 setTimeout(() => badge.classList.remove('received'), 470);
             }
 
-            if (on) {
-                if (reduced) {
-                    pill.classList.add('spent');
-                    applyUpgrade();
-                    upgrading = false;
-                    return;
-                }
-                flySavingToBadge(pill, badge).then(() => {
-                    applyUpgrade();
-                    upgrading = false;
-                });
-                // the original empties out as its copy takes flight
-                requestAnimationFrame(() => pill.classList.add('spent'));
-            } else {
-                // Reverting is not a celebration: the saving is simply offered again.
-                pill.classList.remove('spent');
-                badge.classList.remove('upgraded');
-                swapRate(next.rate);
-                document.getElementById('fee-tooltip').textContent = next.note;
-                setTimeout(() => { upgrading = false; }, 420);
-            }
+            setTimeout(() => { upgrading = false; }, 420);
         }
 
         // Globe (exact replica from /globe-prototype/index.html, non-interactive)
