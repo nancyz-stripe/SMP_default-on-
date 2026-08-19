@@ -162,14 +162,14 @@
         .dash-side-foot { margin-top: auto; }
 
         /* Main column */
-        /* The content block stays at its designed 976px and keeps its 32px
-           right margin, so widening the window opens up space to its left
+        /* The content block stays at its designed 976px and sits centred in the
+           space beside the sidebar, so widening the window opens whitespace
            rather than stretching anything. */
         .dash-main {
             flex: 1;
             min-width: 0;
             display: flex;
-            justify-content: flex-end;
+            justify-content: center;
             padding: 16px 32px 0;
             overflow: hidden;
         }
@@ -653,9 +653,15 @@
         #dashboard-step.active { display: block; }
 
         /* Spotlight callout ("Next, set up recurring payments" + Got it) */
-        /* Anchored bottom-right, beside the setup guide, so both hold their
-           relationship at any window size. */
-        .spotlight { position: absolute; right: 393px; bottom: 61px; width: 330px; }
+        /* Both track the centred content block: its right edge sits
+           (100vw - 1216px)/2 from the window edge, which is 32px at the frame's
+           1280px. The callout keeps its 361px inset from that edge. */
+        .spotlight {
+            position: absolute;
+            right: calc(361px + (100vw - 1216px) / 2);
+            bottom: 61px;
+            width: 330px;
+        }
         .spotlight-title {
             font-size: 30px;
             font-weight: 700;
@@ -675,7 +681,7 @@
         /* Setup guide floatie */
         .floatie {
             position: absolute;
-            right: 32px;
+            right: calc((100vw - 1216px) / 2);
             bottom: 30px;
             width: 342px;
             background: var(--bg-surface);
