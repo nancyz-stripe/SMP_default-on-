@@ -809,7 +809,8 @@
     <!-- Back button -->
     <a href="index.html" class="back-button">&larr; Home</a>
     <!-- Control panel: framework is structural, the rest are presentational -->
-    <div class="control-panel" id="controlPanel">
+    <!-- Collapsed by default: the screen is the point, the panel is the aside. -->
+    <div class="control-panel collapsed" id="controlPanel">
         <div class="control-panel-head" onclick="togglePanel()">
             <span class="control-panel-title">Control panel</span>
             <span class="control-panel-badge" id="panelBadge">V1</span>
@@ -924,7 +925,9 @@
     const OPTIONS = {
         framework: [
             { id: 'scope',     label: 'V1 - Choose your scope',          badge: 'V1' },
-            { id: 'autopilot', label: 'V2 - Autopilot vs Self-managed',  badge: 'V2' },
+            // Off the control panel, but still a valid framework: the V2 card in
+            // Latest explorations links straight to ?framework=autopilot.
+            { id: 'autopilot', label: 'V2 - Autopilot vs Self-managed',  badge: 'V2', hidden: true },
             { id: 'expand',    label: 'V3 - Upgrade',                    badge: 'V3' },
         ],
         gradient: [
@@ -944,7 +947,7 @@
     // Where each variant starts. Gradient and cards follow the variant as it was
     // designed; every variant defaults to the medium globe.
     const PRESETS = {
-        scope:     { gradient: 'full',      globe: 'medium', cards: 'on'  },
+        scope:     { gradient: 'spotlight', globe: 'medium', cards: 'on'  },
         autopilot: { gradient: 'spotlight', globe: 'medium', cards: 'off' },
         expand:    { gradient: 'spotlight', globe: 'medium', cards: 'on'  },
     };
@@ -1250,7 +1253,7 @@
     function renderControls() {
         for (const key of ['framework', 'gradient', 'globe']) {
             const host = document.getElementById('ctl' + key[0].toUpperCase() + key.slice(1));
-            host.innerHTML = OPTIONS[key].map(o =>
+            host.innerHTML = OPTIONS[key].filter(o => !o.hidden).map(o =>
                 `<button class="opt${CONFIG[key] === o.id ? ' on' : ''}" onclick="setConfig('${key}', '${o.id}')">${o.label}</button>`
             ).join('');
         }
