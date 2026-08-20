@@ -400,9 +400,18 @@ const latestVariations = [
     globe: 'Medium',
     valueCards: true,
   },
+  {
+    // Moved out of the Onboarding flow section; it's still the e2e flow, so it
+    // keeps the flow card's "Start flow" affordance.
+    id: 'flow-v2',
+    title: 'V2 - Auto-pilot vs Self-managed',
+    flow: true,
+    file: 'flow.html?framework=autopilot',
+    preview: 'smp.html?framework=autopilot&preview=1',
+  },
 ];
 
-// Onboarding flow. All three run the same flow over the same merged SMP screen;
+// Onboarding flow. Each runs the same flow over the same merged SMP screen;
 // each card is a preset that sets the framework, and the control panel on the
 // SMP step can take it anywhere from there. Titles mirror the Figma
 // (26334:37667). `preview` is the SMP screen at that preset.
@@ -414,14 +423,8 @@ const flowVariations = [
     preview: 'smp.html?framework=scope&preview=1',
   },
   {
-    id: 'flow-v2',
-    title: 'V2 - Auto-pilot vs Self-managed',
-    file: 'flow.html?framework=autopilot',
-    preview: 'smp.html?framework=autopilot&preview=1',
-  },
-  {
     id: 'flow-v3',
-    title: 'V3.1 - Expand coverage',
+    title: 'V3 - Upgrade',
     file: 'flow.html?framework=expand',
     preview: 'smp.html?framework=expand&preview=1',
   },
@@ -620,7 +623,9 @@ function renderGrid() {
   gridFlow.innerHTML = flowHtml;
 
   let latestHtml = '';
-  latestVariations.forEach((v, i) => { latestHtml += renderCard(v, i, 'latest'); });
+  latestVariations.forEach((v, i) => {
+    latestHtml += v.flow ? renderFlowCard(v) : renderCard(v, i, 'latest');
+  });
   gridLatest.innerHTML = latestHtml;
 
   let pastHtml = '';
