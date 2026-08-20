@@ -693,16 +693,6 @@
             color: var(--text-heading);
             letter-spacing: -0.15px;
         }
-        .control-panel-badge {
-            padding: 0 6px;
-            border-radius: 4px;
-            background: #efeaff;
-            border: 1px solid #d7cdfa;
-            color: var(--text-action-primary);
-            font-size: 11px;
-            font-weight: 600;
-            line-height: 16px;
-        }
         .control-panel-caret {
             margin-left: auto;
             width: 12px;
@@ -813,7 +803,6 @@
     <div class="control-panel collapsed" id="controlPanel">
         <div class="control-panel-head" onclick="togglePanel()">
             <span class="control-panel-title">Control panel</span>
-            <span class="control-panel-badge" id="panelBadge">V1</span>
             <svg class="control-panel-caret" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5L6 8l3.5-3.5"/></svg>
         </div>
         <div class="control-panel-body">
@@ -924,11 +913,11 @@
     // -----------------------------------------------------------------------
     const OPTIONS = {
         framework: [
-            { id: 'scope',     label: 'V1 - Choose your scope',          badge: 'V1' },
+            { id: 'scope',     label: 'V1 - Choose your scope' },
             // Off the control panel, but still a valid framework: the V2 card in
             // Latest explorations links straight to ?framework=autopilot.
-            { id: 'autopilot', label: 'V2 - Autopilot vs Self-managed',  badge: 'V2', hidden: true },
-            { id: 'expand',    label: 'SMP - Upgrade',                   badge: 'SMP' },
+            { id: 'autopilot', label: 'V2 - Autopilot vs Self-managed', hidden: true },
+            { id: 'expand',    label: 'SMP - Upgrade' },
         ],
         gradient: [
             { id: 'full',      label: 'Full screen' },
@@ -1258,8 +1247,6 @@
             ).join('');
         }
         document.getElementById('ctlCards').classList.toggle('on', CONFIG.cards === 'on');
-        const fw = OPTIONS.framework.find(o => o.id === CONFIG.framework);
-        document.getElementById('panelBadge').textContent = fw.badge;
     }
 
     function toggleCards() {
