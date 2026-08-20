@@ -542,17 +542,89 @@
         /* ---------- expand framework ---------- */
         [data-fw="expand"] .coverage-card { display: flex; flex-direction: column; gap: 16px; padding: 16px; background: var(--bg-surface); border: 2px solid #d4dee9; border-radius: 8px; }
         [data-fw="expand"] .coverage-head { display: flex; flex-direction: column; gap: 8px; }
-        [data-fw="expand"] .coverage-title-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-        [data-fw="expand"] .coverage-title { font-size: 14px; font-weight: 500; line-height: 19px; letter-spacing: -0.15px; color: var(--text-default); }
-        [data-fw="expand"] .coverage-desc { font-size: 14px; line-height: 20px; color: var(--text-subdued); }
+        /* Badge sits directly beside the title, 12px after it (Figma 26398:41161). */
+        [data-fw="expand"] .coverage-title-row { display: flex; align-items: center; gap: 12px; }
+        [data-fw="expand"] .coverage-title { font-size: 14px; font-weight: 600; line-height: 19px; letter-spacing: -0.15px; color: var(--text-default); }
+        [data-fw="expand"] .coverage-desc { font-size: 12px; line-height: 16px; color: var(--text-subdued); }
         [data-fw="expand"] .coverage-divider { height: 1px; border-top: 1px solid #d4dee9; }
+        /* Benefit rows: a plain check, no icon chip */
+        [data-fw="expand"] .benefit-list { display: flex; flex-direction: column; gap: 12px; }
+        [data-fw="expand"] .benefit-row { display: flex; align-items: flex-start; gap: 8px; }
+        [data-fw="expand"] .benefit-check { width: 12px; height: 12px; flex-shrink: 0; margin-top: 4px; color: var(--text-default); }
+        [data-fw="expand"] .benefit-text { font-size: 14px; line-height: 20px; letter-spacing: -0.15px; color: var(--text-default); }
         [data-fw="expand"] .coverage-toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; border-radius: 4px; }
         [data-fw="expand"] .coverage-toggle-left { display: flex; align-items: center; gap: 12px; }
-        [data-fw="expand"] .switch-el { width: 34px; height: 18px; border-radius: 999999px; background: #ecf1f6; border: 1px solid var(--border-form-default); box-shadow: 0px 1px 1px 0px rgba(33, 37, 44, 0.16) inset; position: relative; cursor: pointer; flex-shrink: 0; transition: background 0.2s, border-color 0.2s; }
-        [data-fw="expand"] .switch-el .switch-thumb { position: absolute; top: -1px; left: -1px; width: 18px; height: 18px; border-radius: 999999px; background: white; border: 1px solid var(--border-form-default); box-shadow: 0px 1px 1px 0px rgba(33, 37, 44, 0.16); transition: transform 0.2s; }
-        [data-fw="expand"] .switch-el.on { background: var(--bg-form-accent); border-color: var(--bg-form-accent); }
-        [data-fw="expand"] .switch-el.on .switch-thumb { transform: translateX(16px); }
+        /* The same checkbox as the flow's option rows (`.option-row .box`).
+           Checking it is instant — the motion all sits on the fee badge. */
+        [data-fw="expand"] .box { width: 16px; height: 16px; border-radius: 4px; border: 1px solid var(--neutral-200); background: var(--bg-surface); flex-shrink: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        [data-fw="expand"] .box.on { border-color: var(--bg-form-accent); background: var(--bg-form-accent); }
+        [data-fw="expand"] .box svg { width: 10px; height: 10px; opacity: 0; color: #fff; }
+        [data-fw="expand"] .box.on svg { opacity: 1; }
         [data-fw="expand"] .switch-label { font-size: 14px; line-height: 20px; letter-spacing: -0.15px; color: var(--text-default); }
+
+        /* ---------- Upgrade moment (expand framework) ----------
+           Covering domestic payments is an upgrade, not a surcharge: the fee
+           badge drops its rate and turns purple, the Save 2% incentive is
+           spent, and a short burst fires from the badge. */
+        [data-fw="expand"] .save-badge {
+            flex-shrink: 0;
+            padding: 1px 8px;
+            border-radius: 100px;
+            background: #efeaff;
+            border: 1px solid #d7cdfa;
+            color: var(--text-action-primary);
+            font-size: 12px;
+            line-height: 16px;
+            white-space: nowrap;
+            transform-origin: center;
+            transition: opacity 0.4s ease, transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1), margin 0.5s ease;
+        }
+        [data-fw="expand"] .save-badge.spent {
+            opacity: 0;
+            transform: scale(0.6) translateY(-4px);
+            /* cancels the row's 12px gap so nothing is left behind */
+            margin-left: -12px;
+            width: 0;
+            padding: 1px 0;
+            border-width: 0;
+            overflow: hidden;
+        }
+
+        /* Rate swap: the old value leaves upward, the new arrives from below. */
+        [data-fw="expand"] .fee-rate-slot { display: inline-grid; overflow: hidden; }
+        [data-fw="expand"] .fee-rate-slot > .fee-rate { grid-area: 1 / 1; }
+        [data-fw="expand"] .fee-rate { display: block; transition: transform 0.52s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.52s ease; }
+        [data-fw="expand"] .fee-rate.leaving { transform: translateY(-110%); opacity: 0; }
+        [data-fw="expand"] .fee-rate.arriving { transform: translateY(110%); opacity: 0; }
+
+        /* The badge: grey -> purple, and a bump as it receives the saving. */
+        [data-fw="expand"] .fee-badge { transition: background 0.55s ease, border-color 0.55s ease, color 0.55s ease; }
+        [data-fw="expand"] .fee-badge.upgraded { background: #f3f0ff; border-color: #b9a9f7; color: var(--text-action-primary); }
+        [data-fw="expand"] .fee-badge.upgraded .fee-icon { fill: var(--icon-action-primary); }
+        [data-fw="expand"] .fee-badge.received { animation: fee-receive 0.72s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        @keyframes fee-receive {
+            0%   { transform: scale(1); }
+            40%  { transform: scale(1.14); }
+            100% { transform: scale(1); }
+        }
+
+        /* A small burst from the badge when the discount lands. Deliberately
+           sparse and short — 12 pieces, under a second, no layout impact. */
+        .particle {
+            position: fixed;
+            z-index: 999;
+            border-radius: 50%;
+            pointer-events: none;
+            will-change: transform, opacity;
+        }
+        .particle.chip { border-radius: 1px; }
+
+        @media (prefers-reduced-motion: reduce) {
+            [data-fw="expand"] .save-badge,
+            [data-fw="expand"] .fee-rate,
+            [data-fw="expand"] .fee-badge { transition: none; }
+            [data-fw="expand"] .fee-badge.received { animation: none; }
+        }
         [data-fw="expand"] .link-later { font-size: 14px; color: var(--text-action-primary); cursor: pointer; background: none; border: none; font-family: inherit; padding: 0; letter-spacing: -0.15px; text-align: left; align-self: flex-start; margin-top: 16px; }
         [data-fw="expand"] .link-later:hover { text-decoration: underline; }
         /* The option list already carries a bottom margin, so the link relies on
@@ -853,7 +925,7 @@
         framework: [
             { id: 'scope',     label: 'V1 - Choose your scope',          badge: 'V1' },
             { id: 'autopilot', label: 'V2 - Autopilot vs Self-managed',  badge: 'V2' },
-            { id: 'expand',    label: 'V3 - Expand coverage',            badge: 'V3' },
+            { id: 'expand',    label: 'V3.1 - Expand coverage',          badge: 'V3.1' },
         ],
         gradient: [
             { id: 'full',      label: 'Full screen' },
@@ -874,7 +946,7 @@
     const PRESETS = {
         scope:     { gradient: 'full',      globe: 'medium', cards: 'on'  },
         autopilot: { gradient: 'spotlight', globe: 'medium', cards: 'off' },
-        expand:    { gradient: 'full',      globe: 'medium', cards: 'on'  },
+        expand:    { gradient: 'spotlight', globe: 'medium', cards: 'on'  },
     };
 
     const q = new URLSearchParams(location.search);
@@ -977,31 +1049,41 @@
                             </div>
                         </div>
     `,
+      // V3.1, per Figma 26398:41161: the international coverage is the given,
+      // and the checkbox is the upgrade that buys the lower rate.
       expand: `
-                    <!-- Headline bundles the international given with the ask, so
-                         there's less to parse before the domestic toggle
-                         (Figma 26340:50383). -->
-                    <div class="modal-headline">Stripe handles your international payments. <span class="muted">Expand to cover your domestic payments as well.</span></div>
+                    <div class="modal-headline">Looks like you'll be accepting International payments &mdash; we can handle that.</div>
 
-                    <div class="coverage-card">
+                    <div class="coverage-card" id="coverage-card">
                         <div class="coverage-head">
                             <div class="coverage-title-row">
-                                <div class="coverage-title">Managed payments</div>
+                                <div class="coverage-title">Maximize global revenue with Managed Payments</div>
+                                <!-- The upgrade signal: this badge changes rate and turns
+                                     purple when domestic coverage is checked. -->
+                                <span class="fee-badge" id="fee-badge">
+                                    <span class="fee-rate-slot"><span class="fee-rate" id="fee-rate">3.5% fee</span></span><svg class="fee-icon" viewBox="0 0 12 12" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.75 1.75H3.25C2.42157 1.75 1.75 2.42157 1.75 3.25V8.75C1.75 9.57843 2.42157 10.25 3.25 10.25H8.75C9.57843 10.25 10.25 9.57843 10.25 8.75V3.25C10.25 2.42157 9.57843 1.75 8.75 1.75ZM3.25 0.25C1.59315 0.25 0.25 1.59315 0.25 3.25V8.75C0.25 10.4069 1.59315 11.75 3.25 11.75H8.75C10.4069 11.75 11.75 10.4069 11.75 8.75V3.25C11.75 1.59315 10.4069 0.25 8.75 0.25H3.25Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M4.48182 6.49998C4.48182 6.11338 4.79522 5.79998 5.18182 5.79998H6.27273C6.65933 5.79998 6.97273 6.11338 6.97273 6.49998V8.49998C6.97273 8.88658 6.65933 9.19998 6.27273 9.19998C5.88613 9.19998 5.57273 8.88658 5.57273 8.49998V7.19998H5.18182C4.79522 7.19998 4.48182 6.88658 4.48182 6.49998Z"/><path d="M4.99994 3.99999C4.99994 3.44858 5.44854 2.99999 5.99994 2.99999C6.55134 2.99999 6.99994 3.44858 6.99994 3.99999C6.99994 4.55139 6.55134 4.99999 5.99994 4.99999C5.44854 4.99999 4.99994 4.55139 4.99994 3.99999Z"/></svg><span class="fee-tooltip" id="fee-tooltip">3.5% add-on fee for each successful Managed Payments transaction</span>
+                                </span>
                             </div>
-                            <div class="coverage-desc">Stripe manages tax, fraud, and disputes maximizing revenue while lowering your operational overhead.</div>
+                            <div class="coverage-desc">We'll manage all of your international transactions. This means you won't have to deal with tax liability, fraud prevention, dispute management, or customer support.</div>
+                        </div>
+
+                        <div class="benefit-list">
+                            <div class="benefit-row"><svg class="benefit-check" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 6.3l3 3 6-6.6"/></svg><span class="benefit-text">Earn up to x% more on international revenue</span></div>
+                            <div class="benefit-row"><svg class="benefit-check" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 6.3l3 3 6-6.6"/></svg><span class="benefit-text">Tax liability coverage</span></div>
+                            <div class="benefit-row"><svg class="benefit-check" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 6.3l3 3 6-6.6"/></svg><span class="benefit-text">Automate fraud prevention and disputes</span></div>
                         </div>
 
                         <div class="coverage-divider"></div>
 
                         <div class="coverage-toggle-row">
                             <div class="coverage-toggle-left">
-                                <div class="switch-el" id="switch-domestic" onclick="toggleDomestic()">
-                                    <div class="switch-thumb"></div>
+                                <div class="box" id="checkbox-domestic" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleDomestic()">
+                                    <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 5.2l2.2 2.2L8.5 2.6"/></svg>
                                 </div>
-                                <div class="switch-label">Cover my domestic payments as well</div>
+                                <div class="switch-label">Cover domestic payments too</div>
+                                <!-- The incentive; it's spent once the upgrade is applied. -->
+                                <span class="save-badge" id="save-badge">Save 2%</span>
                             </div>
-                            <!-- One price, reflecting whatever the switch currently covers -->
-                            <span class="fee-badge"><span id="fee-rate">3.5% fee</span> <svg class="fee-icon" viewBox="0 0 12 12" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.75 1.75H3.25C2.42157 1.75 1.75 2.42157 1.75 3.25V8.75C1.75 9.57843 2.42157 10.25 3.25 10.25H8.75C9.57843 10.25 10.25 9.57843 10.25 8.75V3.25C10.25 2.42157 9.57843 1.75 8.75 1.75ZM3.25 0.25C1.59315 0.25 0.25 1.59315 0.25 3.25V8.75C0.25 10.4069 1.59315 11.75 3.25 11.75H8.75C10.4069 11.75 11.75 10.4069 11.75 8.75V3.25C11.75 1.59315 10.4069 0.25 8.75 0.25H3.25Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M4.48182 6.49998C4.48182 6.11338 4.79522 5.79998 5.18182 5.79998H6.27273C6.65933 5.79998 6.97273 6.11338 6.97273 6.49998V8.49998C6.97273 8.88658 6.65933 9.19998 6.27273 9.19998C5.88613 9.19998 5.57273 8.88658 5.57273 8.49998V7.19998H5.18182C4.79522 7.19998 4.48182 6.88658 4.48182 6.49998Z"/><path d="M4.99994 3.99999C4.99994 3.44858 5.44854 2.99999 5.99994 2.99999C6.55134 2.99999 6.99994 3.44858 6.99994 3.99999C6.99994 4.55139 6.55134 4.99999 5.99994 4.99999C5.44854 4.99999 4.99994 4.55139 4.99994 3.99999Z"/></svg><span class="fee-tooltip" id="fee-tooltip">3.5% add-on fee for each successful Managed Payments transaction</span></span>
                         </div>
                     </div>
 
@@ -1031,16 +1113,128 @@
         document.getElementById('autopilot-card').classList.toggle('dimmed', isSelf);
     }
 
-    // The expand framework's fee is a flat 3.5% add-on whether or not domestic
-    // is covered, so the badge doesn't change with the switch.
+    // ---- Expand framework: the upgrade moment ----
+    // Covering domestic payments is an upgrade: the rate drops, the badge turns
+    // purple, and the "Save 2%" incentive is spent. The checkbox itself doesn't
+    // animate — all the motion sits on the badge, which is where the change
+    // actually lands.
+    const RATES = {
+        off: {
+            rate: '3.5% fee',
+            note: '3.5% add-on fee for each successful Managed Payments transaction',
+        },
+        on: {
+            rate: '2.5% fee',
+            note: '2.5% add-on fee for each successful Managed Payments transaction, domestic and cross-border',
+        },
+    };
+
+    // Swap the rate by sliding the old value out and the new one in. Both sit in
+    // the same grid cell, so the badge never jumps.
+    function swapRate(text) {
+        const slot = document.querySelector('.fee-rate-slot');
+        const current = slot.querySelector('.fee-rate:not(.leaving)');
+        if (!current || current.textContent === text) return;
+
+        const incoming = document.createElement('span');
+        incoming.className = 'fee-rate arriving';
+        incoming.textContent = text;
+        slot.appendChild(incoming);
+
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            current.classList.add('leaving');
+            incoming.classList.remove('arriving');
+        }));
+        setTimeout(() => current.remove(), 640);
+    }
+
+    // Purples from the palette, plus one pink to echo the globe's glow.
+    const PARTICLE_COLORS = ['#675dff', '#8f83ff', '#b9a9f7', '#e2a4ea'];
+
+    function burstFrom(el) {
+        const r = el.getBoundingClientRect();
+        const cx = r.left + r.width / 2;
+        const cy = r.top + r.height / 2;
+        const COUNT = 12;
+
+        for (let i = 0; i < COUNT; i++) {
+            const p = document.createElement('span');
+            p.className = i % 3 === 0 ? 'particle chip' : 'particle';
+            const size = 3 + Math.random() * 3;
+            p.style.width = size + 'px';
+            p.style.height = size + 'px';
+            p.style.left = cx + 'px';
+            p.style.top = cy + 'px';
+            p.style.background = PARTICLE_COLORS[i % PARTICLE_COLORS.length];
+            document.body.appendChild(p);
+
+            // Even spread with jitter, then a little gravity on the way out.
+            const angle = (i / COUNT) * Math.PI * 2 + (Math.random() - 0.5) * 0.6;
+            const dist = 24 + Math.random() * 26;
+            const x = Math.cos(angle) * dist;
+            const y = Math.sin(angle) * dist;
+            const spin = (Math.random() - 0.5) * 220;
+
+            p.animate([
+                { transform: 'translate(-50%, -50%) scale(0.3)', opacity: 0 },
+                { transform: `translate(calc(-50% + ${x * 0.68}px), calc(-50% + ${y * 0.68}px)) scale(1) rotate(${spin * 0.5}deg)`,
+                  opacity: 1, offset: 0.3 },
+                { transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y + 12}px)) scale(0.2) rotate(${spin}deg)`,
+                  opacity: 0 },
+            ], {
+                duration: 640 + Math.random() * 220,
+                easing: 'cubic-bezier(0.2, 0.7, 0.3, 1)',
+            }).finished.then(() => p.remove());
+        }
+    }
+
+    let upgrading = false;
+
     function toggleDomestic() {
-        document.getElementById('switch-domestic').classList.toggle('on');
+        if (upgrading) return;
+        upgrading = true;
+
+        const box = document.getElementById('checkbox-domestic');
+        const badge = document.getElementById('fee-badge');
+        const pill = document.getElementById('save-badge');
+
+        const on = box.classList.toggle('on');
+        box.setAttribute('aria-checked', String(on));
+        const next = on ? RATES.on : RATES.off;
+
+        // The discount applies on the spot: the pill is spent, the price drops,
+        // and the badge bumps to register that it changed.
+        pill.classList.toggle('spent', on);
+        badge.classList.toggle('upgraded', on);
+        swapRate(next.rate);
+        document.getElementById('fee-tooltip').textContent = next.note;
+
+        if (on) {
+            badge.classList.add('received');
+            setTimeout(() => badge.classList.remove('received'), 740);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                // fires with the bump, so the badge looks like the source
+                burstFrom(badge);
+            }
+        }
+
+        setTimeout(() => { upgrading = false; }, 760);
     }
 
     // ---- Apply config ----
     function applyFramework() {
         document.getElementById('modalLeft').innerHTML = PANELS[CONFIG.framework];
         document.getElementById('modalSplit').dataset.fw = CONFIG.framework;
+
+        // The panel is re-injected on every framework change, so the expand
+        // checkbox's keyboard handler is bound here rather than once at load.
+        const box = document.getElementById('checkbox-domestic');
+        if (box) box.addEventListener('keydown', (e) => {
+            if (e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                toggleDomestic();
+            }
+        });
     }
 
     function applyPresentation() {
