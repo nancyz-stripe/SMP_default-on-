@@ -564,7 +564,7 @@
 
         /* ---------- Upgrade moment (expand framework) ----------
            Covering domestic payments is an upgrade, not a surcharge: the fee
-           badge drops its rate and turns purple, the Save 2% incentive is
+           badge drops its rate and turns purple, the Save 30% incentive is
            spent, and a short burst fires from the badge. */
         [data-fw="expand"] .save-badge {
             flex-shrink: 0;
@@ -928,7 +928,7 @@
             // Off the control panel, but still a valid framework: the V2 card in
             // Latest explorations links straight to ?framework=autopilot.
             { id: 'autopilot', label: 'V2 - Autopilot vs Self-managed',  badge: 'V2', hidden: true },
-            { id: 'expand',    label: 'V3 - Upgrade',                    badge: 'V3' },
+            { id: 'expand',    label: 'SMP - Upgrade',                   badge: 'SMP' },
         ],
         gradient: [
             { id: 'full',      label: 'Full screen' },
@@ -1085,7 +1085,7 @@
                                 </div>
                                 <div class="switch-label">Cover domestic payments too</div>
                                 <!-- The incentive; it's spent once the upgrade is applied. -->
-                                <span class="save-badge" id="save-badge">Save 2%</span>
+                                <span class="save-badge" id="save-badge">Save 30%</span>
                             </div>
                         </div>
                     </div>
@@ -1118,7 +1118,7 @@
 
     // ---- Expand framework: the upgrade moment ----
     // Covering domestic payments is an upgrade: the rate drops, the badge turns
-    // purple, and the "Save 2%" incentive is spent. The checkbox itself doesn't
+    // purple, and the "Save 30%" incentive is spent. The checkbox itself doesn't
     // animate — all the motion sits on the badge, which is where the change
     // actually lands.
     const RATES = {

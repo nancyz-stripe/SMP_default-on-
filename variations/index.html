@@ -400,9 +400,16 @@ const latestVariations = [
     globe: 'Medium',
     valueCards: true,
   },
+  // Moved out of the Onboarding flow section; both are still the e2e flow, so
+  // they keep the flow card's "Start flow" affordance.
   {
-    // Moved out of the Onboarding flow section; it's still the e2e flow, so it
-    // keeps the flow card's "Start flow" affordance.
+    id: 'flow-v1',
+    title: 'V1 - Choose your scope',
+    flow: true,
+    file: 'flow.html?framework=scope',
+    preview: 'smp.html?framework=scope&preview=1',
+  },
+  {
     id: 'flow-v2',
     title: 'V2 - Auto-pilot vs Self-managed',
     flow: true,
@@ -411,20 +418,13 @@ const latestVariations = [
   },
 ];
 
-// Onboarding flow. Each runs the same flow over the same merged SMP screen;
-// each card is a preset that sets the framework, and the control panel on the
-// SMP step can take it anywhere from there. Titles mirror the Figma
-// (26334:37667). `preview` is the SMP screen at that preset.
+// Onboarding flow. The card is a preset that sets the framework, and the
+// control panel on the SMP step can take it anywhere from there.
+// `preview` is the SMP screen at that preset.
 const flowVariations = [
   {
-    id: 'flow-v1',
-    title: 'V1 - Choose your scope',
-    file: 'flow.html?framework=scope',
-    preview: 'smp.html?framework=scope&preview=1',
-  },
-  {
     id: 'flow-v3',
-    title: 'V3 - Upgrade',
+    title: 'SMP - Upgrade',
     file: 'flow.html?framework=expand',
     preview: 'smp.html?framework=expand&preview=1',
   },

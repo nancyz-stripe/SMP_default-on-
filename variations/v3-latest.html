@@ -536,7 +536,7 @@
 
         /* ---------- Upgrade moment ----------
            Switching domestic coverage on is an upgrade, not a surcharge: the fee
-           badge drops its rate and turns purple, the Save 2% incentive is spent,
+           badge drops its rate and turns purple, the Save 30% incentive is spent,
            and the card gives a brief glow. */
         .save-badge {
             flex-shrink: 0;
@@ -682,7 +682,7 @@
                                 </div>
                                 <div class="switch-label">Cover domestic payments too</div>
                                 <!-- The incentive; it's spent once the upgrade is applied. -->
-                                <span class="save-badge" id="save-badge">Save 2%</span>
+                                <span class="save-badge" id="save-badge">Save 30%</span>
                             </div>
                         </div>
                     </div>
@@ -736,7 +736,7 @@
     <script>
         // ---------------------------------------------------------------
         // Checking domestic coverage is an upgrade: the rate drops, the badge
-        // turns purple, and the "Save 2%" incentive is spent. The checkbox itself
+        // turns purple, and the "Save 30%" incentive is spent. The checkbox itself
         // doesn't animate — all the motion sits on the badge, which is where the
         // change actually lands.
         // ---------------------------------------------------------------
