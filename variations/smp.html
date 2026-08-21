@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SMP intent capture</title>
     <style>
+        /* Registered so it interpolates: the fee badge's keyline sweep rotates
+           this angle, and unregistered custom properties don't animate. */
+        @property --fee-sweep-angle {
+            syntax: '<angle>';
+            initial-value: 0deg;
+            inherits: false;
+        }
+
         :root {
             --bg-surface: #ffffff;
             --bg-offset: #f5f6f8;
@@ -602,11 +610,15 @@
         [data-fw="expand"] .fee-badge { transition: background 0.55s ease, border-color 0.55s ease, color 0.55s ease; }
         [data-fw="expand"] .fee-badge.upgraded { background: #f3f0ff; border-color: #b9a9f7; color: var(--text-action-primary); }
 
-        /* On the upgrade, a warm-to-purple gradient sweeps around the badge's
-           keyline — same ramp as the particles — then fades out, leaving the
-           settled purple border underneath. The fill is never touched: the ring
-           is a 1px frame masked out of the overlay, sitting over the badge's
-           own border box. */
+        /* On the upgrade, the badge's keyline runs the particles' ramp clockwise
+           once, then fades out and leaves the settled purple border underneath.
+           The fill is never touched: the ring is a 1px frame masked out of the
+           overlay, sitting over the badge's own border box.
+
+           A conic gradient carries the hues around the ring, and rotating its
+           `from` angle turns it clockwise. The angle is a registered custom
+           property so it can be animated; unregistered ones don't interpolate.
+           The stops return to the warm end at 360deg, so the loop has no seam. */
         [data-fw="expand"] .fee-badge::before {
             content: '';
             position: absolute;
@@ -616,22 +628,24 @@
             padding: 1px;
             opacity: 0;
             pointer-events: none;
-            background: linear-gradient(110deg, #f7dcb5 0%, #f1c1a6 24%, #ecb4b4 42%, #e0a0c8 60%, #c280e8 78%, #a478f3 100%);
-            background-size: 260% 100%;
-            background-position: 0% 50%;
+            background: conic-gradient(from var(--fee-sweep-angle),
+                #f7dcb5 0deg, #f1c1a6 60deg, #e0a0c8 120deg, #c280e8 180deg,
+                #a478f3 240deg, #d895d4 300deg, #f7dcb5 360deg);
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor;
             mask-composite: exclude;
         }
+        /* linear, so the rotation holds a steady speed; the fade is shaped by
+           the opacity stops instead. */
         [data-fw="expand"] .fee-badge.settling::before {
-            animation: fee-gradient-settle 1.2s cubic-bezier(0.33, 0, 0.2, 1) forwards;
+            animation: fee-gradient-settle 1.3s linear forwards;
         }
         @keyframes fee-gradient-settle {
-            0%   { opacity: 0; background-position: 0% 50%; }
+            0%   { --fee-sweep-angle: 0deg; opacity: 0; }
             14%  { opacity: 1; }
-            68%  { opacity: 0.9; }
-            100% { opacity: 0; background-position: 100% 50%; }
+            72%  { opacity: 0.9; }
+            100% { --fee-sweep-angle: 360deg; opacity: 0; }
         }
         [data-fw="expand"] .fee-badge.upgraded .fee-icon { fill: var(--icon-action-primary); }
         [data-fw="expand"] .fee-badge.received { animation: fee-receive 0.72s cubic-bezier(0.34, 1.56, 0.64, 1); }
@@ -1209,7 +1223,7 @@
                 { transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y + 12}px)) scale(0.2) rotate(${spin}deg)`,
                   opacity: 0 },
             ], {
-                duration: 640 + Math.random() * 220,
+                duration: 810 + Math.random() * 270,
                 easing: 'cubic-bezier(0.2, 0.7, 0.3, 1)',
             }).finished.then(() => p.remove());
         }
