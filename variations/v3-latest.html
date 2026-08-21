@@ -588,31 +588,36 @@
         .fee-badge.upgraded .fee-icon { fill: var(--icon-action-primary); }
         .fee-badge.received { animation: fee-receive 0.72s cubic-bezier(0.34, 1.56, 0.64, 1); }
 
-        /* On the upgrade, a warm-to-purple gradient sweeps across the badge and
-           fades out, leaving the settled purple underneath. Same ramp as the
-           particles, so the badge and the burst read as one moment. */
+        /* On the upgrade, a warm-to-purple gradient sweeps around the badge's
+           keyline — same ramp as the particles — then fades out, leaving the
+           settled purple border underneath. The fill is never touched: the ring
+           is a 1px frame masked out of the overlay, sitting over the badge's
+           own border box. */
         .fee-badge::before {
             content: '';
             position: absolute;
-            inset: 0;
-            border-radius: inherit;
+            inset: -1px;
+            /* one step out from the badge's 4px, so the ring stays concentric */
+            border-radius: 5px;
+            padding: 1px;
             opacity: 0;
             pointer-events: none;
             background: linear-gradient(110deg, #f7dcb5 0%, #f1c1a6 24%, #ecb4b4 42%, #e0a0c8 60%, #c280e8 78%, #a478f3 100%);
             background-size: 260% 100%;
             background-position: 0% 50%;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
         }
         .fee-badge.settling::before {
             animation: fee-gradient-settle 1.2s cubic-bezier(0.33, 0, 0.2, 1) forwards;
         }
-        /* Above the sweep. The tooltip is left alone — it positions itself. */
-        .fee-badge .fee-rate-slot,
-        .fee-badge .fee-icon { position: relative; z-index: 1; }
         @keyframes fee-gradient-settle {
-            0%   { opacity: 0;    background-position: 0% 50%; }
-            16%  { opacity: 0.92; }
-            62%  { opacity: 0.78; }
-            100% { opacity: 0;    background-position: 100% 50%; }
+            0%   { opacity: 0; background-position: 0% 50%; }
+            14%  { opacity: 1; }
+            68%  { opacity: 0.9; }
+            100% { opacity: 0; background-position: 100% 50%; }
         }
         @keyframes fee-receive {
             0%   { transform: scale(1); }
