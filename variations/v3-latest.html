@@ -594,12 +594,22 @@
         }
 
         /* A confetti burst from the badge when the discount lands. Ported from
-           the Sail community success-animation package: the same six shapes on
-           the blurple/blue ramp, sized off --particle-size-scale. The scale is
-           turned down from the package's 1, since this fires from a badge
-           rather than a 200px success circle. */
+           the Sail community success-animation package: the same six shapes,
+           sized off --particle-size-scale. The scale is turned well down from
+           the package's 1, since this fires from a badge rather than a 200px
+           success circle.
+
+           The colors are the spotlight gradient's own stops rather than the
+           package's blurple/blue ramp, so the burst reads as part of the
+           backdrop. The cool blue is the one exception: the gradient lays it
+           down at 0.24 alpha, which is invisible as a solid shape on
+           near-white, so the confetti uses a deeper tint of it. */
         .particle {
-            --particle-size-scale: 0.4;
+            --particle-size-scale: 0.34;
+            --gradient-lilac: #d880ec;
+            --gradient-pink: #d69fc7;
+            --gradient-peach: #feb4cb;
+            --gradient-blue: #b6cffb;
             position: fixed;
             z-index: 999;
             opacity: 0;
@@ -611,38 +621,38 @@
             width: calc(22px * var(--particle-size-scale));
             height: calc(22px * var(--particle-size-scale));
             border-radius: 50%;
-            background: #6dc9fc;
+            background: var(--gradient-peach);
         }
         .particle.triangle {
             width: 0;
             height: 0;
             border-left: calc(10px * var(--particle-size-scale)) solid transparent;
             border-right: calc(10px * var(--particle-size-scale)) solid transparent;
-            border-bottom: calc(18px * var(--particle-size-scale)) solid #c3b6fb;
+            border-bottom: calc(18px * var(--particle-size-scale)) solid var(--gradient-lilac);
         }
         .particle.square {
             width: calc(16px * var(--particle-size-scale));
             height: calc(16px * var(--particle-size-scale));
             border-radius: 2px;
-            background: #a497fc;
+            background: var(--gradient-pink);
         }
         /* Squared off, and started on a corner by the animation. */
         .particle.diamond {
             width: calc(16px * var(--particle-size-scale));
             height: calc(16px * var(--particle-size-scale));
-            background: #3babfd;
+            background: var(--gradient-blue);
         }
         .particle.vertical-rect {
             width: calc(12px * var(--particle-size-scale));
             height: calc(20px * var(--particle-size-scale));
             border-radius: 3px;
-            background: #c3b6fb;
+            background: var(--gradient-peach);
         }
         .particle.horizontal-rect {
             width: calc(20px * var(--particle-size-scale));
             height: calc(10px * var(--particle-size-scale));
             border-radius: 3px;
-            background: #c3b6fb;
+            background: var(--gradient-lilac);
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -813,12 +823,13 @@
         }
 
         // The confetti from @sail-community/success-animation, ported to plain
-        // WAAPI: 30 pieces cycling through six shapes, each with its own delay,
-        // duration and drift, on the package's easing curve. SPREAD stands in
-        // for the package's --particle-spread, scaled to a badge-sized origin.
+        // WAAPI: pieces cycling through its six shapes, each with its own delay,
+        // duration and drift. Two pieces per shape rather than the package's
+        // five, and a tighter spread, since this fires from a badge rather than
+        // a 200px success circle.
         const PARTICLE_SHAPES = ['triangle', 'circle', 'square', 'diamond', 'vertical-rect', 'horizontal-rect'];
-        const PARTICLE_COUNT = 30;
-        const PARTICLE_SPREAD = 160;
+        const PARTICLE_COUNT = 12;
+        const PARTICLE_SPREAD = 104;
 
         function burstFrom(el) {
             const r = el.getBoundingClientRect();
@@ -834,23 +845,28 @@
 
                 const x = (Math.random() - 0.5) * PARTICLE_SPREAD;
                 const y = (Math.random() - 0.5) * PARTICLE_SPREAD;
-                const rotation = Math.random() * 720;
+                const rotation = (Math.random() - 0.5) * 300;
                 // Every sixth piece is a diamond, so it starts on a corner.
                 const start = i % 6 === 3 ? 45 : 0;
                 const to = (t) => `translate(calc(-50% + ${x * t}px), calc(-50% + ${y * t}px))`;
 
-                // Held for the first 10%, popped to 1.15, then carried out to
-                // 85% of the drift while it shrinks and fades.
+                // Pop, then drift out and fade. Each keyframe carries its own
+                // easing: WAAPI applies a single top-level easing across the
+                // whole list, so the package's overshoot curve pushed progress
+                // past a keyframe and back, which read as a stutter. Per-segment
+                // easing is how @sail/motion runs it, and it keeps the overshoot
+                // on the pop where it belongs.
                 p.animate([
-                    { offset: 0,    opacity: 0,    transform: `${to(0)} scale(0) rotate(${start}deg)` },
-                    { offset: 0.10, opacity: 0,    transform: `${to(0)} scale(0) rotate(${start}deg)` },
-                    { offset: 0.15, opacity: 0.9,  transform: `${to(0.3)} scale(1.15) rotate(${start + rotation * 0.15}deg)` },
-                    { offset: 0.70, opacity: 0.85, transform: `${to(0.66)} scale(0.79) rotate(${start + rotation * 0.25}deg)` },
-                    { offset: 1,    opacity: 0,    transform: `${to(0.85)} scale(0.6) rotate(${start + rotation * 0.3}deg)` },
+                    { offset: 0,    opacity: 0,    transform: `${to(0)} scale(0.2) rotate(${start}deg)`,
+                      easing: 'cubic-bezier(0.2, 0.8, 0.3, 1.12)' },
+                    { offset: 0.22, opacity: 0.75, transform: `${to(0.32)} scale(1) rotate(${start + rotation * 0.3}deg)`,
+                      easing: 'cubic-bezier(0.25, 0.6, 0.25, 1)' },
+                    { offset: 0.68, opacity: 0.6,  transform: `${to(0.7)} scale(0.85) rotate(${start + rotation * 0.72}deg)`,
+                      easing: 'cubic-bezier(0.4, 0, 0.7, 1)' },
+                    { offset: 1,    opacity: 0,    transform: `${to(0.9)} scale(0.62) rotate(${start + rotation}deg)` },
                 ], {
-                    delay: Math.random() * 150,
-                    duration: 1200 + Math.random() * 600,
-                    easing: 'cubic-bezier(0.17, 0.67, 0.16, 1.22)',
+                    delay: Math.random() * 90,
+                    duration: 900 + Math.random() * 400,
                 }).finished.then(() => p.remove());
             }
         }
