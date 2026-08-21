@@ -525,14 +525,28 @@
             visibility: visible;
         }
 
-        /* "x% more revenue" — the claim links out to how it's actually earned,
+        /* "more revenue" — the claim links out to how it's actually earned,
            per Figma 26463:14817. Same tooltip treatment as the fee badge, but
            anchored to the link's left edge: centring a 300px card on a link
-           this far into the panel would hang off the edge. */
-        .revenue-link {
+           this far into the panel would hang off the edge.
+
+           The tooltip is a sibling of the link rather than a child, so it stays
+           clear of the gradient text-fill below — clipping a background to the
+           link's glyphs would take the tooltip's own text with it. */
+        .revenue-wrap {
             position: relative;
-            color: var(--text-action-primary);
+            white-space: nowrap;
+        }
+        /* Gradient per Figma: the fill is clipped to the glyphs, so `color` is
+           left to carry the underline. */
+        .revenue-link {
+            background-image: linear-gradient(121deg, #955ef4 3%, #2079f6 99%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: #7a68f5;
             text-decoration: underline;
+            text-decoration-color: #7a68f5;
             text-decoration-skip-ink: none;
             text-underline-position: from-font;
             cursor: default;
@@ -558,8 +572,8 @@
             transition: opacity 0.15s;
             z-index: 50;
         }
-        .revenue-link:hover .revenue-tooltip,
-        .revenue-link:focus-visible .revenue-tooltip {
+        .revenue-wrap:hover .revenue-tooltip,
+        .revenue-link:focus-visible + .revenue-tooltip {
             opacity: 1;
             visibility: visible;
         }
@@ -755,7 +769,7 @@
                         </div>
 
                         <div class="benefit-list">
-                            <div class="benefit-row"><svg class="benefit-check" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 6.3l3 3 6-6.6"/></svg><span class="benefit-text">Earn up to <span class="revenue-link" tabindex="0">x% more revenue<span class="revenue-tooltip">Managed Payments can process payments locally in each customer’s market. This can help banks approve them without you setting up payment operations there.</span></span></span></div>
+                            <div class="benefit-row"><svg class="benefit-check" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 6.3l3 3 6-6.6"/></svg><span class="benefit-text">Earn up to X% <span class="revenue-wrap"><span class="revenue-link" tabindex="0">more revenue</span><span class="revenue-tooltip">Managed Payments can process payments locally in each customer’s market. This can help banks approve them without you setting up payment operations there.</span></span></span></div>
                             <div class="benefit-row"><svg class="benefit-check" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 6.3l3 3 6-6.6"/></svg><span class="benefit-text">Global tax liability coverage</span></div>
                             <div class="benefit-row"><svg class="benefit-check" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 6.3l3 3 6-6.6"/></svg><span class="benefit-text">Stripe handles fraud prevention, disputes, and customer support</span></div>
                         </div>
