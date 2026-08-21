@@ -587,6 +587,33 @@
         }
         .fee-badge.upgraded .fee-icon { fill: var(--icon-action-primary); }
         .fee-badge.received { animation: fee-receive 0.72s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+        /* On the upgrade, a warm-to-purple gradient sweeps across the badge and
+           fades out, leaving the settled purple underneath. Same ramp as the
+           particles, so the badge and the burst read as one moment. */
+        .fee-badge::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            opacity: 0;
+            pointer-events: none;
+            background: linear-gradient(110deg, #f7dcb5 0%, #f1c1a6 24%, #ecb4b4 42%, #e0a0c8 60%, #c280e8 78%, #a478f3 100%);
+            background-size: 260% 100%;
+            background-position: 0% 50%;
+        }
+        .fee-badge.settling::before {
+            animation: fee-gradient-settle 1.2s cubic-bezier(0.33, 0, 0.2, 1) forwards;
+        }
+        /* Above the sweep. The tooltip is left alone — it positions itself. */
+        .fee-badge .fee-rate-slot,
+        .fee-badge .fee-icon { position: relative; z-index: 1; }
+        @keyframes fee-gradient-settle {
+            0%   { opacity: 0;    background-position: 0% 50%; }
+            16%  { opacity: 0.92; }
+            62%  { opacity: 0.78; }
+            100% { opacity: 0;    background-position: 100% 50%; }
+        }
         @keyframes fee-receive {
             0%   { transform: scale(1); }
             40%  { transform: scale(1.14); }
@@ -606,7 +633,8 @@
 
         @media (prefers-reduced-motion: reduce) {
             .save-badge, .fee-rate, .fee-badge { transition: none; }
-            .fee-badge.received { animation: none; }
+            .fee-badge.received,
+            .fee-badge.settling::before { animation: none; }
         }
 
     </style>
@@ -771,8 +799,9 @@
             setTimeout(() => current.remove(), 640);
         }
 
-        // Purples from the palette, plus one pink to echo the globe's glow.
-        const PARTICLE_COLORS = ['#675dff', '#8f83ff', '#b9a9f7', '#e2a4ea'];
+        // Sampled down the reference gradient, warm end to purple end, so the
+        // pieces carry the same ramp the badge sweeps through.
+        const PARTICLE_COLORS = ['#f7dcb5', '#f1c1a6', '#ecb4b4', '#e0a0c8', '#c280e8', '#a478f3'];
 
         function burstFrom(el) {
             const r = el.getBoundingClientRect();
@@ -833,12 +862,17 @@
             document.getElementById('fee-tooltip').textContent = next.note;
 
             if (on) {
-                badge.classList.add('received');
+                // The gradient sweeps as the badge bumps, then hands off to the
+                // purple that the .upgraded transition is settling into underneath.
+                badge.classList.add('received', 'settling');
                 setTimeout(() => badge.classList.remove('received'), 740);
+                setTimeout(() => badge.classList.remove('settling'), 1240);
                 if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                     // fires with the bump, so the badge looks like the source
                     burstFrom(badge);
                 }
+            } else {
+                badge.classList.remove('settling');
             }
 
             setTimeout(() => { upgrading = false; }, 760);
