@@ -609,16 +609,57 @@
             100% { transform: scale(1); }
         }
 
-        /* A small burst from the badge when the discount lands. Deliberately
-           sparse and short — 12 pieces, under a second, no layout impact. */
+        /* A confetti burst from the badge when the discount lands. Ported from
+           the Sail community success-animation package: the same six shapes on
+           the blurple/blue ramp, sized off --particle-size-scale. The scale is
+           turned down from the package's 1, since this fires from a badge
+           rather than a 200px success circle. */
         .particle {
+            --particle-size-scale: 0.4;
             position: fixed;
             z-index: 999;
-            border-radius: 50%;
+            opacity: 0;
             pointer-events: none;
+            transform-origin: center;
             will-change: transform, opacity;
         }
-        .particle.chip { border-radius: 1px; }
+        .particle.circle {
+            width: calc(22px * var(--particle-size-scale));
+            height: calc(22px * var(--particle-size-scale));
+            border-radius: 50%;
+            background: #6dc9fc;
+        }
+        .particle.triangle {
+            width: 0;
+            height: 0;
+            border-left: calc(10px * var(--particle-size-scale)) solid transparent;
+            border-right: calc(10px * var(--particle-size-scale)) solid transparent;
+            border-bottom: calc(18px * var(--particle-size-scale)) solid #c3b6fb;
+        }
+        .particle.square {
+            width: calc(16px * var(--particle-size-scale));
+            height: calc(16px * var(--particle-size-scale));
+            border-radius: 2px;
+            background: #a497fc;
+        }
+        /* Squared off, and started on a corner by the animation. */
+        .particle.diamond {
+            width: calc(16px * var(--particle-size-scale));
+            height: calc(16px * var(--particle-size-scale));
+            background: #3babfd;
+        }
+        .particle.vertical-rect {
+            width: calc(12px * var(--particle-size-scale));
+            height: calc(20px * var(--particle-size-scale));
+            border-radius: 3px;
+            background: #c3b6fb;
+        }
+        .particle.horizontal-rect {
+            width: calc(20px * var(--particle-size-scale));
+            height: calc(10px * var(--particle-size-scale));
+            border-radius: 3px;
+            background: #c3b6fb;
+        }
 
         @media (prefers-reduced-motion: reduce) {
             [data-fw="expand"] .save-badge,
@@ -1141,42 +1182,45 @@
         setTimeout(() => current.remove(), 640);
     }
 
-    // Purples from the palette, plus one pink to echo the globe's glow.
-    const PARTICLE_COLORS = ['#675dff', '#8f83ff', '#b9a9f7', '#e2a4ea'];
+    // The confetti from @sail-community/success-animation, ported to plain
+    // WAAPI: 30 pieces cycling through six shapes, each with its own delay,
+    // duration and drift, on the package's easing curve. SPREAD stands in for
+    // the package's --particle-spread, scaled to a badge-sized origin.
+    const PARTICLE_SHAPES = ['triangle', 'circle', 'square', 'diamond', 'vertical-rect', 'horizontal-rect'];
+    const PARTICLE_COUNT = 30;
+    const PARTICLE_SPREAD = 160;
 
     function burstFrom(el) {
         const r = el.getBoundingClientRect();
         const cx = r.left + r.width / 2;
         const cy = r.top + r.height / 2;
-        const COUNT = 12;
 
-        for (let i = 0; i < COUNT; i++) {
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
             const p = document.createElement('span');
-            p.className = i % 3 === 0 ? 'particle chip' : 'particle';
-            const size = 3 + Math.random() * 3;
-            p.style.width = size + 'px';
-            p.style.height = size + 'px';
+            p.className = `particle ${PARTICLE_SHAPES[i % 6]}`;
             p.style.left = cx + 'px';
             p.style.top = cy + 'px';
-            p.style.background = PARTICLE_COLORS[i % PARTICLE_COLORS.length];
             document.body.appendChild(p);
 
-            // Even spread with jitter, then a little gravity on the way out.
-            const angle = (i / COUNT) * Math.PI * 2 + (Math.random() - 0.5) * 0.6;
-            const dist = 24 + Math.random() * 26;
-            const x = Math.cos(angle) * dist;
-            const y = Math.sin(angle) * dist;
-            const spin = (Math.random() - 0.5) * 220;
+            const x = (Math.random() - 0.5) * PARTICLE_SPREAD;
+            const y = (Math.random() - 0.5) * PARTICLE_SPREAD;
+            const rotation = Math.random() * 720;
+            // Every sixth piece is a diamond, so it starts on a corner.
+            const start = i % 6 === 3 ? 45 : 0;
+            const to = (t) => `translate(calc(-50% + ${x * t}px), calc(-50% + ${y * t}px))`;
 
+            // Held for the first 10%, popped to 1.15, then carried out to 85%
+            // of the drift while it shrinks and fades.
             p.animate([
-                { transform: 'translate(-50%, -50%) scale(0.3)', opacity: 0 },
-                { transform: `translate(calc(-50% + ${x * 0.68}px), calc(-50% + ${y * 0.68}px)) scale(1) rotate(${spin * 0.5}deg)`,
-                  opacity: 1, offset: 0.3 },
-                { transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y + 12}px)) scale(0.2) rotate(${spin}deg)`,
-                  opacity: 0 },
+                { offset: 0,    opacity: 0,    transform: `${to(0)} scale(0) rotate(${start}deg)` },
+                { offset: 0.10, opacity: 0,    transform: `${to(0)} scale(0) rotate(${start}deg)` },
+                { offset: 0.15, opacity: 0.9,  transform: `${to(0.3)} scale(1.15) rotate(${start + rotation * 0.15}deg)` },
+                { offset: 0.70, opacity: 0.85, transform: `${to(0.66)} scale(0.79) rotate(${start + rotation * 0.25}deg)` },
+                { offset: 1,    opacity: 0,    transform: `${to(0.85)} scale(0.6) rotate(${start + rotation * 0.3}deg)` },
             ], {
-                duration: 640 + Math.random() * 220,
-                easing: 'cubic-bezier(0.2, 0.7, 0.3, 1)',
+                delay: Math.random() * 150,
+                duration: 1200 + Math.random() * 600,
+                easing: 'cubic-bezier(0.17, 0.67, 0.16, 1.22)',
             }).finished.then(() => p.remove());
         }
     }
