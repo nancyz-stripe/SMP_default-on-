@@ -578,17 +578,17 @@
             line-height: 16px;
             white-space: nowrap;
             transform-origin: center;
-            transition: opacity 0.4s ease, transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1), margin 0.5s ease;
+            transition: opacity 0.35s ease, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
+        /* Spent in place, on opacity and transform only. Collapsing the box
+           instead (width/padding/border, none of which were transitionable)
+           snapped the row's layout on the same frame the confetti fired, and
+           the animated margin forced layout for half a second after. The badge
+           sits at the end of the row, so leaving its space behind costs
+           nothing and the row never shifts. */
         [data-fw="expand"] .save-badge.spent {
             opacity: 0;
             transform: scale(0.6) translateY(-4px);
-            /* cancels the row's 12px gap so nothing is left behind */
-            margin-left: -12px;
-            width: 0;
-            padding: 2px 0;
-            border-width: 0;
-            overflow: hidden;
         }
 
         /* Rate swap: the old value leaves upward, the new arrives from below. */
@@ -620,51 +620,65 @@
            backdrop. The cool blue is the one exception: the gradient lays it
            down at 0.24 alpha, which is invisible as a solid shape on
            near-white, so the confetti uses a deeper tint of it. */
+        /* One fixed layer per burst, parked on the badge's center. The pieces
+           are absolutely positioned at its origin, so the animated transform
+           can be a plain translate3d — no calc(), no percentages, nothing that
+           has to be resolved against a box mid-flight. */
+        .particle-burst {
+            position: fixed;
+            z-index: 999;
+            pointer-events: none;
+        }
         .particle {
             --particle-size-scale: 0.34;
             --gradient-lilac: #d880ec;
             --gradient-pink: #d69fc7;
             --gradient-peach: #feb4cb;
             --gradient-blue: #b6cffb;
-            position: fixed;
-            z-index: 999;
+            position: absolute;
+            top: 0;
+            left: 0;
             opacity: 0;
-            pointer-events: none;
             transform-origin: center;
             will-change: transform, opacity;
         }
-        .particle.circle {
+        /* The shape itself, centered on the origin once and never animated. */
+        .particle > i {
+            display: block;
+            transform: translate(-50%, -50%);
+        }
+        .particle.circle > i {
             width: calc(22px * var(--particle-size-scale));
             height: calc(22px * var(--particle-size-scale));
             border-radius: 50%;
             background: var(--gradient-peach);
         }
-        .particle.triangle {
+        .particle.triangle > i {
             width: 0;
             height: 0;
             border-left: calc(10px * var(--particle-size-scale)) solid transparent;
             border-right: calc(10px * var(--particle-size-scale)) solid transparent;
             border-bottom: calc(18px * var(--particle-size-scale)) solid var(--gradient-lilac);
         }
-        .particle.square {
+        .particle.square > i {
             width: calc(16px * var(--particle-size-scale));
             height: calc(16px * var(--particle-size-scale));
             border-radius: 2px;
             background: var(--gradient-pink);
         }
         /* Squared off, and started on a corner by the animation. */
-        .particle.diamond {
+        .particle.diamond > i {
             width: calc(16px * var(--particle-size-scale));
             height: calc(16px * var(--particle-size-scale));
             background: var(--gradient-blue);
         }
-        .particle.vertical-rect {
+        .particle.vertical-rect > i {
             width: calc(12px * var(--particle-size-scale));
             height: calc(20px * var(--particle-size-scale));
             border-radius: 3px;
             background: var(--gradient-peach);
         }
-        .particle.horizontal-rect {
+        .particle.horizontal-rect > i {
             width: calc(20px * var(--particle-size-scale));
             height: calc(10px * var(--particle-size-scale));
             border-radius: 3px;
@@ -1203,42 +1217,54 @@
 
     function burstFrom(el) {
         const r = el.getBoundingClientRect();
-        const cx = r.left + r.width / 2;
-        const cy = r.top + r.height / 2;
+        const layer = document.createElement('div');
+        layer.className = 'particle-burst';
+        layer.style.left = (r.left + r.width / 2) + 'px';
+        layer.style.top = (r.top + r.height / 2) + 'px';
+
+        let settled = 0;
+        const pieces = [];
 
         for (let i = 0; i < PARTICLE_COUNT; i++) {
             const p = document.createElement('span');
             p.className = `particle ${PARTICLE_SHAPES[i % 6]}`;
-            p.style.left = cx + 'px';
-            p.style.top = cy + 'px';
-            document.body.appendChild(p);
+            p.appendChild(document.createElement('i'));
+            layer.appendChild(p);
+            pieces.push(p);
+        }
 
+        // Appended once, so the burst costs a single style pass rather than one
+        // per piece.
+        document.body.appendChild(layer);
+
+        pieces.forEach((p, i) => {
             const x = (Math.random() - 0.5) * PARTICLE_SPREAD;
             const y = (Math.random() - 0.5) * PARTICLE_SPREAD;
             const rotation = (Math.random() - 0.5) * 300;
             // Every sixth piece is a diamond, so it starts on a corner.
             const start = i % 6 === 3 ? 45 : 0;
-            const to = (t) => `translate(calc(-50% + ${x * t}px), calc(-50% + ${y * t}px))`;
+            const to = (t) => `translate3d(${(x * t).toFixed(2)}px, ${(y * t).toFixed(2)}px, 0)`;
 
             // Pop, then drift out and fade. Each keyframe carries its own
             // easing: WAAPI applies a single top-level easing across the whole
             // list, so the package's overshoot curve pushed progress past a
-            // keyframe and back, which read as a stutter. Per-segment easing is
-            // how @sail/motion runs it, and it keeps the overshoot on the pop
-            // where it belongs.
+            // keyframe and back. Per-segment easing is how @sail/motion runs
+            // it, and it keeps the overshoot on the pop where it belongs.
             p.animate([
                 { offset: 0,    opacity: 0,    transform: `${to(0)} scale(0.2) rotate(${start}deg)`,
                   easing: 'cubic-bezier(0.2, 0.8, 0.3, 1.12)' },
-                { offset: 0.22, opacity: 0.75, transform: `${to(0.32)} scale(1) rotate(${start + rotation * 0.3}deg)`,
+                { offset: 0.22, opacity: 0.75, transform: `${to(0.32)} scale(1) rotate(${(start + rotation * 0.3).toFixed(2)}deg)`,
                   easing: 'cubic-bezier(0.25, 0.6, 0.25, 1)' },
-                { offset: 0.68, opacity: 0.6,  transform: `${to(0.7)} scale(0.85) rotate(${start + rotation * 0.72}deg)`,
+                { offset: 0.68, opacity: 0.6,  transform: `${to(0.7)} scale(0.85) rotate(${(start + rotation * 0.72).toFixed(2)}deg)`,
                   easing: 'cubic-bezier(0.4, 0, 0.7, 1)' },
-                { offset: 1,    opacity: 0,    transform: `${to(0.9)} scale(0.62) rotate(${start + rotation}deg)` },
+                { offset: 1,    opacity: 0,    transform: `${to(0.9)} scale(0.62) rotate(${(start + rotation).toFixed(2)}deg)` },
             ], {
                 delay: Math.random() * 90,
                 duration: 900 + Math.random() * 400,
-            }).finished.then(() => p.remove());
-        }
+            }).finished.then(() => {
+                if (++settled === pieces.length) layer.remove();
+            });
+        });
     }
 
     let upgrading = false;
