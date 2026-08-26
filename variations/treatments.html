@@ -274,7 +274,8 @@
     </style>
     <style>
         /* ---------- 5A / 5F(iii): responsibility ledger ---------- */
-        [data-t^="5A"] .modal-left, [data-t="5F"] .modal-left { justify-content: center; }
+        [data-t^="5A"] .modal-left, [data-t="5F"] .modal-left,
+        [data-t="5G"] .modal-left { justify-content: center; }
         .ldg { display: flex; gap: 16px; align-items: stretch; }
         .ldg-labels { width: 210px; flex-shrink: 0; padding-top: 92px; display: flex; flex-direction: column; gap: 2px; }
         .ldg-label {
@@ -405,6 +406,37 @@
             width: 74px; padding-top: 1px;
         }
         .obl-text { font-size: 13px; line-height: 18px; color: var(--text-default); }
+
+        /* ---------- 5G: per-market multiplier ---------- */
+        /* Five problems, each one line. The weight isn't in any single row —
+           it's in "every new market" repeating five times. */
+        .prob-list { display: flex; flex-direction: column; gap: 8px; }
+        .prob {
+            padding: 11px 13px; background: rgba(255, 255, 255, 0.72);
+            border: 1px solid var(--border-default); border-radius: 8px;
+            animation: reason-in 0.3s ease both;
+        }
+        .prob-title {
+            display: flex; align-items: baseline; gap: 10px;
+            font-size: 13px; font-weight: 600; color: var(--text-default);
+        }
+        .prob-line { font-size: 13px; line-height: 18px; color: var(--text-subdued); margin-top: 3px; }
+        .prob-line em { font-style: normal; color: var(--text-default); }
+        .prob .row-detail { padding: 8px 0 0; }
+        .prob-closer { font-size: 13px; line-height: 19px; color: var(--text-default); margin-top: 14px; }
+        /* The hinge beat: one sentence that all five resolve into. */
+        .hinge {
+            font-size: 15px; line-height: 22px; font-weight: 600; color: var(--text-heading);
+            padding: 12px 14px; background: rgba(255, 255, 255, 0.72);
+            border: 1px solid var(--border-default); border-left: 3px solid var(--icon-action-primary);
+            border-radius: 8px; margin-bottom: 16px;
+        }
+        /* Price sits in the flow of the copy, not in a badge on its own line —
+           "on top of standard processing fees" has to be adjacent to the number. */
+        .price-line {
+            display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+            font-size: 14px; line-height: 20px; color: var(--text-default); margin-top: 16px;
+        }
 
         /* ---------- 6C: coverage meter ---------- */
         .meter-card {
@@ -968,6 +1000,100 @@
     }
     </script>
     <script>
+    // 5G: a variant of 5F that swaps the market-specific framing beat for a
+    // market-agnostic one. The argument is the multiplier — each obligation
+    // recurs every time they enter a market — so the five lines are
+    // deliberately parallel and the consequence lives in the expansion.
+    const PROBLEMS = [
+        {
+            title: 'Tax registration and filing',
+            line: 'Every new market means a new tax registration and a new filing schedule.',
+            detail: 'Rates, thresholds, and deadlines are set by each country &mdash; and digital goods often owe tax from the very first sale.',
+        },
+        {
+            title: 'Local processing',
+            line: 'Every new market needs its own local processing and its own payment methods.',
+            detail: 'Cards charged from outside the customer&rsquo;s country get declined more often. And in many markets people pay by bank transfer, wallet, or invoice rather than by card &mdash; if you don&rsquo;t offer those, they leave at checkout.',
+        },
+        {
+            title: 'Disputes',
+            line: 'Every new market judges disputes under its own consumer protection rules.',
+            detail: 'Chargebacks arrive on local timelines, with local evidence requirements, and the window can stay open for months after the sale.',
+        },
+        {
+            title: 'Fraud',
+            line: 'Every new market brings its own fraud patterns, and rules tuned for one don&rsquo;t hold in the next.',
+            detail: 'What looks risky at home can be normal behaviour elsewhere. Block too much and you lose good customers; block too little and you pay for it.',
+        },
+        {
+            title: 'Payment support',
+            line: 'Every new market expects support in its own language and timezone.',
+            detail: 'Refunds, failed payments, and billing questions keep coming, and they scale with volume rather than with headcount.',
+        },
+    ];
+
+    const BEATS_5G = ['What this involves', 'Who the merchant is', 'Your two options'];
+
+    T['5G'] = {
+        step: 5,
+        wide: () => STATE.beat === 2,
+        right: () => STATE.beat === 2 ? null : 'globe',
+        label: '5G — Per-market multiplier',
+        note: '<b>5G Per-market multiplier.</b> A 5F variant whose framing beat is market-agnostic: five '
+            + 'obligations, each stated as something that recurs with every new market. 5A argues who does the '
+            + 'work; this argues that the work repeats every time you grow. No Stripe claim until beat 2, '
+            + 'then all five resolve into one question &mdash; who is the merchant of record.',
+        html: () => {
+            const dots = '<div class="beat-dots">' + BEATS_5G.map((b, i) =>
+                '<span class="beat-dot' + (i <= STATE.beat ? ' on' : '') + '" title="' + b + '" onclick="setBeat(' + i + ')"></span>').join('') + '</div>';
+
+            if (STATE.beat === 0) {
+                return dots
+                    + '<div class="modal-headline">Selling internationally can get complicated. '
+                    + '<span class="muted">Here&rsquo;s what it involves.</span></div>'
+                    + '<div class="prob-list">'
+                    + PROBLEMS.map((p, i) =>
+                        '<div class="prob" style="animation-delay:' + (i * 70) + 'ms">'
+                        + '<div class="prob-title">' + p.title
+                        + '<button class="row-more" onclick="toggleRow(\'p' + i + '\')">What this involves</button></div>'
+                        + '<div class="prob-line">' + p.line + '</div>'
+                        + '<div class="row-detail" id="rd-p' + i + '">' + p.detail + '</div>'
+                        + '</div>').join('')
+                    + '</div>'
+                    + '<div class="prob-closer">You can take all of this on. Plenty of businesses do. '
+                    + 'It&rsquo;s worth knowing what it is first.</div>';
+            }
+
+            if (STATE.beat === 1) {
+                return dots
+                    + '<div class="modal-headline">All five come down to one question.</div>'
+                    + '<div class="hinge">Who is the merchant of record?</div>'
+                    + '<div class="step-body">The ' + MOR_TERM + ' is the business the customer legally buys from &mdash; '
+                    + 'whose name is on the statement, who owes the tax, who the bank comes to in a dispute. '
+                    + 'Right now, in every market you sell to, that&rsquo;s you.</div>'
+                    + '<div class="step-body"><strong>With Managed Payments, Stripe becomes the merchant of record.</strong></div>'
+                    + '<div class="benefit-list">'
+                    + benefit('Stripe registers, charges, and files the tax')
+                    + benefit('Payments are processed locally, so more of them get approved')
+                    + benefit('Stripe handles disputes, fraud, and payment support')
+                    + benefit('You keep your product, your prices, your brand, and your customers')
+                    + '</div>'
+                    + '<div class="price-line"><span>It costs</span>'
+                    + feeBadge('+3.5% per transaction', 'On top of standard processing fees (3.4% for international).')
+                    + '<span>on top of standard processing fees.</span></div>'
+                    + '<div class="footnote">You don&rsquo;t have to apply it to everything &mdash; that&rsquo;s the step after this one.</div>';
+            }
+
+            return dots + '<div class="modal-headline">The same five, and who does them. '
+                + '<span class="muted">Both options priced.</span></div>'
+                + ledgerHtml()
+                + '<div class="ldg-note">Managed Payments can cover some of your volume rather than all of it &mdash; '
+                + 'that&rsquo;s the next step.</div>';
+        },
+        mount: () => { if (STATE.beat === 2) animateOwners(); else applyGlobeState(); },
+    };
+    </script>
+    <script>
     const NOTE_INTL = 'On top of standard processing fees (3.4% for international).';
     const NOTE_ALL  = 'On top of standard processing fees (3.4% for international and 2.9% for domestic).';
 
@@ -1099,7 +1225,9 @@
     };
     </script>
     <script>
-    const ORDER = ['5A', '5B', '5C', '5D', '5E', '5F', '6A', '6B', '6C', '6D'];
+    const ORDER = ['5A', '5B', '5C', '5D', '5E', '5F', '5G', '6A', '6B', '6C', '6D'];
+    // Treatments that walk beats inside step 5 before advancing the list.
+    const BEATED = ['5F', '5G'];
     const GRADIENTS = [
         { id: 'spotlight', label: 'Spotlight' },
         { id: 'full', label: 'Full screen' },
@@ -1117,6 +1245,8 @@
         grad: GRADIENTS.some(g => g.id === q.get('grad')) ? q.get('grad') : 'spotlight',
     };
     if (SHARES.some(s => s.id === q.get('share'))) STATE.share = parseFloat(q.get('share'));
+    // Beats are deep-linkable so a single beat can be shared or reviewed directly.
+    if (['0', '1', '2'].includes(q.get('beat'))) STATE.beat = parseInt(q.get('beat'), 10);
 
     const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let PREV_EFF = null;
@@ -1139,7 +1269,7 @@
         // Step 5 sits at 70%; 5F's beats creep forward inside it so the sub-steps
         // don't feel like standing still.
         const base = t.step === 5 ? 70 : 85;
-        const bump = CONFIG.t === '5F' ? STATE.beat * 3 : 0;
+        const bump = BEATED.includes(CONFIG.t) ? STATE.beat * 3 : 0;
         document.getElementById('progressFill').style.width = (base + bump) + '%';
 
         if (t.mount) t.mount();
@@ -1188,11 +1318,11 @@
         const open = document.getElementById('dp-' + id).classList.toggle('open');
         btn.innerHTML = open ? 'Hide the detail &uarr;' : 'See the detail &darr;';
     }
-    function setBeat(i) { STATE.beat = i; render(); }
+    function setBeat(i) { STATE.beat = i; syncUrl(); render(); }
 
     // ---- nav: Continue walks the beats first, then the treatment list ----
     function step(dir) {
-        if (CONFIG.t === '5F') {
+        if (BEATED.includes(CONFIG.t)) {
             const next = STATE.beat + dir;
             if (next >= 0 && next <= 2) { setBeat(next); return; }
         }
@@ -1203,7 +1333,7 @@
 
     function setTreatment(id) {
         CONFIG.t = id;
-        STATE.beat = id === '5F' ? 0 : STATE.beat;
+        STATE.beat = BEATED.includes(id) ? 0 : STATE.beat;
         syncUrl();
         render();
     }
@@ -1215,6 +1345,8 @@
         url.searchParams.set('t', CONFIG.t);
         url.searchParams.set('grad', CONFIG.grad);
         url.searchParams.set('share', String(STATE.share));
+        if (BEATED.includes(CONFIG.t)) url.searchParams.set('beat', String(STATE.beat));
+        else url.searchParams.delete('beat');
         history.replaceState(null, '', url);
     }
 
