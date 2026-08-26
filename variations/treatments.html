@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Step 5 & 6 treatments</title>
+    <style>
+        /* Tokens, shell, and the shared components are lifted from smp.html so
+           the treatments read as the same product, not a separate sketch. */
+        :root {
+            --bg-surface: #ffffff;
+            --bg-offset: #f5f6f8;
+            --text-default: #353a44;
+            --text-subdued: #596171;
+            --text-heading: #21252c;
+            --text-muted: #99a5b8;
+            --text-action-primary: #533afd;
+            --icon-action-primary: #675dff;
+            --border-action-primary: #675dff;
+            --border-action-primary-strong: #533afd;
+            --border-default: #d4dee9;
+            --bg-form-accent: #675dff;
+            --border-form-default: #d4dee9;
+            --neutral-200: #b6c0cd;
+            --neutral-50: #ebeef1;
+            --shadow-overlay: 0px 15px 35px 0px rgba(48, 49, 61, 0.08), 0px 5px 15px 0px rgba(0, 0, 0, 0.12);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+            background: var(--bg-offset);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .back-button {
+            position: fixed; top: 16px; left: 16px; z-index: 200;
+            display: flex; align-items: center; gap: 6px;
+            padding: 8px 14px; background: var(--bg-surface);
+            border: 1px solid var(--neutral-50); border-radius: 8px;
+            color: var(--text-subdued); font-size: 13px; text-decoration: none;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06); transition: background 0.15s;
+        }
+        .back-button:hover { background: var(--bg-offset); }
+
+        /* Dashboard shell behind the modal */
+        .dashboard { display: flex; height: 100vh; width: 100vw; }
+        .sidebar {
+            width: 240px; background: var(--bg-surface);
+            border-right: 1px solid var(--neutral-50); padding: 24px 16px;
+            display: flex; flex-direction: column; gap: 4px;
+        }
+        .sidebar-logo { padding: 8px 12px; margin-bottom: 20px; }
+        .sidebar-logo svg { width: 60px; height: 24px; }
+        .nav-item { padding: 8px 12px; border-radius: 6px; font-size: 14px; color: var(--text-subdued); cursor: pointer; }
+        .nav-item.active { background: var(--bg-offset); color: var(--text-default); font-weight: 500; }
+        .main-content { flex: 1; background: var(--bg-offset); padding: 32px; }
+        .content-placeholder { height: 200px; background: var(--bg-surface); border-radius: 8px; border: 1px solid var(--neutral-50); }
+
+        /* Modal */
+        .modal-backdrop {
+            position: fixed; inset: 0; background: rgba(182, 192, 205, 0.7);
+            display: flex; align-items: center; justify-content: center; z-index: 100;
+        }
+        .modal {
+            width: 90%; height: 90%; background: var(--bg-surface);
+            border-radius: 12px; box-shadow: var(--shadow-overlay);
+            display: flex; flex-direction: column; overflow: hidden;
+            position: relative; padding: 16px;
+        }
+        .modal-gradient {
+            position: absolute; inset: 16px; border-radius: 8px; z-index: 0; opacity: 0.6;
+            background: linear-gradient(135deg, #e8edf8 0%, #dce4f5 25%, #ecddf7 65%, #e8d5f3 100%);
+        }
+        .modal-gradient[data-grad="spotlight"] {
+            opacity: 1;
+            background:
+                radial-gradient(52% 70% at 46% 70%, rgba(207, 226, 255, 0.24) 0%, rgba(207, 226, 255, 0) 94%),
+                radial-gradient(105% 45% at 93% 37%, rgba(216, 128, 236, 0.26) 0%, rgba(216, 128, 236, 0) 79%),
+                radial-gradient(45% 83% at 136% 64%, rgba(214, 159, 199, 0.37) 0%, rgba(214, 159, 199, 0) 79%),
+                radial-gradient(60% 46% at 105% 72%, rgba(254, 180, 203, 0.52) 0%, rgba(254, 180, 203, 0) 103%),
+                #fefefe;
+        }
+        .modal-gradient[data-grad="none"] { opacity: 0; }
+
+        .modal-header, .modal-split, .modal-footer { position: relative; z-index: 1; }
+        .modal-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 32px 42px 0; flex-shrink: 0;
+        }
+        .stripe-logo svg { width: 64px; height: 26px; }
+        .progress-bar { width: 125px; height: 5px; background: var(--bg-offset); border-radius: 100px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--icon-action-primary); border-radius: 100px; transition: width 0.4s ease; }
+
+        .modal-split { flex: 1; display: flex; min-height: 0; }
+        .modal-left {
+            flex: 1; padding: 40px 32px 40px 100px;
+            display: flex; flex-direction: column; justify-content: center;
+            /* Not auto: overflow-y:auto makes overflow-x compute to auto too,
+               which clips the fee tooltip at the panel edge. */
+            overflow: visible;
+        }
+        /* Wide treatments give the comparison the whole modal — a two-column
+           ledger next to a globe would squeeze both. */
+        .modal-split.wide .modal-left { flex: 1; padding: 32px 72px; }
+        .modal-split.wide .modal-right-wrapper { display: none; }
+
+        .modal-right-wrapper { flex: 1; display: flex; align-items: stretch; padding: 16px 100px 16px 0; }
+        .modal-right {
+            flex: 1; background: transparent; position: relative;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; border-radius: 12px;
+        }
+        .globe-glow-circle {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            border-radius: 50%; background: white; z-index: 0;
+            box-shadow: -10px 0 20px 5px rgba(255, 140, 200, 0.2), 10px 0 20px 5px rgba(140, 100, 255, 0.2);
+        }
+        .modal-right canvas { position: relative; z-index: 1; display: block; width: 100%; height: 100%; }
+        /* The right panel hosts either the globe or a treatment's own visual. */
+        #globeHost { position: absolute; inset: 0; }
+        #globeHost.hidden { visibility: hidden; }
+        #rightPane { position: relative; z-index: 2; width: 100%; padding: 0 8px; }
+
+        .modal-footer {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 42px 32px; flex-shrink: 0;
+        }
+        .back-link {
+            font-size: 16px; line-height: 24px; letter-spacing: -0.31px;
+            color: var(--text-action-primary); cursor: pointer;
+            background: none; border: none; font-family: inherit;
+        }
+        .back-link:hover { text-decoration: underline; }
+        .btn-continue {
+            background: var(--bg-form-accent); color: white; border: none;
+            border-radius: 6px; padding: 10px 20px; font-size: 14px; font-weight: 600;
+            font-family: inherit; cursor: pointer; letter-spacing: -0.15px; line-height: 20px;
+            box-shadow: 0px 1px 1px 0px rgba(47, 14, 99, 0.32); transition: background 0.15s;
+        }
+        .btn-continue:hover { background: #5b52e6; }
+        .btn-secondary {
+            background: var(--bg-surface); color: var(--text-default);
+            border: 1px solid #d8dee7; border-radius: 6px; padding: 10px 20px;
+            font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer;
+            letter-spacing: -0.15px; line-height: 20px; box-shadow: 0 1px 1px rgba(48,49,61,0.05);
+        }
+        .btn-secondary:hover { background: var(--bg-offset); }
+
+        /* ---------- shared content components ---------- */
+        .modal-headline {
+            font-size: 20px; font-weight: 700; line-height: 28px; letter-spacing: 0.3px;
+            color: var(--text-heading); margin-bottom: 16px;
+        }
+        .modal-headline .muted { font-weight: 400; color: var(--text-muted); }
+        .step-eyebrow {
+            font-size: 11px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase;
+            color: var(--text-muted); margin-bottom: 10px;
+        }
+        .step-body { font-size: 14px; line-height: 20px; letter-spacing: -0.15px; color: var(--text-subdued); margin-bottom: 16px; }
+        .footnote { font-size: 12px; line-height: 16px; color: var(--text-muted); margin-top: 12px; }
+
+        .option-cards { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+        .option-card {
+            display: flex; align-items: flex-start; gap: 12px; padding: 16px;
+            border-radius: 8px; border: 2px solid var(--border-default);
+            background: var(--bg-surface); cursor: pointer; transition: all 0.15s;
+        }
+        .option-card.selected { border-color: var(--border-action-primary); }
+        .radio-circle {
+            width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border-form-default);
+            flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center;
+            transition: all 0.15s;
+        }
+        .option-card.selected .radio-circle, .ldg-col.selected .radio-circle,
+        .dpanel.selected .radio-circle { border-color: var(--bg-form-accent); background: var(--bg-form-accent); }
+        .radio-inner-dot { width: 6px; height: 6px; border-radius: 50%; background: white; opacity: 0; transition: opacity 0.15s; }
+        .option-card.selected .radio-inner-dot, .ldg-col.selected .radio-inner-dot,
+        .dpanel.selected .radio-inner-dot { opacity: 1; }
+        .option-content { flex: 1; }
+        .option-title {
+            font-size: 14px; font-weight: 600; color: var(--text-default); margin-bottom: 4px;
+            display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+        }
+        .option-description { font-size: 13px; color: var(--text-subdued); line-height: 1.5; }
+
+        /* Fee badge + tooltip, unchanged from smp.html — one way to show a rate
+           everywhere, and no decoration on it. */
+        .fee-badge {
+            position: relative; display: inline-flex; align-items: center; justify-content: center;
+            gap: 4px; padding: 2px 6px; border-radius: 4px; background: #f4f7fa;
+            border: 1px solid #d4dee9; font-size: 12px; line-height: 16px; font-weight: 400;
+            color: #50617a; white-space: nowrap; cursor: default; flex-shrink: 0;
+        }
+        .fee-badge .fee-icon { width: 12px; height: 12px; display: block; fill: #667691; flex-shrink: 0; }
+        .fee-tooltip {
+            position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+            width: 280px; padding: 16px; background: var(--bg-surface);
+            border: 1px solid #d4dee9; border-radius: 8px;
+            box-shadow: 0px 2px 2.5px rgba(64, 68, 82, 0.08), 0px 3px 4.5px rgba(64, 68, 82, 0.08);
+            font-size: 14px; line-height: 20px; letter-spacing: -0.15px; color: #1a2c44;
+            white-space: normal; text-align: left; opacity: 0; visibility: hidden;
+            transition: opacity 0.15s; z-index: 50;
+        }
+        .fee-badge:hover .fee-tooltip { opacity: 1; visibility: visible; }
+        /* Rate roll-up: old value leaves upward, new arrives from below. */
+        .fee-rate-slot { display: inline-grid; overflow: hidden; }
+        .fee-rate-slot > .fee-rate { grid-area: 1 / 1; }
+        .fee-rate { display: block; transition: transform 0.52s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.52s ease; }
+        .fee-rate.leaving { transform: translateY(-110%); opacity: 0; }
+        .fee-rate.arriving { transform: translateY(110%); opacity: 0; }
+
+        .highlight-tag {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 2px 10px; background: var(--icon-action-primary);
+            border-radius: 4px; font-size: 11px; font-weight: 600; line-height: 16px;
+            color: #fff; letter-spacing: 0.2px;
+        }
+        .neutral-tag {
+            display: inline-flex; align-items: center; padding: 2px 10px;
+            background: var(--bg-offset); border: 1px solid var(--border-default);
+            border-radius: 4px; font-size: 11px; font-weight: 600; line-height: 16px;
+            color: var(--text-subdued); letter-spacing: 0.2px;
+        }
+        .link-later {
+            font-size: 14px; color: var(--text-action-primary); cursor: pointer;
+            background: none; border: none; font-family: inherit; padding: 0;
+            letter-spacing: -0.15px; text-align: left; align-self: flex-start;
+        }
+        .link-later:hover { text-decoration: underline; }
+
+        /* Inline glossary: terminology gets explained rather than dropped. */
+        .term {
+            position: relative; border-bottom: 1px dotted var(--neutral-200);
+            cursor: help; color: inherit;
+        }
+        .term-pop {
+            position: absolute; bottom: calc(100% + 8px); left: -8px; width: 300px;
+            padding: 14px; background: var(--bg-surface); border: 1px solid #d4dee9;
+            border-radius: 8px; box-shadow: 0px 2px 2.5px rgba(64,68,82,0.08), 0px 3px 4.5px rgba(64,68,82,0.08);
+            font-size: 13px; line-height: 19px; color: #1a2c44; text-align: left;
+            opacity: 0; visibility: hidden; transition: opacity 0.15s; z-index: 60;
+        }
+        .term:hover .term-pop, .term:focus-visible .term-pop { opacity: 1; visibility: visible; }
+
+        /* Benefit rows and the coverage card, reused verbatim for step 6. */
+        .coverage-card {
+            display: flex; flex-direction: column; gap: 16px; padding: 16px;
+            background: var(--bg-surface); border: 2px solid #d4dee9; border-radius: 8px;
+        }
+        .coverage-head { display: flex; flex-direction: column; gap: 8px; }
+        .coverage-title-row { display: flex; align-items: center; gap: 12px; }
+        .coverage-title { font-size: 14px; font-weight: 600; line-height: 19px; letter-spacing: -0.15px; color: var(--text-default); }
+        .coverage-desc { font-size: 12px; line-height: 16px; color: var(--text-subdued); }
+        .coverage-divider { height: 1px; border-top: 1px solid #d4dee9; }
+        .benefit-list { display: flex; flex-direction: column; gap: 12px; }
+        .benefit-row { display: flex; align-items: flex-start; gap: 8px; }
+        .benefit-check { width: 12px; height: 12px; flex-shrink: 0; margin-top: 4px; color: var(--text-default); }
+        .benefit-text { font-size: 14px; line-height: 20px; letter-spacing: -0.15px; color: var(--text-default); }
+        .coverage-toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+        .coverage-toggle-left { display: flex; align-items: center; gap: 12px; }
+        .box {
+            width: 16px; height: 16px; border-radius: 4px; border: 1px solid var(--neutral-200);
+            background: var(--bg-surface); flex-shrink: 0; display: flex; align-items: center;
+            justify-content: center; cursor: pointer;
+        }
+        .box.on { border-color: var(--bg-form-accent); background: var(--bg-form-accent); }
+        .box svg { width: 10px; height: 10px; opacity: 0; color: #fff; }
+        .box.on svg { opacity: 1; }
+        .switch-label { font-size: 14px; line-height: 20px; letter-spacing: -0.15px; color: var(--text-default); }
+    </style>
+    <style>
+        /* ---------- 5A / 5F(iii): responsibility ledger ---------- */
+        [data-t^="5A"] .modal-left, [data-t="5F"] .modal-left { justify-content: center; }
+        .ldg { display: flex; gap: 16px; align-items: stretch; }
+        .ldg-labels { width: 210px; flex-shrink: 0; padding-top: 92px; display: flex; flex-direction: column; gap: 2px; }
+        .ldg-label {
+            height: 44px; display: flex; align-items: center;
+            font-size: 13px; line-height: 18px; color: var(--text-default); font-weight: 500;
+        }
+        .ldg-label small { display: block; font-weight: 400; color: var(--text-muted); font-size: 11px; line-height: 14px; }
+        .ldg-col {
+            flex: 1; min-width: 0; background: var(--bg-surface);
+            border: 2px solid var(--border-default); border-radius: 8px;
+            padding: 16px; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s;
+            display: flex; flex-direction: column;
+        }
+        .ldg-col.selected { border-color: var(--border-action-primary-strong); }
+        .ldg-col-head { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 6px; }
+        .ldg-col-title { font-size: 14px; font-weight: 600; color: var(--text-default); }
+        .ldg-col-sub { font-size: 12px; line-height: 16px; color: var(--text-subdued); margin-bottom: 12px; }
+        .ldg-price { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+        .ldg-rows { display: flex; flex-direction: column; gap: 2px; margin-top: auto; }
+        .ldg-cell {
+            height: 44px; display: flex; align-items: center; gap: 8px;
+            font-size: 13px; line-height: 18px;
+        }
+        .ldg-cell + .ldg-cell { border-top: 1px solid var(--neutral-50); }
+        .owner {
+            display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px;
+            border-radius: 4px; font-size: 12px; line-height: 16px; font-weight: 500;
+            /* Both owners get the same weight: "you do it" is a real answer, not
+               a warning state. Only the hue differs. */
+            transition: opacity 0.24s ease, transform 0.24s ease;
+        }
+        .owner.you { background: #fdf3e7; border: 1px solid #f3d9b0; color: #8a5a11; }
+        .owner.stripe { background: #efecfc; border: 1px solid #c3b6fb; color: #44139f; }
+        /* Obligation transfer: cells shift and fade as ownership changes. */
+        .ldg-cell .owner.entering { opacity: 0; transform: translateX(-10px); }
+        .ldg-cell .owner.leaving { opacity: 0; transform: translateX(10px); }
+        .ldg-note { font-size: 12px; line-height: 16px; color: var(--text-muted); margin-top: 12px; }
+        .row-more {
+            background: none; border: none; font-family: inherit; padding: 0;
+            font-size: 11px; color: var(--text-action-primary); cursor: pointer; margin-left: auto;
+        }
+        .row-detail {
+            display: none; font-size: 12px; line-height: 17px; color: var(--text-subdued);
+            padding: 0 0 10px; }
+        .row-detail.open { display: block; }
+
+        /* ---------- 5B: cost stack ---------- */
+        .stack-wrap { display: flex; gap: 28px; align-items: flex-end; justify-content: center; width: 100%; }
+        .stack-col { flex: 1; max-width: 168px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .stack-bar { width: 100%; display: flex; flex-direction: column-reverse; gap: 3px; }
+        .stack-seg {
+            border-radius: 4px; padding: 6px 8px; font-size: 11px; line-height: 14px;
+            color: #fff; display: flex; align-items: center; justify-content: space-between; gap: 6px;
+            transform-origin: bottom; animation: seg-in 0.34s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+        }
+        @keyframes seg-in { from { opacity: 0; transform: scaleY(0.4); } to { opacity: 1; transform: scaleY(1); } }
+        .stack-seg.processing { background: #8792a2; }
+        .stack-seg.smp { background: #675dff; }
+        .stack-seg.alacarte { background: #b6c0cd; color: #21252c; }
+        /* Unpriced on purpose: assigning a convenient number to the merchant's
+           own time is where this treatment would start lying. */
+        .stack-seg.labor {
+            background: repeating-linear-gradient(45deg, #eef1f6, #eef1f6 5px, #e2e7ee 5px, #e2e7ee 10px);
+            color: var(--text-subdued); border: 1px dashed var(--neutral-200);
+        }
+        .stack-cap { font-size: 12px; font-weight: 600; color: var(--text-default); text-align: center; }
+        .stack-total { font-size: 11px; color: var(--text-subdued); text-align: center; }
+
+        /* ---------- 5C: advisory ---------- */
+        .reason-card {
+            background: rgba(255,255,255,0.7); border: 1px solid var(--border-default);
+            border-radius: 8px; padding: 12px 14px; margin-bottom: 16px;
+        }
+        .reason-head { font-size: 12px; font-weight: 600; color: var(--text-default); margin-bottom: 8px; }
+        .reason-line {
+            display: flex; gap: 8px; font-size: 12px; line-height: 17px; color: var(--text-subdued);
+            animation: reason-in 0.34s ease both;
+        }
+        .reason-line + .reason-line { margin-top: 4px; }
+        .reason-line svg { width: 11px; height: 11px; flex-shrink: 0; margin-top: 3px; color: var(--icon-action-primary); }
+        @keyframes reason-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+        .claim-list { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+        .claim { display: flex; gap: 8px; font-size: 12px; line-height: 17px; color: var(--text-default); }
+        .claim svg { width: 11px; height: 11px; flex-shrink: 0; margin-top: 3px; color: var(--text-default); }
+
+        /* ---------- 5D: diff ---------- */
+        .diff-flag {
+            display: inline-block; margin-left: 6px; font-size: 10px; font-weight: 700;
+            letter-spacing: 0.4px; text-transform: uppercase; color: var(--text-action-primary);
+        }
+        .diff-flag.none { color: var(--text-muted); }
+
+        /* ---------- 5E: progressive panels ---------- */
+        .dpanels { display: flex; gap: 16px; align-items: flex-start; }
+        .dpanel {
+            flex: 1; min-width: 0; background: var(--bg-surface);
+            border: 2px solid var(--border-default); border-radius: 8px; padding: 16px;
+            cursor: pointer; transition: border-color 0.15s;
+        }
+        .dpanel.selected { border-color: var(--border-action-primary-strong); }
+        .dpanel-head { display: flex; align-items: flex-start; gap: 10px; }
+        .dpanel-title { font-size: 14px; font-weight: 600; color: var(--text-default); }
+        .dpanel-sub { font-size: 12px; line-height: 16px; color: var(--text-subdued); margin: 6px 0 12px; }
+        .dpanel-detail {
+            display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.24s ease;
+            overflow: hidden;
+        }
+        .dpanel-detail.open { grid-template-rows: 1fr; }
+        .dpanel-detail > div { min-height: 0; overflow: hidden; }
+        .dpanel-expand {
+            margin-top: 12px; background: none; border: none; font-family: inherit; padding: 0;
+            font-size: 12px; font-weight: 600; color: var(--text-action-primary); cursor: pointer;
+        }
+        .detail-h { font-size: 11px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; color: var(--text-muted); margin: 14px 0 6px; }
+
+        /* ---------- 5F: beats ---------- */
+        .beat-dots { display: flex; gap: 6px; margin-bottom: 14px; }
+        .beat-dot { width: 22px; height: 3px; border-radius: 2px; background: var(--neutral-200); cursor: pointer; transition: background 0.2s; }
+        .beat-dot.on { background: var(--icon-action-primary); }
+        .obl-list { display: flex; flex-direction: column; gap: 10px; }
+        .obl {
+            display: flex; gap: 10px; padding: 11px 12px; background: rgba(255,255,255,0.72);
+            border: 1px solid var(--border-default); border-radius: 8px;
+            animation: reason-in 0.3s ease both;
+        }
+        .obl-mkt {
+            flex-shrink: 0; font-size: 11px; font-weight: 600; color: var(--text-action-primary);
+            width: 74px; padding-top: 1px;
+        }
+        .obl-text { font-size: 13px; line-height: 18px; color: var(--text-default); }
+
+        /* ---------- 6C: coverage meter ---------- */
+        .meter-card {
+            background: var(--bg-surface); border: 2px solid var(--border-default);
+            border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 14px;
+        }
+        .meter-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .meter-bar { height: 34px; display: flex; border-radius: 6px; overflow: hidden; background: var(--bg-offset); }
+        .meter-seg {
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 600; color: #fff; white-space: nowrap;
+            transition: flex-basis 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.4s ease;
+        }
+        .meter-seg.covered { background: #675dff; }
+        .meter-seg.uncovered { background: #c3cbd6; color: var(--text-default); }
+        .meter-legend { display: flex; gap: 16px; font-size: 12px; color: var(--text-subdued); }
+        .meter-legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 6px; }
+        .rate-strip {
+            display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+            padding: 10px 12px; background: var(--bg-offset); border-radius: 6px;
+        }
+        .rate-strip .label { font-size: 12px; color: var(--text-subdued); }
+        .rate-strip .value { font-size: 18px; font-weight: 700; color: var(--text-heading); letter-spacing: -0.2px; font-variant-numeric: tabular-nums; }
+
+        /* ---------- right-pane visuals ---------- */
+        .pane-title { font-size: 12px; font-weight: 600; color: var(--text-subdued); text-align: center; margin-bottom: 18px; }
+
+        /* ---------- control panel ---------- */
+        .control-panel {
+            position: fixed; bottom: 16px; left: 16px; z-index: 500; width: 320px;
+            padding: 16px; background: var(--bg-surface); border-radius: 12px;
+            box-shadow: 0px 15px 35px rgba(48, 49, 61, 0.1), 0px 5px 15px rgba(0, 0, 0, 0.08);
+            max-height: calc(100vh - 32px); overflow-y: auto;
+        }
+        .control-panel-head { display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; height: 20px; }
+        .control-panel-title { font-size: 14px; font-weight: 600; color: var(--text-heading); letter-spacing: -0.15px; }
+        .control-panel-caret { margin-left: auto; width: 12px; height: 12px; color: var(--text-subdued); transition: transform 0.15s; }
+        .control-panel.collapsed .control-panel-caret { transform: rotate(-90deg); }
+        .control-panel-body { margin-top: 16px; }
+        .control-panel.collapsed .control-panel-body { display: none; }
+        .control-group { padding: 8px; border: 1px solid var(--neutral-50); border-radius: 8px; }
+        .control-group + .control-group { margin-top: 12px; }
+        .control-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-heading); line-height: 16px; }
+        .control-label.caps { font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; }
+        .control-rows { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+        .control-rows.side-by-side { flex-direction: row; gap: 4px; }
+        .control-rows.side-by-side .opt { flex: 1; min-width: 0; }
+        .opt {
+            flex: none; min-height: 24px; padding: 4px 8px; display: flex; align-items: center;
+            border: 1px solid transparent; border-radius: 6px; background: var(--bg-offset);
+            color: var(--text-default); font-family: inherit; font-size: 12px; line-height: 16px;
+            text-align: left; cursor: pointer; transition: background 0.12s, border-color 0.12s, color 0.12s;
+        }
+        .opt:hover { background: #eceff3; }
+        .opt.on { background: #f0ecfe; border-color: #b9a9f7; color: var(--text-action-primary); font-weight: 500; }
+        .panel-note {
+            margin-top: 12px; padding: 10px; background: var(--bg-offset); border-radius: 8px;
+            font-size: 11px; line-height: 16px; color: var(--text-subdued);
+        }
+        .panel-note b { color: var(--text-default); }
+
+        /* Ledger as a real table: the row labels have to line up across both
+           columns, and a flex layout can't guarantee that when the two column
+           heads hold different amounts of copy. */
+        .ldgt { width: 100%; border-collapse: separate; border-spacing: 0; }
+        .ldgt th { padding: 0 0 12px; vertical-align: bottom; }
+        .ldgt th:first-child, .ldgt td:first-child { width: 178px; }
+        .ldgt th + th, .ldgt td + td { padding-left: 12px; }
+        .ldg-head-card {
+            background: var(--bg-surface); border: 2px solid var(--border-default);
+            border-radius: 8px; padding: 14px; cursor: pointer; text-align: left;
+            transition: border-color 0.15s;
+        }
+        .ldg-head-card.selected { border-color: var(--border-action-primary-strong); }
+        .ldgt td {
+            font-size: 13px; line-height: 18px; padding: 10px 0;
+            border-top: 1px solid var(--neutral-50); vertical-align: top;
+        }
+        .ldgt td:first-child { color: var(--text-subdued); font-weight: 500; }
+        .ldgt tbody tr:first-child td { border-top: none; }
+        .ldgt tr.detail td { padding: 0 0 10px; border-top: none; }
+        /* 5D reuses the same table: changed cells are tinted, unchanged ones recede. */
+        .ldgt td.changed { background: #f6f3ff; border-radius: 4px; padding-left: 10px; }
+        .ldgt td.same { color: var(--text-muted); }
+
+        @media (prefers-reduced-motion: reduce) {
+            .fee-rate, .owner, .meter-seg { transition: none; }
+            .stack-seg, .reason-line, .obl { animation: none; }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button" id="backHome">&larr; Home</a>
+
+    <!-- Collapsed by default: the screen is the point, the panel is the aside. -->
+    <div class="control-panel" id="controlPanel">
+        <div class="control-panel-head" onclick="togglePanel()">
+            <span class="control-panel-title">Treatments</span>
+            <svg class="control-panel-caret" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5L6 8l3.5-3.5"/></svg>
+        </div>
+        <div class="control-panel-body">
+            <div class="control-group">
+                <span class="control-label caps">Step 5 — recommendation + comparison</span>
+                <div class="control-rows" id="ctlStep5"></div>
+            </div>
+            <div class="control-group">
+                <span class="control-label caps">Step 6 — extend to all payments</span>
+                <div class="control-rows" id="ctlStep6"></div>
+            </div>
+            <div class="control-group">
+                <span class="control-label">Gradient</span>
+                <div class="control-rows side-by-side" id="ctlGradient"></div>
+            </div>
+            <div class="control-group">
+                <span class="control-label">International share of volume</span>
+                <div class="control-rows side-by-side" id="ctlShare"></div>
+            </div>
+            <div class="panel-note" id="panelNote"></div>
+            <div class="panel-note">
+                <b>Rates are placeholders.</b> 2.9% domestic / 3.4% international / +3.5% SMP.
+                The all-payments vs. international-only price is still unresolved — every
+                figure here assumes the same +3.5% on covered volume.
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard">
+        <div class="sidebar">
+            <div class="sidebar-logo">
+                <svg viewBox="0 0 60 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M8.8 4.4C8.8 3.2 9.7 2.7 11.2 2.7C13.4 2.7 16.2 3.4 18.4 4.7V0.5C16 -0.4 13.6 -0.1 11.2 0C5.6 0 2 3 2 7.4C2 14.2 11.6 13 11.6 15.9C11.6 17.3 10.4 17.8 8.9 17.8C6.5 17.8 3.4 16.8 1 15.3V19.6C3.6 20.8 6.3 21.3 8.9 21.3C14.6 21.3 18.4 18.5 18.4 14C18.4 6.7 8.8 8.1 8.8 4.4Z" fill="#635BFF"/>
+                </svg>
+            </div>
+            <div class="nav-item active">Home</div>
+            <div class="nav-item">Payments</div>
+            <div class="nav-item">Balances</div>
+            <div class="nav-item">Customers</div>
+            <div class="nav-item">Products</div>
+            <div class="nav-item">Settings</div>
+        </div>
+        <div class="main-content"><div class="content-placeholder"></div></div>
+    </div>
+
+    <div class="modal-backdrop">
+        <div class="modal">
+            <div class="modal-gradient" id="modalGradient" data-grad="spotlight"></div>
+            <div class="modal-header">
+                <div class="stripe-logo">
+                    <svg viewBox="0 0 60 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M60 12.9C60 8.6 57.9 5.3 54 5.3C50.1 5.3 47.6 8.6 47.6 12.9C47.6 17.9 50.5 20.5 54.6 20.5C56.6 20.5 58.1 20 59.3 19.2V16C58.1 16.7 56.7 17.2 55 17.2C53.3 17.2 51.8 16.6 51.6 14.5H59.9C59.9 14.3 60 13.4 60 12.9ZM51.5 11.7C51.5 9.7 52.7 8.9 53.9 8.9C55.1 8.9 56.3 9.7 56.3 11.7H51.5ZM41.2 5.3C39.5 5.3 38.4 6.1 37.8 6.6L37.6 5.6H34V24.5L37.9 23.7V20.1C38.5 20.5 39.4 21.1 40.9 21.1C44.1 21.1 46.9 18.5 46.9 12.9C46.9 8 44 5.3 41.2 5.3ZM40.3 17.5C39.2 17.5 38.6 17.1 38.2 16.7L37.9 9.5C38.3 9.1 39 8.7 40 8.7C41.6 8.7 42.7 10.5 42.7 13.1C42.7 15.8 41.6 17.5 40.3 17.5ZM28.3 4.5L32.2 3.7V0.5L28.3 1.3V4.5ZM28.3 5.6H32.2V20.2H28.3V5.6ZM24.2 6.8L24 5.6H20.5V20.2H24.4V10C25.3 8.8 26.8 9 27.3 9.2V5.6C26.7 5.4 25 5.1 24.2 6.8ZM16.5 2L12.7 2.8V16.1C12.7 18.6 14.6 20.5 17.1 20.5C18.5 20.5 19.5 20.3 20 20V16.8C19.6 17 16.5 17.8 16.5 15.3V9H20V5.6H16.5V2ZM4.7 9.8C4.7 9.2 5.2 8.9 6 8.9C7.1 8.9 8.6 9.2 9.7 9.9V6.2C8.5 5.7 7.3 5.3 6 5.3C2.6 5.3 0.5 7 0.5 9.9C0.5 14.5 6.7 13.8 6.7 15.8C6.7 16.5 6.1 16.8 5.2 16.8C4 16.8 2.4 16.3 1.1 15.5V19.2C2.6 19.9 4 20.2 5.2 20.2C8.7 20.2 10.9 18.6 10.9 15.7C10.9 10.7 4.7 11.5 4.7 9.8Z" fill="#635BFF"/>
+                    </svg>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 70%;"></div></div>
+            </div>
+
+            <div class="modal-split" id="modalSplit">
+                <div class="modal-left" id="modalLeft"></div>
+                <div class="modal-right-wrapper">
+                    <div class="modal-right" id="modalRight">
+                        <div id="globeHost">
+                            <div class="globe-glow-circle" id="globe-glow-circle"></div>
+                        </div>
+                        <div id="rightPane"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="back-link" id="btnBack">← Back </button>
+                <button class="btn-continue" id="btnNext">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+    // ---------------------------------------------------------------------
+    // Shared state. Steps 3 and 4 have already happened: the user sells AI
+    // services and named three regions. Every treatment reads from here, so
+    // the carry-over is real rather than hardcoded per screen.
+    // ---------------------------------------------------------------------
+    const STATE = {
+        goods: 'AI services',
+        markets: ['Europe', 'United Kingdom', 'Asia-Pacific'],
+        share: 0.25,          // international share of volume
+        choice: 'smp',        // 'smp' | 'self'         (step 5)
+        scope: 'intl',        // 'intl' | 'all'         (step 6)
+        beat: 0,              // sub-step within 5F
+    };
+
+    // Placeholders. The all-payments price is the open dependency, so both
+    // scopes assume the same +3.5% on whatever volume they cover.
+    const R = { dom: 2.9, intl: 3.4, smp: 3.5 };
+
+    function eff(mode) {
+        const s = STATE.share, d = 1 - s;
+        if (mode === 'self') return R.dom * d + R.intl * s;
+        if (mode === 'intl') return R.dom * d + (R.intl + R.smp) * s;
+        return (R.dom + R.smp) * d + (R.intl + R.smp) * s;
+    }
+    const pct = n => n.toFixed(2) + '%';
+    const marketList = () => {
+        const m = STATE.markets;
+        return m.length < 2 ? m[0] : m.slice(0, -1).join(', ') + ' and ' + m[m.length - 1];
+    };
+
+    const FEE_ICON = '<svg class="fee-icon" viewBox="0 0 12 12" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.75 1.75H3.25C2.42157 1.75 1.75 2.42157 1.75 3.25V8.75C1.75 9.57843 2.42157 10.25 3.25 10.25H8.75C9.57843 10.25 10.25 9.57843 10.25 8.75V3.25C10.25 2.42157 9.57843 1.75 8.75 1.75ZM3.25 0.25C1.59315 0.25 0.25 1.59315 0.25 3.25V8.75C0.25 10.4069 1.59315 11.75 3.25 11.75H8.75C10.4069 11.75 11.75 10.4069 11.75 8.75V3.25C11.75 1.59315 10.4069 0.25 8.75 0.25H3.25Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M4.48182 6.49998C4.48182 6.11338 4.79522 5.79998 5.18182 5.79998H6.27273C6.65933 5.79998 6.97273 6.11338 6.97273 6.49998V8.49998C6.97273 8.88658 6.65933 9.19998 6.27273 9.19998C5.88613 9.19998 5.57273 8.88658 5.57273 8.49998V7.19998H5.18182C4.79522 7.19998 4.48182 6.88658 4.48182 6.49998Z"/><path d="M4.99994 3.99999C4.99994 3.44858 5.44854 2.99999 5.99994 2.99999C6.55134 2.99999 6.99994 3.44858 6.99994 3.99999C6.99994 4.55139 6.55134 4.99999 5.99994 4.99999C5.44854 4.99999 4.99994 4.55139 4.99994 3.99999Z"/></svg>';
+    const CHECK = '<svg class="benefit-check" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 6.3l3 3 6-6.6"/></svg>';
+    const TICK = '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 6.3l3 3 6-6.6"/></svg>';
+    const RADIO = '<div class="radio-circle"><div class="radio-inner-dot"></div></div>';
+
+    // One way to show a rate, everywhere: the number, and what it sits on top of.
+    function feeBadge(rate, note, id) {
+        return '<span class="fee-badge"' + (id ? ' id="' + id + '"' : '') + '>'
+            + '<span class="fee-rate-slot"><span class="fee-rate">' + rate + '</span></span>'
+            + FEE_ICON + '<span class="fee-tooltip">' + note + '</span></span>';
+    }
+    function swapRate(badge, text) {
+        const slot = badge.querySelector('.fee-rate-slot');
+        const current = slot.querySelector('.fee-rate:not(.leaving)');
+        if (!current || current.textContent === text) return;
+        const incoming = document.createElement('span');
+        incoming.className = 'fee-rate arriving';
+        incoming.textContent = text;
+        slot.appendChild(incoming);
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            current.classList.add('leaving');
+            incoming.classList.remove('arriving');
+        }));
+        setTimeout(() => current.remove(), 640);
+    }
+    // Rates count to their new value rather than cutting — the number is the
+    // thing that changed, so it's the thing that moves.
+    function tweenRate(el, from, to, ms) {
+        const t0 = performance.now();
+        (function frame(now) {
+            const p = Math.min(1, (now - t0) / (ms || 300));
+            el.textContent = pct(from + (to - from) * (1 - Math.pow(1 - p, 3)));
+            if (p < 1) requestAnimationFrame(frame);
+        })(t0);
+    }
+
+    const OBLIGATIONS = [
+        { label: 'Tax registration<br>and filing', detail: 'Register where you cross a local threshold, charge the right rate, file on time in each place.' },
+        { label: 'Local processing', detail: 'A legal basis to process in-market, so the customer&rsquo;s bank sees a domestic transaction rather than a foreign one.' },
+        { label: 'Disputes', detail: 'Chargebacks are judged under the customer&rsquo;s local consumer protection rules, on their timeline.' },
+        { label: 'Fraud', detail: 'Review and rules tuned per market, where the patterns and the risk tolerance both differ.' },
+        { label: 'Payment support', detail: 'Refunds, failed payments, and billing questions, in the customer&rsquo;s language and timezone.' },
+    ];
+
+    const MARKET_FACTS = {
+        'Europe': 'VAT registration once you cross &euro;10,000 of EU sales, then filing wherever you owe.',
+        'United Kingdom': 'UK VAT from your first sale, and chargebacks judged under UK consumer rules.',
+        'Asia-Pacific': 'Japanese consumption tax registration, and customers who expect local methods.',
+        'Canada': 'GST/HST registration at CAD 30,000, plus provincial rules on top.',
+        'Latin America': 'Local tax withholding, and a market where Pix and boleto outweigh cards.',
+        'Middle East &amp; Africa': 'VAT regimes that vary by country, and low card approval without local processing.',
+    };
+
+    const MOR_TERM = '<span class="term" tabindex="0">merchant of record<span class="term-pop">'
+        + 'The business the customer legally buys from. It&rsquo;s whose name is on the statement, '
+        + 'who owes tax on the sale, and who the bank comes to in a dispute. Today that&rsquo;s you, '
+        + 'in every country you sell to.</span></span>';
+
+    const T = {};   // treatments, keyed by id
+    </script>
+    <script>
+    // The ledger is shared: 5A is the whole treatment, 5F reaches the same
+    // table on its third beat.
+    function ledgerHtml() {
+        const selfSel = STATE.choice === 'self' ? ' selected' : '';
+        const smpSel  = STATE.choice === 'smp'  ? ' selected' : '';
+        let rows = '';
+        OBLIGATIONS.forEach((o, i) => {
+            rows += '<tr>'
+                + '<td>' + o.label
+                + ' <button class="row-more" onclick="toggleRow(' + i + ')">What this involves</button></td>'
+                + '<td><span class="owner you">You</span></td>'
+                + '<td><span class="owner stripe">Stripe</span></td>'
+                + '</tr>'
+                + '<tr class="detail"><td colspan="3"><div class="row-detail" id="rd-' + i + '">' + o.detail + '</div></td></tr>';
+        });
+        return '<table class="ldgt"><thead><tr><th></th>'
+            + '<th><div class="ldg-head-card' + selfSel + '" onclick="pickChoice(\'self\')">'
+            + '<div class="ldg-col-head">' + RADIO + '<div class="ldg-col-title">Manage myself</div></div>'
+            + '<div class="ldg-col-sub">You stay the ' + MOR_TERM + ' and handle these yourself.</div>'
+            + '<div class="ldg-price">' + feeBadge('2.9% domestic / 3.4% international',
+                'Standard Stripe processing fees. No additional fee.')
+            + '<span class="neutral-tag">Effective ' + pct(eff('self')) + '</span></div>'
+            + '</div></th>'
+            + '<th><div class="ldg-head-card' + smpSel + '" onclick="pickChoice(\'smp\')">'
+            + '<div class="ldg-col-head">' + RADIO + '<div class="ldg-col-title">Managed Payments</div></div>'
+            + '<div class="ldg-col-sub">Stripe becomes the ' + MOR_TERM + ' and takes these on.</div>'
+            + '<div class="ldg-price">' + feeBadge('+3.5% per transaction',
+                'On top of standard processing fees (3.4% for international).')
+            + '<span class="neutral-tag">Effective ' + pct(eff('intl')) + '</span></div>'
+            + '</div></th></tr></thead><tbody>' + rows + '</tbody></table>';
+    }
+
+    T['5A'] = {
+        step: 5, wide: true, right: null,
+        label: '5A — Responsibility ledger',
+        note: '<b>5A Responsibility ledger.</b> Rows are the obligations; both columns say who does the work. '
+            + 'Strongest escape-hatch parity, and the natural home for obligation-transfer motion. '
+            + 'Watch the row count — five is the ceiling.',
+        html: () => '<div class="step-eyebrow">Step 5 of 6</div>'
+            + '<div class="modal-headline">Since you&rsquo;ll have customers in ' + marketList() + ', we recommend Managed Payments. '
+            + '<span class="muted">Two ways to do this. The difference is who does the work.</span></div>'
+            + ledgerHtml()
+            + '<div class="ldg-note">You can apply Managed Payments to some of your volume rather than all of it &mdash; that&rsquo;s the next step.</div>',
+        mount: () => animateOwners(),
+    };
+
+    T['5B'] = {
+        step: 5, wide: false, right: 'stack',
+        label: '5B — Cost stack',
+        note: '<b>5B Cost stack.</b> Compares total cost of ownership, not just fee against fee. '
+            + 'Makes a premium price look like arithmetic. Also the most manipulable treatment here &mdash; '
+            + 'the labour block stays deliberately unpriced.',
+        html: () => '<div class="step-eyebrow">Step 5 of 6</div>'
+            + '<div class="modal-headline">Selling ' + STATE.goods + ' into ' + marketList() + ' costs more than the processing fee.</div>'
+            + '<div class="step-body">Whichever way you go, you pay to process. The difference is everything stacked '
+            + 'on top: the products that cover tax, fraud, and disputes &mdash; and the time your team spends running them.</div>'
+            + '<div class="option-cards">'
+            + optionCard('smp', 'Managed Payments', '+3.5% per transaction',
+                'On top of standard processing fees (3.4% for international).',
+                'Stripe becomes the ' + MOR_TERM + '. One fee covers tax, disputes, fraud, and local processing.',
+                'Effective ' + pct(eff('intl')))
+            + optionCard('self', 'Manage myself', '2.9% domestic / 3.4% international',
+                'Standard Stripe processing fees. No additional fee.',
+                'You keep the obligations and assemble the products to cover them.',
+                'Effective ' + pct(eff('self')) + ' + products + time')
+            + '</div>'
+            + '<div class="footnote">Product costs are not included in either effective rate. The stack on the right shows what they&rsquo;re made of.</div>',
+        rightHtml: () => '<div class="pane-title">What you pay, stacked</div>'
+            + '<div class="stack-wrap">'
+            + '<div class="stack-col"><div class="stack-bar">'
+            + seg('processing', 'Processing', '3.4%', 44)
+            + seg('alacarte', 'Stripe Tax', '+ cost', 26)
+            + seg('alacarte', 'Radar', '+ cost', 26)
+            + seg('alacarte', 'Dispute handling', '+ cost', 26)
+            + seg('labor', 'Your team&rsquo;s time', 'unpriced', 34)
+            + '</div><div class="stack-cap">Manage myself</div>'
+            + '<div class="stack-total">3.4% + products + time</div></div>'
+            + '<div class="stack-col"><div class="stack-bar">'
+            + seg('processing', 'Processing', '3.4%', 44)
+            + seg('smp', 'Managed Payments', '+3.5%', 46)
+            + '</div><div class="stack-cap">Managed Payments</div>'
+            + '<div class="stack-total">6.9% on international volume</div></div>'
+            + '</div>'
+            + '<div class="footnote" style="text-align:center">The work block has no number on it on purpose.</div>',
+    };
+
+    function seg(kind, label, value, h) {
+        return '<div class="stack-seg ' + kind + '" style="height:' + h + 'px"><span>' + label + '</span><span>' + value + '</span></div>';
+    }
+
+    function optionCard(id, title, rate, note, desc, tag) {
+        return '<div class="option-card' + (STATE.choice === id ? ' selected' : '') + '" onclick="pickChoice(\'' + id + '\')">'
+            + RADIO
+            + '<div class="option-content"><div class="option-title">' + title
+            + feeBadge(rate, note)
+            + (tag ? '<span class="neutral-tag">' + tag + '</span>' : '')
+            + '</div><div class="option-description">' + desc + '</div></div></div>';
+    }
+
+    T['5C'] = {
+        step: 5, wide: false, right: 'globe',
+        label: '5C — Advisory + equal alternative',
+        note: '<b>5C Advisory.</b> Closest to the copy as written. The reasoning line is the transparency '
+            + 'mechanism &mdash; a recommendation with visible logic is arguable. Needs the '
+            + '&ldquo;when we don&rsquo;t recommend it&rdquo; disclosure to be real, or it&rsquo;s an upsell with a badge on it.',
+        html: () => '<div class="step-eyebrow">Step 5 of 6</div>'
+            + '<div class="modal-headline">Since you plan to have international payments, we recommend Managed Payments.</div>'
+            + '<div class="reason-card"><div class="reason-head">Why we&rsquo;re recommending this</div>'
+            + reason('You sell ' + STATE.goods + ', which crosses borders by default.')
+            + reason('You named customers in ' + marketList() + ' &mdash; three separate tax and dispute regimes.')
+            + reason('You told us you&rsquo;re not registered for tax outside the United States yet.')
+            + '</div>'
+            + '<div class="option-cards">'
+            + advisoryCard('smp', 'Managed Payments', '+3.5% per transaction',
+                'On top of standard processing fees (3.4% for international).', true,
+                ['Stripe becomes the ' + MOR_TERM + ', so the tax liability is Stripe&rsquo;s',
+                 'Payments processed locally, which banks approve more often',
+                 'Stripe handles disputes, fraud, and payment support'])
+            + advisoryCard('self', 'Manage myself', '2.9% domestic / 3.4% international',
+                'Standard Stripe processing fees. No additional fee.', false,
+                ['You stay the ' + MOR_TERM + ' and own the tax liability',
+                 'You set up local processing yourself, market by market',
+                 'You handle disputes, fraud, and payment support'])
+            + '</div>'
+            + '<button class="link-later" onclick="toggleDetail(\'whennot\')">When we&rsquo;d tell you not to use this</button>'
+            + '<div class="row-detail" id="rd-whennot" style="margin-top:8px">'
+            + 'If almost all your volume is domestic, or you already have tax registrations and a team handling '
+            + 'disputes in your markets, Managed Payments is likely to cost you more than it saves. '
+            + 'We&rsquo;d tell you to manage it yourself.</div>',
+        mount: () => applyGlobeState(),
+    };
+
+    function reason(text) {
+        return '<div class="reason-line">' + TICK + '<span>' + text + '</span></div>';
+    }
+    function advisoryCard(id, title, rate, note, recommended, claims) {
+        return '<div class="option-card' + (STATE.choice === id ? ' selected' : '') + '" onclick="pickChoice(\'' + id + '\')">'
+            + RADIO
+            + '<div class="option-content"><div class="option-title">' + title
+            + feeBadge(rate, note)
+            + (recommended ? '<span class="highlight-tag">Recommended</span>' : '')
+            + '</div>'
+            + '<div class="claim-list">' + claims.map(c => '<div class="claim">' + TICK + '<span>' + c + '</span></div>').join('') + '</div>'
+            + '</div></div>';
+    }
+    </script>
+    <script>
+    const DIFF_ROWS = [
+        ['Who the customer buys from', 'You, in every country you sell to', 'Stripe', true],
+        ['Tax registration and filing', 'You, wherever you cross a threshold', 'Stripe', true],
+        ['How payments are processed', 'Cross-border from the United States', 'Locally, in each customer&rsquo;s market', true],
+        ['Disputes', 'You answer them, under local rules', 'Stripe answers them', true],
+        ['Fraud', 'Your rules, tuned per market', 'Stripe&rsquo;s, tuned per market', true],
+        ['Payment support', 'You, in their language and timezone', 'Stripe', true],
+        ['Your product and pricing', 'Yours', 'Yours', false],
+        ['Your brand and checkout', 'Yours', 'Yours', false],
+        ['Your customer relationship', 'Yours', 'Yours', false],
+    ];
+
+    T['5D'] = {
+        step: 5, wide: true, right: null,
+        label: '5D — Diff: what changes for you',
+        note: '<b>5D Diff view.</b> Answers the question users actually have &mdash; what&rsquo;s different if I say yes? '
+            + 'Makes &ldquo;nothing changes about your product or your customers&rdquo; a visible row rather than a promise. '
+            + 'Weaker at signup, where there is no &ldquo;today&rdquo; yet.',
+        html: () => {
+            let rows = '';
+            DIFF_ROWS.forEach(r => {
+                rows += '<tr><td>' + r[0] + '</td>'
+                    + '<td class="' + (r[3] ? '' : 'same') + '">' + r[1] + '</td>'
+                    + '<td class="' + (r[3] ? 'changed' : 'same') + '">' + r[2]
+                    + (r[3] ? '<span class="diff-flag">changes</span>' : '<span class="diff-flag none">no change</span>')
+                    + '</td></tr>';
+            });
+            return '<div class="step-eyebrow">Step 5 of 6</div>'
+                + '<div class="modal-headline">Here&rsquo;s exactly what Managed Payments changes. '
+                + '<span class="muted">And what it doesn&rsquo;t.</span></div>'
+                + '<table class="ldgt"><thead><tr><th></th>'
+                + '<th><div class="ldg-head-card' + (STATE.choice === 'self' ? ' selected' : '') + '" onclick="pickChoice(\'self\')">'
+                + '<div class="ldg-col-head">' + RADIO + '<div class="ldg-col-title">Manage myself</div></div>'
+                + '<div class="ldg-price">' + feeBadge('2.9% / 3.4%', 'Standard Stripe processing fees. No additional fee.')
+                + '<span class="neutral-tag">Effective ' + pct(eff('self')) + '</span></div></div></th>'
+                + '<th><div class="ldg-head-card' + (STATE.choice === 'smp' ? ' selected' : '') + '" onclick="pickChoice(\'smp\')">'
+                + '<div class="ldg-col-head">' + RADIO + '<div class="ldg-col-title">Managed Payments</div></div>'
+                + '<div class="ldg-price">' + feeBadge('+3.5% per transaction', 'On top of standard processing fees (3.4% for international).')
+                + '<span class="neutral-tag">Effective ' + pct(eff('intl')) + '</span></div></div></th>'
+                + '</tr></thead><tbody>' + rows + '</tbody></table>';
+        },
+    };
+
+    T['5E'] = {
+        step: 5, wide: true, right: null,
+        label: '5E — Progressive two-panel',
+        note: '<b>5E Progressive two-panel.</b> Lowest overload, everything present but layered. Best for the '
+            + 'expert who already knows this. The objection: depth behind a disclosure is depth most people '
+            + 'never open, and leadership asked us to take the space.',
+        html: () => '<div class="step-eyebrow">Step 5 of 6</div>'
+            + '<div class="modal-headline">Two ways to sell into ' + marketList() + '. '
+            + '<span class="muted">The difference is who does the work.</span></div>'
+            + '<div class="dpanels">'
+            + dpanel('self', 'Manage myself', '2.9% domestic / 3.4% international',
+                'Standard Stripe processing fees. No additional fee.',
+                'You stay the ' + MOR_TERM + '. You keep every obligation that comes with selling across borders.',
+                ['You own the tax liability in every market', 'You set up local processing yourself', 'You answer disputes and run fraud review'],
+                'What you&rsquo;d take on',
+                ['Tax registration and filing wherever you cross a local threshold',
+                 'A legal basis to process payments in-market, country by country',
+                 'Chargebacks judged under local consumer protection rules',
+                 'Fraud review and rules per market',
+                 'Refunds and payment support in the customer&rsquo;s language and timezone'],
+                'Products that cover some of it',
+                ['Stripe Tax &mdash; calculation and filing', 'Radar &mdash; fraud rules and review', 'Dispute handling tools'])
+            + dpanel('smp', 'Managed Payments', '+3.5% per transaction',
+                'On top of standard processing fees (3.4% for international).',
+                'Stripe becomes the ' + MOR_TERM + ' and takes on what comes with it.',
+                ['Tax liability sits with Stripe', 'Payments processed locally, so more get approved', 'Stripe handles disputes, fraud, and support'],
+                'What Stripe takes on',
+                ['Registering, charging, and filing tax in each market',
+                 'Local processing and local payment methods',
+                 'Disputes, under whichever rules apply',
+                 'Fraud prevention and review',
+                 'Payment support for your customers'],
+                'What stays yours',
+                ['Your product, your pricing, your brand', 'Your customer relationship', 'Your data and reporting'])
+            + '</div>',
+    };
+
+    function dpanel(id, title, rate, note, sub, claims, h1, list1, h2, list2) {
+        return '<div class="dpanel' + (STATE.choice === id ? ' selected' : '') + '" onclick="pickChoice(\'' + id + '\')">'
+            + '<div class="dpanel-head">' + RADIO
+            + '<div style="flex:1"><div class="dpanel-title">' + title + '</div></div>'
+            + feeBadge(rate, note) + '</div>'
+            + '<div class="dpanel-sub">' + sub + '</div>'
+            + '<div class="claim-list">' + claims.map(c => '<div class="claim">' + TICK + '<span>' + c + '</span></div>').join('') + '</div>'
+            + '<div class="dpanel-detail" id="dp-' + id + '"><div>'
+            + '<div class="detail-h">' + h1 + '</div>'
+            + '<div class="claim-list">' + list1.map(c => '<div class="claim">' + TICK + '<span>' + c + '</span></div>').join('') + '</div>'
+            + '<div class="detail-h">' + h2 + '</div>'
+            + '<div class="claim-list">' + list2.map(c => '<div class="claim">' + TICK + '<span>' + c + '</span></div>').join('') + '</div>'
+            + '</div></div>'
+            + '<button class="dpanel-expand" onclick="event.stopPropagation(); toggleDpanel(\'' + id + '\', this)">See the detail &darr;</button>'
+            + '</div>';
+    }
+
+    // 5F: teaching and deciding are separated into three beats inside one step.
+    const BEATS = ['What this involves', 'What Managed Payments does', 'Your two options'];
+
+    T['5F'] = {
+        step: 5,
+        wide: () => STATE.beat === 2,
+        right: () => STATE.beat === 2 ? null : 'globe',
+        label: '5F — Sub-stepped (3 beats)',
+        note: '<b>5F Sub-stepped.</b> The fullest reading of &ldquo;take the space we need.&rdquo; The real overload '
+            + 'problem isn&rsquo;t the number of options, it&rsquo;s teaching and asking at the same time &mdash; this is the '
+            + 'only treatment that separates them. Honest objection: it&rsquo;s three screens wearing one step&rsquo;s clothing.',
+        html: () => {
+            const dots = '<div class="beat-dots">' + BEATS.map((b, i) =>
+                '<span class="beat-dot' + (i <= STATE.beat ? ' on' : '') + '" title="' + b + '" onclick="setBeat(' + i + ')"></span>').join('') + '</div>';
+            if (STATE.beat === 0) {
+                return dots + '<div class="modal-headline">Selling ' + STATE.goods + ' into ' + marketList()
+                    + ' makes you responsible for more than payments.</div>'
+                    + '<div class="step-body">The moment you take money from a customer in another country, you take on '
+                    + 'that country&rsquo;s rules. Here&rsquo;s what yours involve.</div>'
+                    + '<div class="obl-list">'
+                    + STATE.markets.map(m => '<div class="obl"><div class="obl-mkt">' + m + '</div>'
+                        + '<div class="obl-text">' + (MARKET_FACTS[m] || '') + '</div></div>').join('')
+                    + '<div class="obl"><div class="obl-mkt">Everywhere</div><div class="obl-text">'
+                    + 'Disputes on local timelines, fraud review per market, and payment support in the customer&rsquo;s language.</div></div>'
+                    + '</div>'
+                    + '<div class="footnote">Thresholds shown are illustrative and need verifying before this ships.</div>';
+            }
+            if (STATE.beat === 1) {
+                return dots + '<div class="modal-headline">Managed Payments makes Stripe the merchant of record.</div>'
+                    + '<div class="step-body">The ' + MOR_TERM + ' is the business the customer legally buys from &mdash; '
+                    + 'whose name is on the statement, who owes the tax, who the bank comes to in a dispute. '
+                    + 'Today that&rsquo;s you, in every country you sell to. With Managed Payments it&rsquo;s Stripe.</div>'
+                    + '<div class="benefit-list">'
+                    + benefit('Tax registration, charging, and filing sit with Stripe')
+                    + benefit('Payments are processed locally, so more of them get approved')
+                    + benefit('Stripe handles disputes, fraud, and payment support')
+                    + '</div>'
+                    + '<div class="step-body" style="margin-top:16px">You keep your product, your pricing, your brand, '
+                    + 'and your relationship with your customers. That&rsquo;s the whole trade.</div>';
+            }
+            return dots + '<div class="modal-headline">Two ways to do this. '
+                + '<span class="muted">The difference is who does the work.</span></div>'
+                + ledgerHtml();
+        },
+        mount: () => { if (STATE.beat === 2) animateOwners(); else applyGlobeState(); },
+    };
+
+    function benefit(text) {
+        return '<div class="benefit-row">' + CHECK + '<span class="benefit-text">' + text + '</span></div>';
+    }
+    </script>
+    <script>
+    const NOTE_INTL = 'On top of standard processing fees (3.4% for international).';
+    const NOTE_ALL  = 'On top of standard processing fees (3.4% for international and 2.9% for domestic).';
+
+    function rateStrip() {
+        return '<div class="rate-strip"><span class="label">Your effective rate across all payments</span>'
+            + '<span class="value" id="effOut">' + pct(eff(STATE.scope)) + '</span></div>';
+    }
+
+    T['6A'] = {
+        step: 6, wide: false, right: 'globe',
+        label: '6A — Checkbox upgrade',
+        note: '<b>6A Checkbox upgrade.</b> The pattern already built, with the &ldquo;Save 30%&rdquo; badge and the confetti '
+            + 'removed &mdash; celebrating the selection of a more expensive option rewards our outcome, not their decision. '
+            + 'The rate readout below carries the change instead.',
+        html: () => '<div class="step-eyebrow">Step 6 of 6</div>'
+            + '<div class="modal-headline">Managed Payments can also take on your domestic complexity. '
+            + '<span class="muted">Want to extend it across all your payments?</span></div>'
+            + '<div class="coverage-card">'
+            + '<div class="coverage-head"><div class="coverage-title-row">'
+            + '<div class="coverage-title">Managed Payments</div>'
+            + feeBadge('+3.5% per transaction', STATE.scope === 'all' ? NOTE_ALL : NOTE_INTL, 'feeBadge6a')
+            + '</div>'
+            + '<div class="coverage-desc">Stripe will manage your international payments. You can change your setup anytime.</div></div>'
+            + '<div class="benefit-list">'
+            + benefit('Tax liability sits with Stripe, in every market you sell to')
+            + benefit('Payments processed locally, so more of them get approved')
+            + benefit('Stripe handles fraud prevention, disputes, and payment support')
+            + '</div>'
+            + '<div class="coverage-divider"></div>'
+            + '<div class="coverage-toggle-row"><div class="coverage-toggle-left">'
+            + '<div class="box' + (STATE.scope === 'all' ? ' on' : '') + '" id="checkbox-domestic" role="checkbox" '
+            + 'aria-checked="' + (STATE.scope === 'all') + '" tabindex="0" onclick="toggleDomestic()">'
+            + '<svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 5.2l2.2 2.2L8.5 2.6"/></svg>'
+            + '</div><div class="switch-label">Also manage my domestic payments</div></div></div>'
+            + '<div class="coverage-divider"></div>'
+            + rateStrip()
+            + '</div>'
+            + '<div class="footnote">Domestic volume is about ' + Math.round((1 - STATE.share) * 100) + '% of what you told us to expect.</div>',
+        mount: () => applyGlobeState(),
+    };
+
+    T['6B'] = {
+        step: 6, wide: false, right: 'globe',
+        label: '6B — Two explicit cards',
+        note: '<b>6B Two explicit cards.</b> Most symmetrical and most honest &mdash; neither scope is the default. '
+            + 'Loses the momentum of the extension framing the copy leans on.',
+        html: () => '<div class="step-eyebrow">Step 6 of 6</div>'
+            + '<div class="modal-headline">How much of your volume should Managed Payments cover? '
+            + '<span class="muted">You can change this anytime.</span></div>'
+            + '<div class="option-cards">'
+            + scopeCard('intl', 'International payments only',
+                'Stripe manages payments from customers outside the United States. Your domestic payments work as they do today.',
+                NOTE_INTL)
+            + scopeCard('all', 'All of my payments',
+                'Stripe manages everything, domestic included &mdash; one set of operations rather than two.',
+                NOTE_ALL)
+            + '</div>'
+            + rateStrip(),
+        mount: () => applyGlobeState(),
+    };
+
+    function scopeCard(id, title, desc, note) {
+        return '<div class="option-card' + (STATE.scope === id ? ' selected' : '') + '" onclick="pickScope(\'' + id + '\')">'
+            + RADIO + '<div class="option-content"><div class="option-title">' + title
+            + feeBadge('+3.5% per transaction', note)
+            + '<span class="neutral-tag">Effective ' + pct(eff(id)) + '</span>'
+            + '</div><div class="option-description">' + desc + '</div></div></div>';
+    }
+
+    T['6C'] = {
+        step: 6, wide: false, right: 'globe',
+        label: '6C — Coverage meter',
+        note: '<b>6C Coverage meter.</b> Keeps the extension framing but makes the control a meter with a live '
+            + 'blended rate, so the decision is proportionate to how much domestic volume they actually have. '
+            + 'Depends on the volume-mix answer being real rather than assumed.',
+        html: () => {
+            const covered = STATE.scope === 'all' ? 100 : Math.round(STATE.share * 100);
+            return '<div class="step-eyebrow">Step 6 of 6</div>'
+                + '<div class="modal-headline">Managed Payments can also take on your domestic complexity. '
+                + '<span class="muted">Here&rsquo;s what extending it covers, and what it costs.</span></div>'
+                + '<div class="meter-card">'
+                + '<div class="meter-head"><div class="coverage-title">Coverage</div>'
+                + feeBadge('+3.5% on covered volume', STATE.scope === 'all' ? NOTE_ALL : NOTE_INTL, 'feeBadge6c') + '</div>'
+                + '<div class="meter-bar" id="meterBar">'
+                + '<div class="meter-seg covered" style="flex-basis:' + covered + '%">' + covered + '% covered</div>'
+                + '<div class="meter-seg uncovered" style="flex-basis:' + (100 - covered) + '%">' + (100 - covered) + '%</div>'
+                + '</div>'
+                + '<div class="meter-legend"><span><i style="background:#675dff"></i>Managed by Stripe</span>'
+                + '<span><i style="background:#c3cbd6"></i>Managed by you</span></div>'
+                + '<div class="coverage-divider"></div>'
+                + '<div class="coverage-toggle-row"><div class="coverage-toggle-left">'
+                + '<div class="box' + (STATE.scope === 'all' ? ' on' : '') + '" id="checkbox-domestic" role="checkbox" '
+                + 'aria-checked="' + (STATE.scope === 'all') + '" tabindex="0" onclick="toggleDomestic()">'
+                + '<svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 5.2l2.2 2.2L8.5 2.6"/></svg>'
+                + '</div><div class="switch-label">Extend to my domestic payments too</div></div></div>'
+                + rateStrip()
+                + '</div>'
+                + '<div class="footnote">Based on the ' + Math.round(STATE.share * 100) + '% international share you told us to expect.</div>';
+        },
+        mount: () => applyGlobeState(),
+    };
+
+    T['6D'] = {
+        step: 6, wide: false, right: 'globe',
+        label: '6D — Defer the domestic decision',
+        note: '<b>6D Defer.</b> Lightest onboarding, and arguably the most honest &mdash; they have no volume data yet '
+            + 'on which to make this call. But it drops a decision leadership explicitly asked to be in the flow.',
+        html: () => '<div class="step-eyebrow">Step 6 of 6</div>'
+            + '<div class="modal-headline">You&rsquo;re set up for international payments. '
+            + '<span class="muted">Domestic can wait until you have numbers to look at.</span></div>'
+            + '<div class="coverage-card">'
+            + '<div class="coverage-head"><div class="coverage-title-row">'
+            + '<div class="coverage-title">Managed Payments &mdash; international</div>'
+            + feeBadge('+3.5% per transaction', NOTE_INTL) + '</div>'
+            + '<div class="coverage-desc">Covering payments from customers outside the United States, which you expect to be '
+            + 'about ' + Math.round(STATE.share * 100) + '% of your volume.</div></div>'
+            + '<div class="benefit-list">'
+            + benefit('Tax liability sits with Stripe in every market you sell to')
+            + benefit('Payments processed locally, so more of them get approved')
+            + benefit('Stripe handles fraud prevention, disputes, and payment support')
+            + '</div>'
+            + '<div class="coverage-divider"></div>'
+            + rateStrip()
+            + '</div>'
+            + '<div class="step-body" style="margin-top:16px">Managed Payments can take on your domestic payments too. '
+            + 'We&rsquo;ll show you what that would cost once you have a month of volume to compare against &mdash; '
+            + 'you can turn it on any time from your payment settings.</div>',
+        mount: () => applyGlobeState(),
+    };
+    </script>
+    <script>
+    const ORDER = ['5A', '5B', '5C', '5D', '5E', '5F', '6A', '6B', '6C', '6D'];
+    const GRADIENTS = [
+        { id: 'spotlight', label: 'Spotlight' },
+        { id: 'full', label: 'Full screen' },
+        { id: 'none', label: 'None' },
+    ];
+    const SHARES = [
+        { id: '0.1', label: '10%' },
+        { id: '0.25', label: '25%' },
+        { id: '0.7', label: '70%' },
+    ];
+
+    const q = new URLSearchParams(location.search);
+    const CONFIG = {
+        t: ORDER.includes(q.get('t')) ? q.get('t') : '5A',
+        grad: GRADIENTS.some(g => g.id === q.get('grad')) ? q.get('grad') : 'spotlight',
+    };
+    if (SHARES.some(s => s.id === q.get('share'))) STATE.share = parseFloat(q.get('share'));
+
+    const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let PREV_EFF = null;
+
+    function resolve(v) { return typeof v === 'function' ? v() : v; }
+
+    function render() {
+        const t = T[CONFIG.t];
+        const wide = resolve(t.wide);
+        const right = resolve(t.right);
+        const split = document.getElementById('modalSplit');
+
+        split.classList.toggle('wide', !!wide);
+        split.dataset.t = CONFIG.t;
+        document.getElementById('modalGradient').dataset.grad = CONFIG.grad;
+        document.getElementById('modalLeft').innerHTML = t.html();
+        document.getElementById('rightPane').innerHTML = t.rightHtml ? t.rightHtml() : '';
+        document.getElementById('globeHost').classList.toggle('hidden', right !== 'globe');
+
+        // Step 5 sits at 70%; 5F's beats creep forward inside it so the sub-steps
+        // don't feel like standing still.
+        const base = t.step === 5 ? 70 : 85;
+        const bump = CONFIG.t === '5F' ? STATE.beat * 3 : 0;
+        document.getElementById('progressFill').style.width = (base + bump) + '%';
+
+        if (t.mount) t.mount();
+
+        // The checkbox is re-injected on every render, so its key handler is
+        // bound here rather than once at load.
+        const box = document.getElementById('checkbox-domestic');
+        if (box) box.addEventListener('keydown', e => {
+            if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggleDomestic(); }
+        });
+
+        // Roll the effective rate to its new value rather than cutting to it.
+        const out = document.getElementById('effOut');
+        if (out) {
+            const now = eff(STATE.scope);
+            if (PREV_EFF !== null && Math.abs(PREV_EFF - now) > 0.001 && !reduceMotion()) tweenRate(out, PREV_EFF, now);
+            PREV_EFF = now;
+        } else {
+            PREV_EFF = null;
+        }
+
+        renderControls();
+        document.getElementById('panelNote').innerHTML = t.note;
+    }
+
+    function animateOwners() {
+        if (reduceMotion()) return;
+        // Only the chosen column re-enters: the point is what moved, not what's listed.
+        const sel = STATE.choice === 'smp' ? '.owner.stripe' : '.owner.you';
+        document.querySelectorAll(sel).forEach((el, i) => {
+            el.classList.add('entering');
+            setTimeout(() => el.classList.remove('entering'), 40 + i * 60);
+        });
+    }
+
+    // ---- selection handlers ----
+    function pickChoice(id) { STATE.choice = id; render(); }
+    function pickScope(id) { STATE.scope = id; render(); }
+    function toggleDomestic() {
+        STATE.scope = STATE.scope === 'all' ? 'intl' : 'all';
+        render();
+    }
+    function toggleRow(i) { document.getElementById('rd-' + i).classList.toggle('open'); }
+    function toggleDetail(key) { document.getElementById('rd-' + key).classList.toggle('open'); }
+    function toggleDpanel(id, btn) {
+        const open = document.getElementById('dp-' + id).classList.toggle('open');
+        btn.innerHTML = open ? 'Hide the detail &uarr;' : 'See the detail &darr;';
+    }
+    function setBeat(i) { STATE.beat = i; render(); }
+
+    // ---- nav: Continue walks the beats first, then the treatment list ----
+    function step(dir) {
+        if (CONFIG.t === '5F') {
+            const next = STATE.beat + dir;
+            if (next >= 0 && next <= 2) { setBeat(next); return; }
+        }
+        const i = ORDER.indexOf(CONFIG.t) + dir;
+        if (i < 0 || i >= ORDER.length) return;
+        setTreatment(ORDER[i]);
+    }
+
+    function setTreatment(id) {
+        CONFIG.t = id;
+        STATE.beat = id === '5F' ? 0 : STATE.beat;
+        syncUrl();
+        render();
+    }
+    function setGradient(g) { CONFIG.grad = g; syncUrl(); render(); }
+    function setShare(s) { STATE.share = parseFloat(s); syncUrl(); render(); }
+
+    function syncUrl() {
+        const url = new URL(location.href);
+        url.searchParams.set('t', CONFIG.t);
+        url.searchParams.set('grad', CONFIG.grad);
+        url.searchParams.set('share', String(STATE.share));
+        history.replaceState(null, '', url);
+    }
+
+    function renderControls() {
+        const opts = (list, active, fn) => list.map(o =>
+            '<button class="opt' + (active === o.id ? ' on' : '') + '" onclick="' + fn + '(\'' + o.id + '\')">' + o.label + '</button>').join('');
+        document.getElementById('ctlStep5').innerHTML = opts(
+            ORDER.filter(id => T[id].step === 5).map(id => ({ id, label: T[id].label })), CONFIG.t, 'setTreatment');
+        document.getElementById('ctlStep6').innerHTML = opts(
+            ORDER.filter(id => T[id].step === 6).map(id => ({ id, label: T[id].label })), CONFIG.t, 'setTreatment');
+        document.getElementById('ctlGradient').innerHTML = opts(GRADIENTS, CONFIG.grad, 'setGradient');
+        document.getElementById('ctlShare').innerHTML = opts(SHARES, String(STATE.share), 'setShare');
+    }
+
+    function togglePanel() { document.getElementById('controlPanel').classList.toggle('collapsed'); }
+
+    function boot() {
+        document.getElementById('btnNext').addEventListener('click', () => step(1));
+        document.getElementById('btnBack').addEventListener('click', () => step(-1));
+        if (q.get('preview') === '1') {
+            document.getElementById('controlPanel').style.display = 'none';
+            document.getElementById('backHome').remove();
+        }
+        render();
+    }
+    </script>
+    <script>
+    // Globe from smp.html, with one change of intent: the arcs are state, not
+    // decoration. They run from the home market to whichever regions the user
+    // named on step 4, and the domestic arc only appears once Managed Payments
+    // covers domestic volume.
+    (function () {
+        const HOME = { lat: 40.7, lng: -74 };
+        const HOME_2 = { lat: 37.8, lng: -122.4 };
+        const REGION_COORDS = {
+            'Europe': { lat: 52.5, lng: 13.4 },
+            'United Kingdom': { lat: 51.5, lng: -0.1 },
+            'Asia-Pacific': { lat: 35.7, lng: 139.7 },
+            'Canada': { lat: 43.7, lng: -79.4 },
+            'Latin America': { lat: -23.5, lng: -46.6 },
+            'Middle East &amp; Africa': { lat: 25.2, lng: 55.3 },
+        };
+
+        const host = document.getElementById('globeHost');
+        const pane = document.getElementById('modalRight');
+        // The default treatment is a wide one, so the right pane can measure 0
+        // at load. Fall back to a sensible square and re-measure on first show.
+        function dims() {
+            const w = pane.clientWidth || 520, h = pane.clientHeight || 520;
+            return { w, h };
+        }
+        let { w, h } = dims();
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.OrthographicCamera(-w / 2, w / 2, h / 2, -h / 2, 1, 10000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(w, h);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setClearColor(0x000000, 0);
+        renderer.sortObjects = false;
+        host.appendChild(renderer.domElement);
+
+        const globeRadius = (100 + Math.min(w, h) * 0.25) * 0.7225;
+        const globeSegments = Math.floor((globeRadius / 250) * 10) + 20;
+        camera.position.z = globeRadius * 4;
+
+        const glow = document.getElementById('globe-glow-circle');
+        glow.style.width = glow.style.height = (globeRadius * 2) + 'px';
+
+        const globeContainer = new THREE.Group();
+        globeContainer.rotation.x = Math.PI * 0.1111;
+        globeContainer.rotation.y = Math.PI * 0.55;
+        scene.add(globeContainer);
+
+        globeContainer.add(new THREE.Mesh(
+            new THREE.SphereGeometry(globeRadius, globeSegments, globeSegments),
+            new THREE.MeshPhongMaterial({ color: new THREE.Color('#f7f6fc'), shininess: 3, transparent: true, opacity: 0.85 })
+        ));
+
+        scene.add(new THREE.AmbientLight(new THREE.Color('#F8F7FC'), 1.3));
+        const backLight = new THREE.PointLight(new THREE.Color('#666677'), 0.08, 0, 2);
+        backLight.position.set(-1000, -1100, -3300);
+        scene.add(backLight);
+        const frontLight = new THREE.PointLight(new THREE.Color('#777788'), 0.5, 0, 20);
+        frontLight.position.set(-3000, 3000, 3300);
+        scene.add(frontLight);
+        const fillLight = new THREE.DirectionalLight(new THREE.Color('#FFFFFF'), 0.35);
+        fillLight.position.set(2, -2, 2);
+        scene.add(fillLight);
+
+        const DOT_COUNT = 40000;
+        const dotUniforms = {
+            u_time: { value: 0 },
+            u_color: { value: new THREE.Color('#b8c0f0') },
+            u_cameraDir: { value: new THREE.Vector3(0, 0, 1) },
+        };
+        const dotVertexShader = `
+          uniform vec3 u_cameraDir;
+          attribute float a_random;
+          varying float v_random;
+          varying float v_facing;
+          void main() {
+            v_random = a_random;
+            vec3 worldNormal = normalize((modelMatrix * vec4(normalize(position), 0.0)).xyz);
+            v_facing = dot(worldNormal, u_cameraDir);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            gl_PointSize = 3.0;
+          }
+        `;
+        const dotFragmentShader = `
+          uniform float u_time;
+          uniform vec3 u_color;
+          varying float v_random;
+          varying float v_facing;
+          void main() {
+            if (v_facing < 0.0) discard;
+            vec2 uv = gl_PointCoord * 2.0 - 1.0;
+            float rotAngle = v_random * 6.28;
+            float cs = cos(rotAngle), sn = sin(rotAngle);
+            uv = vec2(uv.x * cs - uv.y * sn, uv.x * sn + uv.y * cs);
+            float angle = atan(uv.y, uv.x);
+            float radius = length(uv);
+            float a = 3.14159 / 5.0;
+            float sector = floor(angle / (2.0 * a) + 0.5);
+            vec2 tip = vec2(cos(sector * 2.0 * a), sin(sector * 2.0 * a));
+            if (dot(uv, tip) > cos(a)) discard;
+            if (radius > 0.95) discard;
+            float edgeFade = smoothstep(0.0, 0.6, v_facing);
+            float blink = 0.75 + 0.25 * sin(u_time * 2.0 + v_random * 12.56);
+            gl_FragColor = vec4(u_color * 0.55, blink * edgeFade);
+          }
+        `;
+
+        const mapImg = new Image();
+        mapImg.crossOrigin = 'anonymous';
+        mapImg.src = 'https://images.ctfassets.net/fzn2n1nzq965/11064gUb2CgTJXKVwAt5J9/297a98a65d04d4fbb979072ce60466ab/map_fill-a78643e8.png';
+        mapImg.onload = () => {
+            const c = document.createElement('canvas');
+            c.width = mapImg.width; c.height = mapImg.height;
+            const ctx = c.getContext('2d');
+            ctx.drawImage(mapImg, 0, 0);
+            const data = ctx.getImageData(0, 0, c.width, c.height).data;
+            const positions = [], randoms = [];
+            for (let i = 0; i < DOT_COUNT; i++) {
+                const phi = Math.acos(-1 + (2 * i) / DOT_COUNT);
+                const theta = Math.sqrt(DOT_COUNT * Math.PI) * phi;
+                const latDeg = 90 - (phi * 180 / Math.PI);
+                const lngDeg = ((theta * 180 / Math.PI) % 360) - 180;
+                const px = Math.floor(((lngDeg + 180) / 360) * c.width) % c.width;
+                const py = Math.floor(((90 - latDeg) / 180) * c.height) % c.height;
+                if (data[(py * c.width + px) * 4 + 3] > 128) {
+                    const la = latDeg * Math.PI / 180, ln = lngDeg * Math.PI / 180;
+                    positions.push(
+                        globeRadius * Math.cos(la) * Math.sin(ln),
+                        globeRadius * Math.sin(la),
+                        globeRadius * Math.cos(la) * Math.cos(ln));
+                    randoms.push(Math.random());
+                }
+            }
+            const geo = new THREE.BufferGeometry();
+            geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+            geo.setAttribute('a_random', new THREE.Float32BufferAttribute(randoms, 1));
+            globeContainer.add(new THREE.Points(geo, new THREE.ShaderMaterial({
+                uniforms: dotUniforms, vertexShader: dotVertexShader, fragmentShader: dotFragmentShader,
+                transparent: true, depthWrite: false,
+            })));
+        };
+
+        function toVec3(pt) {
+            const r = globeRadius + 1, la = pt.lat * Math.PI / 180, ln = pt.lng * Math.PI / 180;
+            return new THREE.Vector3(r * Math.cos(la) * Math.sin(ln), r * Math.sin(la), r * Math.cos(la) * Math.cos(ln));
+        }
+        function marker(color) {
+            const g = new THREE.Group();
+            const dotMat = new THREE.MeshBasicMaterial({ color, transparent: true, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+            g.add(new THREE.Mesh(new THREE.SphereGeometry(2.2, 12, 12), dotMat));
+            const ringMat = new THREE.MeshBasicMaterial({ color, transparent: true, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+            g.add(new THREE.Mesh(new THREE.TorusGeometry(5.5, 0.6, 8, 32), ringMat));
+            g.userData = { dotMat, ringMat };
+            return g;
+        }
+
+        const arcGroup = new THREE.Group();
+        globeContainer.add(arcGroup);
+        let arcs = [];
+
+        function clearArcs() {
+            arcs.forEach(a => {
+                arcGroup.remove(a.line, a.a, a.b);
+                a.line.geometry.dispose(); a.line.material.dispose();
+                a.a.userData.dotMat.dispose(); a.a.userData.ringMat.dispose();
+                a.b.userData.dotMat.dispose(); a.b.userData.ringMat.dispose();
+            });
+            arcs = [];
+        }
+
+        function addArc(from, to, colorA, colorB, delay) {
+            const start = toVec3(from), end = toVec3(to);
+            const dist = start.distanceTo(end);
+            const height = 1.8 + (dist / (globeRadius * 2)) * 1.5;
+            const mid = start.clone().add(end).multiplyScalar(0.5).normalize().multiplyScalar(globeRadius * height);
+            const curve = new THREE.CubicBezierCurve3(start, start.clone().lerp(mid, 0.4), end.clone().lerp(mid, 0.4), end);
+            const points = curve.getPoints(64);
+            const line = new THREE.Line(
+                new THREE.BufferGeometry().setFromPoints(points),
+                new THREE.LineBasicMaterial({ color: colorA.clone().lerp(colorB, 0.5), transparent: true, opacity: 1 }));
+            line.geometry.setDrawRange(0, 0);
+            const a = marker(colorA), b = marker(colorB);
+            a.position.copy(start); b.position.copy(end);
+            a.lookAt(start.clone().multiplyScalar(2)); b.lookAt(end.clone().multiplyScalar(2));
+            a.userData.dotMat.opacity = a.userData.ringMat.opacity = 0;
+            b.userData.dotMat.opacity = b.userData.ringMat.opacity = 0;
+            arcGroup.add(line, a, b);
+            arcs.push({ line, a, b, total: 65, start: performance.now() + (delay || 0), draw: 700 });
+        }
+
+        const PURPLE = new THREE.Color(0x533AFD);
+        const BLUE = new THREE.Color(0x0D8EFF);
+        const GREY = new THREE.Color(0x8792a2);
+
+        // Called on every render: the globe reflects the markets and the scope.
+        window.applyGlobeState = function () {
+            resizeGlobe();
+            clearArcs();
+            STATE.markets.forEach((m, i) => {
+                const to = REGION_COORDS[m];
+                if (to) addArc(HOME, to, PURPLE, BLUE, i * 220);
+            });
+            // Domestic only lights up once it's actually covered.
+            if (STATE.scope === 'all') {
+                addArc(HOME, HOME_2, GREY, GREY, STATE.markets.length * 220);
+            }
+        };
+
+        function resizeGlobe() {
+            const d = dims();
+            if (!d.w || !d.h) return;
+            if (d.w === w && d.h === h) return;
+            w = d.w; h = d.h;
+            camera.left = -w / 2; camera.right = w / 2; camera.top = h / 2; camera.bottom = -h / 2;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h);
+        }
+
+        const clock = new THREE.Clock();
+        (function animate() {
+            requestAnimationFrame(animate);
+            dotUniforms.u_time.value = clock.getElapsedTime();
+            dotUniforms.u_cameraDir.value.copy(camera.position).normalize();
+            globeContainer.rotation.y -= 0.001;
+            const now = performance.now();
+            arcs.forEach(arc => {
+                const age = now - arc.start;
+                if (age < 0) return;
+                const p = Math.min(1, age / arc.draw);
+                arc.line.geometry.setDrawRange(0, Math.floor(p * arc.total));
+                arc.a.userData.dotMat.opacity = arc.a.userData.ringMat.opacity = Math.min(1, p * 3);
+                const bOpacity = p > 0.85 ? (p - 0.85) / 0.15 : 0;
+                arc.b.userData.dotMat.opacity = arc.b.userData.ringMat.opacity = bOpacity;
+            });
+            renderer.render(scene, camera);
+        })();
+
+        window.addEventListener('resize', resizeGlobe);
+    })();
+
+    // Backdrop click returns home, matching the other variations.
+    document.querySelector('.modal-backdrop').addEventListener('click', function (e) {
+        if (e.target === this) window.location.href = 'index.html';
+    });
+
+    boot();
+    </script>
+</body>
+</html>

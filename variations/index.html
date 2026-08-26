@@ -353,6 +353,11 @@
 </div>
 
 <div class="section">
+  <div class="section-heading">Step treatments</div>
+  <div class="grid" id="grid-treatments"></div>
+</div>
+
+<div class="section">
   <div class="section-heading">Onboarding flow</div>
   <div class="grid" id="grid-flow"></div>
 </div>
@@ -368,6 +373,23 @@
 </div>
 
 <script>
+// Design treatments for the agreed sequence. One file, switchable from its own
+// control panel — the cards are just two entry points into it.
+const treatmentVariations = [
+  {
+    id: 'treatments-step5',
+    title: 'Step 5 — recommendation + comparison',
+    file: 'treatments.html?t=5A',
+    preview: 'treatments.html?t=5A&preview=1',
+  },
+  {
+    id: 'treatments-step6',
+    title: 'Step 6 — extend to all payments',
+    file: 'treatments.html?t=6C',
+    preview: 'treatments.html?t=6C&preview=1',
+  },
+];
+
 const latestVariations = [
   {
     id: 'v3-latest',
@@ -603,7 +625,23 @@ function renderFlowCard(v) {
   `;
 }
 
+// Same shape as a flow card, with a label that says what it actually opens.
+function renderTreatmentCard(v) {
+  return `
+    <a class="card" href="${v.file}">
+      <div class="card-preview" data-src="${v.preview}"></div>
+      <div class="card-body">
+        <div class="card-flow-title">${v.title}</div>
+        <span class="btn-start-flow">Open explorer</span>
+      </div>
+    </a>
+  `;
+}
+
 function renderGrid() {
+  const gridTreatments = document.getElementById('grid-treatments');
+  gridTreatments.innerHTML = treatmentVariations.map(renderTreatmentCard).join('');
+
   const gridFlow = document.getElementById('grid-flow');
   const gridLatest = document.getElementById('grid-latest');
   const gridPast = document.getElementById('grid-past');
