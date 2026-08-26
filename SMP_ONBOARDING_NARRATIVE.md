@@ -43,7 +43,7 @@ Ordered as dependencies — each one is a prerequisite for the next decision.
 3. **What they take on *without* SMP if they sell internationally** — this is the cost of the default, and it's currently invisible. Global tax liability, local entity/processing requirements, disputes, fraud, and customer support all land on them.
 4. **What's included in SMP vs. the à la carte route** — what they'd otherwise assemble themselves, product by product.
 5. **International vs. domestic coverage** — which volume SMP applies to, and what changes at the boundary.
-6. **Levels and types of control** — what they keep, what they hand over, and where they can still intervene.
+6. **That there's an escape hatch** — SMP is not the only way through. A user who doesn't want to opt in can manage international selling themselves, and that path is legitimate and fully supported. "Levels of control" is really this: the self-managed route stays open, and choosing it isn't a dead end.
 7. **What it costs** — SMP's fee (+3.5% per transaction, on top of standard processing fees), stated plainly and early, not revealed at the end.
 
 If a step in the flow doesn't advance one of these seven, it's a candidate for cutting during the pare-back.
@@ -82,6 +82,7 @@ Only then does "here's a product that absorbs all of that, for 3.5%" read as a p
 - **Clarity over vagueness** — do not omit terminology because it's complex. Explain it simply instead. Vagueness reads as something to hide, which is fatal for a premium product.
 - **Assume zero baseline** — no assumed knowledge of Stripe, payments infrastructure, or Managed Payments.
 - **Earn the decision, don't nudge it** — the goal is an *informed* opt-in. A default-on pattern that a user didn't understand is a worse outcome than an opt-out.
+- **Always leave an escape hatch** — self-managed is a real, supported choice, presented without penalty framing. A merchant who declines SMP should leave onboarding knowing what they've taken on and how to handle it, not feeling they picked the broken option. If the only way to feel good about the flow is to choose SMP, the flow is coercive, not transparent.
 
 ---
 
@@ -95,12 +96,23 @@ Written deliberately long, per the direction. Steps 1–2 gate; 3–5 educate; 6
 | **2. Baseline** | Anchor on standard pricing | What they get and pay on standard Stripe: 2.9% domestic, 3.4% international. This is the comparison point everything else is measured against. |
 | **3. The problem** | Set up the stakes | What selling internationally actually requires: tax liability, local entities and processing, disputes, fraud, support. Framed as obligations they'd own. |
 | **4. The cost of doing nothing** | Make the default's price visible | What they take on without SMP — the operational load, and the revenue lost without local processing. |
-| **5. What SMP is** | Educate | Plain-language explanation of Managed Payments and the MOR model. What Stripe becomes responsible for. What control they keep. |
-| **6. Decide: SMP or not** | First decision | Side-by-side comparison, both options priced: standard Stripe vs. SMP (+3.5%). Includes what's in SMP vs. what they'd assemble à la carte. |
+| **5. What SMP is** | Educate | Plain-language explanation of Managed Payments and the MOR model. What Stripe becomes responsible for. |
+| **6. Decide: SMP or self-managed** | First decision | Side-by-side comparison, both options priced: self-managed on standard Stripe vs. SMP (+3.5%). Includes what's in SMP vs. what they'd assemble à la carte. **The self-managed column is the escape hatch — present it as a real choice, not a warning.** |
 | **7. Decide: scope** | Second decision, only if SMP | SMP for all volume vs. SMP for cross-border only — each with its own pricing, and a clear statement of what happens to the volume SMP doesn't cover. |
-| **8. Confirm** | Close the loop | Summary of what they chose, what it costs, and what changes operationally. |
+| **8. Confirm** | Close the loop | Summary of what they chose, what it costs, and what changes operationally. On the self-managed path: what they're now responsible for, the à la carte products that cover it, and that SMP remains available later. |
 
 Note that steps 6 and 7 are the split of the current single screen. Step 1 is the new gate. Steps 3–4 are the framing work that the current flow mostly skips.
+
+### The escape-hatch path
+
+Declining SMP is a supported outcome, not an error state. The self-managed branch needs the same care as the SMP branch:
+
+- Named neutrally and positively — self-managed, not "no thanks" or "skip."
+- Priced in the comparison alongside SMP, so the choice is legible.
+- Ends with a genuine handoff: the à la carte products that cover tax, disputes, fraud, and support, and what they'll need to set up themselves.
+- Reversible. They can move to SMP later, and the flow should say so.
+
+This branch is close to the "Self-managed" side of the existing V2 exploration (`variations/smp.html`) — that framing is worth revisiting now that it's a principle rather than a variant.
 
 ---
 
@@ -123,7 +135,8 @@ Floor: **4 steps** (qualify → framing → decide SMP → decide scope). Ceilin
 - **The 30% incentive** — where does it belong in a transparency-first narrative? It currently appears as a badge in the upgrade moment. If it's a real, time-bound offer, it should be stated as such; if it's promotional framing, it may undercut the transparency principle.
 - **Qualifying question design** — do we ask directly ("do you sell internationally?"), infer from earlier onboarding signals, or both? Self-reported intent at onboarding is unreliable.
 - **What happens on "no"** — if a user says they don't sell internationally, do we surface SMP at all later, and where?
-- **Control specifics** — item 6 in §3 ("levels/types of control") is the least defined. We need the actual list of what a merchant keeps and gives up before we can explain it simply.
+- **Escape-hatch handoff** — what concretely goes on the self-managed confirmation screen? We need the actual à la carte list (Tax, Radar, disputes tooling, support) and any setup they must complete, or the branch ends in a shrug.
+- **Re-entry into SMP** — if they decline, how and where do they opt in later? The brief assumes it's reversible; that needs to be true and needs a surface.
 
 ---
 
@@ -131,5 +144,6 @@ Floor: **4 steps** (qualify → framing → decide SMP → decide scope). Ceilin
 
 1. Prototype the **8-step long flow** as a new variation. Don't optimize for length.
 2. Build **step 6** (SMP vs. not, both priced) and **step 7** (scope, both priced) as fully separate screens.
-3. Get the **step 7 pricing numbers** resolved — it's the hard blocker on the flow's second half.
-4. Then run the pare-back against the seven understanding requirements in §3.
+3. Design the **self-managed branch** to the same fidelity as the SMP branch, including its confirmation screen.
+4. Get the **step 7 pricing numbers** resolved — it's the hard blocker on the flow's second half.
+5. Then run the pare-back against the seven understanding requirements in §3.
