@@ -211,6 +211,32 @@
         color: var(--text-muted); margin: 4px 0 2px;
     }
 
+    /* ---------- 2E: recommendation card ---------- */
+    .rec-card {
+        background: var(--bg-surface); border: 2px solid var(--border-action-primary-strong);
+        border-radius: 10px; padding: 20px; max-width: 620px;
+    }
+    .rec-card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .rec-card-body { font-size: 14px; line-height: 20px; color: var(--text-subdued); margin-bottom: 14px; }
+    .rec-price {
+        padding: 12px 14px; background: var(--bg-offset); border-radius: 8px; margin-bottom: 16px;
+        font-size: 18px; font-weight: 700; letter-spacing: -0.2px; color: var(--text-heading);
+        font-variant-numeric: tabular-nums;
+    }
+    .rec-price-sub {
+        display: block; margin-top: 5px; font-size: 12px; line-height: 17px; font-weight: 400;
+        letter-spacing: 0; color: var(--text-subdued);
+    }
+    /* Accept and decline sit side by side at the same size. An opt-out that
+       costs more effort than the opt-in isn't an opt-out. */
+    .rec-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+    .compare-link {
+        background: none; border: none; font-family: inherit; padding: 0;
+        font-size: 14px; font-weight: 500; color: var(--text-action-primary); cursor: pointer;
+        letter-spacing: -0.15px;
+    }
+    .compare-link:hover { text-decoration: underline; }
+
     /* recommendation banner (2A) */
     .rec-banner {
         display: flex; gap: 12px; padding: 14px 16px; background: rgba(255,255,255,0.8);
@@ -686,22 +712,52 @@ function step2() {
     }
 
     if (STATE.t2 === '2E') {
-        // 2E — DIAGNOSTIC, NOT A CANDIDATE. Recommendation alone, comparison
-        // one click away. Built to measure whether "don't worry about it now"
-        // stops people opening the price. If most never expand, that's the
-        // answer and the fix is to move the comparison earlier.
+        // 2E — recommendation first, compare if needed.
+        //
+        // Both decisions are reachable from the recommendation itself. The
+        // earlier version put the only selectable controls inside the
+        // comparison, which made three things wrong at once: Continue was a
+        // dead end until you opened it, declining cost strictly more effort
+        // than accepting (an opt-out harder to reach than the opt-in isn't
+        // one), and the diagnostic was void because opening the comparison
+        // was compulsory rather than voluntary.
+        //
+        // The accept button names what it does. Same click count as a
+        // pre-checked radio under a generic "Continue", but it's an
+        // affirmative decision rather than a silent default — which is the
+        // brief's "earn the decision, don't nudge it".
         const open = STATE.cmpOpen;
         return head
-            + '<h1 class="headline">We recommend Managed Payments.</h1>'
-            + '<p class="anchor-copy">For a digital goods business selling internationally, Stripe '
-            + 'manages tax, disputes, local payment methods, and fraud as they come up. '
-            + '<strong>+' + pct(RATE.smp) + ' per transaction</strong> on the volume it covers.</p>'
-            + '<button class="btn btn-secondary" onclick="STATE.cmpOpen=!STATE.cmpOpen;render()">'
-            + (open ? 'Hide comparison' : 'Compare with self-managed') + '</button>'
-            + (open ? '<div class="cmp" style="margin-top:18px">' + smpColumn('rec') + selfColumn('alt') + '</div>' : '')
-            + '<div class="vol-caption" style="margin-top:14px">Diagnostic treatment. If reviewers '
-            + 'and users skip this button, &ldquo;don&rsquo;t worry about it now&rdquo; is suppressing '
-            + 'the price &mdash; see narrative brief &sect;3.</div>';
+            + '<h1 class="headline">We recommend Managed Payments. '
+            + '<span class="muted">Nothing to set up now &mdash; Stripe steps in when you get there.</span></h1>'
+            + '<div class="rec-card">'
+            + '<div class="rec-card-head">'
+            + '<span class="col-title">Managed Payments</span><span class="tag-rec">Recommended</span></div>'
+            + '<p class="rec-card-body">Stripe manages tax, disputes, local payment methods, and fraud '
+            + 'on your international sales, and becomes the ' + MOR + ' for them.</p>'
+            // The price stays on this card, not only in the comparison. A user
+            // can now accept without ever opening the comparison, so this is
+            // the only thing standing between "recommendation first" and
+            // "price hidden".
+            + '<div class="rec-price">+' + pct(RATE.smp) + ' per transaction'
+            + '<span class="rec-price-sub">' + pct(intlRate()) + ' on international sales, '
+            + pct(RATE.dom) + ' on domestic &mdash; unchanged. Charged only on the volume it covers.</span></div>'
+            + '<div class="rec-actions">'
+            + '<button class="btn btn-primary" onclick="pickAndGo(\'smp\')">Continue with Managed Payments</button>'
+            + '<button class="btn btn-secondary" onclick="pickAndGo(\'self\')">I&rsquo;ll manage it myself</button>'
+            + '</div>'
+            + '<button class="compare-link" onclick="toggleCompare()">'
+            + (open ? 'Hide the comparison' : 'Compare the two side by side') + '</button>'
+            + '</div>'
+            + (open
+                ? '<div class="cmp" style="margin-top:18px">' + smpColumn('rec') + selfColumn('alt') + '</div>'
+                : '')
+            + '<div class="vol-caption" style="margin-top:14px">'
+            + (STATE.cmpOpened
+                ? 'Comparison opened &mdash; this user consulted the side-by-side before deciding.'
+                : 'Comparison not opened. Both decisions are reachable without it, so opening it is '
+                  + 'voluntary &mdash; which is what makes the measurement mean anything.')
+            + '</div>';
     }
 
     // 2B — asymmetric: recommended primary, alternative complete and priced.
@@ -713,6 +769,18 @@ function step2() {
 }
 
 function pick(c) { STATE.choice = c; render(); }
+
+// 2E's inline actions decide and advance in one move, so neither choice needs
+// a trip through the comparison to become selectable.
+function pickAndGo(c) { STATE.choice = c; STATE.step = 3; if (c === 'self') STATE.step = 4; render(); }
+
+// cmpOpened is sticky: it records that the comparison was consulted at all,
+// which is the thing worth measuring. cmpOpen is just current visibility.
+function toggleCompare() {
+    STATE.cmpOpen = !STATE.cmpOpen;
+    if (STATE.cmpOpen) STATE.cmpOpened = true;
+    render();
+}
 
 /* ==================================================================
    STEP 3 — Scope
@@ -878,6 +946,18 @@ function footer() {
         return back + '<div><button class="btn btn-primary" onclick="go(1)">Continue</button></div>';
     }
     if (STATE.step === 2) {
+        // 2E carries its own actions inside the recommendation card, so the
+        // footer stays empty until the comparison is open and a column has
+        // been picked. No disabled Continue implying a gate that isn't there.
+        if (STATE.t2 === '2E') {
+            if (!STATE.cmpOpen) return back + '<span></span>';
+            const chosen = STATE.choice !== null;
+            return back + '<div style="display:flex;align-items:center;gap:12px">'
+                + (chosen ? '' : '<span style="font-size:12px;color:var(--text-muted)">Pick either option above, or use the buttons in the recommendation</span>')
+                + '<button class="btn btn-primary" onclick="go(1)"' + (chosen ? '' : ' disabled') + '>'
+                + (STATE.choice === 'self' ? 'Continue with self-managed' : 'Continue with Managed Payments')
+                + '</button></div>';
+        }
         const ready = STATE.choice !== null;
         return back + '<div style="display:flex;align-items:center;gap:12px">'
             + (ready ? '' : '<span style="font-size:12px;color:var(--text-muted)">Choose an option to continue</span>')
@@ -908,7 +988,7 @@ const CP_NOTES = {
     '2B': '<b>2B Asymmetric.</b> Leading candidate. Managed Payments gets primacy; self-managed stays complete and correctly priced. Both prices inline, never behind a click.',
     '2A': '<b>2A Banner + symmetrical columns.</b> The check on 2B: opinion lives in copy, not in visual weight. Hardest version to accuse of stacking the deck.',
     '2C': '<b>2C Workload diff.</b> Patches the frame&rsquo;s weakness &mdash; &ldquo;Stripe handles it&rdquo; never says what you&rsquo;d otherwise do. Watch for tipping into fear framing.',
-    '2E': '<b>2E Diagnostic, not a candidate.</b> Comparison one click away. Measures whether &ldquo;don&rsquo;t worry about it now&rdquo; suppresses reading the price.',
+    '2E': '<b>2E Recommendation first, compare if needed.</b> Accept and decline both sit on the recommendation card at equal weight; the comparison is genuinely optional. Price stays on the card, so accepting without comparing still exposes it. Now a real candidate, not just an instrument &mdash; and the comparison-open rate finally measures something.',
     '3A': '<b>3A Volume bar.</b> Candidate. The domestic segment turning purple <i>is</i> the disclosure &mdash; the change is visible as area, not only as a number.',
     '3B': '<b>3B Rate table.</b> Most literal disclosure. Risks the four-numbers-at-once problem that split steps 2 and 3 in the first place.',
     '3C': '<b>3C Priced options only.</b> Control. If this is as clear as 3A, the visual isn&rsquo;t earning its space.',
@@ -942,7 +1022,7 @@ function controlPanel() {
 
 function setT(key, v) {
     STATE[key] = v;
-    if (key === 't2') STATE.cmpOpen = false;
+    if (key === 't2') { STATE.cmpOpen = false; STATE.cmpOpened = false; STATE.choice = null; }
     render();
 }
 

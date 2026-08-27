@@ -23,7 +23,7 @@ Plus the standing trade: **opinionated only works if it's transparent.** Both pr
 
 - The step 2 comparison must be **encountered, not sought.** If reaching the price takes an extra click, "don't worry" has effectively hidden it.
 - **Step 3 must volunteer the domestic rate change.** Unprompted, before the user commits.
-- **Treatment 2E measures the risk.** It's an instrument, not a candidate.
+- **Treatment 2E measures the risk** — as the share of users who open the comparison voluntarily. That only means something if both decisions are reachable without it.
 
 ---
 
@@ -114,12 +114,19 @@ Both prices, plus the authorization-rate delta from local acquiring. Makes the f
 - **Tests:** whether the revenue argument makes +3.5% defensible instead of merely disclosed.
 - **Blocker:** needs a real, defensible auth-rate number. Hand-waving here is worse than omitting it.
 
-### 2E — Recommendation, then comparison on demand
-Recommendation alone on the screen; the side-by-side opens as a panel or sub-step.
-- **Tests:** the sharpest form of the open question "does reassurance demote the comparison?" If most users never open it, we have our answer — and it's a bad one.
-- **Note:** run this as a diagnostic, not a candidate.
+### 2E — Recommendation first, compare if needed
+The recommendation card carries the price and **both** decisions: "Continue with Managed Payments" and "I'll manage it myself," at equal weight. The comparison opens beneath as an optional third door.
+- **Tests:** the open question "does the reassurance demote the comparison?" — measured as the share of users who open the side-by-side voluntarily.
+- **Now a real candidate,** not just an instrument. A recommendation with a visible price, a same-effort decline, and an optional comparison is a defensible design.
 
-**Build:** 2B as the leading candidate, 2A as the check on whether it's coercive, 2C as the content patch. 2E only as an instrument.
+**Two rules this treatment lives or dies by:**
+
+1. **Both decisions reachable without the comparison.** The first build put the only selectable controls *inside* the side-by-side. That made Continue a dead end until you opened it, made declining cost strictly more effort than accepting — an opt-out harder to reach than the opt-in isn't one — and voided the measurement, since opening the comparison was compulsory rather than voluntary.
+2. **The price stays on the recommendation card.** Users can now accept without ever comparing. If the price lived only in the comparison, "recommendation first" would mean "price hidden" — and we're accepting exactly one instance of that risk on step 1, not two.
+
+The accept button is labelled with what it does ("Continue with Managed Payments") rather than a generic Continue over a pre-checked option. Same click count, materially different consent — this is the brief's *earn the decision, don't nudge it* in one label.
+
+**Build:** 2B as the leading candidate, 2A as the check on whether it's coercive, 2C as the content patch, 2E as a second candidate that also instruments the step 1 risk.
 
 ---
 
@@ -188,7 +195,7 @@ Each bundle is a coherent full flow, not a pick-and-mix.
 - **Is the framing step load-bearing?** B1 vs. B2.
 - **Does an asymmetric comparison stay non-coercive?** B1 (2B) vs. the 2A check.
 - **Does the proportional bar beat plain cards?** 3A vs. 3C.
-- **Does reassurance suppress reading the price?** The 2E diagnostic.
+- **Does reassurance suppress reading the price?** 2E's voluntary comparison-open rate.
 - **Does step 3 successfully retire the "only on global sales" claim?** All bundles — this is a pass/fail on every one of them, not a comparison.
 
 ---
