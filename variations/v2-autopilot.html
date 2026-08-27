@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V2 — Autopilot framing</title>
+<style>
+    /* Same tokens as v2-b1.html / smp.html. The framing changes; the product
+       shouldn't look like a different product. */
+    :root {
+        --bg-surface: #ffffff;
+        --bg-offset: #f5f6f8;
+        --text-default: #353a44;
+        --text-subdued: #596171;
+        --text-heading: #21252c;
+        --text-muted: #99a5b8;
+        --text-action-primary: #533afd;
+        --icon-action-primary: #675dff;
+        --border-action-primary-strong: #533afd;
+        --border-default: #d4dee9;
+        --bg-form-accent: #675dff;
+        --neutral-200: #b6c0cd;
+        --neutral-50: #ebeef1;
+        --shadow-overlay: 0px 15px 35px 0px rgba(48, 49, 61, 0.08), 0px 5px 15px 0px rgba(0, 0, 0, 0.12);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+        background: var(--bg-offset); overflow: hidden; height: 100vh; width: 100vw;
+    }
+    .dashboard { display: flex; height: 100vh; width: 100vw; }
+    .sidebar {
+        width: 240px; background: var(--bg-surface); border-right: 1px solid var(--neutral-50);
+        padding: 24px 16px; display: flex; flex-direction: column; gap: 4px;
+    }
+    .sidebar-logo { padding: 8px 12px; margin-bottom: 20px; }
+    .nav-item { padding: 8px 12px; border-radius: 6px; font-size: 14px; color: var(--text-subdued); }
+    .nav-item.active { background: var(--bg-offset); color: var(--text-default); font-weight: 500; }
+    .main-content { flex: 1; background: var(--bg-offset); padding: 32px; }
+    .content-placeholder { height: 200px; background: var(--bg-surface); border-radius: 8px; border: 1px solid var(--neutral-50); }
+
+    .modal-backdrop {
+        position: fixed; inset: 0; background: rgba(182, 192, 205, 0.7);
+        display: flex; align-items: center; justify-content: center; z-index: 100;
+    }
+    .modal {
+        width: 90%; height: 90%; max-width: 1180px; background: var(--bg-surface);
+        border-radius: 12px; box-shadow: var(--shadow-overlay);
+        display: flex; flex-direction: column; overflow: hidden; position: relative; padding: 16px;
+    }
+    .modal-gradient {
+        position: absolute; inset: 16px; border-radius: 8px; z-index: 0;
+        background:
+            radial-gradient(52% 70% at 46% 70%, rgba(207, 226, 255, 0.24) 0%, rgba(207, 226, 255, 0) 94%),
+            radial-gradient(105% 45% at 93% 37%, rgba(216, 128, 236, 0.26) 0%, rgba(216, 128, 236, 0) 79%),
+            radial-gradient(60% 46% at 105% 72%, rgba(254, 180, 203, 0.42) 0%, rgba(254, 180, 203, 0) 103%),
+            #fefefe;
+    }
+    .modal-header, .modal-body, .modal-footer { position: relative; z-index: 1; }
+    .modal-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 28px 56px 0; flex-shrink: 0;
+    }
+    .progress-bar { width: 125px; height: 5px; background: var(--bg-offset); border-radius: 100px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--icon-action-primary); border-radius: 100px; transition: width 0.4s ease; }
+    .modal-body {
+        flex: 1; min-height: 0; overflow-y: auto; padding: 32px 56px 8px;
+        display: flex; flex-direction: column; justify-content: center;
+    }
+    .modal-body > .inner { width: 100%; max-width: 860px; margin: 0 auto; }
+    .modal-footer {
+        flex-shrink: 0; padding: 16px 56px 24px; display: flex; align-items: center;
+        justify-content: space-between; gap: 16px;
+    }
+
+    .step-eyebrow {
+        font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+        color: var(--text-muted); margin-bottom: 10px;
+    }
+    h1.headline {
+        font-size: 26px; line-height: 33px; font-weight: 600; letter-spacing: -0.5px;
+        color: var(--text-heading); margin-bottom: 12px;
+    }
+    h1.headline .muted { color: var(--text-muted); font-weight: 600; }
+    .anchor-copy {
+        font-size: 15px; line-height: 23px; color: var(--text-subdued);
+        letter-spacing: -0.15px; max-width: 660px; margin-bottom: 24px;
+    }
+    .needs-data {
+        position: relative; background: #fdf3e7; border-bottom: 2px dashed #e0ad5e;
+        border-radius: 3px; padding: 0 4px; color: #7a4f0f;
+    }
+    .nd-flag {
+        position: absolute; top: -6px; left: 50%; transform: translate(-50%, -100%);
+        white-space: nowrap; font-size: 9px; font-weight: 700; letter-spacing: 0.4px;
+        text-transform: uppercase; background: #8a5a11; color: #fff;
+        padding: 2px 6px; border-radius: 3px;
+    }
+
+    .btn {
+        font-family: inherit; font-size: 14px; font-weight: 600; letter-spacing: -0.15px;
+        padding: 9px 16px; border-radius: 6px; cursor: pointer; border: 1px solid transparent;
+    }
+    .btn-primary { background: var(--bg-form-accent); color: #fff; box-shadow: 0 1px 1px rgba(0,0,0,0.12); }
+    .btn-primary:hover { filter: brightness(1.06); }
+    .btn-secondary { background: var(--bg-surface); border-color: var(--border-default); color: var(--text-default); }
+    .btn-secondary:hover { background: var(--bg-offset); }
+    .btn-ghost {
+        background: none; border: none; color: var(--text-subdued); font-family: inherit;
+        font-size: 14px; cursor: pointer; padding: 9px 4px;
+    }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    /* ---------- step 1: the instrument panel ----------
+       The point of this component is the status column. Every row reads
+       "Standing by" because the merchant hasn't sold internationally yet —
+       so conditional engagement is something you can see rather than a
+       sentence you have to believe. */
+    .panel {
+        background: var(--bg-surface); border: 1px solid var(--border-default);
+        border-radius: 10px; overflow: hidden;
+    }
+    .panel-head {
+        display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        padding: 13px 16px; background: var(--bg-offset); border-bottom: 1px solid var(--border-default);
+    }
+    .panel-title { font-size: 12px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; color: var(--text-subdued); }
+    .status-on {
+        display: inline-flex; align-items: center; gap: 7px; font-size: 12px;
+        font-weight: 600; color: #1c5e26;
+    }
+    .status-dot {
+        width: 8px; height: 8px; border-radius: 50%; background: #2f9e44;
+        box-shadow: 0 0 0 3px rgba(47, 158, 68, 0.18);
+        animation: pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes pulse {
+        0%, 100% { box-shadow: 0 0 0 3px rgba(47, 158, 68, 0.18); }
+        50%      { box-shadow: 0 0 0 6px rgba(47, 158, 68, 0.06); }
+    }
+    .watch-row {
+        display: flex; align-items: center; gap: 14px; padding: 13px 16px;
+        border-top: 1px solid var(--neutral-50); animation: fade-up 0.32s ease both;
+    }
+    .watch-row:first-child { border-top: none; }
+    .watch-what { flex: 1; font-size: 14px; line-height: 20px; color: var(--text-default); font-weight: 500; }
+    .watch-what small { display: block; font-weight: 400; font-size: 12px; line-height: 17px; color: var(--text-subdued); margin-top: 2px; }
+    .pill-standby {
+        flex-shrink: 0; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 4px;
+        background: var(--bg-offset); border: 1px solid var(--border-default); color: var(--text-subdued);
+    }
+    @keyframes fade-up { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+    .panel-foot {
+        padding: 12px 16px; border-top: 1px solid var(--border-default);
+        background: rgba(255,255,255,0.6); font-size: 13px; line-height: 19px; color: var(--text-subdued);
+    }
+
+    /* ---------- step 2: the two modes ---------- */
+    .modes { display: flex; gap: 16px; align-items: stretch; }
+    .mode {
+        flex: 1; min-width: 0; background: var(--bg-surface); border: 2px solid var(--border-default);
+        border-radius: 10px; padding: 18px; cursor: pointer; display: flex; flex-direction: column;
+        transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .mode:hover { border-color: var(--neutral-200); }
+    .mode.selected { border-color: var(--border-action-primary-strong); box-shadow: 0 0 0 1px var(--border-action-primary-strong); }
+    .mode-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+    .mode-title { font-size: 15px; font-weight: 600; color: var(--text-heading); }
+    .mode-sub { font-size: 13px; line-height: 19px; color: var(--text-subdued); margin-bottom: 14px; }
+    .tag-rec {
+        display: inline-flex; padding: 2px 9px; background: var(--icon-action-primary);
+        border-radius: 4px; font-size: 11px; font-weight: 600; color: #fff; letter-spacing: 0.2px;
+    }
+    .tag-neutral {
+        display: inline-flex; padding: 2px 9px; background: var(--bg-offset);
+        border: 1px solid var(--border-default); border-radius: 4px; font-size: 11px;
+        font-weight: 600; color: var(--text-subdued); letter-spacing: 0.2px;
+    }
+    .price-block { padding: 12px 14px; background: var(--bg-offset); border-radius: 8px; margin-bottom: 14px; }
+    .price-main { font-size: 19px; font-weight: 700; letter-spacing: -0.3px; color: var(--text-heading); font-variant-numeric: tabular-nums; }
+    .price-rows { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+    .price-row { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; line-height: 17px; color: var(--text-subdued); }
+    .price-row b { color: var(--text-default); font-weight: 600; font-variant-numeric: tabular-nums; }
+    .price-note { font-size: 11px; line-height: 15px; color: var(--text-muted); margin-top: 8px; }
+    .feat-list { display: flex; flex-direction: column; gap: 9px; margin-top: auto; }
+    .feat { display: flex; gap: 8px; font-size: 13px; line-height: 19px; color: var(--text-default); }
+    .feat .ic { width: 13px; height: 13px; flex-shrink: 0; margin-top: 3px; }
+    .feat.off { color: var(--text-muted); }
+
+    /* ---------- the exception callout ----------
+       The metaphor's one real failure: a plane's autopilot never transfers
+       legal responsibility, and this does. Rather than hoping nobody notices,
+       the flow names the difference — borrowing the reader's mental model and
+       marking precisely where it stops applying. */
+    .exception {
+        display: flex; gap: 12px; padding: 15px 17px; border-radius: 9px; margin: 18px 0 0;
+        background: #f4f1fe; border: 1px solid #c3b6fb;
+    }
+    .exception-ic {
+        flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%;
+        background: var(--icon-action-primary); color: #fff;
+        display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700;
+    }
+    .exception-title { font-size: 14px; font-weight: 600; color: #2f1a75; margin-bottom: 4px; }
+    .exception-body { font-size: 13px; line-height: 19px; color: #44139f; }
+    .exception-body b { font-weight: 600; }
+
+    /* ---------- step 3: legs of the route ---------- */
+    .legs-card {
+        background: var(--bg-surface); border: 2px solid var(--border-default); border-radius: 10px;
+        padding: 18px; display: flex; flex-direction: column; gap: 16px;
+    }
+    .legs-bar { height: 42px; display: flex; border-radius: 7px; overflow: hidden; background: var(--bg-offset); }
+    .leg {
+        display: flex; align-items: center; justify-content: center; padding: 0 8px;
+        font-size: 11px; font-weight: 600; white-space: nowrap;
+        transition: background 0.42s cubic-bezier(0.2,0.8,0.2,1), color 0.42s ease;
+    }
+    .leg.dom { flex: 0 0 68%; background: #c3cbd6; color: var(--text-heading); }
+    .leg.dom.flown { background: #675dff; color: #fff; }
+    .leg.intl { flex: 0 0 32%; background: #675dff; color: #fff; }
+    .legs-legend { display: flex; gap: 18px; font-size: 12px; color: var(--text-subdued); flex-wrap: wrap; }
+    .legs-legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 6px; }
+    .caption { font-size: 11px; line-height: 15px; color: var(--text-muted); }
+    .opts { display: flex; flex-direction: column; gap: 10px; }
+    .opt {
+        display: flex; gap: 12px; align-items: flex-start; padding: 13px 14px;
+        border: 2px solid var(--border-default); border-radius: 8px; cursor: pointer;
+        background: var(--bg-surface); transition: border-color 0.15s;
+    }
+    .opt.selected { border-color: var(--border-action-primary-strong); }
+    .radio {
+        width: 16px; height: 16px; border-radius: 50%; border: 1px solid var(--neutral-200);
+        flex-shrink: 0; margin-top: 2px; background: var(--bg-surface);
+    }
+    .opt.selected .radio { border-color: var(--bg-form-accent); border-width: 5px; }
+    .opt-title {
+        display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+        font-size: 14px; font-weight: 600; color: var(--text-default);
+    }
+    .opt-rate { font-size: 13px; font-weight: 600; color: var(--text-heading); font-variant-numeric: tabular-nums; }
+    .opt-desc { font-size: 12px; line-height: 17px; color: var(--text-subdued); margin-top: 4px; }
+    /* Both timings stated plainly and symmetrically. The difference between
+       "might never cost you" and "starts with your first sale" is the whole
+       disclosure — it doesn't need a warning colour to land. */
+    .opt-when {
+        font-size: 12px; line-height: 17px; margin-top: 6px; padding-top: 6px;
+        border-top: 1px dashed var(--neutral-50); color: var(--text-default);
+    }
+    .opt-when b { font-weight: 600; }
+    .rate-strip {
+        display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+        padding: 11px 13px; background: var(--bg-offset); border-radius: 7px;
+    }
+    .rate-strip .label { font-size: 12px; color: var(--text-subdued); }
+    .rate-strip .value { font-size: 18px; font-weight: 700; color: var(--text-heading); letter-spacing: -0.2px; font-variant-numeric: tabular-nums; }
+
+    /* ---------- step 4 ---------- */
+    .sum-card { background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 10px; padding: 18px; margin-bottom: 14px; }
+    .sum-head {
+        display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid var(--neutral-50);
+    }
+    .sum-title { font-size: 15px; font-weight: 600; color: var(--text-heading); }
+    .sum-rows { display: flex; flex-direction: column; gap: 9px; }
+    .sum-row { display: flex; gap: 12px; font-size: 13px; line-height: 19px; }
+    .sum-row .k { width: 190px; flex-shrink: 0; color: var(--text-subdued); }
+    .sum-row .v { flex: 1; color: var(--text-default); }
+    .sum-row .v b { font-weight: 600; font-variant-numeric: tabular-nums; }
+    .today-note {
+        display: flex; gap: 9px; padding: 11px 13px; border-radius: 7px;
+        background: #edf7ee; border: 1px solid #b9e0bd; color: #1c5e26;
+        font-size: 13px; line-height: 19px; margin-top: 14px;
+    }
+    .alc { display: flex; gap: 10px; align-items: baseline; padding: 10px 12px; background: rgba(255,255,255,0.7); border: 1px solid var(--border-default); border-radius: 7px; font-size: 13px; line-height: 18px; }
+    .alc-name { font-weight: 600; color: var(--text-default); width: 132px; flex-shrink: 0; }
+    .alc-desc { color: var(--text-subdued); flex: 1; }
+    .alc-list { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+    .feat-head { font-size: 11px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; color: var(--text-muted); margin: 4px 0 2px; }
+    .todo-flag {
+        font-size: 11px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase;
+        color: #8a5a11; background: #fdf3e7; border: 1px solid #f3d9b0;
+        padding: 1px 6px; border-radius: 3px; margin-left: 8px;
+    }
+    .reversible { font-size: 13px; line-height: 19px; color: var(--text-subdued); margin-top: 14px; }
+
+    .term { position: relative; border-bottom: 1px dotted var(--neutral-200); cursor: help; }
+    .term-pop {
+        position: absolute; bottom: calc(100% + 8px); left: -8px; width: 300px; padding: 14px;
+        background: var(--bg-surface); border: 1px solid #d4dee9; border-radius: 8px;
+        box-shadow: 0px 3px 4.5px rgba(64,68,82,0.12); font-size: 13px; line-height: 19px;
+        color: #1a2c44; text-align: left; opacity: 0; visibility: hidden;
+        transition: opacity 0.15s; z-index: 60; font-weight: 400;
+    }
+    .term:hover .term-pop { opacity: 1; visibility: visible; }
+
+    .control-panel {
+        position: fixed; bottom: 16px; left: 16px; z-index: 500; width: 300px;
+        padding: 14px; background: var(--bg-surface); border-radius: 12px;
+        border: 1px solid var(--neutral-50); box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        font-size: 12px; max-height: calc(100vh - 32px); overflow-y: auto;
+    }
+    .cp-title { font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
+    .cp-group { margin-bottom: 12px; }
+    .cp-label { font-size: 11px; font-weight: 600; color: var(--text-subdued); margin-bottom: 5px; }
+    .cp-btns { display: flex; gap: 5px; flex-wrap: wrap; }
+    .cp-btn {
+        font-family: inherit; font-size: 11px; padding: 4px 9px; border-radius: 5px;
+        border: 1px solid var(--border-default); background: var(--bg-surface);
+        color: var(--text-subdued); cursor: pointer;
+    }
+    .cp-btn.on { background: var(--bg-form-accent); border-color: var(--bg-form-accent); color: #fff; font-weight: 600; }
+    .cp-note { font-size: 11px; line-height: 16px; color: var(--text-muted); border-top: 1px solid var(--neutral-50); padding-top: 10px; }
+    .cp-note b { color: var(--text-subdued); }
+    .cp-warn { color: #8a5a11; }
+</style>
+</head>
+<body>
+
+<div class="dashboard">
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <svg viewBox="0 0 60 25" fill="#675dff" width="60" height="24"><path d="M59.64 14.28h-8.06c.19 1.93 1.6 2.55 3.2 2.55 1.64 0 2.96-.37 4.05-.95v3.32a8.33 8.33 0 0 1-4.56 1.1c-4.01 0-6.83-2.5-6.83-7.48 0-4.19 2.39-7.52 6.3-7.52 3.92 0 5.96 3.28 5.96 7.5 0 .4-.04 1.26-.06 1.48zm-5.92-5.62c-1.03 0-2.17.73-2.17 2.58h4.25c0-1.85-1.07-2.58-2.08-2.58zM40.95 20.3c-1.44 0-2.32-.6-2.9-1.04l-.02 4.63-4.12.87V5.57h3.76l.08 1.02a4.7 4.7 0 0 1 3.23-1.29c2.9 0 5.62 2.6 5.62 7.4 0 5.23-2.7 7.6-5.65 7.6zM40 8.95c-.95 0-1.54.34-1.97.81l.02 6.12c.4.44.98.78 1.95.78 1.52 0 2.54-1.65 2.54-3.87 0-2.15-1.04-3.84-2.54-3.84zM28.24 5.57h4.13v14.44h-4.13V5.57zm0-4.7L32.37 0v3.36l-4.13.88V.88zm-4.32 9.35v9.79H19.8V5.57h3.7l.12 1.22c1-1.77 3.07-1.41 3.62-1.22v3.79c-.52-.17-2.29-.43-3.32.86zm-8.55 4.72c0 2.43 2.6 1.68 3.12 1.46v3.36c-.55.3-1.54.54-2.89.54a4.15 4.15 0 0 1-4.27-4.24l.01-13.17 4.02-.86v3.54h3.13V9.1h-3.12v5.85zm-4.91.7c0 2.97-2.31 4.66-5.73 4.66a11.2 11.2 0 0 1-4.46-.93v-3.93c1.38.75 3.1 1.31 4.46 1.31.92 0 1.53-.24 1.53-1C4.26 14.37 0 15.15 0 9.85c0-2.92 2.24-4.66 5.58-4.66 1.24 0 2.5.2 3.73.7v3.88a8.35 8.35 0 0 0-3.73-.96c-.86 0-1.4.25-1.4.9 0 1.85 4.28.97 4.28 6.02z"/></svg>
+        </div>
+        <div class="nav-item">Home</div>
+        <div class="nav-item">Balances</div>
+        <div class="nav-item">Transactions</div>
+        <div class="nav-item active">Get started</div>
+        <div class="nav-item">Products</div>
+    </div>
+    <div class="main-content"><div class="content-placeholder"></div></div>
+</div>
+
+<div class="modal-backdrop">
+    <div class="modal">
+        <div class="modal-gradient"></div>
+        <div class="modal-header">
+            <svg viewBox="0 0 60 25" fill="#0a2540" width="64" height="26"><path d="M59.64 14.28h-8.06c.19 1.93 1.6 2.55 3.2 2.55 1.64 0 2.96-.37 4.05-.95v3.32a8.33 8.33 0 0 1-4.56 1.1c-4.01 0-6.83-2.5-6.83-7.48 0-4.19 2.39-7.52 6.3-7.52 3.92 0 5.96 3.28 5.96 7.5 0 .4-.04 1.26-.06 1.48zm-5.92-5.62c-1.03 0-2.17.73-2.17 2.58h4.25c0-1.85-1.07-2.58-2.08-2.58zM40.95 20.3c-1.44 0-2.32-.6-2.9-1.04l-.02 4.63-4.12.87V5.57h3.76l.08 1.02a4.7 4.7 0 0 1 3.23-1.29c2.9 0 5.62 2.6 5.62 7.4 0 5.23-2.7 7.6-5.65 7.6zM40 8.95c-.95 0-1.54.34-1.97.81l.02 6.12c.4.44.98.78 1.95.78 1.52 0 2.54-1.65 2.54-3.87 0-2.15-1.04-3.84-2.54-3.84zM28.24 5.57h4.13v14.44h-4.13V5.57zm0-4.7L32.37 0v3.36l-4.13.88V.88zm-4.32 9.35v9.79H19.8V5.57h3.7l.12 1.22c1-1.77 3.07-1.41 3.62-1.22v3.79c-.52-.17-2.29-.43-3.32.86zm-8.55 4.72c0 2.43 2.6 1.68 3.12 1.46v3.36c-.55.3-1.54.54-2.89.54a4.15 4.15 0 0 1-4.27-4.24l.01-13.17 4.02-.86v3.54h3.13V9.1h-3.12v5.85zm-4.91.7c0 2.97-2.31 4.66-5.73 4.66a11.2 11.2 0 0 1-4.46-.93v-3.93c1.38.75 3.1 1.31 4.46 1.31.92 0 1.53-.24 1.53-1C4.26 14.37 0 15.15 0 9.85c0-2.92 2.24-4.66 5.58-4.66 1.24 0 2.5.2 3.73.7v3.88a8.35 8.35 0 0 0-3.73-.96c-.86 0-1.4.25-1.4.9 0 1.85 4.28.97 4.28 6.02z"/></svg>
+            <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
+        </div>
+        <div class="modal-body"><div class="inner" id="stage"></div></div>
+        <div class="modal-footer" id="footer"></div>
+    </div>
+</div>
+
+<div class="control-panel">
+    <div class="cp-title">Autopilot framing</div>
+    <div class="cp-group">
+        <div class="cp-label">Step</div>
+        <div class="cp-btns" id="cpStep"></div>
+    </div>
+    <div class="cp-group">
+        <div class="cp-label">Merchant-of-record exception</div>
+        <div class="cp-btns" id="cpExc"></div>
+    </div>
+    <div class="cp-note" id="cpNote"></div>
+</div>
+
+<script>
+/* Pricing unchanged from the existing prototype. */
+const RATE = { dom: 2.9, intl: 3.4, smp: 3.5 };
+const MIX = { dom: 68, intl: 32 };
+const pct = n => n.toFixed(1) + '%';
+const domRate = s => s === 'all' ? RATE.dom + RATE.smp : RATE.dom;
+const intlRate = () => RATE.intl + RATE.smp;
+const effRate = s => (MIX.dom / 100) * domRate(s) + (MIX.intl / 100) * intlRate();
+
+const STATE = { step: 1, exception: true, choice: null, scope: 'intl' };
+(function () {
+    const q = new URLSearchParams(location.search);
+    const s = parseInt(q.get('s'), 10);
+    if (s >= 1 && s <= 4) STATE.step = s;
+    if (q.get('exception') === 'off') STATE.exception = false;
+    if (STATE.step >= 3) STATE.choice = q.get('choice') === 'self' ? 'self' : 'smp';
+    if (q.get('scope') === 'all') STATE.scope = 'all';
+})();
+
+const CHECK = '<svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 6.4 4.6 9 10 3.2"/></svg>';
+const DASH  = '<svg class="ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2.5 6h7"/></svg>';
+
+const MOR = '<span class="term">merchant of record<span class="term-pop">'
+    + '<b>Merchant of record.</b> The business that legally sells to your customer and is '
+    + 'responsible for tax, compliance, and disputes on that sale. When autopilot is engaged, '
+    + 'Stripe takes that role for the sales it covers.</span></span>';
+
+const PEER_STAT = '<span class="needs-data">X%<span class="nd-flag">needs data</span></span>';
+
+/* The anchor copy, verbatim. Same constant, same rule as v2-b1. */
+const ANCHOR =
+    'These are the things you&rsquo;ll need as your business grows. Stripe will manage them '
+    + 'for you as they come up (e.g. disputes, hitting tax thresholds). It only costs you when '
+    + 'you start having global sales, so don&rsquo;t worry about it now if you&rsquo;re not there '
+    + 'yet or don&rsquo;t know where your customers will come from.';
+
+/* ==================================================================
+   STEP 1 — Engaged
+   The instrument panel is the argument. Every row says "Standing by",
+   because nothing has happened yet — conditional engagement becomes
+   something the user can see rather than a promise they have to take.
+================================================================== */
+const WATCHING = [
+    ['Tax thresholds', 'Registers, collects, and remits when you cross one in a new market'],
+    ['Disputes', 'Responds to chargebacks on each market&rsquo;s deadlines and evidence rules'],
+    ['Local payment methods', 'Turns on the methods customers expect, in their currency'],
+    ['Fraud and risk', 'Screens payments against patterns specific to each market'],
+    ['Local processing', 'Processes in-market where it lifts your authorization rate'],
+];
+
+function step1() {
+    return '<div class="step-eyebrow">Step 1 of 4</div>'
+        + '<h1 class="headline">Digital goods sell anywhere, so we&rsquo;ve switched autopilot on. '
+        + '<span class="muted">' + PEER_STAT + ' of businesses like yours end up selling '
+        + 'internationally as they grow.</span></h1>'
+        + '<p class="anchor-copy">' + ANCHOR + '</p>'
+        + '<div class="panel">'
+        + '<div class="panel-head"><span class="panel-title">Autopilot &middot; international sales</span>'
+        + '<span class="status-on"><span class="status-dot"></span>On &middot; standing by</span></div>'
+        + WATCHING.map((w, i) =>
+            '<div class="watch-row" style="animation-delay:' + (i * 50) + 'ms">'
+            + '<span class="watch-what">' + w[0] + '<small>' + w[1] + '</small></span>'
+            + '<span class="pill-standby">Standing by</span></div>').join('')
+        + '<div class="panel-foot">Nothing here is running yet &mdash; you haven&rsquo;t sold '
+        + 'internationally. Each one engages on its own, the first time it applies to you. '
+        + 'You&rsquo;re not watching the instruments; Stripe is.</div>'
+        + '</div>';
+}
+
+/* ==================================================================
+   STEP 2 — Autopilot, or take the controls
+
+   "Take the controls" is the reason to run this framing at all: it's the
+   first self-managed label that sounds skilled rather than either
+   apologetic or contrarian.
+================================================================== */
+const AUTO_FEATURES = [
+    'Stripe becomes the ' + MOR + ' for the sales it covers',
+    'Tax registration, collection, and remittance',
+    'Disputes handled end to end',
+    'Fraud screening and local payment methods',
+    'Local processing, which lifts authorization rates',
+];
+const MANUAL_FEATURES = [
+    ['on', 'Card processing in 135+ currencies'],
+    ['on', 'Stripe Tax, Radar, and dispute tools available'],
+    ['off', 'You register and remit tax in each market'],
+    ['off', 'You respond to disputes on local deadlines'],
+    ['off', 'You set up local entities or banking yourself'],
+];
+
+// The metaphor's one genuine failure, named rather than papered over. A
+// plane's autopilot leaves the pilot legally in command; this doesn't.
+// Borrowing a mental model and marking where it stops applying teaches the
+// MOR concept better than a definition does — and it's the part of the
+// product the 3.5% actually buys.
+function exceptionCallout() {
+    if (!STATE.exception) return '';
+    return '<div class="exception">'
+        + '<span class="exception-ic">!</span>'
+        + '<div><div class="exception-title">One way this isn&rsquo;t like a plane&rsquo;s autopilot</div>'
+        + '<div class="exception-body">In a plane, the pilot stays responsible no matter what the '
+        + 'autopilot is doing. Here it&rsquo;s the opposite: when autopilot is engaged, '
+        + '<b>Stripe becomes the ' + MOR + '</b> &mdash; the legal seller for those sales. '
+        + 'Your customer&rsquo;s receipt names Stripe, and the tax and dispute liability is '
+        + 'ours, not yours. That transfer is what the fee buys.</div></div></div>';
+}
+
+function step2() {
+    return '<div class="step-eyebrow">Step 2 of 4</div>'
+        + '<h1 class="headline">We recommend leaving autopilot on. '
+        + '<span class="muted">Nothing to set up now &mdash; it engages when you get there. '
+        + 'You can take the controls whenever you want.</span></h1>'
+        + '<div class="modes">'
+        + '<div class="mode' + (STATE.choice === 'smp' ? ' selected' : '') + '" onclick="pick(\'smp\')">'
+        + '<div class="mode-head"><span class="mode-title">Autopilot</span>'
+        + '<span class="tag-rec">Recommended</span></div>'
+        + '<div class="mode-sub">Stripe handles each obligation as it arrives. You don&rsquo;t monitor anything.</div>'
+        + '<div class="price-block"><div class="price-main">+' + pct(RATE.smp) + ' per transaction</div>'
+        + '<div class="price-rows">'
+        + '<div class="price-row"><span>International sales</span><b>' + pct(intlRate()) + '</b></div>'
+        + '<div class="price-row"><span>Domestic sales</span><b>' + pct(RATE.dom) + '</b></div></div>'
+        + '<div class="price-note">On top of standard processing. Charged only on the sales autopilot '
+        + 'covers &mdash; nothing until you sell internationally.</div></div>'
+        + '<div class="feat-list">'
+        + AUTO_FEATURES.map(f => '<div class="feat">' + CHECK + '<span>' + f + '</span></div>').join('')
+        + '</div></div>'
+        + '<div class="mode' + (STATE.choice === 'self' ? ' selected' : '') + '" onclick="pick(\'self\')">'
+        + '<div class="mode-head"><span class="mode-title">Take the controls</span>'
+        + '<span class="tag-neutral">Fully supported</span></div>'
+        + '<div class="mode-sub">You fly it yourself, with Stripe products to help.</div>'
+        + '<div class="price-block"><div class="price-main">Standard pricing</div>'
+        + '<div class="price-rows">'
+        + '<div class="price-row"><span>International sales</span><b>' + pct(RATE.intl) + '</b></div>'
+        + '<div class="price-row"><span>Domestic sales</span><b>' + pct(RATE.dom) + '</b></div></div>'
+        + '<div class="price-note">No added fee. Tax, Radar, and dispute tooling priced separately.</div></div>'
+        + '<div class="feat-list">'
+        + MANUAL_FEATURES.map(f => '<div class="feat' + (f[0] === 'off' ? ' off' : '') + '">'
+            + (f[0] === 'off' ? DASH : CHECK) + '<span>' + f[1] + '</span></div>').join('')
+        + '</div></div>'
+        + '</div>'
+        + exceptionCallout();
+}
+function pick(c) { STATE.choice = c; render(); }
+
+/* ==================================================================
+   STEP 3 — Which legs
+   Scope reads naturally as phases of a route. Both timings are stated
+   plainly and symmetrically: the honest difference is conditional versus
+   near-certain, not later versus today — nothing is charged in either
+   scope until a transaction happens.
+================================================================== */
+function step3() {
+    const all = STATE.scope === 'all';
+    return '<div class="step-eyebrow">Step 3 of 4</div>'
+        + '<h1 class="headline">Autopilot is flying your international sales. '
+        + '<span class="muted">Want it to fly your domestic sales too?</span></h1>'
+        + '<div class="legs-card">'
+        + '<div class="legs-bar">'
+        + '<div class="leg dom' + (all ? ' flown' : '') + '">Domestic &middot; ' + pct(domRate(STATE.scope)) + '</div>'
+        + '<div class="leg intl">International &middot; ' + pct(intlRate()) + '</div></div>'
+        + '<div class="legs-legend">'
+        + '<span><i style="background:#675dff"></i>Flown by autopilot</span>'
+        + '<span><i style="background:#c3cbd6"></i>You fly it, standard pricing</span></div>'
+        + '<div class="caption">Illustrative split (' + MIX.dom + '% domestic / ' + MIX.intl
+        + '% international) to show proportion &mdash; not your actual volume.</div>'
+        + '<div class="rate-strip"><span class="label">Your blended rate on that split</span>'
+        + '<span class="value">' + pct(effRate(STATE.scope)) + '</span></div>'
+        + '</div><div style="height:16px"></div>'
+        + '<div class="opts">'
+        + '<div class="opt' + (!all ? ' selected' : '') + '" onclick="setScope(\'intl\')">'
+        + '<span class="radio"></span><div style="flex:1">'
+        + '<div class="opt-title"><span>International sales only</span>'
+        + '<span class="opt-rate">' + pct(intlRate()) + ' intl &middot; ' + pct(RATE.dom) + ' domestic</span></div>'
+        + '<div class="opt-desc">Autopilot flies the international legs. Your domestic sales stay '
+        + 'on standard pricing, exactly as they are.</div>'
+        + '<div class="opt-when"><b>Nothing until your first international sale.</b> '
+        + 'If that never happens, this never costs you anything.</div>'
+        + '</div></div>'
+        + '<div class="opt' + (all ? ' selected' : '') + '" onclick="setScope(\'all\')">'
+        + '<span class="radio"></span><div style="flex:1">'
+        + '<div class="opt-title"><span>All sales, including domestic</span>'
+        + '<span class="opt-rate">' + pct(intlRate()) + ' intl &middot; ' + pct(RATE.dom + RATE.smp) + ' domestic</span></div>'
+        + '<div class="opt-desc">Autopilot flies the whole route &mdash; one way of working across '
+        + 'your entire business.</div>'
+        + '<div class="opt-when"><b>Starts with your first sale, domestic or international.</b> '
+        + 'Your domestic rate goes from ' + pct(RATE.dom) + ' to ' + pct(RATE.dom + RATE.smp) + '.</div>'
+        + '</div></div></div>';
+}
+function setScope(s) { STATE.scope = s; render(); }
+
+/* ==================================================================
+   STEP 4 — Confirm
+================================================================== */
+const ALACARTE = [
+    ['Stripe Tax', 'Calculates what you owe and monitors thresholds. Registration and filing stay with you.'],
+    ['Radar', 'Fraud rules and risk scoring on your payments.'],
+    ['Disputes', 'Tooling to track and respond to chargebacks. Deadlines are yours to meet.'],
+    ['Payment methods', 'Add local methods per market as you expand.'],
+];
+
+function step4() {
+    const head = '<div class="step-eyebrow">Step 4 of 4</div>';
+    if (STATE.choice === 'self') {
+        return head + '<h1 class="headline">You&rsquo;re flying it yourself.</h1>'
+            + '<div class="sum-card">'
+            + '<div class="sum-head"><span class="sum-title">Manual &mdash; you have the controls</span>'
+            + '<span class="tag-neutral">Fully supported</span></div>'
+            + '<div class="sum-rows">'
+            + '<div class="sum-row"><span class="k">What you pay</span><span class="v">Standard processing '
+            + '&mdash; <b>' + pct(RATE.dom) + '</b> domestic, <b>' + pct(RATE.intl) + '</b> international. No added fee.</span></div>'
+            + '<div class="sum-row"><span class="k">What you own</span><span class="v">Tax registration and '
+            + 'filing, dispute responses, fraud rules, local payment methods, and any local entity setup. '
+            + 'You remain the ' + MOR + ' on every sale.</span></div>'
+            + '<div class="sum-row"><span class="k">What changes today</span><span class="v">Nothing. You can '
+            + 'start taking payments now.</span></div></div></div>'
+            + '<div class="feat-head">Stripe products that help<span class="todo-flag">Placeholder &mdash; needs the real list</span></div>'
+            + '<div class="alc-list">' + ALACARTE.map(a =>
+                '<div class="alc"><span class="alc-name">' + a[0] + '</span><span class="alc-desc">' + a[1] + '</span></div>').join('')
+            + '</div>'
+            + '<div class="reversible">You can hand back to autopilot at any time from your payment '
+            + 'settings. Nothing to undo first.</div>';
+    }
+    const all = STATE.scope === 'all';
+    return head + '<h1 class="headline">Autopilot is on.</h1>'
+        + '<div class="sum-card">'
+        + '<div class="sum-head"><span class="sum-title">Autopilot</span>'
+        + '<span class="tag-rec">' + (all ? 'All sales' : 'International sales') + '</span></div>'
+        + '<div class="sum-rows">'
+        + '<div class="sum-row"><span class="k">What it flies</span><span class="v">Tax, disputes, fraud, '
+        + 'local payment methods, and local processing on your '
+        + (all ? 'domestic and international' : 'international') + ' sales.</span></div>'
+        + '<div class="sum-row"><span class="k">Who sells</span><span class="v">Stripe is the ' + MOR
+        + ' on the sales autopilot covers.</span></div>'
+        + '<div class="sum-row"><span class="k">What you pay</span><span class="v"><b>' + pct(intlRate())
+        + '</b> on international sales'
+        + (all ? ' and <b>' + pct(RATE.dom + RATE.smp) + '</b> on domestic sales.'
+               : ', and <b>' + pct(RATE.dom) + '</b> on domestic &mdash; unchanged.') + '</span></div>'
+        + '</div></div>'
+        + '<div class="today-note"><span>&#10003;</span><span>'
+        + (all
+            ? '<b>It engages on your next sale.</b> You put the whole route on autopilot, so the '
+              + pct(RATE.dom + RATE.smp) + ' rate applies domestically too.'
+            : '<b>Nothing is running yet.</b> Autopilot engages the first time you sell internationally. '
+              + 'If that never happens, it never costs you anything.')
+        + '</span></div>'
+        + '<div class="reversible">You can take the controls, or change which legs autopilot flies, '
+        + 'at any time in your payment settings.</div>';
+}
+
+/* ==================================================================
+   Shell
+================================================================== */
+function footer() {
+    const back = STATE.step > 1 ? '<button class="btn-ghost" onclick="go(-1)">Back</button>' : '<span></span>';
+    if (STATE.step === 2) {
+        const ready = STATE.choice !== null;
+        return back + '<div style="display:flex;align-items:center;gap:12px">'
+            + (ready ? '' : '<span style="font-size:12px;color:var(--text-muted)">Choose how you want to fly</span>')
+            + '<button class="btn btn-primary" onclick="go(1)"' + (ready ? '' : ' disabled') + '>'
+            + (STATE.choice === 'self' ? 'Take the controls' : 'Leave autopilot on') + '</button></div>';
+    }
+    if (STATE.step === 4) {
+        return back + '<div><button class="btn btn-primary" onclick="alert(\'End of prototype.\')">Done</button></div>';
+    }
+    return back + '<div><button class="btn btn-primary" onclick="go(1)">Continue</button></div>';
+}
+
+function go(d) {
+    let next = STATE.step + d;
+    if (next === 3 && STATE.choice === 'self') next += d;
+    STATE.step = Math.max(1, Math.min(4, next));
+    render();
+}
+
+const NOTES = {
+    1: '<b>Step 1 &mdash; Engaged.</b> The instrument panel is the argument: every row reads &ldquo;Standing by&rdquo; because nothing has happened yet. Conditional engagement becomes visible instead of a promise you have to take on faith.',
+    2: '<b>Step 2 &mdash; Autopilot or the controls.</b> &ldquo;Take the controls&rdquo; is the reason to run this framing: the first self-managed label that sounds skilled rather than apologetic or contrarian.',
+    3: '<b>Step 3 &mdash; Which legs.</b> Scope reads naturally as phases of a route. Both timings stated symmetrically &mdash; the honest difference is conditional vs. near-certain, not later vs. today.',
+    4: '<b>Step 4 &mdash; Confirm.</b> &ldquo;Who sells&rdquo; is now an explicit row. On the manual branch, &ldquo;you remain the merchant of record&rdquo; is the cost of taking the controls.',
+};
+
+function controlPanel() {
+    document.getElementById('cpStep').innerHTML = [1, 2, 3, 4].map(s =>
+        '<button class="cp-btn' + (STATE.step === s ? ' on' : '') + '"'
+        + (s === 3 && STATE.choice === 'self' ? ' disabled title="Manual skips scope"' : '')
+        + ' onclick="STATE.step=' + s + ';render()">' + s + '</button>').join('');
+    document.getElementById('cpExc').innerHTML = [['on', 'Shown'], ['off', 'Hidden']].map(o =>
+        '<button class="cp-btn' + ((STATE.exception ? 'on' : 'off') === o[0] ? ' on' : '')
+        + '" onclick="STATE.exception=' + (o[0] === 'on') + ';render()">' + o[1] + '</button>').join('');
+    document.getElementById('cpNote').innerHTML = NOTES[STATE.step]
+        + (STATE.step === 2 && !STATE.exception
+            ? '<div class="cp-warn" style="margin-top:8px"><b>Exception hidden.</b> This is the version '
+              + 'where the metaphor actively misleads: a plane&rsquo;s autopilot never transfers liability, '
+              + 'and this does. Useful to compare, not to ship.</div>'
+            : '');
+}
+
+function render() {
+    const fns = { 1: step1, 2: step2, 3: step3, 4: step4 };
+    document.getElementById('stage').innerHTML = fns[STATE.step]();
+    document.getElementById('footer').innerHTML = footer();
+    document.getElementById('progFill').style.width = (STATE.step / 4 * 100) + '%';
+    controlPanel();
+}
+render();
+</script>
+</body>
+</html>
