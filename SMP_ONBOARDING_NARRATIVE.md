@@ -80,7 +80,16 @@ An earlier phrasing ended with *"so don't worry about it now if you're not there
 
 It carries step 1 of the three-step narrative (§5) well, and step 2 poorly. "We'll handle it" doesn't tell the user **what they'd be handling themselves instead** — and that contrast is where SMP's value actually lands. The side-by-side has to carry that load. Watch that the reassuring frame doesn't demote the comparison to fine print.
 
-**Blocker:** is *"you only pay when you have global sales"* literally true of the pricing model, or a simplification? If there is any fixed or minimum component, this is the sentence users will quote back at us when they're upset. Needs confirmation before it ships in copy. See §10.
+### Confirmed: the claim is literally true — with one boundary
+
+**Resolved Aug 27.** There is no fixed or minimum component. SMP is +3.5% per transaction on top of standard processing, charged only on the volume it covers. "You only pay when you have global sales" is accurate as stated.
+
+**The boundary is step 3.** At default cross-border scope, the claim holds exactly: 6.9% on international volume, 2.9% domestic, unchanged. If the merchant extends SMP to **all volume**, +3.5% applies to domestic too (6.4%) — and the claim stops being true.
+
+That's fine, because it's an explicit opt-in. But it means:
+
+- Steps 1–2 can state the claim without qualification.
+- **Step 3 has to be the screen that retires it.** Extending scope is the moment "nothing changes until then" becomes "here's what changes now." If step 3 doesn't say so plainly, we've contradicted our own framing two screens later — which is worse than never making the claim.
 
 ---
 
@@ -169,25 +178,26 @@ Declining SMP is a supported outcome, not an error state. The self-managed branc
 
 ## 9. Visual direction
 
-Round 2 asked for **visual representations to help users understand the options** — the globe was named specifically.
+Round 2 asked for **visual representations to help users understand the options**, and named the globe specifically.
 
-Existing globe work to draw on: `variations/v1-globe-crossborder.html`, `v2-globe-all-volume.html`, `v5-globe-behind.html`.
+**Decision (Aug 27): no globe in this round.** The globe is atmospheric — it conveys reach, which is the thing users already assume. It doesn't convey *proportion*, which is what the scope decision actually turns on. Prior globe work (`variations/v1-globe-crossborder.html`, `v2-globe-all-volume.html`, `v5-globe-behind.html`) stays available if a later round wants it.
 
-Two jobs a visual could do, and they are not the same:
+The visual work in this round goes to **step 3**, where the concept is quantitative:
 
-- **Framing (step 1)** — convey reach and the complexity that comes with it. Emotional, atmospheric.
-- **Scope (step 3)** — make cross-border-only vs. all-volume legible at a glance. Diagrammatic, informational. This is the higher-value use: it's the harder concept and the weaker screen.
+- **Proportional treatments** — a volume split showing which portion SMP covers and at what rate. A bar can show how much of their business the fee touches; a globe can't.
+- **Rate readout** — the effective blended rate as the direct consequence of the scope choice.
 
-Prefer earning the globe on step 3 before decorating step 1 with it.
+Step 1 gets no illustrative visual. If it needs one to work, that's a signal the copy isn't carrying it.
 
 ---
 
 ## 10. Open questions
 
-**Blocking:**
+**Resolved Aug 27:**
 
-- **Is "you only pay when you have global sales" literally true?** If there's any fixed component, the §3 frame needs rewording before it goes into copy.
-- **Scope pricing** — what exactly is the price difference between SMP-for-everything and SMP-for-cross-border-only? Step 3 can't be built without concrete numbers for both.
+- **"You only pay when you have global sales" is literally true** — no fixed or minimum component. Bounded by the all-volume scope choice at step 3; see §3.
+- **Scope pricing** — keep the prototype's existing model. Standard 2.9% domestic / 3.4% international; SMP +3.5% on covered volume. Cross-border scope: 6.9% international, 2.9% domestic. All-volume scope: 6.9% international, 6.4% domestic. No new numbers needed — step 3 is unblocked.
+- **Globe** — out of scope this round (§9).
 
 **Design-resolvable:**
 
@@ -207,12 +217,12 @@ Explorations restart from scratch against this brief — see `SMP_ONBOARDING_EXP
 
 1. **Step 1 (framing)** — treatments for the §3 frame, varying how much complexity is shown up front vs. disclosed.
 2. **Step 2 (recommendation + comparison)** — the paused moment. This is the screen the whole flow exists to deliver, and where the opinionated/transparent trade is won or lost.
-3. **Step 3 (scope)** — including the diagrammatic globe.
+3. **Step 3 (scope)** — proportional treatment, no globe. Also the screen that retires the "you only pay on global sales" claim (§3).
 4. **Self-managed branch** at the same fidelity as the SMP branch, confirmation screen included.
-5. Resolve the two blocking questions in §10 in parallel — they gate copy and the second half of the flow.
+5. Chase the remaining design-resolvable questions in §10 alongside the builds — none of them block starting.
 
 ### Owners (from Round 2)
 
-- **Nancy** — iterate the flow designs: break into 2–3 pages, refine the side-by-side, explore the globe.
+- **Nancy** — iterate the flow designs: break into 2–3 pages, refine the side-by-side. (The review also asked for a globe exploration; deferred with rationale in §9 — worth raising at the next review rather than silently dropping.)
 - **Janie + Nancy** — refine messaging and content: clarity, transparency, opinionated-with-choice.
 - **Courtney** — schedule the review with all relevant parties, including Tanya.

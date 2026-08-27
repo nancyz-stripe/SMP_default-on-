@@ -102,21 +102,32 @@ Recommendation alone on the screen; the side-by-side opens as a panel or sub-ste
 
 **Job:** cross-border-only vs. all-volume, each priced, with the boundary made concrete.
 
-This is the weakest screen in every prior version and the best home for the globe (§9 of the brief) — the concept is genuinely spatial.
+**No globe** (§9 of the brief). The globe shows reach; this screen turns on *proportion* — how much of their business the fee touches. A bar can show that; a globe can't.
 
-### 3A — Diagrammatic globe
-Volume split rendered on the globe: highlighted regions under SMP, home market distinct. Toggling scope re-renders it. Informational, not atmospheric.
-- **Lift from:** `variations/v1-globe-crossborder.html`, `v2-globe-all-volume.html`.
+**This screen also carries a load the others don't.** Steps 1–2 tell the user "you only pay when you have global sales." That is true — until they extend to all volume, which puts +3.5% on domestic. Step 3 is where the claim gets retired, explicitly and in the user's favor. Every treatment here has to state that the domestic rate changes. A step 3 that soft-pedals it makes the earlier framing retroactively dishonest.
 
-### 3B — Volume bar
-One horizontal bar, domestic and international segments, with SMP's coverage shaded. Less impressive than the globe, possibly clearer — a bar can show *proportion*, which a globe can't.
+Pricing (prototype model, unchanged):
+
+| Scope | International | Domestic |
+|---|---|---|
+| Cross-border only | 6.9% (3.4 + 3.5) | 2.9% — unchanged |
+| All volume | 6.9% | 6.4% (2.9 + 3.5) |
+
+### 3A — Volume bar
+One horizontal bar, domestic and international segments, SMP's coverage shaded. Toggling scope extends the shading across the domestic segment and the rate readout updates. The change is visible as area, not just as a number.
+- **Tests:** whether proportion makes the trade legible in a way a rate table doesn't.
+- **Strength:** the domestic segment lighting up *is* the disclosure. Hard to miss, hard to accuse of hiding.
+
+### 3B — Rate table, both scopes side by side
+Four cells: domestic and international × both scopes. The 2.9% → 6.4% change is the visual event.
+- **Tests:** the most transparent possible version. Nothing inferred.
+- **Risk:** four numbers is exactly the simultaneous-evaluation problem that split steps 2 and 3 in the first place.
 
 ### 3C — Two priced cards
-No visual. Two options, two prices, one line each on what happens to uncovered volume. The control condition.
+Two options, one line each on what happens to uncovered volume, effective rate per card. The control condition.
+- **Tests:** the floor. If this is as clear as 3A, the visual isn't earning its space.
 
-**Build:** 3A and 3B, judged against 3C. If neither beats the plain cards on comprehension, the globe is decoration and belongs on step 1 or nowhere.
-
-**Blocked:** all three need the real scope pricing numbers (§10 of the brief).
+**Build:** 3A as the candidate, 3C as the control. 3B only if 3A tests as under-disclosing.
 
 ---
 
@@ -139,11 +150,11 @@ Each bundle is a coherent full flow, not a pick-and-mix.
 
 | Bundle | Steps | Hypothesis |
 |---|---|---|
-| **B1 — Disclosed** | 1B → 2B → 3B → 4 | The likely ship candidate: progressive framing, recommended-with-real-alternative, proportional scope visual |
+| **B1 — Disclosed** | 1B → 2B → 3A → 4 | The likely ship candidate: progressive framing, recommended-with-real-alternative, proportional scope bar |
 | **B2 — Restrained** | 1D → 2C → 3C → 4 | Minimal framing, with the workload diff carrying the whole argument at step 2 |
-| **B3 — Quantified** | 1A → 2D → 3A → 4 | Growth-timeline framing into an arithmetic case, with the globe |
+| **B3 — Quantified** | 1A → 2D → 3A → 4 | Growth-timeline framing into an arithmetic case |
 
-**Recommendation:** build B1 first as the baseline everything is measured against. B2 tests whether step 1 is doing real work or just occupying space. B3 tests whether numbers and visuals beat words — and is gated on the auth-rate figure and scope pricing.
+**Recommendation:** build B1 first as the baseline everything is measured against. B2 tests whether step 1 is doing real work or just occupying space. B3 tests whether the revenue argument beats the liability argument — still gated on a real auth-rate figure.
 
 ---
 
@@ -151,18 +162,22 @@ Each bundle is a coherent full flow, not a pick-and-mix.
 
 - **Is the framing step load-bearing?** B1 vs. B2.
 - **Does an asymmetric comparison stay non-coercive?** B1 (2B) vs. the 2A check.
-- **Does a visual beat plain cards on the scope decision?** B3/B1 vs. 3C.
+- **Does the proportional bar beat plain cards?** 3A vs. 3C.
 - **Does reassurance suppress reading the price?** The 2E diagnostic.
+- **Does step 3 successfully retire the "only on global sales" claim?** All bundles — this is a pass/fail on every one of them, not a comparison.
 
 ---
 
 ## Open dependencies
 
-Carried from `SMP_ONBOARDING_NARRATIVE.md` §10. Two block builds outright:
+From `SMP_ONBOARDING_NARRATIVE.md` §10. **Nothing blocks starting.**
 
-1. **Is "you only pay when you have global sales" literally true?** Gates all step 1 and step 2 copy.
-2. **Scope pricing for cross-border-only vs. all-volume.** Gates step 3 entirely.
-3. **Auth-rate lift from local acquiring** — a real number, or 2D and B3 don't get built.
-4. **À la carte list + setup requirements** — gates the self-managed confirmation.
+Resolved Aug 27:
+- Pricing claim is literally true; bounded at step 3. Copy can proceed unqualified in steps 1–2.
+- Scope pricing keeps the prototype model — 2.9 / 3.4 standard, +3.5 on covered volume.
+- Globe is out of scope.
 
-Steps 1 and 2 can proceed with placeholder copy flagged inline. Step 3 cannot proceed at all.
+Still open, non-blocking:
+1. **Auth-rate lift from local acquiring** — a real, defensible number, or 2D and B3 don't get built. Everything else proceeds.
+2. **À la carte list + setup requirements** — the self-managed confirmation can be built with placeholders flagged inline, but it won't be reviewable until this lands.
+3. **The 30% incentive** — excluded from these builds pending a decision on whether it survives a transparency-first flow.
