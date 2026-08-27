@@ -353,6 +353,11 @@
 </div>
 
 <div class="section">
+  <div class="section-heading">V2 — recommend-first flow (B1)</div>
+  <div class="grid" id="grid-v2"></div>
+</div>
+
+<div class="section">
   <div class="section-heading">Step treatments</div>
   <div class="grid" id="grid-treatments"></div>
 </div>
@@ -373,6 +378,36 @@
 </div>
 
 <script>
+// V2, built against the revised narrative brief: no qualifying question,
+// SMP recommended for digital goods, four steps. One file — the cards are
+// entry points, and every treatment is switchable from its control panel.
+const v2Variations = [
+  {
+    id: 'v2-b1-flow',
+    title: 'B1 — full flow, step 1',
+    file: 'v2-b1.html',
+    preview: 'v2-b1.html',
+  },
+  {
+    id: 'v2-b1-step2',
+    title: 'Step 2 — recommendation + comparison (2B)',
+    file: 'v2-b1.html?s=2',
+    preview: 'v2-b1.html?s=2',
+  },
+  {
+    id: 'v2-b1-step3',
+    title: 'Step 3 — scope, volume bar (3A)',
+    file: 'v2-b1.html?s=3',
+    preview: 'v2-b1.html?s=3',
+  },
+  {
+    id: 'v2-b1-step4-self',
+    title: 'Step 4 — self-managed confirmation',
+    file: 'v2-b1.html?s=4&choice=self',
+    preview: 'v2-b1.html?s=4&choice=self',
+  },
+];
+
 // Design treatments for the agreed sequence. One file, switchable from its own
 // control panel — the cards are just two entry points into it.
 const treatmentVariations = [
@@ -645,6 +680,9 @@ function renderTreatmentCard(v) {
 }
 
 function renderGrid() {
+  const gridV2 = document.getElementById('grid-v2');
+  gridV2.innerHTML = v2Variations.map(renderTreatmentCard).join('');
+
   const gridTreatments = document.getElementById('grid-treatments');
   gridTreatments.innerHTML = treatmentVariations.map(renderTreatmentCard).join('');
 

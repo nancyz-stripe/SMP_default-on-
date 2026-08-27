@@ -8,15 +8,22 @@ The v1 treatments (`archive/SMP_ONBOARDING_EXPLORATIONS-v1.md`) were built again
 
 ## The frame everything is built against
 
-> These are the things you'll need as your business grows — disputes, tax thresholds, local banking requirements. Stripe handles them as they come up, and you only pay when you start making global sales. **Nothing changes until then.**
+> These are the things you'll need as your business grows. Stripe will manage them for you as they come up (e.g. disputes, hitting tax thresholds). It only costs you when you start having global sales, so don't worry about it now if you're not there yet or don't know where your customers will come from.
 
-Three properties every exploration has to preserve:
+This is the agreed copy, verbatim. Treat the four moves in it as fixed:
 
 1. **No gating question.** International is assumed. We recommend; we don't ask.
-2. **Conditional cost.** The fee is triggered by growth, not incurred today.
-3. **Verifiable reassurance.** "Nothing changes until then" — never "don't worry about it."
+2. **Managed as it happens.** Stripe handles obligations when they arise — a service, not a purchase.
+3. **Conditional cost.** The fee is triggered by growth, not incurred today.
+4. **Uncertainty is allowed.** "…or don't know where your customers will come from" — the merchant who can't predict their geography is explicitly fine. Don't cut this clause; it's what keeps the assumed-global default from cornering people.
 
 Plus the standing trade: **opinionated only works if it's transparent.** Both prices visible on every comparison, always.
+
+**The obligation the copy creates.** "Don't worry about it now" asks users to defer attention. That's an accepted risk (see `SMP_ONBOARDING_NARRATIVE.md` §3), and it raises the bar on the builds rather than lowering it:
+
+- The step 2 comparison must be **encountered, not sought.** If reaching the price takes an extra click, "don't worry" has effectively hidden it.
+- **Step 3 must volunteer the domestic rate change.** Unprompted, before the user commits.
+- **Treatment 2E measures the risk.** It's an instrument, not a candidate.
 
 ---
 
@@ -67,7 +74,7 @@ One sentence and one visual. All detail deferred to step 2 and to help content.
 
 **Job:** state the recommendation plainly, show both options with both prices, keep the opt-out real.
 
-**Failure modes:** the recommendation reads as an upsell; or the comparison is so even-handed there's no recommendation left; or "nothing changes until then" gets users past the screen without reading the price.
+**Failure modes:** the recommendation reads as an upsell; or the comparison is so even-handed there's no recommendation left; or step 1's "don't worry about it now" carries users past this screen without reading the price.
 
 ### 2A — Recommendation banner over a neutral side-by-side
 Stripe's recommendation stated above two visually equal columns. Opinion lives in the copy; the comparison stays symmetrical.
@@ -135,7 +142,7 @@ Two options, one line each on what happens to uncovered volume, effective rate p
 
 Two branches, equal fidelity.
 
-- **SMP branch** — what they chose, what it costs, when the fee first applies (the payoff of "nothing changes until then"), what changes operationally.
+- **SMP branch** — what they chose, what it costs, and **when the fee first applies.** This is where "it only costs you when you start having global sales" gets cashed: the confirmation should state plainly that they're paying nothing today.
 - **Self-managed branch** — what they now own, the à la carte products covering it (Tax, Radar, disputes, support), what needs setting up, and that SMP stays available. Named neutrally throughout.
 
 The self-managed confirmation is the honesty test for the whole flow. If it reads as a consolation prize, the recommendation upstream was coercive. Build it first, not last.

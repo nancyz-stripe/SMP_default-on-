@@ -56,29 +56,31 @@ The framing in §3 is our current answer to this. It needs to be tested, not ass
 
 ## 3. The anchoring framing
 
-The frame all explorations should be built against:
+**The agreed anchor, verbatim.** All explorations are built against this:
 
-> These are the things you'll need as your business grows — disputes, tax thresholds, local banking requirements. Stripe handles them as they come up, and you only pay when you start making global sales. **Nothing changes until then.**
+> These are the things you'll need as your business grows. Stripe will manage them for you as they come up (e.g. disputes, hitting tax thresholds). It only costs you when you start having global sales, so don't worry about it now if you're not there yet or don't know where your customers will come from.
 
 ### Why this frame
 
 - **"As they come up" reframes SMP from a purchase to a service.** It's not a bundle you're buying at onboarding; it's what Stripe absorbs on your behalf, when it happens. That's what makes it a recommendation rather than an upsell.
-- **"You only pay when you have global sales" is genuinely disarming.** It converts the compliance content from a threat ("you'll owe tax in 40 jurisdictions") into a conditional that hasn't triggered yet.
-- **It answers Ahmed's concern (§2.2) directly.** A domestic-only business isn't being forced to decide anything, because nothing costs them. The recommendation can stand without demanding a reaction.
-- **It fixes the pacing problem.** The current single page is overwhelming largely because everything reads as a decision due *right now*. This defers the weight without deferring the information.
+- **"It only costs you when you start having global sales" is genuinely disarming.** It converts the compliance content from a threat ("you'll owe tax in 40 jurisdictions") into a conditional that hasn't triggered yet.
+- **"…or don't know where your customers will come from" is the sharpest clause in it.** It's a direct answer to Ahmed's concern (§2.2): the merchant who can't predict their geography doesn't have to. Uncertainty becomes a supported state rather than a question they have to resolve before continuing. This is the part of the frame doing the most work, and it should survive any future rewrite.
+- **It fixes the pacing problem.** The current single page is overwhelming largely because everything reads as a decision due *right now*. This defers the weight without removing the information.
 
-### The one thing we deliberately changed
+### The risk we're accepting knowingly
 
-An earlier phrasing ended with *"so don't worry about it now if you're not there yet."* We're not using that, because:
+*"Don't worry about it now"* asks the user to defer attention, not just urgency. In a flow where we've already decided to recommend SMP, that can read as "accept the default, don't examine it" — and if users skip the comparison, the price surfaces later as a surprise. That's the dynamic that makes an opinionated default feel like a trap, and it sits in tension with the transparency commitment in §4 that is the precondition for being opinionated at all.
 
-- It undercuts the transparency commitment that is the *precondition* for being opinionated (§4). If we say "don't worry," users won't read the comparison — and the price surfaces later as a surprise. That is exactly the dynamic that makes an opinionated default feel like a trap.
-- In a flow where we've already decided to recommend SMP, "don't worry about it" reads as evasive: accept the default, don't examine it.
+**This is a deliberate, reviewed decision, not an oversight.** The reassurance is judged worth the risk, and the risk is measurable rather than theoretical:
 
-**"Nothing changes until then"** does the same reassurance work, but as a *factual claim the user can verify against the comparison* rather than an instruction to disengage. Defer urgency, not attention.
+- **Treatment 2E** (`SMP_ONBOARDING_EXPLORATIONS.md`) exists to measure it — recommendation alone, comparison on demand. If most users never open the comparison, we have the answer.
+- Step 2's comparison is designed to be **encountered, not sought**, precisely so "don't worry" doesn't have to fight it.
+
+If 2E shows suppression, the fallback is to keep the clause and move the comparison earlier — not to reopen the framing.
 
 ### Where this frame is weak
 
-It carries step 1 of the three-step narrative (§5) well, and step 2 poorly. "We'll handle it" doesn't tell the user **what they'd be handling themselves instead** — and that contrast is where SMP's value actually lands. The side-by-side has to carry that load. Watch that the reassuring frame doesn't demote the comparison to fine print.
+It carries step 1 of the three-step narrative (§5) well, and step 2 poorly. "We'll handle it" doesn't tell the user **what they'd be handling themselves instead** — and that contrast is where SMP's value actually lands. The side-by-side has to carry that load.
 
 ### Confirmed: the claim is literally true — with one boundary
 
@@ -89,7 +91,7 @@ It carries step 1 of the three-step narrative (§5) well, and step 2 poorly. "We
 That's fine, because it's an explicit opt-in. But it means:
 
 - Steps 1–2 can state the claim without qualification.
-- **Step 3 has to be the screen that retires it.** Extending scope is the moment "nothing changes until then" becomes "here's what changes now." If step 3 doesn't say so plainly, we've contradicted our own framing two screens later — which is worse than never making the claim.
+- **Step 3 has to be the screen that retires it.** Extending scope is the moment "it only costs you when you start having global sales" becomes "here's what changes now, including domestically." If step 3 doesn't say so plainly, we've contradicted our own framing two screens later — worse than never making the claim.
 
 ---
 
@@ -140,7 +142,7 @@ If a step doesn't advance one of these seven, it's a candidate for cutting durin
 - **Be opinionated.** Recommend. Don't ask users to self-diagnose what they need. (Round 2)
 - **Transparency is the price of being opinionated.** Every option in a comparison shows its price. The two travel together or neither works. (Round 2)
 - **Unbundle education from questions.** Don't stack teaching, asking, and recommending on one screen. Create a paused moment for the recommendation, then resume the flow. (Round 2)
-- **Defer urgency, not attention.** Reassure with verifiable facts ("nothing changes until then"), never with "don't worry about it." (§3)
+- **Reassure, and make the reassurance true.** "Don't worry about it now" is agreed copy. That raises the bar on everything downstream: if we tell them not to worry, the comparison has to be *encountered* rather than sought, and step 3 has to disclose the domestic rate change without being asked. (§3)
 - **Progressive disclosure over a wall.** Compliance detail is what justifies SMP's value *and* what makes the flow intimidating. It earns its place incrementally, not all at once. (Round 2)
 - **Education** — define the terms. What is an MOR? How does this increase their revenue? Answer both explicitly.
 - **Clarity over vagueness** — don't omit terminology because it's complex. Explain it simply. Vagueness reads as something to hide, which is fatal for a premium product.
@@ -204,7 +206,7 @@ Step 1 gets no illustrative visual. If it needs one to work, that's a signal the
 - **The domestic-only merchant (§2.2)** — what does the graceful exit look like for a business the "assume global" default doesn't fit? This is the main risk the reversal introduces.
 - **How much compliance detail earns its place** in the flow vs. gets deferred to progressive disclosure or post-onboarding.
 - **Where is the opt-out on the recommendation screen, and how much friction does it carry?** Too little and the recommendation isn't a recommendation; too much and it's coercive.
-- **Does the reassuring frame demote the comparison?** If "nothing changes until then" means users skip the side-by-side, we've traded transparency for comfort.
+- **Does "don't worry about it now" demote the comparison?** The known, accepted risk in §3. Measured by treatment 2E. If users skip the side-by-side, move the comparison earlier rather than reopening the copy.
 - **The 30% incentive** — where does it belong in a transparency-first narrative? If it's a real time-bound offer, state it as such; if it's promotional framing, it may undercut the transparency principle.
 - **Re-entry into SMP** — if they decline, how and where do they opt in later? The brief assumes reversibility; that needs a surface.
 - **Escape-hatch handoff** — the actual à la carte list (Tax, Radar, disputes tooling, support) and any required setup, or the branch ends in a shrug.
