@@ -442,8 +442,12 @@
         <div class="cp-btns" id="cpT1"></div>
     </div>
     <div class="cp-group">
-        <div class="cp-label">1 — Headline</div>
-        <div class="cp-btns" id="cpH1"></div>
+        <div class="cp-label">Frame — international vs. growth</div>
+        <div class="cp-btns" id="cpFrame"></div>
+    </div>
+    <div class="cp-group">
+        <div class="cp-label">Peer stat</div>
+        <div class="cp-btns" id="cpStat"></div>
     </div>
     <div class="cp-group">
         <div class="cp-label">2 — Recommendation</div>
@@ -472,7 +476,15 @@ const intlRate = ()    => RATE.intl + RATE.smp;
 const effRate  = scope =>
     (MIX.dom / 100) * domRate(scope) + (MIX.intl / 100) * intlRate();
 
-const STATE = { step: 1, t1: '1B', h1: 'H1', t2: '2B', t3: '3A', choice: null, scope: 'crossborder' };
+const STATE = {
+    step: 1, t1: '1B', t2: '2B', t3: '3A', choice: null, scope: 'crossborder',
+    // The Aug 27 review's open question. See FRAMES below.
+    frame: 'bridge',
+    // Whether the peer stat appears. Replaces the old H1/H2/H3 toggle: with
+    // the stat's position settled, the live question per frame is simply
+    // whether it survives without a sourced number.
+    stat: true,
+};
 
 // Deep links so the index can point at a specific step or treatment:
 // ?s=2&t2=2C. Keeps every entry point inside one file.
@@ -480,7 +492,10 @@ const STATE = { step: 1, t1: '1B', h1: 'H1', t2: '2B', t3: '3A', choice: null, s
     const q = new URLSearchParams(location.search);
     const s = parseInt(q.get('s'), 10);
     if (s >= 1 && s <= 4) STATE.step = s;
-    ['t1', 'h1', 't2', 't3'].forEach(k => { if (q.get(k)) STATE[k] = q.get(k); });
+    ['t1', 't2', 't3'].forEach(k => { if (q.get(k)) STATE[k] = q.get(k); });
+    // Literal rather than Object.keys(FRAMES): this runs before FRAMES exists.
+    if (['intl', 'bridge', 'growth'].includes(q.get('frame'))) STATE.frame = q.get('frame');
+    if (q.get('stat') === 'off') STATE.stat = false;
     // Landing directly on step 3 or 4 implies the SMP branch was chosen.
     if (STATE.step >= 3) STATE.choice = q.get('choice') === 'self' ? 'self' : 'smp';
     if (q.get('scope') === 'all') STATE.scope = 'all';
@@ -517,24 +532,91 @@ const MOR = term('merchant of record',
 // stat about the merchant's own peer group is the fastest way to lose them.
 const PEER_STAT = '<span class="needs-data">X%<span class="nd-flag">needs data</span></span>';
 
-const HEADLINES = {
-    // H1 — the stat leads. Strongest version of "companies like yours," and
-    // the version that depends entirely on getting a real number.
-    H1: PEER_STAT + ' of businesses selling digital goods sell internationally as they grow. '
-        + '<span class="muted">We&rsquo;ve assumed you will too, and we&rsquo;ll handle the '
-        + 'complexities for you.</span>',
+/* ------------------------------------------------------------------
+   FRAMES — the international/growth question from the Aug 27 review.
 
-    // H2 — assumption first, evidence as the reason. Leads with what we did
-    // rather than with a claim about them; the stat becomes support, not premise.
-    H2: 'We&rsquo;ve set you up to sell internationally. '
-        + '<span class="muted">Businesses selling digital goods almost always do as they grow, '
-        + 'so we&rsquo;ll handle the complexities that come with it.</span>',
+   Not a binary. These are three points on a spectrum of how early the
+   word "international" appears, so the group can see the trade rather
+   than pick between two poles:
 
-    // H3 — no stat at all. The control: does the peer claim need a number to
-    // do its work, or does "businesses like yours" carry it? Ships today.
-    H3: 'Businesses like yours usually end up selling internationally. '
-        + '<span class="muted">So we&rsquo;ve set you up for it, and we&rsquo;ll handle the '
-        + 'complexities as they come.</span>',
+     intl    — international anchors the first sentence
+     bridge  — growth anchors it, international arrives as the consequence
+     growth  — growth anchors it, geography waits for the anchor paragraph
+
+   Worth knowing: the locked anchor copy already opens on growth ("as
+   your business grows"). Under `intl` the headline and the paragraph
+   are anchored to different things; under `bridge` and `growth` they
+   agree. The growth framing isn't a new direction so much as making the
+   screen consistent with copy we already agreed.
+
+   The trade: growth is inclusive but vague, international is specific
+   but presumes more. Specificity is what makes SMP read as an answer to
+   a real problem rather than an upsell (narrative brief §4), so a frame
+   that never gets concrete has given something up.
+------------------------------------------------------------------ */
+const FRAMES = {
+    intl: {
+        label: 'International',
+        // Digital goods in the causal position: it's why the assumption holds,
+        // not a category we're filing them under.
+        headline: (stat) => 'Digital goods sell anywhere. '
+            + '<span class="muted">' + (stat ? stat + ' of businesses like yours end up selling '
+                + 'internationally as they grow.' : 'Businesses like yours usually end up selling '
+                + 'internationally as they grow.') + '</span>',
+        // The "when" column: geography-led.
+        when: ['First sale abroad', 'As disputes arrive', 'At certain sales levels',
+               'To process locally', 'Continuously'],
+        step2: 'We recommend letting Stripe manage international selling. '
+            + '<span class="muted">Nothing to set up now &mdash; Stripe steps in when you get '
+            + 'there. You can also manage it yourself.</span>',
+        note: '<b>International-anchored.</b> Most specific, and the version where the fee is '
+            + 'easiest to justify &mdash; the obligations named are unmistakably international. '
+            + 'Costs the most in presumption: a domestic-only merchant has to read past a premise '
+            + 'that isn&rsquo;t theirs. Note the headline and the anchor paragraph are anchored to '
+            + 'different things here.',
+    },
+    bridge: {
+        label: 'Growth → markets',
+        // Growth anchors, international arrives in the same breath as its
+        // consequence. John's "supports growth at any stage" without giving up
+        // the specificity that justifies the price.
+        headline: (stat) => 'Growing usually means selling in more places. '
+            + '<span class="muted">' + (stat ? stat + ' of businesses like yours end up selling '
+                + 'internationally as they grow, so we&rsquo;ve set you up for it.'
+                : 'Businesses like yours usually end up selling internationally, so we&rsquo;ve '
+                + 'set you up for it.') + '</span>',
+        when: ['Your first sale abroad', 'As disputes arrive', 'As sales build in a market',
+               'To process locally', 'Continuously'],
+        step2: 'We recommend letting Stripe manage this as you grow. '
+            + '<span class="muted">Nothing to set up now &mdash; Stripe steps in when you get '
+            + 'there. You can also manage it yourself.</span>',
+        note: '<b>Growth → markets.</b> The synthesis: growth anchors the sentence, international '
+            + 'arrives as its consequence rather than its premise. Works for a new or an '
+            + 'established business (John&rsquo;s point) while keeping the specificity that makes '
+            + 'the fee defensible. Currently my pick.',
+    },
+    growth: {
+        // Purest reading of the review's ask. Geography doesn't appear until
+        // the anchor paragraph — which then carries both the first mention of
+        // "global" and the conditional cost, and has to do real work.
+        label: 'Growth',
+        headline: (stat) => 'As your business grows, a few new things arrive. '
+            + '<span class="muted">' + (stat ? stat + ' of businesses like yours meet all of them '
+                + 'within their first few years. Stripe handles each one for you.'
+                : 'Stripe handles each one for you, wherever your customers turn out to be.')
+                + '</span>',
+        // The "when" column: milestone-led, no geography.
+        when: ['Your first sale abroad', 'As disputes arrive', 'As sales build in a market',
+               'As volume concentrates', 'Continuously'],
+        step2: 'We recommend letting Stripe handle this as you grow. '
+            + '<span class="muted">Nothing to set up now &mdash; Stripe steps in when you get '
+            + 'there. You can also manage it yourself.</span>',
+        note: '<b>Growth-anchored.</b> Least presumptuous and the most inclusive of business '
+            + 'stage. The risk is vagueness: &ldquo;a few new things&rdquo; could be anything, and '
+            + 'the obligations listed below are specifically international, so the anchor '
+            + 'paragraph has to introduce geography <i>and</i> the conditional cost by itself. '
+            + 'Watch whether the fee still feels earned.',
+    },
 };
 
 /* ---- The anchor copy, verbatim. Single source so no screen can drift. ---- */
@@ -547,29 +629,34 @@ const ANCHOR =
 /* ==================================================================
    STEP 1 — Framing
 ================================================================== */
+// The "when" label for each row comes from the active frame, so the column
+// shifts from geography-led to milestone-led without the content changing.
 const TRIGGERS = [
-    ['First sale abroad', 'Local payment methods and currency',
+    ['Local payment methods and currency',
      'Customers in most markets expect to pay with the methods they already use, priced in ' +
      'their own currency. Without that, they abandon checkout.'],
-    ['As disputes arrive', 'Chargebacks under local rules',
+    ['Chargebacks under local rules',
      'Dispute windows, evidence requirements, and deadlines differ by market and card network. ' +
      'Each one is a response on a clock.'],
-    ['At certain sales levels', 'Hitting tax thresholds',
+    ['Hitting tax thresholds',
      'Most countries require you to register, collect, and remit local sales tax or VAT once ' +
      'you pass a revenue threshold there. The threshold is different in every market, and ' +
      'crossing it is retroactive in some.'],
-    ['To process locally', 'Local banking and entity requirements',
+    ['Local banking and entity requirements',
      'Processing in a market often means a local entity or banking relationship. It also ' +
      'lifts authorization rates, because issuers approve domestic transactions more often ' +
      'than cross-border ones.'],
-    ['Continuously', 'Fraud, risk, and support across time zones',
+    ['Fraud, risk, and support across time zones',
      'Fraud patterns vary by market, and customer questions arrive in local business hours ' +
      'rather than yours.'],
 ];
 
+function frame() { return FRAMES[STATE.frame] || FRAMES.bridge; }
+
 function step1() {
+    const f = frame();
     const headline = '<div class="step-eyebrow">Step 1 of 4</div>'
-        + '<h1 class="headline">' + (HEADLINES[STATE.h1] || HEADLINES.H1) + '</h1>';
+        + '<h1 class="headline">' + f.headline(STATE.stat ? PEER_STAT : null) + '</h1>';
 
     if (STATE.t1 === '1D') {
         // 1D — radical restraint. The floor: how little framing can step 2
@@ -584,12 +671,12 @@ function step1() {
         + TRIGGERS.map((t, i) =>
             '<div class="trig" id="trig' + i + '" style="animation-delay:' + (i * 45) + 'ms">'
             + '<div class="trig-head" onclick="toggleTrig(' + i + ')">'
-            + '<span class="trig-when">' + t[0] + '</span>'
-            + '<span class="trig-what">' + t[1] + '</span>'
+            + '<span class="trig-when">' + f.when[i] + '</span>'
+            + '<span class="trig-what">' + t[0] + '</span>'
             + '<span class="trig-owner">Stripe handles it</span>'
             + '<button class="trig-toggle" aria-label="Details">+</button>'
             + '</div>'
-            + '<div class="trig-detail">' + t[2] + '</div></div>').join('')
+            + '<div class="trig-detail">' + t[1] + '</div></div>').join('')
         + '</div>';
 }
 function toggleTrig(i) { document.getElementById('trig' + i).classList.toggle('open'); }
@@ -728,8 +815,7 @@ function step2() {
         // brief's "earn the decision, don't nudge it".
         const open = STATE.cmpOpen;
         return head
-            + '<h1 class="headline">We recommend Managed Payments. '
-            + '<span class="muted">Nothing to set up now &mdash; Stripe steps in when you get there.</span></h1>'
+            + '<h1 class="headline">' + frame().step2 + '</h1>'
             + '<div class="rec-card">'
             + '<div class="rec-card-head">'
             + '<span class="col-title">Managed Payments</span><span class="tag-rec">Recommended</span></div>'
@@ -761,10 +847,10 @@ function step2() {
     }
 
     // 2B — asymmetric: recommended primary, alternative complete and priced.
-    // The leading candidate.
+    // The leading candidate. Headline follows the active frame so the
+    // international/growth comparison holds across both steps, not just step 1.
     return head
-        + '<h1 class="headline">For a digital goods business, we recommend Managed Payments. '
-        + '<span class="muted">Here it is next to managing it yourself.</span></h1>'
+        + '<h1 class="headline">' + frame().step2 + '</h1>'
         + '<div class="cmp asym">' + smpColumn('rec') + selfColumn('alt') + '</div>';
 }
 
@@ -982,9 +1068,6 @@ function go(d) {
 const CP_NOTES = {
     '1B': '<b>1B Trigger list, collapsed.</b> Headline claim readable in five seconds, detail on demand. Every row says &ldquo;Stripe handles it&rdquo; &mdash; the repetition is the argument.',
     '1D': '<b>1D Radical restraint.</b> One claim, the anchor copy, nothing else. The control for whether step 1 earns its space.',
-    'H1': '<b>H1 Stat leads.</b> Strongest form of &ldquo;companies like yours&rdquo; &mdash; peer evidence, then the assumption named, then the promise. Entirely dependent on a real number; the placeholder is deliberate.',
-    'H2': '<b>H2 Assumption first.</b> Leads with what we did, evidence as the reason. The stat becomes support rather than premise, so it survives without a sourced figure.',
-    'H3': '<b>H3 No stat.</b> Control. Does the peer claim need a number to work, or does &ldquo;businesses like yours&rdquo; carry it? The only variant that can ship today.',
     '2B': '<b>2B Asymmetric.</b> Leading candidate. Managed Payments gets primacy; self-managed stays complete and correctly priced. Both prices inline, never behind a click.',
     '2A': '<b>2A Banner + symmetrical columns.</b> The check on 2B: opinion lives in copy, not in visual weight. Hardest version to accuse of stacking the deck.',
     '2C': '<b>2C Workload diff.</b> Patches the frame&rsquo;s weakness &mdash; &ldquo;Stripe handles it&rdquo; never says what you&rsquo;d otherwise do. Watch for tipping into fear framing.',
@@ -1008,16 +1091,25 @@ function controlPanel() {
             + 'onclick="STATE.step=' + s + ';render()">' + s + '</button>';
     }).join('');
     mk('cpT1', ['1B', '1D'], 't1');
-    mk('cpH1', ['H1', 'H2', 'H3'], 'h1');
     mk('cpT2', ['2B', '2A', '2C', '2E'], 't2');
     mk('cpT3', ['3A', '3B', '3C'], 't3');
 
-    // On step 1 the headline is the live decision, so its note wins over the
-    // layout treatment's.
-    const key = STATE.step === 1 ? STATE.h1 : STATE.step === 2 ? STATE.t2 : STATE.step === 3 ? STATE.t3 : null;
-    document.getElementById('cpNote').innerHTML = key
-        ? CP_NOTES[key]
-        : '<b>Step 4 Confirm.</b> Branches on the step 2 choice. The self-managed branch is the honesty test: if it reads as a consolation prize, the recommendation upstream was coercive.';
+    document.getElementById('cpFrame').innerHTML = Object.keys(FRAMES).map(k =>
+        '<button class="cp-btn' + (STATE.frame === k ? ' on' : '') + '" '
+        + 'onclick="setT(\'frame\',\'' + k + '\')">' + FRAMES[k].label + '</button>').join('');
+    document.getElementById('cpStat').innerHTML = [[true, 'With X%'], [false, 'Without']].map(o =>
+        '<button class="cp-btn' + (STATE.stat === o[0] ? ' on' : '') + '" '
+        + 'onclick="STATE.stat=' + o[0] + ';render()">' + o[1] + '</button>').join('');
+
+    // The frame is the live decision on steps 1–2, so its note wins there.
+    let note;
+    if (STATE.step <= 2) note = frame().note;
+    else if (STATE.step === 3) note = CP_NOTES[STATE.t3];
+    else note = '<b>Step 4 Confirm.</b> Branches on the step 2 choice. The self-managed branch is '
+        + 'the honesty test: if it reads as a consolation prize, the recommendation upstream was coercive.';
+    if (STATE.step === 2) note += '<div style="margin-top:8px">' + CP_NOTES[STATE.t2] + '</div>';
+    if (STATE.step === 1) note += '<div style="margin-top:8px">' + CP_NOTES[STATE.t1] + '</div>';
+    document.getElementById('cpNote').innerHTML = note;
 }
 
 function setT(key, v) {

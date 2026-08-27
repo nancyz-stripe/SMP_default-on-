@@ -2,11 +2,12 @@
 
 The brief the next round of prototypes should be built against.
 
-Synthesis of two rounds of leadership feedback:
+Synthesis of three rounds of leadership feedback:
 - **Round 1** — feedback on `variations/smp.html`, `variations/flow.html`. Established that SMP is premium and deserves space.
 - **Round 2 (Aug 26, 2026)** — review with Dan, Ahmed, Abhi, Janie, Courtney. Reversed the qualifying-question approach and set the recommendation-first direction.
+- **Round 3 (Aug 27, 2026)** — review with Courtney. Confirmed the structure; opened the **international vs. growth** framing question (§3.1) and asked for the V2/V3 treatments to be played out with progressive disclosure and animation.
 
-Where the two rounds conflict, Round 2 wins. §2.1 records the reversal explicitly so we don't re-litigate it.
+Later rounds win. §2.1 and §3.1 record the changes explicitly so we don't re-litigate them.
 
 ---
 
@@ -77,6 +78,33 @@ The framing in §3 is our current answer to this. It needs to be tested, not ass
 - Step 2's comparison is designed to be **encountered, not sought**, precisely so "don't worry" doesn't have to fight it.
 
 If 2E shows suppression, the fallback is to keep the clause and move the comparison earlier — not to reopen the framing.
+
+### 3.1 International or growth? (Round 3)
+
+The live question. Courtney relayed John's position: position the product as **supporting business growth**, whether the business is new or established — rather than leading with international.
+
+**The point that should settle a lot of this: the anchor copy is already growth-first.** It opens *"These are the things you'll need as your business grows."* Every headline we've written has anchored on international. So the headline and the paragraph beneath it have been anchored to different things, and nobody noticed because we were writing them separately. Growth framing isn't a new direction — it's making the screen agree with copy we already locked.
+
+**The trade:**
+
+| | Growth-anchored | International-anchored |
+|---|---|---|
+| **Buys** | Works at any business stage. Nothing to disagree with. Answers Ahmed's domestic-only concern structurally rather than with a clause | Specific. The obligations named are unmistakably international, which is what makes the fee read as an answer to a real problem |
+| **Costs** | Vagueness. "A few new things arrive" could be anything, and everything is growth | Presumption. A domestic-only merchant reads past a premise that isn't theirs |
+
+The risk in going fully growth-anchored is §4 of this brief: *SMP removes the complexity that is **specific** to selling globally — that specificity is the difference between an upsell and an answer.* A frame that never gets concrete gives that up, and the fee gets harder to justify, not easier.
+
+**Not a binary.** Three points on a spectrum, all built and switchable in `variations/v2-b1.html` (control panel → Frame):
+
+| Key | Opening line | Where "international" first appears |
+|---|---|---|
+| `intl` | "Digital goods sell anywhere." | Headline |
+| `bridge` | "Growing usually means selling in more places." | Headline, as the *consequence* of growth rather than its premise |
+| `growth` | "As your business grows, a few new things arrive." | The anchor paragraph |
+
+**Recommendation: `bridge`.** Growth anchors the sentence, so it works at any stage and matches the paragraph; international arrives immediately as what growth *means* for a digital goods business, so the specificity survives. It's the only one of the three where the headline and the anchor copy are anchored to the same thing *and* the fee still has something concrete attached to it.
+
+Under `growth`, watch one thing carefully: the anchor paragraph then has to introduce geography *and* the conditional cost by itself, since the headline mentions neither. That's a lot for one paragraph, and it's where that version would fail if it fails.
 
 ### Where this frame is weak
 
@@ -223,8 +251,20 @@ Explorations restart from scratch against this brief — see `SMP_ONBOARDING_EXP
 4. **Self-managed branch** at the same fidelity as the SMP branch, confirmation screen included.
 5. Chase the remaining design-resolvable questions in §10 alongside the builds — none of them block starting.
 
-### Owners (from Round 2)
+### Round 3 asks (Aug 27) — status
 
-- **Nancy** — iterate the flow designs: break into 2–3 pages, refine the side-by-side. (The review also asked for a globe exploration; deferred with rationale in §9 — worth raising at the next review rather than silently dropping.)
+| Ask | Status |
+|---|---|
+| Explore anchoring to **growth** instead of international | **Done.** Three frames built and switchable (§3.1). Recommendation: `bridge` |
+| Create an **alt version** contrasting international vs. growth, to show the group | **Done as a toggle rather than a second file** — the ask is a comparison, and two files can't be held side by side. Control panel → Frame flips the same flow between framings |
+| Play out **V2 and V3 treatments** — progressive disclosure and animation | **Partly.** Progressive disclosure is built (1B trigger rows, 2E's optional comparison). Animation is minimal — staggered row entry only. This is the main open build |
+| Immediate user actions within the flow | **Not started.** Raised by Courtney as a possibility; needs definition before it can be designed |
+| Add-on products via tooltips | **Not started.** Blocked on the à la carte list (§10) |
+
+### Owners
+
+- **Nancy** — the animation and progressive-disclosure treatments (the open Round 3 ask); land the frame decision with the group.
 - **Janie + Nancy** — refine messaging and content: clarity, transparency, opinionated-with-choice.
-- **Courtney** — schedule the review with all relevant parties, including Tanya.
+- **Courtney** — schedule the review with all relevant parties, including Tanya. Next meeting: Thursday of the following week.
+
+Round 2 also asked for a globe exploration; deferred with rationale in §9. Worth raising rather than silently dropping.
