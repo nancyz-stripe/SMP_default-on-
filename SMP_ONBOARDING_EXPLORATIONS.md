@@ -46,6 +46,24 @@ Step 2 is the screen the flow exists to deliver. Weight the exploration effort t
 
 **Failure modes:** a compliance wall that intimidates (the current problem); or so light a touch that step 2's fee has nothing to justify it. The frame's own weakness — it explains what Stripe does, not what the merchant would otherwise do — bites hardest here.
 
+### The headline carries the assumption
+
+Since there's no qualifying question, **the step 1 headline is the only place the assumption gets justified.** It has three jobs, and dropping any one of them breaks something:
+
+1. **Peer evidence** — *why* we assumed it. "Businesses selling digital goods sell internationally as they grow."
+2. **The assumption, named out loud** — "we've assumed you will too." This is the part that keeps assumed-global from reading as presumptuous. If we act on the assumption silently, a domestic-only merchant feels railroaded and starts hunting for an opt-out. If we state it, they can disagree with a premise instead — which is a much better experience and a much better signal for us.
+3. **The promise** — "we'll handle the complexities for you."
+
+| | Copy | Notes |
+|---|---|---|
+| **H1** | "X% of businesses selling digital goods sell internationally as they grow. We've assumed you will too, and we'll handle the complexities for you." | Strongest form of "companies like yours." Peer evidence → assumption → promise. **Entirely dependent on a real number.** |
+| **H2** | "We've set you up to sell internationally. Businesses selling digital goods almost always do as they grow, so we'll handle the complexities that come with it." | Assumption first, evidence as the reason. The stat becomes support rather than premise, so this survives without a sourced figure. |
+| **H3** | "Businesses like yours usually end up selling internationally. So we've set you up for it, and we'll handle the complexities as they come." | Control: does the peer claim need a number, or does "businesses like yours" carry it? **The only variant that can ship today.** |
+
+**The X% is not filled in.** It renders as a flagged placeholder in the prototype rather than a plausible invented figure. It's a factual claim about the merchant's own peer group and the most quotable line on the screen — a made-up number here is the fastest way to lose them, and the hardest thing to walk back. Sourcing it is a new dependency (below).
+
+If it can't be sourced, H2 and H3 both work; H1 doesn't. That's the real decision the toggle is there to inform.
+
 ### 1A — Timeline / "as you grow"
 Obligations laid along a growth axis: first international sale → first dispute → first tax threshold → local banking requirement. Each is a marker; Stripe's handling is the through-line. Nothing is present-tense.
 - **Tests:** does sequencing complexity in *time* defuse it better than listing it?
@@ -185,6 +203,7 @@ Resolved Aug 27:
 - Globe is out of scope.
 
 Still open, non-blocking:
-1. **Auth-rate lift from local acquiring** — a real, defensible number, or 2D and B3 don't get built. Everything else proceeds.
-2. **À la carte list + setup requirements** — the self-managed confirmation can be built with placeholders flagged inline, but it won't be reviewable until this lands.
-3. **The 30% incentive** — excluded from these builds pending a decision on whether it survives a transparency-first flow.
+1. **The peer stat for headline H1** — what share of digital goods businesses on Stripe end up selling internationally, and over what window? Needed to ship H1 at all; H2 and H3 don't depend on it. Likely answerable from Stripe's own data, which would make it far more defensible than an industry figure.
+2. **Auth-rate lift from local acquiring** — a real, defensible number, or 2D and B3 don't get built. Everything else proceeds.
+3. **À la carte list + setup requirements** — the self-managed confirmation can be built with placeholders flagged inline, but it won't be reviewable until this lands.
+4. **The 30% incentive** — excluded from these builds pending a decision on whether it survives a transparency-first flow.

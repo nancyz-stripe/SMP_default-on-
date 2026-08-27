@@ -88,6 +88,21 @@
         color: var(--text-heading); margin-bottom: 12px;
     }
     h1.headline .muted { color: var(--text-muted); font-weight: 600; }
+    /* Unsourced peer stat. Marked in the UI rather than filled with a
+       plausible invented number — a made-up figure about the merchant's own
+       peer group is the fastest way to lose them, and it's the line most
+       likely to get quoted back at us. */
+    .needs-data {
+        position: relative; background: #fdf3e7; border-bottom: 2px dashed #e0ad5e;
+        border-radius: 3px; padding: 0 4px; color: #7a4f0f;
+    }
+    .nd-flag {
+        position: absolute; top: -6px; left: 50%; transform: translate(-50%, -100%);
+        white-space: nowrap; font-size: 9px; font-weight: 700; letter-spacing: 0.4px;
+        text-transform: uppercase; background: #8a5a11; color: #fff;
+        padding: 2px 6px; border-radius: 3px;
+    }
+
     /* The anchor copy. Rendered as one block, verbatim, never split across
        screens — the reassurance only works if the condition travels with it. */
     .anchor-copy {
@@ -401,6 +416,10 @@
         <div class="cp-btns" id="cpT1"></div>
     </div>
     <div class="cp-group">
+        <div class="cp-label">1 — Headline</div>
+        <div class="cp-btns" id="cpH1"></div>
+    </div>
+    <div class="cp-group">
         <div class="cp-label">2 — Recommendation</div>
         <div class="cp-btns" id="cpT2"></div>
     </div>
@@ -427,7 +446,7 @@ const intlRate = ()    => RATE.intl + RATE.smp;
 const effRate  = scope =>
     (MIX.dom / 100) * domRate(scope) + (MIX.intl / 100) * intlRate();
 
-const STATE = { step: 1, t1: '1B', t2: '2B', t3: '3A', choice: null, scope: 'crossborder' };
+const STATE = { step: 1, t1: '1B', h1: 'H1', t2: '2B', t3: '3A', choice: null, scope: 'crossborder' };
 
 // Deep links so the index can point at a specific step or treatment:
 // ?s=2&t2=2C. Keeps every entry point inside one file.
@@ -435,7 +454,7 @@ const STATE = { step: 1, t1: '1B', t2: '2B', t3: '3A', choice: null, scope: 'cro
     const q = new URLSearchParams(location.search);
     const s = parseInt(q.get('s'), 10);
     if (s >= 1 && s <= 4) STATE.step = s;
-    ['t1', 't2', 't3'].forEach(k => { if (q.get(k)) STATE[k] = q.get(k); });
+    ['t1', 'h1', 't2', 't3'].forEach(k => { if (q.get(k)) STATE[k] = q.get(k); });
     // Landing directly on step 3 or 4 implies the SMP branch was chosen.
     if (STATE.step >= 3) STATE.choice = q.get('choice') === 'self' ? 'self' : 'smp';
     if (q.get('scope') === 'all') STATE.scope = 'all';
@@ -452,6 +471,45 @@ const MOR = term('merchant of record',
     'responsible for tax, compliance, and disputes on that sale. With Managed Payments, ' +
     'Stripe takes that role for the volume it covers — which is how it can handle these ' +
     'obligations on your behalf rather than just advising you on them.');
+
+/* ------------------------------------------------------------------
+   Step 1 headlines.
+
+   The headline carries the justification for the whole flow's central
+   assumption: we didn't ask whether they sell internationally because
+   businesses like theirs do. Each variant has to land three things —
+   the peer evidence, the assumption stated out loud, and the promise.
+
+   Naming the assumption is what keeps "assume global" from reading as
+   presumptuous. If we quietly act on it, a domestic-only merchant feels
+   railroaded; if we say "here's why we assumed this," they can disagree
+   with a premise instead of hunting for an opt-out.
+------------------------------------------------------------------ */
+
+// Unsourced. Rendered as a visible placeholder rather than a plausible
+// invented number — it's the most quotable line on the screen, and a made-up
+// stat about the merchant's own peer group is the fastest way to lose them.
+const PEER_STAT = '<span class="needs-data">X%<span class="nd-flag">needs data</span></span>';
+
+const HEADLINES = {
+    // H1 — the stat leads. Strongest version of "companies like yours," and
+    // the version that depends entirely on getting a real number.
+    H1: PEER_STAT + ' of businesses selling digital goods sell internationally as they grow. '
+        + '<span class="muted">We&rsquo;ve assumed you will too, and we&rsquo;ll handle the '
+        + 'complexities for you.</span>',
+
+    // H2 — assumption first, evidence as the reason. Leads with what we did
+    // rather than with a claim about them; the stat becomes support, not premise.
+    H2: 'We&rsquo;ve set you up to sell internationally. '
+        + '<span class="muted">Businesses selling digital goods almost always do as they grow, '
+        + 'so we&rsquo;ll handle the complexities that come with it.</span>',
+
+    // H3 — no stat at all. The control: does the peer claim need a number to
+    // do its work, or does "businesses like yours" carry it? Ships today.
+    H3: 'Businesses like yours usually end up selling internationally. '
+        + '<span class="muted">So we&rsquo;ve set you up for it, and we&rsquo;ll handle the '
+        + 'complexities as they come.</span>',
+};
 
 /* ---- The anchor copy, verbatim. Single source so no screen can drift. ---- */
 const ANCHOR =
@@ -484,19 +542,17 @@ const TRIGGERS = [
 ];
 
 function step1() {
+    const headline = '<div class="step-eyebrow">Step 1 of 4</div>'
+        + '<h1 class="headline">' + (HEADLINES[STATE.h1] || HEADLINES.H1) + '</h1>';
+
     if (STATE.t1 === '1D') {
         // 1D — radical restraint. The floor: how little framing can step 2
         // survive on? Kept as the control for whether step 1 earns its space.
-        return '<div class="step-eyebrow">Step 1 of 4</div>'
-            + '<h1 class="headline">Selling internationally brings a few obligations. '
-            + '<span class="muted">Stripe can take them on for you.</span></h1>'
-            + '<p class="anchor-copy">' + ANCHOR + '</p>';
+        return headline + '<p class="anchor-copy">' + ANCHOR + '</p>';
     }
     // 1B — trigger list, collapsed. Headline claim readable in five seconds;
     // depth available to anyone who wants it.
-    return '<div class="step-eyebrow">Step 1 of 4</div>'
-        + '<h1 class="headline">Selling internationally brings a few obligations. '
-        + '<span class="muted">Stripe can take them on for you.</span></h1>'
+    return headline
         + '<p class="anchor-copy">' + ANCHOR + '</p>'
         + '<div class="trig-list">'
         + TRIGGERS.map((t, i) =>
@@ -846,6 +902,9 @@ function go(d) {
 const CP_NOTES = {
     '1B': '<b>1B Trigger list, collapsed.</b> Headline claim readable in five seconds, detail on demand. Every row says &ldquo;Stripe handles it&rdquo; &mdash; the repetition is the argument.',
     '1D': '<b>1D Radical restraint.</b> One claim, the anchor copy, nothing else. The control for whether step 1 earns its space.',
+    'H1': '<b>H1 Stat leads.</b> Strongest form of &ldquo;companies like yours&rdquo; &mdash; peer evidence, then the assumption named, then the promise. Entirely dependent on a real number; the placeholder is deliberate.',
+    'H2': '<b>H2 Assumption first.</b> Leads with what we did, evidence as the reason. The stat becomes support rather than premise, so it survives without a sourced figure.',
+    'H3': '<b>H3 No stat.</b> Control. Does the peer claim need a number to work, or does &ldquo;businesses like yours&rdquo; carry it? The only variant that can ship today.',
     '2B': '<b>2B Asymmetric.</b> Leading candidate. Managed Payments gets primacy; self-managed stays complete and correctly priced. Both prices inline, never behind a click.',
     '2A': '<b>2A Banner + symmetrical columns.</b> The check on 2B: opinion lives in copy, not in visual weight. Hardest version to accuse of stacking the deck.',
     '2C': '<b>2C Workload diff.</b> Patches the frame&rsquo;s weakness &mdash; &ldquo;Stripe handles it&rdquo; never says what you&rsquo;d otherwise do. Watch for tipping into fear framing.',
@@ -869,10 +928,13 @@ function controlPanel() {
             + 'onclick="STATE.step=' + s + ';render()">' + s + '</button>';
     }).join('');
     mk('cpT1', ['1B', '1D'], 't1');
+    mk('cpH1', ['H1', 'H2', 'H3'], 'h1');
     mk('cpT2', ['2B', '2A', '2C', '2E'], 't2');
     mk('cpT3', ['3A', '3B', '3C'], 't3');
 
-    const key = STATE.step === 1 ? STATE.t1 : STATE.step === 2 ? STATE.t2 : STATE.step === 3 ? STATE.t3 : null;
+    // On step 1 the headline is the live decision, so its note wins over the
+    // layout treatment's.
+    const key = STATE.step === 1 ? STATE.h1 : STATE.step === 2 ? STATE.t2 : STATE.step === 3 ? STATE.t3 : null;
     document.getElementById('cpNote').innerHTML = key
         ? CP_NOTES[key]
         : '<b>Step 4 Confirm.</b> Branches on the step 2 choice. The self-managed branch is the honesty test: if it reads as a consolation prize, the recommendation upstream was coercive.';
