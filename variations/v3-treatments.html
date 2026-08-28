@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V3 — design treatments</title>
+<style>
+    :root {
+        --bg-surface: #ffffff;
+        --bg-offset: #f5f6f8;
+        --text-default: #353a44;
+        --text-subdued: #596171;
+        --text-heading: #21252c;
+        --text-muted: #99a5b8;
+        --text-action-primary: #533afd;
+        --icon-action-primary: #675dff;
+        --border-action-primary-strong: #533afd;
+        --border-default: #d4dee9;
+        --bg-form-accent: #675dff;
+        --neutral-200: #b6c0cd;
+        --neutral-50: #ebeef1;
+        --shadow-overlay: 0px 15px 35px 0px rgba(48, 49, 61, 0.08), 0px 5px 15px 0px rgba(0, 0, 0, 0.12);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+        background: var(--bg-offset); overflow: hidden; height: 100vh; width: 100vw;
+    }
+    .dashboard { display: flex; height: 100vh; width: 100vw; }
+    .sidebar {
+        width: 232px; background: var(--bg-surface); border-right: 1px solid var(--neutral-50);
+        padding: 24px 16px; display: flex; flex-direction: column; gap: 4px;
+    }
+    .sidebar-logo { padding: 8px 12px; margin-bottom: 20px; }
+    .nav-item { padding: 8px 12px; border-radius: 6px; font-size: 14px; color: var(--text-subdued); }
+    .nav-item.active { background: var(--bg-offset); color: var(--text-default); font-weight: 500; }
+    .main-content { flex: 1; background: var(--bg-offset); padding: 32px; }
+    .content-placeholder { height: 200px; background: var(--bg-surface); border-radius: 8px; border: 1px solid var(--neutral-50); }
+
+    .modal-backdrop {
+        position: fixed; inset: 0; background: rgba(182, 192, 205, 0.7);
+        display: flex; align-items: center; justify-content: center; z-index: 100;
+    }
+    .modal {
+        width: 88%; height: 86%; max-width: 1040px; background: var(--bg-surface);
+        border-radius: 12px; box-shadow: var(--shadow-overlay);
+        display: flex; flex-direction: column; overflow: hidden; position: relative; padding: 16px;
+        transition: background 0.5s ease;
+    }
+    .modal-wash {
+        position: absolute; inset: 16px; border-radius: 8px; z-index: 0;
+        transition: opacity 0.5s ease, background 0.5s ease;
+        background:
+            radial-gradient(52% 70% at 46% 70%, rgba(207, 226, 255, 0.24) 0%, rgba(207, 226, 255, 0) 94%),
+            radial-gradient(105% 45% at 93% 37%, rgba(216, 128, 236, 0.2) 0%, rgba(216, 128, 236, 0) 79%),
+            #fefefe;
+    }
+    .modal-header, .modal-body, .modal-footer { position: relative; z-index: 1; }
+    .modal-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 26px 48px 0; flex-shrink: 0;
+    }
+    .logo-mark { transition: fill 0.5s ease; }
+    .progress { display: flex; gap: 5px; }
+    .pip { width: 22px; height: 4px; border-radius: 2px; background: var(--neutral-50); transition: background 0.5s ease; }
+    .pip.on { background: var(--icon-action-primary); }
+
+    .modal-body {
+        flex: 1; min-height: 0; overflow-y: auto; padding: 24px 48px 8px;
+        display: flex; flex-direction: column; justify-content: center;
+    }
+    .inner { width: 100%; margin: 0 auto; max-width: 720px; }
+    .modal-footer {
+        flex-shrink: 0; padding: 14px 48px 24px; display: flex; align-items: center;
+        justify-content: space-between; gap: 16px;
+    }
+
+    /* ---------- shared motion ---------- */
+    .seq { animation: seq-in 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+    @keyframes seq-in { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { .seq, .lane-item, .dot { animation-duration: 0.01ms !important; } }
+
+    /* ---------- shared type ---------- */
+    h1.lede {
+        font-size: 25px; line-height: 33px; font-weight: 600; letter-spacing: -0.5px;
+        color: var(--text-heading); margin-bottom: 14px;
+    }
+    h1.lede .muted { color: var(--text-muted); font-weight: 600; }
+    .body-copy { font-size: 15px; line-height: 23px; color: var(--text-subdued); letter-spacing: -0.15px; margin-bottom: 20px; }
+    .closer {
+        font-size: 14px; line-height: 21px; color: var(--text-default);
+        padding-top: 16px; margin-top: 18px; border-top: 1px solid var(--neutral-50);
+    }
+    .quiet { font-size: 13px; line-height: 19px; color: var(--text-subdued); margin-top: 16px; }
+
+    /* ---------- shared choices (screens 2–3) ---------- */
+    .choices { display: flex; gap: 14px; }
+    .choice {
+        flex: 1; min-width: 0; background: var(--bg-surface); border: 2px solid var(--border-default);
+        border-radius: 10px; padding: 17px; cursor: pointer;
+        transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s, background 0.3s;
+    }
+    .choice:hover { border-color: var(--neutral-200); transform: translateY(-1px); }
+    .choice.on { border-color: var(--border-action-primary-strong); box-shadow: 0 0 0 1px var(--border-action-primary-strong); }
+    .choice-head { display: flex; align-items: center; gap: 9px; margin-bottom: 5px; flex-wrap: wrap; }
+    .choice-title { font-size: 15px; font-weight: 600; color: var(--text-heading); }
+    .choice-line { font-size: 13px; line-height: 19px; color: var(--text-subdued); margin-bottom: 12px; }
+    .choice-price { font-size: 15px; font-weight: 700; color: var(--text-heading); letter-spacing: -0.2px; font-variant-numeric: tabular-nums; }
+    .choice-price small { display: block; font-size: 12px; line-height: 17px; font-weight: 400; letter-spacing: 0; color: var(--text-subdued); margin-top: 3px; }
+    .tag-rec { display: inline-flex; padding: 2px 8px; background: var(--icon-action-primary); border-radius: 4px; font-size: 10px; font-weight: 600; color: #fff; letter-spacing: 0.3px; }
+    .tag-alt { display: inline-flex; padding: 2px 8px; background: var(--bg-offset); border: 1px solid var(--border-default); border-radius: 4px; font-size: 10px; font-weight: 600; color: var(--text-subdued); letter-spacing: 0.3px; }
+    .done-row { display: flex; align-items: flex-start; gap: 11px; font-size: 14px; line-height: 21px; color: var(--text-default); padding: 9px 0; }
+    .tick { flex-shrink: 0; width: 18px; height: 18px; border-radius: 50%; background: #2f9e44; color: #fff; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+    .tick svg { width: 10px; height: 10px; }
+    .expand { margin-top: 20px; padding: 16px 17px; border-radius: 10px; background: rgba(255,255,255,0.72); border: 1px solid var(--border-default); }
+    .expand-title { font-size: 14px; font-weight: 600; color: var(--text-heading); margin-bottom: 4px; }
+    .expand-body { font-size: 13px; line-height: 19px; color: var(--text-subdued); }
+    .expand-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 13px; }
+    .expand-when { font-size: 12px; line-height: 17px; color: var(--text-default); }
+    .switch { flex-shrink: 0; width: 40px; height: 23px; border-radius: 100px; background: var(--neutral-200); border: none; cursor: pointer; padding: 0; position: relative; transition: background 0.24s; }
+    .switch.on { background: var(--bg-form-accent); }
+    .switch i { position: absolute; top: 3px; left: 3px; width: 17px; height: 17px; border-radius: 50%; background: #fff; transition: transform 0.24s cubic-bezier(0.2,0.8,0.2,1); }
+    .switch.on i { transform: translateX(17px); }
+    .rate-line { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-top: 14px; padding: 10px 12px; background: var(--bg-offset); border-radius: 7px; }
+    .rate-line span { font-size: 12px; color: var(--text-subdued); }
+    .rate-line b { font-size: 16px; color: var(--text-heading); font-variant-numeric: tabular-nums; }
+    .todo-flag { font-size: 10px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase; color: #8a5a11; background: #fdf3e7; border: 1px solid #f3d9b0; padding: 1px 6px; border-radius: 3px; margin-left: 8px; }
+
+    .btn { font-family: inherit; font-size: 14px; font-weight: 600; letter-spacing: -0.15px; padding: 9px 17px; border-radius: 6px; cursor: pointer; border: 1px solid transparent; transition: filter 0.15s, background 0.15s; }
+    .btn-primary { background: var(--bg-form-accent); color: #fff; box-shadow: 0 1px 1px rgba(0,0,0,0.12); }
+    .btn-primary:hover { filter: brightness(1.06); }
+    .btn-ghost { background: none; border: none; color: var(--text-subdued); font-family: inherit; font-size: 14px; cursor: pointer; padding: 9px 4px; }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ==================================================================
+   T1 — THE HANDOFF
+   Fixes: the inert list. Obligations start on the merchant's side and
+   move to Stripe's, so the value proposition is motion rather than a
+   claim. The left lane ending up empty is the whole argument.
+================================================================== */
+    .lanes { display: flex; gap: 0; align-items: stretch; margin-top: 4px; }
+    .lane { flex: 1; min-width: 0; padding: 14px 16px 16px; position: relative; }
+    .lane-head {
+        font-size: 11px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase;
+        margin-bottom: 12px;
+    }
+    .lane.you { border: 1px dashed var(--neutral-200); border-radius: 10px 0 0 10px; border-right: none; }
+    .lane.you .lane-head { color: var(--text-muted); }
+    .lane.stripe {
+        border: 1px solid #c3b6fb; border-radius: 0 10px 10px 0;
+        background: linear-gradient(180deg, rgba(239,236,252,0.85), rgba(239,236,252,0.4));
+    }
+    .lane.stripe .lane-head { color: #44139f; }
+    .lane-empty {
+        font-size: 13px; line-height: 19px; color: var(--text-muted);
+        animation: seq-in 0.6s ease both; animation-delay: 1.5s;
+    }
+    .lane-items { display: flex; flex-direction: column; gap: 7px; }
+    /* Each item begins over the merchant's lane and slides into Stripe's.
+       Only transform and opacity animate. */
+    .lane-item {
+        background: var(--bg-surface); border: 1px solid #c3b6fb; border-radius: 7px;
+        padding: 9px 11px; font-size: 13px; line-height: 18px; color: var(--text-default);
+        box-shadow: 0 1px 2px rgba(48,49,61,0.06);
+        animation: hand-off 0.85s cubic-bezier(0.32, 0.9, 0.3, 1) both;
+    }
+    .lane-item small { display: block; font-size: 11px; line-height: 15px; color: var(--text-muted); margin-top: 1px; }
+    @keyframes hand-off {
+        0%   { opacity: 0; transform: translateX(-108%) scale(0.97); }
+        55%  { opacity: 1; }
+        100% { opacity: 1; transform: none; }
+    }
+    .hand-arrow {
+        position: absolute; top: 50%; right: -1px; width: 26px; height: 1px;
+        background: linear-gradient(90deg, transparent, #c3b6fb);
+    }
+
+/* ==================================================================
+   T2 — EDITORIAL
+   Fixes: the sameness and the timidity. No cards, no borders, no rules
+   on screen 1. One thought, set large, with room around it. Premium
+   reads as confidence, and confidence looks like empty space.
+================================================================== */
+    [data-t="editorial"] .inner { max-width: 620px; }
+    [data-t="editorial"] .modal-wash { opacity: 0.5; }
+    .ed-lede {
+        font-size: 42px; line-height: 48px; font-weight: 600; letter-spacing: -1.4px;
+        color: var(--text-heading); margin-bottom: 22px;
+    }
+    .ed-lede .muted { color: var(--neutral-200); }
+    .ed-body { font-size: 18px; line-height: 28px; color: var(--text-subdued); letter-spacing: -0.3px; max-width: 520px; }
+    /* The things become a quiet inline run rather than a table — present,
+       but not asking to be studied. */
+    .ed-things {
+        margin-top: 34px; font-size: 15px; line-height: 30px; color: var(--text-default);
+        letter-spacing: -0.1px;
+    }
+    .ed-things b { font-weight: 600; }
+    .ed-things .sep { color: var(--neutral-200); margin: 0 8px; }
+    .ed-closer {
+        margin-top: 40px; font-size: 15px; line-height: 23px; color: var(--text-muted);
+    }
+    [data-t="editorial"] .choice { border-width: 1px; border-radius: 12px; }
+    [data-t="editorial"] .choice-title { font-size: 17px; }
+
+/* ==================================================================
+   T3 — SPLIT STAGE
+   Fixes: the missing subject. Restores a focal point to look at. A field
+   of markets standing by — deliberately a scatter, not a globe, per the
+   Aug 27 decision to leave the globe out of this round.
+================================================================== */
+    [data-t="stage"] .inner { max-width: 100%; }
+    .split { display: flex; gap: 40px; align-items: center; }
+    .split-left { flex: 1.05; min-width: 0; }
+    .split-right { flex: 0.95; min-width: 0; display: flex; flex-direction: column; align-items: center; }
+    .field { position: relative; width: 100%; max-width: 330px; aspect-ratio: 1; }
+    .field-glow {
+        position: absolute; inset: 8%; border-radius: 50%;
+        background: radial-gradient(circle at 42% 38%, rgba(103,93,255,0.16), rgba(103,93,255,0) 68%);
+    }
+    .dot {
+        position: absolute; border-radius: 50%; background: var(--neutral-200);
+        transform: translate(-50%, -50%);
+        animation: dot-in 0.7s cubic-bezier(0.2,0.8,0.2,1) both;
+    }
+    .dot.live { background: var(--icon-action-primary); }
+    /* The pulse is what keeps the visual from dying after entry. */
+    .dot.live::after {
+        content: ''; position: absolute; inset: -4px; border-radius: 50%;
+        border: 1px solid rgba(103,93,255,0.5);
+        animation: ring 3.4s ease-out infinite;
+    }
+    @keyframes dot-in { from { opacity: 0; transform: translate(-50%, -50%) scale(0.2); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+    @keyframes ring {
+        0%   { transform: scale(0.6); opacity: 0.9; }
+        70%  { transform: scale(2.4); opacity: 0; }
+        100% { transform: scale(2.4); opacity: 0; }
+    }
+    .field-caption {
+        margin-top: 14px; font-size: 12px; color: var(--text-muted); text-align: center;
+        font-variant-numeric: tabular-nums;
+    }
+    .field-caption b { color: var(--text-subdued); font-weight: 600; }
+    .stage-things { display: flex; flex-direction: column; gap: 1px; margin-top: 6px; }
+    .st-row { display: flex; align-items: center; gap: 12px; padding: 10px 2px; border-top: 1px solid var(--neutral-50); }
+    .st-row:first-child { border-top: none; }
+    .st-what { flex: 1; font-size: 14px; line-height: 20px; color: var(--text-default); }
+    .st-who { flex-shrink: 0; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 4px; background: #efecfc; border: 1px solid #c3b6fb; color: #44139f; }
+
+/* ==================================================================
+   T4 — AMBIENT DEPTH
+   Fixes: the flat template surface. Same layout, different material —
+   deep field, real elevation, light type. Premium signalled the way a
+   paid product looks different from a settings page.
+================================================================== */
+    [data-t="ambient"] .modal { background: #0e0b28; }
+    [data-t="ambient"] .modal-wash {
+        background:
+            radial-gradient(64% 58% at 18% 16%, rgba(103,93,255,0.34) 0%, rgba(103,93,255,0) 72%),
+            radial-gradient(52% 52% at 88% 82%, rgba(216,128,236,0.24) 0%, rgba(216,128,236,0) 70%),
+            radial-gradient(44% 44% at 74% 12%, rgba(90,200,250,0.14) 0%, rgba(90,200,250,0) 74%),
+            #0e0b28;
+    }
+    [data-t="ambient"] .logo-mark { fill: #fff; }
+    [data-t="ambient"] .pip { background: rgba(255,255,255,0.16); }
+    [data-t="ambient"] .pip.on { background: #a99cff; }
+    [data-t="ambient"] h1.lede { color: #fff; }
+    [data-t="ambient"] h1.lede .muted { color: rgba(255,255,255,0.5); }
+    [data-t="ambient"] .body-copy { color: rgba(255,255,255,0.72); }
+    [data-t="ambient"] .closer { color: rgba(255,255,255,0.9); border-top-color: rgba(255,255,255,0.12); }
+    [data-t="ambient"] .quiet { color: rgba(255,255,255,0.58); }
+    [data-t="ambient"] .btn-ghost { color: rgba(255,255,255,0.62); }
+    [data-t="ambient"] .btn-primary { background: #6c5cff; box-shadow: 0 6px 20px rgba(108,92,255,0.42); }
+    /* Layered glass: the card in front, a blurred sibling behind it. Depth is
+       doing the work the borders used to. */
+    .amb-stack { position: relative; margin-top: 4px; }
+    .amb-behind {
+        position: absolute; left: 18px; right: 18px; top: 16px; bottom: -14px;
+        border-radius: 14px; background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.07); filter: blur(0.5px);
+    }
+    .amb-card {
+        position: relative; border-radius: 14px; padding: 18px 20px;
+        background: rgba(255,255,255,0.07);
+        border: 1px solid rgba(255,255,255,0.13);
+        box-shadow: 0 18px 44px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.09);
+        backdrop-filter: blur(14px);
+    }
+    .amb-head {
+        display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        padding-bottom: 13px; margin-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .amb-title { font-size: 11px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: rgba(255,255,255,0.52); }
+    .amb-status { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; color: #7ee0a0; }
+    .amb-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 0 0 rgba(74,222,128,0.6); animation: amb-pulse 2.6s ease-in-out infinite; }
+    @keyframes amb-pulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(74,222,128,0.5); }
+        50%      { box-shadow: 0 0 0 6px rgba(74,222,128,0); }
+    }
+    .amb-row { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.07); }
+    .amb-row:first-of-type { border-top: none; }
+    .amb-what { flex: 1; font-size: 14px; line-height: 20px; color: rgba(255,255,255,0.92); }
+    .amb-what small { display: block; font-size: 12px; line-height: 17px; color: rgba(255,255,255,0.45); margin-top: 1px; }
+    .amb-who {
+        flex-shrink: 0; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 4px;
+        background: rgba(169,156,255,0.16); border: 1px solid rgba(169,156,255,0.4); color: #c9c0ff;
+    }
+    [data-t="ambient"] .choice {
+        background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.14);
+        backdrop-filter: blur(12px);
+    }
+    [data-t="ambient"] .choice.on { border-color: #8b7cff; box-shadow: 0 0 0 1px #8b7cff, 0 14px 34px rgba(0,0,0,0.3); }
+    [data-t="ambient"] .choice-title, [data-t="ambient"] .choice-price { color: #fff; }
+    [data-t="ambient"] .choice-line, [data-t="ambient"] .choice-price small { color: rgba(255,255,255,0.62); }
+    [data-t="ambient"] .tag-alt { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.18); color: rgba(255,255,255,0.7); }
+    [data-t="ambient"] .done-row { color: rgba(255,255,255,0.9); }
+    [data-t="ambient"] .expand { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.14); }
+    [data-t="ambient"] .expand-title { color: #fff; }
+    [data-t="ambient"] .expand-body, [data-t="ambient"] .expand-when { color: rgba(255,255,255,0.66); }
+    [data-t="ambient"] .rate-line { background: rgba(0,0,0,0.22); }
+    [data-t="ambient"] .rate-line span { color: rgba(255,255,255,0.6); }
+    [data-t="ambient"] .rate-line b { color: #fff; }
+    [data-t="ambient"] .switch { background: rgba(255,255,255,0.22); }
+
+    /* ---------- control panel ---------- */
+    .control-panel {
+        position: fixed; bottom: 16px; left: 16px; z-index: 500; width: 300px;
+        padding: 14px; background: var(--bg-surface); border-radius: 12px;
+        border: 1px solid var(--neutral-50); box-shadow: 0 6px 20px rgba(0,0,0,0.12); font-size: 12px;
+    }
+    .cp-title { font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
+    .cp-group { margin-bottom: 12px; }
+    .cp-label { font-size: 11px; font-weight: 600; color: var(--text-subdued); margin-bottom: 5px; }
+    .cp-btns { display: flex; gap: 5px; flex-wrap: wrap; }
+    .cp-btn {
+        font-family: inherit; font-size: 11px; padding: 4px 9px; border-radius: 5px;
+        border: 1px solid var(--border-default); background: var(--bg-surface);
+        color: var(--text-subdued); cursor: pointer; text-align: left;
+    }
+    .cp-btn.on { background: var(--bg-form-accent); border-color: var(--bg-form-accent); color: #fff; font-weight: 600; }
+    .cp-note { font-size: 11px; line-height: 16px; color: var(--text-muted); border-top: 1px solid var(--neutral-50); padding-top: 10px; }
+    .cp-note b { color: var(--text-subdued); }
+</style>
+</head>
+<body>
+
+<div class="dashboard">
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <svg viewBox="0 0 60 25" fill="#675dff" width="60" height="24"><path d="M59.64 14.28h-8.06c.19 1.93 1.6 2.55 3.2 2.55 1.64 0 2.96-.37 4.05-.95v3.32a8.33 8.33 0 0 1-4.56 1.1c-4.01 0-6.83-2.5-6.83-7.48 0-4.19 2.39-7.52 6.3-7.52 3.92 0 5.96 3.28 5.96 7.5 0 .4-.04 1.26-.06 1.48zm-5.92-5.62c-1.03 0-2.17.73-2.17 2.58h4.25c0-1.85-1.07-2.58-2.08-2.58zM40.95 20.3c-1.44 0-2.32-.6-2.9-1.04l-.02 4.63-4.12.87V5.57h3.76l.08 1.02a4.7 4.7 0 0 1 3.23-1.29c2.9 0 5.62 2.6 5.62 7.4 0 5.23-2.7 7.6-5.65 7.6zM40 8.95c-.95 0-1.54.34-1.97.81l.02 6.12c.4.44.98.78 1.95.78 1.52 0 2.54-1.65 2.54-3.87 0-2.15-1.04-3.84-2.54-3.84zM28.24 5.57h4.13v14.44h-4.13V5.57zm0-4.7L32.37 0v3.36l-4.13.88V.88zm-4.32 9.35v9.79H19.8V5.57h3.7l.12 1.22c1-1.77 3.07-1.41 3.62-1.22v3.79c-.52-.17-2.29-.43-3.32.86zm-8.55 4.72c0 2.43 2.6 1.68 3.12 1.46v3.36c-.55.3-1.54.54-2.89.54a4.15 4.15 0 0 1-4.27-4.24l.01-13.17 4.02-.86v3.54h3.13V9.1h-3.12v5.85zm-4.91.7c0 2.97-2.31 4.66-5.73 4.66a11.2 11.2 0 0 1-4.46-.93v-3.93c1.38.75 3.1 1.31 4.46 1.31.92 0 1.53-.24 1.53-1C4.26 14.37 0 15.15 0 9.85c0-2.92 2.24-4.66 5.58-4.66 1.24 0 2.5.2 3.73.7v3.88a8.35 8.35 0 0 0-3.73-.96c-.86 0-1.4.25-1.4.9 0 1.85 4.28.97 4.28 6.02z"/></svg>
+        </div>
+        <div class="nav-item">Home</div>
+        <div class="nav-item">Balances</div>
+        <div class="nav-item active">Get started</div>
+        <div class="nav-item">Products</div>
+    </div>
+    <div class="main-content"><div class="content-placeholder"></div></div>
+</div>
+
+<div class="modal-backdrop">
+    <div class="modal" id="modal" data-t="handoff">
+        <div class="modal-wash"></div>
+        <div class="modal-header">
+            <svg class="logo-mark" viewBox="0 0 60 25" fill="#0a2540" width="60" height="25"><path d="M59.64 14.28h-8.06c.19 1.93 1.6 2.55 3.2 2.55 1.64 0 2.96-.37 4.05-.95v3.32a8.33 8.33 0 0 1-4.56 1.1c-4.01 0-6.83-2.5-6.83-7.48 0-4.19 2.39-7.52 6.3-7.52 3.92 0 5.96 3.28 5.96 7.5 0 .4-.04 1.26-.06 1.48zm-5.92-5.62c-1.03 0-2.17.73-2.17 2.58h4.25c0-1.85-1.07-2.58-2.08-2.58zM40.95 20.3c-1.44 0-2.32-.6-2.9-1.04l-.02 4.63-4.12.87V5.57h3.76l.08 1.02a4.7 4.7 0 0 1 3.23-1.29c2.9 0 5.62 2.6 5.62 7.4 0 5.23-2.7 7.6-5.65 7.6zM40 8.95c-.95 0-1.54.34-1.97.81l.02 6.12c.4.44.98.78 1.95.78 1.52 0 2.54-1.65 2.54-3.87 0-2.15-1.04-3.84-2.54-3.84zM28.24 5.57h4.13v14.44h-4.13V5.57zm0-4.7L32.37 0v3.36l-4.13.88V.88zm-4.32 9.35v9.79H19.8V5.57h3.7l.12 1.22c1-1.77 3.07-1.41 3.62-1.22v3.79c-.52-.17-2.29-.43-3.32.86zm-8.55 4.72c0 2.43 2.6 1.68 3.12 1.46v3.36c-.55.3-1.54.54-2.89.54a4.15 4.15 0 0 1-4.27-4.24l.01-13.17 4.02-.86v3.54h3.13V9.1h-3.12v5.85zm-4.91.7c0 2.97-2.31 4.66-5.73 4.66a11.2 11.2 0 0 1-4.46-.93v-3.93c1.38.75 3.1 1.31 4.46 1.31.92 0 1.53-.24 1.53-1C4.26 14.37 0 15.15 0 9.85c0-2.92 2.24-4.66 5.58-4.66 1.24 0 2.5.2 3.73.7v3.88a8.35 8.35 0 0 0-3.73-.96c-.86 0-1.4.25-1.4.9 0 1.85 4.28.97 4.28 6.02z"/></svg>
+            <div class="progress" id="prog"></div>
+        </div>
+        <div class="modal-body"><div class="inner" id="stage"></div></div>
+        <div class="modal-footer" id="footer"></div>
+    </div>
+</div>
+
+<div class="control-panel">
+    <div class="cp-title">V3 — design treatments</div>
+    <div class="cp-group">
+        <div class="cp-label">Treatment</div>
+        <div class="cp-btns" id="cpT" style="flex-direction:column;align-items:stretch"></div>
+    </div>
+    <div class="cp-group">
+        <div class="cp-label">Narrative</div>
+        <div class="cp-btns" id="cpNar"></div>
+    </div>
+    <div class="cp-group">
+        <div class="cp-label">Screen</div>
+        <div class="cp-btns" id="cpStep"></div>
+    </div>
+    <div class="cp-note" id="cpNote"></div>
+</div>
+
+<script>
+const RATE = { dom: 2.9, intl: 3.4, smp: 3.5 };
+const MIX = { dom: 68, intl: 32 };
+const pct = n => n.toFixed(1) + '%';
+const intlRate = () => RATE.intl + RATE.smp;
+const domRate = all => all ? RATE.dom + RATE.smp : RATE.dom;
+const blended = all => (MIX.dom / 100) * domRate(all) + (MIX.intl / 100) * intlRate();
+
+const TREATMENTS = {
+    handoff:   'T1 — The handoff',
+    editorial: 'T2 — Editorial type',
+    stage:     'T3 — Split stage',
+    ambient:   'T4 — Ambient depth',
+};
+const T_NOTES = {
+    handoff: '<b>T1 The handoff.</b> Fixes the inert list. Obligations start in your lane and move '
+        + 'to Stripe&rsquo;s on a stagger &mdash; the argument is the motion, and your lane ending '
+        + 'up empty. Most explanatory of the four.',
+    editorial: '<b>T2 Editorial type.</b> Fixes the timidity. No cards, no borders, 42px lede, one '
+        + 'thought. Premium reads as confidence and confidence looks like empty space. Least '
+        + 'informative per screen &mdash; would need more screens.',
+    stage: '<b>T3 Split stage.</b> Fixes the missing subject &mdash; restores a focal point to look '
+        + 'at. A scatter field of markets standing by, with live dots pulsing. Deliberately not a '
+        + 'globe, per the Aug 27 decision.',
+    ambient: '<b>T4 Ambient depth.</b> Fixes the flat template surface. Same layout, different '
+        + 'material: deep field, real elevation, layered glass. Signals premium the way a paid '
+        + 'product looks unlike a settings page. Furthest from current Stripe onboarding.',
+};
+
+const STATE = { t: 'handoff', nar: 'alone', step: 1, choice: null, domestic: false };
+(function () {
+    const q = new URLSearchParams(location.search);
+    if (Object.keys(TREATMENTS).includes(q.get('t'))) STATE.t = q.get('t');
+    if (['ready', 'evidence', 'alone'].includes(q.get('n'))) STATE.nar = q.get('n');
+    const s = parseInt(q.get('s'), 10);
+    if (s >= 1 && s <= 3) STATE.step = s;
+    if (STATE.step === 3) STATE.choice = q.get('choice') === 'self' ? 'self' : 'smp';
+})();
+
+const THINGS = [
+    ['Local payment methods', 'What customers in each market expect to pay with'],
+    ['Tax thresholds', 'Registering and remitting once you pass one somewhere'],
+    ['Disputes', 'Different deadlines and evidence rules in every market'],
+    ['Fraud', 'Patterns that vary market by market'],
+];
+
+const NARRATIVES = {
+    ready: {
+        name: 'Ready',
+        lede: 'You&rsquo;re selling digital goods, which means you can grow faster than you expect '
+            + '&mdash; <span class="muted">and in directions you can&rsquo;t really predict.</span>',
+        body: 'This is how we&rsquo;d set you up: ready for whatever turns up, whenever it does.',
+        closer: 'Until then, nothing changes and nothing costs you anything.',
+    },
+    evidence: {
+        name: 'Evidence',
+        lede: 'You&rsquo;re selling digital goods, which means you&rsquo;re going to grow. '
+            + '<span class="muted">Growth can get complicated.</span>',
+        body: 'Here&rsquo;s what businesses like yours deal with as they grow.',
+        closer: 'Managed Payments is how Stripe handles it. Only pay for what you need, and stay in control.',
+    },
+    alone: {
+        name: 'Alone',
+        lede: 'You&rsquo;re selling digital goods, which means you&rsquo;re going to grow. '
+            + '<span class="muted">Growing means running into things you haven&rsquo;t seen before.</span>',
+        body: 'You don&rsquo;t need to work any of it out on your own. We&rsquo;ve seen these thousands '
+            + 'of times, and we&rsquo;ll tell you when something happens.',
+        closer: 'There&rsquo;s nothing for you to do now, and nothing to pay until it happens.',
+    },
+};
+const nar = () => NARRATIVES[STATE.nar] || NARRATIVES.alone;
+
+/* ---- T3's market field: golden-angle scatter, so it's evenly spread
+        without looking gridded, and identical on every render. ---- */
+function marketField(n) {
+    let out = '';
+    for (let i = 0; i < n; i++) {
+        const r = Math.sqrt((i + 0.5) / n);
+        const a = i * 2.39996;
+        const x = 50 + r * 44 * Math.cos(a);
+        const y = 50 + r * 44 * Math.sin(a);
+        const live = i % 6 === 2;
+        const size = live ? 7 : (i % 3 === 0 ? 5 : 4);
+        out += '<span class="dot' + (live ? ' live' : '') + '" style="left:' + x.toFixed(2)
+            + '%;top:' + y.toFixed(2) + '%;width:' + size + 'px;height:' + size + 'px;'
+            + 'animation-delay:' + (120 + i * 22) + 'ms"></span>';
+    }
+    return out;
+}
+
+/* ==================================================================
+   SCREEN 1 — one per treatment
+================================================================== */
+function screen1() {
+    const n = nar();
+
+    if (STATE.t === 'handoff') {
+        return '<h1 class="lede seq" style="animation-delay:60ms">' + n.lede + '</h1>'
+            + '<p class="body-copy seq" style="animation-delay:200ms">' + n.body + '</p>'
+            + '<div class="lanes seq" style="animation-delay:300ms">'
+            + '<div class="lane you"><div class="lane-head">You</div>'
+            + '<div class="lane-empty">Nothing here. You keep building and selling.</div>'
+            + '<span class="hand-arrow"></span></div>'
+            + '<div class="lane stripe"><div class="lane-head">Stripe</div>'
+            + '<div class="lane-items">'
+            + THINGS.map((t, i) => '<div class="lane-item" style="animation-delay:'
+                + (460 + i * 190) + 'ms">' + t[0] + '<small>' + t[1] + '</small></div>').join('')
+            + '</div></div></div>'
+            + '<p class="closer seq" style="animation-delay:1500ms">' + n.closer + '</p>';
+    }
+
+    if (STATE.t === 'editorial') {
+        return '<h1 class="ed-lede seq" style="animation-delay:60ms">' + n.lede + '</h1>'
+            + '<p class="ed-body seq" style="animation-delay:240ms">' + n.body + '</p>'
+            + '<div class="ed-things seq" style="animation-delay:420ms">'
+            + THINGS.map(t => '<b>' + t[0] + '</b>').join('<span class="sep">/</span>')
+            + '</div>'
+            + '<p class="ed-closer seq" style="animation-delay:600ms">' + n.closer + '</p>';
+    }
+
+    if (STATE.t === 'stage') {
+        return '<div class="split">'
+            + '<div class="split-left">'
+            + '<h1 class="lede seq" style="animation-delay:60ms">' + n.lede + '</h1>'
+            + '<p class="body-copy seq" style="animation-delay:200ms">' + n.body + '</p>'
+            + '<div class="stage-things">'
+            + THINGS.map((t, i) => '<div class="st-row seq" style="animation-delay:'
+                + (320 + i * 110) + 'ms"><span class="st-what">' + t[0]
+                + '</span><span class="st-who">Stripe</span></div>').join('')
+            + '</div>'
+            + '<p class="closer seq" style="animation-delay:820ms">' + n.closer + '</p>'
+            + '</div>'
+            + '<div class="split-right seq" style="animation-delay:260ms">'
+            + '<div class="field"><div class="field-glow"></div>' + marketField(46) + '</div>'
+            + '<div class="field-caption"><b>195 markets</b> ready when you are</div>'
+            + '</div></div>';
+    }
+
+    // ambient
+    return '<h1 class="lede seq" style="animation-delay:60ms">' + n.lede + '</h1>'
+        + '<p class="body-copy seq" style="animation-delay:200ms">' + n.body + '</p>'
+        + '<div class="amb-stack seq" style="animation-delay:320ms">'
+        + '<div class="amb-behind"></div>'
+        + '<div class="amb-card">'
+        + '<div class="amb-head"><span class="amb-title">Ready for</span>'
+        + '<span class="amb-status"><span class="amb-dot"></span>Standing by</span></div>'
+        + THINGS.map((t, i) => '<div class="amb-row seq" style="animation-delay:'
+            + (480 + i * 130) + 'ms"><span class="amb-what">' + t[0] + '<small>' + t[1]
+            + '</small></span><span class="amb-who">Stripe</span></div>').join('')
+        + '</div></div>'
+        + '<p class="closer seq" style="animation-delay:1100ms">' + n.closer + '</p>';
+}
+
+/* ==================================================================
+   SCREENS 2–3 — shared markup, restyled per treatment
+================================================================== */
+function screen2() {
+    const big = STATE.t === 'editorial';
+    return '<h1 class="' + (big ? 'ed-lede' : 'lede') + ' seq" style="animation-delay:60ms">'
+        + 'We&rsquo;d handle your international sales for you. '
+        + '<span class="muted">Or you can handle them yourself &mdash; both work.</span></h1>'
+        + '<div class="choices seq" style="animation-delay:200ms">'
+        + '<div class="choice' + (STATE.choice === 'smp' ? ' on' : '') + '" onclick="choose(\'smp\')">'
+        + '<div class="choice-head"><span class="choice-title">We handle it</span>'
+        + '<span class="tag-rec">Recommended</span></div>'
+        + '<div class="choice-line">We deal with each thing as it comes up, and tell you what happened.</div>'
+        + '<div class="choice-price">' + pct(intlRate()) + ' on international sales'
+        + '<small>' + pct(RATE.dom) + ' on domestic, unchanged. Nothing until you sell abroad.</small></div></div>'
+        + '<div class="choice' + (STATE.choice === 'self' ? ' on' : '') + '" onclick="choose(\'self\')">'
+        + '<div class="choice-head"><span class="choice-title">You handle it</span>'
+        + '<span class="tag-alt">Also supported</span></div>'
+        + '<div class="choice-line">You&rsquo;ll see the same things we would, and decide what to do.</div>'
+        + '<div class="choice-price">' + pct(RATE.intl) + ' on international sales'
+        + '<small>' + pct(RATE.dom) + ' on domestic. No added fee.</small></div></div>'
+        + '</div>'
+        + '<p class="quiet seq" style="animation-delay:340ms">You can switch either way later.</p>';
+}
+function choose(c) { STATE.choice = c; render(); }
+
+function row(html) {
+    return '<div class="done-row"><span class="tick">'
+        + '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">'
+        + '<path d="M2 6.4 4.6 9 10 3.2"/></svg></span><span>' + html + '</span></div>';
+}
+
+function screen3() {
+    const big = STATE.t === 'editorial';
+    const H = big ? 'ed-lede' : 'lede';
+    if (STATE.choice === 'self') {
+        return '<h1 class="' + H + ' seq" style="animation-delay:60ms">You&rsquo;ve got it from here. '
+            + '<span class="muted">We&rsquo;ll keep you posted either way.</span></h1>'
+            + '<div class="seq" style="animation-delay:200ms">'
+            + row('Standard pricing &mdash; <b>' + pct(RATE.dom) + '</b> domestic, <b>' + pct(RATE.intl)
+                + '</b> international. No added fee.')
+            + row('You&rsquo;ll see the same things we&rsquo;d see: tax thresholds as you approach them, '
+                + 'disputes as they land.')
+            + row('Handling them is yours &mdash; registration, dispute responses, fraud rules.')
+            + '</div>'
+            + '<p class="quiet seq" style="animation-delay:360ms">Stripe Tax, Radar, and dispute tools '
+            + 'are there when you want them.<span class="todo-flag">Needs the real list</span></p>'
+            + '<p class="quiet seq" style="animation-delay:420ms">If you&rsquo;d rather hand it over '
+            + 'later, you can do that any time.</p>';
+    }
+    const all = STATE.domestic;
+    return '<h1 class="' + H + ' seq" style="animation-delay:60ms">Done &mdash; we&rsquo;ve got your '
+        + 'international sales. <span class="muted">Nothing else for you to do.</span></h1>'
+        + '<div class="seq" style="animation-delay:200ms">'
+        + row('We handle tax, disputes, fraud, and local payment methods on sales outside your market.')
+        + row('You&rsquo;ll hear from us when something happens &mdash; what it was, and what we did.')
+        + row('<b>' + pct(intlRate()) + '</b> on international sales. It starts the first time you make one.')
+        + '</div>'
+        + '<div class="expand seq" style="animation-delay:340ms">'
+        + '<div class="expand-title">Want us to handle your local sales too?</div>'
+        + '<div class="expand-body">Same thing, across your whole business &mdash; one way of working '
+        + 'rather than two.</div>'
+        + '<div class="expand-row"><span class="expand-when">'
+        + (all
+            ? '<b>Starts with your next sale, wherever it is.</b> Your domestic rate goes from '
+              + pct(RATE.dom) + ' to ' + pct(RATE.dom + RATE.smp) + '.'
+            : '<b>Off.</b> Your domestic sales stay at ' + pct(RATE.dom) + ', exactly as they are.')
+        + '</span>'
+        + '<button class="switch' + (all ? ' on' : '') + '" onclick="STATE.domestic=!STATE.domestic;render()">'
+        + '<i></i></button></div>'
+        + '<div class="rate-line"><span>Blended rate on an illustrative ' + MIX.dom + '/' + MIX.intl
+        + ' split</span><b>' + pct(blended(all)) + '</b></div></div>'
+        + '<p class="quiet seq" style="animation-delay:440ms">Change or turn this off any time in '
+        + 'payment settings.</p>';
+}
+
+/* ==================================================================
+   Shell
+================================================================== */
+function footer() {
+    const back = STATE.step > 1 ? '<button class="btn-ghost" onclick="go(-1)">Back</button>' : '<span></span>';
+    if (STATE.step === 1) return back + '<button class="btn btn-primary" onclick="go(1)">Continue</button>';
+    if (STATE.step === 2) {
+        const ready = STATE.choice !== null;
+        return back + '<button class="btn btn-primary" onclick="go(1)"' + (ready ? '' : ' disabled')
+            + '>' + (STATE.choice === 'self' ? 'I&rsquo;ll handle it' : 'Sounds good') + '</button>';
+    }
+    return back + '<button class="btn btn-primary" onclick="alert(\'End of prototype.\')">Done</button>';
+}
+function go(d) { STATE.step = Math.max(1, Math.min(3, STATE.step + d)); render(); }
+
+function render() {
+    document.getElementById('modal').setAttribute('data-t', STATE.t);
+    const fns = { 1: screen1, 2: screen2, 3: screen3 };
+    document.getElementById('stage').innerHTML = fns[STATE.step]();
+    document.getElementById('footer').innerHTML = footer();
+    document.getElementById('prog').innerHTML = [1, 2, 3].map(i =>
+        '<span class="pip' + (i <= STATE.step ? ' on' : '') + '"></span>').join('');
+
+    document.getElementById('cpT').innerHTML = Object.keys(TREATMENTS).map(k =>
+        '<button class="cp-btn' + (STATE.t === k ? ' on' : '') + '" onclick="setT(\'' + k + '\')">'
+        + TREATMENTS[k] + '</button>').join('');
+    document.getElementById('cpNar').innerHTML = Object.keys(NARRATIVES).map(k =>
+        '<button class="cp-btn' + (STATE.nar === k ? ' on' : '') + '" onclick="STATE.nar=\'' + k
+        + '\';render()">' + NARRATIVES[k].name + '</button>').join('');
+    document.getElementById('cpStep').innerHTML = [1, 2, 3].map(i =>
+        '<button class="cp-btn' + (STATE.step === i ? ' on' : '') + '" onclick="STATE.step=' + i
+        + ';render()">' + i + '</button>').join('');
+    document.getElementById('cpNote').innerHTML = T_NOTES[STATE.t]
+        + (STATE.step > 1 ? '<div style="margin-top:8px">Screens 2&ndash;3 share one markup and pick '
+            + 'up the treatment&rsquo;s surface and type scale. The treatment work is concentrated on '
+            + 'screen 1, which is where the staleness was.</div>' : '');
+}
+function setT(k) { STATE.t = k; render(); }
+render();
+</script>
+</body>
+</html>
