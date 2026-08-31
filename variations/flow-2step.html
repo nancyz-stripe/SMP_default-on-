@@ -1221,15 +1221,20 @@ function feeLine(rate, tip, rest) {
 }
 
 // Radio cards: single choice, so `name` keys the selected index in `state`.
-// `benefits` and `fee` are optional — only the recommended card carries them.
+// `benefits` and `fee` are optional — only the recommended card carries them,
+// and they only show while it's the choice. Picking the other option collapses
+// it to its title and one line, so the detail belongs to the option being
+// taken rather than arguing with it.
 function choices(name, items) {
-  return `<div class="choice-list">${items.map((it, i) => `
-    <div class="choice-card${state[name] === i ? ' selected' : ''}" role="radio" aria-checked="${state[name] === i}" onclick="select('${name}', ${i})">
+  return `<div class="choice-list">${items.map((it, i) => {
+    const on = state[name] === i;
+    return `
+    <div class="choice-card${on ? ' selected' : ''}" role="radio" aria-checked="${on}" onclick="select('${name}', ${i})">
       <span class="radio"><i></i></span>
       <span class="choice-body">
         <span class="choice-title">${it.title}</span>
         <span class="choice-sub">${it.label}</span>
-        ${it.benefits ? `<span class="choice-benefits">${it.benefits.map(b => `
+        ${on && it.benefits ? `<span class="choice-benefits">${it.benefits.map(b => `
           <span class="choice-benefit">
             ${TICK}
             <span style="flex:1">
@@ -1237,9 +1242,10 @@ function choices(name, items) {
               <span class="choice-benefit-desc">${b.label}</span>
             </span>
           </span>`).join('')}</span>` : ''}
-        ${it.fee ? `<span class="choice-fee">${it.fee}</span>` : ''}
+        ${on && it.fee ? `<span class="choice-fee">${it.fee}</span>` : ''}
       </span>
-    </div>`).join('')}</div>`;
+    </div>`;
+  }).join('')}</div>`;
 }
 
 // ---------------------------------------------------------------------------
