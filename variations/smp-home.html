@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMP Home — Managed Payments performance</title>
+    <style>
+        :root {
+            --bg-surface: #ffffff;
+            --bg-offset: #f5f6f8;
+            --text-default: #353a44;
+            --text-subdued: #596171;
+            --text-secondary: #6c7688;
+            --text-heading: #21252c;
+            --text-value: #1a2c44;
+            --text-action-primary: #533afd;
+            --text-success: #217005;
+            --icon-default: #474e5a;
+            --icon-subdued: #6c7688;
+            --border-default: #ebeef1;
+            --neutral-50: #ebeef1;
+            --neutral-100: #d4dee9;
+            --neutral-400: #7d8ba4;
+            --bg-form-accent: #675dff;
+            --shadow-card: 0px 1px 1px 0px rgba(48, 49, 61, 0.05);
+            --shadow-medium: 0px 2px 5px rgba(48, 49, 61, 0.08), 0px 8px 20px rgba(48, 49, 61, 0.12);
+
+            /* Chart palette. One accent hue for the measured series and a
+               de-emphasis gray for the counterfactual — the "emphasis" pattern,
+               not a categorical pair. The gray is neutral/400 rather than the
+               lighter step DPM uses: at 1.65:1 against this surface the lighter
+               one needed relief, and 400 clears the 3:1 floor outright while
+               staying recessive. Purple↔gray separation is ΔE 16 (deutan), and
+               the dashed stroke plus named legend carry identity regardless. */
+            --chart-with: #9966ff;
+            --chart-without: #7d8ba4;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+            background: var(--bg-surface);
+            color: var(--text-default);
+            font-size: 14px;
+            line-height: 20px;
+            letter-spacing: -0.15px;
+        }
+
+        .back-button {
+            position: fixed;
+            bottom: 16px;
+            right: 16px;
+            z-index: 400;
+            padding: 8px 14px;
+            background: var(--bg-surface);
+            border: 1px solid var(--neutral-50);
+            border-radius: 8px;
+            color: var(--text-subdued);
+            font-size: 13px;
+            text-decoration: none;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .back-button:hover { background: var(--bg-offset); }
+
+        /* ---------------- Dashboard shell ----------------
+           A lean stand-in for the Dashboard chrome: enough of it that the page
+           reads in context, none of the home-page instruments. */
+        .shell { display: flex; min-height: 100vh; }
+
+        .side {
+            width: 216px;
+            flex-shrink: 0;
+            border-right: 1px solid var(--neutral-50);
+            padding: 16px 8px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .side-account { display: flex; align-items: center; gap: 10px; padding: 4px 8px 18px; }
+        .side-account-icon {
+            width: 24px; height: 24px; border-radius: 6px; flex-shrink: 0;
+            background: #e3f3e6; display: grid; place-items: center; font-size: 13px;
+        }
+        .side-account-name { font-size: 14px; font-weight: 600; }
+
+        .side-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 6px 8px; border-radius: 6px;
+            color: var(--text-default); cursor: pointer;
+        }
+        .side-item:hover { background: var(--bg-offset); }
+        .side-item.active { color: var(--text-action-primary); font-weight: 600; }
+        .side-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+        .side-item .caret { margin-left: auto; width: 10px; height: 10px; color: var(--icon-subdued); }
+        .side-label { padding: 18px 8px 4px; font-size: 12px; color: var(--text-secondary); }
+        .side-foot { margin-top: auto; }
+
+        .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+        .topbar { display: flex; align-items: center; gap: 16px; padding: 14px 24px; }
+        .search {
+            flex: 1; max-width: 512px; height: 32px; border-radius: 8px;
+            background: rgba(0, 39, 77, 0.04); display: flex; align-items: center;
+            gap: 8px; padding: 0 10px; color: var(--text-subdued);
+        }
+        .search svg { width: 13px; height: 13px; }
+        .topbar-icons { margin-left: auto; display: flex; align-items: center; gap: 18px; color: var(--icon-default); }
+        .topbar-icons svg { width: 16px; height: 16px; cursor: pointer; }
+        .topbar-icons .plus {
+            width: 22px; height: 22px; border-radius: 50%; background: var(--bg-form-accent);
+            color: #fff; display: grid; place-items: center;
+        }
+        .topbar-icons .plus svg { width: 11px; height: 11px; }
+
+        /* ---------------- Page ---------------- */
+        .page { padding: 12px 32px 64px; max-width: 1024px; }
+
+        .page-head { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+        .page-title { font-size: 28px; line-height: 36px; font-weight: 700; letter-spacing: -0.5px; color: var(--text-heading); }
+        .btn-configure {
+            margin-left: auto; display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 12px; border: 1px solid #d8dee7; border-radius: 6px;
+            background: var(--bg-surface); box-shadow: var(--shadow-card);
+            font-family: inherit; font-size: 14px; font-weight: 600; color: var(--text-default);
+            cursor: pointer;
+        }
+        .btn-configure:hover { background: var(--bg-offset); }
+        .btn-configure svg { width: 14px; height: 14px; }
+
+        .tabs { display: flex; gap: 24px; border-bottom: 1px solid var(--neutral-50); margin-bottom: 24px; }
+        .tab {
+            position: relative; padding: 0 2px 10px; background: none; border: 0;
+            font-family: inherit; font-size: 14px; font-weight: 600;
+            color: var(--text-subdued); cursor: pointer;
+        }
+        .tab.active { color: var(--text-action-primary); }
+        .tab.active::after {
+            content: ''; position: absolute; inset: auto 0 -1px; height: 2px;
+            border-radius: 2px 2px 0 0; background: var(--text-action-primary);
+        }
+
+        .section-title { font-size: 20px; line-height: 28px; font-weight: 700; letter-spacing: -0.31px; color: var(--text-heading); margin-bottom: 16px; }
+
+        /* Filters in one row above the charts, as the reference has them. */
+        .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+        .chip {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 5px 10px; border: 1px solid #d8dee7; border-radius: 100px;
+            background: var(--bg-surface); box-shadow: var(--shadow-card);
+            font-size: 13px; color: var(--text-subdued); cursor: pointer;
+        }
+        .chip:hover { background: var(--bg-offset); }
+        .chip svg { width: 12px; height: 12px; flex-shrink: 0; }
+        .chip .chip-val { color: var(--text-action-primary); font-weight: 600; }
+        .chip .rule { width: 1px; height: 14px; background: var(--neutral-100); }
+
+        /* ---------------- Metric cards ---------------- */
+        .cards { display: flex; flex-direction: column; gap: 16px; }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        .card {
+            border: 1px solid var(--neutral-50);
+            border-radius: 8px;
+            padding: 16px;
+            background: var(--bg-surface);
+            box-shadow: var(--shadow-card);
+            display: flex;
+            flex-direction: column;
+        }
+        .card-head { display: flex; align-items: flex-start; gap: 12px; }
+        .card-titles { flex: 1; min-width: 0; }
+        .card-title { font-size: 14px; font-weight: 600; color: var(--text-default); }
+        .card-sub { display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 12px; line-height: 16px; color: var(--text-secondary); }
+
+        /* Estimated vs counted: the two modelled cards say so on the face of the
+           card, not in a footnote. Same chrome for both kinds of metric would
+           lend the estimates a precision they don't have. */
+        .tag-est {
+            padding: 1px 6px; border: 1px solid var(--neutral-100); border-radius: 4px;
+            font-size: 11px; line-height: 15px; color: var(--text-secondary);
+        }
+
+        /* The ⓘ carries the description; hovering it is how you read it. */
+        .info { position: relative; display: inline-flex; }
+        .info svg { width: 12px; height: 12px; fill: var(--icon-subdued); }
+        .info-tip {
+            position: absolute; bottom: calc(100% + 6px); left: -8px;
+            width: 260px; padding: 12px;
+            background: var(--bg-surface); border: 1px solid var(--neutral-100);
+            border-radius: 8px; box-shadow: var(--shadow-medium);
+            font-size: 13px; line-height: 18px; color: var(--text-default);
+            opacity: 0; visibility: hidden; transition: opacity .12s; z-index: 20;
+        }
+        .info:hover .info-tip { opacity: 1; visibility: visible; }
+
+        .open-btn {
+            width: 28px; height: 28px; flex-shrink: 0; padding: 0; border: 0;
+            background: none; border-radius: 50%; display: grid; place-items: center;
+            color: var(--icon-default); cursor: pointer; transition: background .12s;
+        }
+        .card:hover .open-btn { background: var(--bg-offset); }
+        .open-btn svg { width: 12px; height: 12px; }
+
+        .card-valrow { display: flex; align-items: baseline; gap: 8px; margin: 12px 0 0; }
+        .card-val { font-size: 24px; line-height: 32px; font-weight: 700; letter-spacing: -0.31px; color: var(--text-value); }
+        .card.hero .card-val { font-size: 28px; line-height: 36px; }
+        .delta { font-size: 12px; line-height: 16px; font-weight: 600; color: var(--text-success); }
+
+        /* Two series, so a legend is always present — identity is never colour
+           alone. Solid accent = what happened; dashed gray = the counterfactual. */
+        .legend { display: flex; flex-wrap: wrap; gap: 16px; margin: 10px 0 4px; }
+        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; line-height: 16px; color: var(--text-secondary); }
+        .legend-mark { width: 14px; height: 0; border-top: 2px solid var(--chart-with); flex-shrink: 0; }
+        .legend-mark.without { border-top-style: dashed; border-top-color: var(--chart-without); }
+        .legend-mark.block { height: 10px; border: 0; border-radius: 2px; background: var(--chart-with); }
+        .legend-mark.block.added { background: var(--chart-with); opacity: 0.28; }
+
+        .chartwrap { position: relative; height: 148px; margin-top: 4px; }
+        .card.hero .chartwrap { height: 176px; }
+        .chartwrap svg { display: block; width: 100%; height: 100%; overflow: visible; }
+        .xlabels { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); padding-right: 42px; }
+
+        .grid-line { stroke: var(--neutral-50); stroke-width: 1; }
+        .axis-label { fill: var(--text-secondary); font-size: 11px; }
+
+        /* Lifted from the DPM prototype: solid for the counted series, 2px dashed
+           for the modelled one, and the gap between them filled at 6%. The dash
+           is doing semantic work — it marks a series that was estimated, not
+           observed — so it stays dashed on every card. */
+        .series-with { fill: none; stroke: var(--chart-with); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+        .series-without { fill: none; stroke: var(--chart-without); stroke-width: 2; stroke-dasharray: 5 4; stroke-linejoin: round; stroke-linecap: round; }
+        .series-area { fill: var(--chart-with); opacity: 0.06; }
+
+        .hover-line { stroke: var(--neutral-400); stroke-width: 1; stroke-dasharray: 1 3; }
+        .hover-dot { fill: #fff; stroke-width: 2; }
+
+        /* Hero bars: the counted total, split into the part that would have
+           happened anyway and the part attributed to Managed Payments. A 2px
+           surface gap separates the two segments. */
+        .bar-base { fill: var(--chart-with); }
+        .bar-added { fill: var(--chart-with); opacity: 0.28; }
+        .bar-hit { fill: transparent; }
+        .bar-group.dim { opacity: 0.55; }
+
+        .chart-tip {
+            position: absolute; pointer-events: none; z-index: 5; width: 250px; overflow: hidden;
+            background: var(--bg-surface); border-radius: 8px; box-shadow: var(--shadow-medium);
+            opacity: 0; transition: opacity .1s;
+        }
+        .tip-head { padding: 12px 12px 8px; font-size: 14px; font-weight: 600; }
+        .tip-rule { height: 1px; background: var(--border-default); }
+        .tip-rows { padding: 8px 12px 12px; }
+        .tip-row { display: flex; align-items: center; gap: 8px; padding: 1px 0; font-size: 14px; }
+        .tip-row .sw { width: 12px; height: 12px; border-radius: 2px; flex: 0 0 12px; }
+        .tip-row .sw.without { background: var(--chart-without); }
+        .tip-row .sw.with { background: var(--chart-with); }
+        .tip-row .tip-v { margin-left: auto; font-weight: 600; font-variant-numeric: tabular-nums; }
+        .tip-foot {
+            display: flex; align-items: center; gap: 8px; padding: 12px;
+            background: var(--bg-offset); font-size: 14px; color: var(--text-default);
+        }
+        .tip-ico { width: 16px; height: 16px; flex: 0 0 16px; display: grid; place-items: center; color: #2b8700; }
+        .tip-ico svg { width: 14px; height: 14px; }
+
+        .page-note {
+            margin-top: 24px; padding: 12px 14px; border-radius: 8px;
+            background: var(--bg-offset); font-size: 12px; line-height: 18px; color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+
+<a href="index.html" class="back-button">&larr; Home</a>
+
+<div class="shell">
+    <div class="side">
+        <div class="side-account">
+            <span class="side-account-icon">🌵</span>
+            <span class="side-account-name">Cactus Practice</span>
+        </div>
+
+        <div class="side-item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.5L8 2.5l5.5 4v6a1 1 0 01-1 1h-9a1 1 0 01-1-1v-6z"/><path d="M6.5 13.5V9h3v4.5"/></svg><span>Home</span></div>
+        <div class="side-item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4.5h9M2 8h12M2 11.5h7"/><circle cx="12.5" cy="4.5" r="1.6"/><circle cx="9.5" cy="11.5" r="1.6"/></svg><span>Balances</span></div>
+        <div class="side-item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5h9l-2.2-2.2M13 10.5H4l2.2 2.2"/></svg><span>Transactions</span></div>
+        <div class="side-item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5.5" r="2.6"/><path d="M3 13.2c0-2.4 2.2-3.7 5-3.7s5 1.3 5 3.7"/></svg><span>Directory</span></div>
+        <div class="side-item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2l5 2.8v6.4L8 14 3 11.2V4.8z"/><path d="M3 4.8l5 2.8 5-2.8M8 7.6V14"/></svg><span>Product catalog</span></div>
+
+        <span class="side-label">Shortcuts</span>
+        <div class="side-item active"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 2.5l3 3-2 1-3.5 3.5-1-1L4.5 12 4 11.5l2-2.5-1-1L8.5 4.5z"/></svg><span>Managed Payments</span></div>
+        <div class="side-item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="5.8"/><path d="M8 5v3.2l2.2 1.3"/></svg><span>Terminal</span></div>
+
+        <span class="side-label">Products</span>
+        <div class="side-item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5l5.5 3-5.5 3-5.5-3z"/><path d="M2.5 9l5.5 3 5.5-3"/></svg><span>Connect</span><svg class="caret" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 3 3-3"/></svg></div>
+        <div class="side-item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="11" height="8" rx="1.6"/><path d="M2.5 7h11"/></svg><span>Payments</span><svg class="caret" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 3 3-3"/></svg></div>
+        <div class="side-item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3" width="11" height="8.5" rx="1.6"/><path d="M5.5 13.5l2-2M5.5 6.5h5M5.5 8.8h3"/></svg><span>Billing</span><svg class="caret" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 3 3-3"/></svg></div>
+        <div class="side-item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13V8M6.5 13V4M10 13V9.5M13.5 13V6"/></svg><span>Reporting</span><svg class="caret" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 3 3-3"/></svg></div>
+        <div class="side-item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="8" r="1"/><circle cx="8" cy="8" r="1"/><circle cx="12" cy="8" r="1"/></svg><span>More</span><svg class="caret" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 3 3-3"/></svg></div>
+
+        <div class="side-foot">
+            <div class="side-item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="12" height="10" rx="1.6"/><path d="M5 7l1.6 1.6L5 10.2M8.6 10.2h2.6"/></svg><span>Developers</span></div>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="topbar">
+            <span class="search">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="4.2"/><path d="M10.2 10.2L14 14"/></svg>
+                <span>Search</span>
+            </span>
+            <span class="topbar-icons">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="9" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="2.5" y="9" width="4.5" height="4.5" rx="1"/><path d="M11.2 9v4.5M9 11.2h4.5"/></svg>
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="5.8"/><path d="M6.3 6.3c0-1 .8-1.7 1.7-1.7s1.7.7 1.7 1.6c0 1.2-1.7 1.3-1.7 2.4"/><circle cx="8" cy="11.2" r=".7" fill="currentColor" stroke="none"/></svg>
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7a3.5 3.5 0 017 0c0 2.4 1 3.5 1 3.5H3.5s1-1.1 1-3.5z"/><path d="M6.8 12.4a1.4 1.4 0 002.4 0"/></svg>
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="2"/><path d="M8 2.2v1.6M8 12.2v1.6M2.2 8h1.6M12.2 8h1.6M4 4l1.1 1.1M10.9 10.9L12 12M12 4l-1.1 1.1M5.1 10.9L4 12"/></svg>
+                <span class="plus"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v10M3 8h10"/></svg></span>
+            </span>
+        </div>
+
+        <div class="page">
+            <div class="page-head">
+                <h1 class="page-title">Managed Payments</h1>
+                <button class="btn-configure">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="2.2"/><path d="M8 1.8v1.8M8 12.4v1.8M1.8 8h1.8M12.4 8h1.8M3.6 3.6l1.3 1.3M11.1 11.1l1.3 1.3M12.4 3.6l-1.3 1.3M4.9 11.1L3.6 12.4"/></svg>
+                    Configure
+                </button>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active">Performance</button>
+                <button class="tab">Locations</button>
+            </div>
+
+            <h2 class="section-title">Performance overview</h2>
+
+            <div class="filters">
+                <span class="chip">
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="6" cy="6" r="5"/><path d="M4 4l4 4M8 4l-4 4"/></svg>
+                    Date range <span class="rule"></span> <span class="chip-val">Last 6 months</span>
+                    <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 3 3-3"/></svg>
+                </span>
+                <span class="chip">
+                    Monthly
+                    <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 3 3-3"/></svg>
+                </span>
+                <span class="chip">
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="6" cy="6" r="5"/><path d="M4 4l4 4M8 4l-4 4"/></svg>
+                    Compare <span class="rule"></span> <span class="chip-val">Without Managed Payments</span>
+                    <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 3 3-3"/></svg>
+                </span>
+            </div>
+
+            <div class="cards" id="cards"></div>
+
+            <p class="page-note">
+                Placeholder figures throughout. The dashed series on every card is a
+                modelled counterfactual — the same traffic without Managed Payments —
+                not an observed one; cards marked <span class="tag-est">Estimated</span>
+                depend on that model for their headline figure too.
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+/* ===========================================================
+   Cards
+   -----------------------------------------------------------
+   Placeholder data. Every card carries two series: what happened with Managed
+   Payments, and the modelled same-period figure without it. The pairing is the
+   point of the page, so each metric is expressed as something that has a value
+   in both worlds — "tax liability you carry" rather than "tax liability
+   covered", which would be zero without the product and leave nothing to
+   compare. Card titles stay as the reference names them.
+
+   `inverted` marks the metrics where the counterfactual sits ABOVE the measured
+   line — less fraud loss and less liability are the wins, so the gap reads the
+   same way while the geometry flips.
+   =========================================================== */
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+
+const CARDS = [
+  {
+    id: 'volume',
+    kind: 'bars',
+    hero: true,
+    title: 'Payment volume',
+    desc: 'Payment volume processed through Managed Payments. The pale cap on each bar is the volume attributed to it — payments that were approved because Stripe collected them locally.',
+    value: '$300,232.43',
+    delta: '+2%',
+    estimated: true,
+    unit: 'usd-k',
+    withLabel: 'Volume with Managed Payments',
+    withoutLabel: 'Volume without',
+    /* with = counted total; without = the modelled part that would have
+       happened anyway. The difference is what the pale segment shows. */
+    with:    [212, 248, 236, 259, 244, 300],
+    without: [205, 236, 221, 240, 225, 276],
+    foot: from => `$${from}k of this month's volume is attributed to Managed Payments.`,
+  },
+  {
+    id: 'uplift',
+    title: 'Revenue uplift',
+    desc: 'Approval rate on international payments with Managed Payments against your modelled rate without it. The headline figure is the revenue behind the gap over the whole period.',
+    value: '$18,430',
+    delta: '+2%',
+    estimated: true,
+    unit: 'pct',
+    withLabel: 'Approval rate with Managed Payments',
+    withoutLabel: 'Approval rate without',
+    with:    [91.2, 92.0, 92.4, 93.1, 92.8, 93.6, 94.0, 93.7, 94.4, 94.9, 94.6, 95.2],
+    without: [89.9, 90.1, 89.8, 90.4, 90.0, 90.3, 90.6, 90.2, 90.5, 90.8, 90.4, 90.9],
+    foot: d => `${d} points of approval rate attributed to Managed Payments.`,
+  },
+  {
+    id: 'tax',
+    title: 'Tax liability covered',
+    desc: 'Sales tax and VAT owed across your markets, and how much of it sits with you. With Managed Payments Stripe is the liable party; the gap is what it took off your books.',
+    value: '$42,180',
+    delta: '+2%',
+    estimated: false,
+    unit: 'usd',
+    inverted: true,
+    withLabel: 'Your liability with Managed Payments',
+    withoutLabel: 'Your liability without',
+    with:    [420, 380, 410, 360, 390, 340, 370, 320, 350, 300, 330, 280],
+    without: [2100, 2450, 2380, 2760, 2610, 2980, 3120, 2890, 3260, 3480, 3310, 3620],
+    foot: d => `$${d} of liability carried by Stripe this month.`,
+  },
+  {
+    id: 'fraud',
+    title: 'Fraud prevented',
+    desc: 'Losses from fraudulent payments, against the modelled losses on the same traffic without Managed Payments screening it. The gap is what was stopped.',
+    value: '$6,940',
+    delta: '+2%',
+    estimated: true,
+    unit: 'usd',
+    inverted: true,
+    withLabel: 'Fraud loss with Managed Payments',
+    withoutLabel: 'Fraud loss without',
+    with:    [180, 210, 160, 190, 150, 175, 140, 165, 130, 155, 125, 145],
+    without: [820, 910, 780, 960, 840, 1020, 890, 1080, 940, 1140, 980, 1210],
+    foot: d => `$${d} of fraud loss prevented this month.`,
+  },
+  {
+    id: 'disputes',
+    title: 'Disputes won',
+    desc: 'Share of disputes resolved in your favour. Stripe contests them on your behalf; the dashed line is the win rate on disputes handled without Managed Payments.',
+    value: '72%',
+    delta: '+2%',
+    estimated: true,
+    unit: 'pct',
+    withLabel: 'Win rate with Managed Payments',
+    withoutLabel: 'Win rate without',
+    with:    [64, 66, 65, 69, 68, 71, 70, 73, 72, 75, 74, 77],
+    without: [41, 39, 43, 40, 44, 41, 45, 42, 46, 43, 47, 44],
+    foot: d => `${d} points of win rate attributed to Managed Payments.`,
+  },
+];
+
+/* Twelve points on the line cards, six bars on the hero — the x labels are the
+   ends only, as the reference has them. */
+const POINTS = 12;
+
+const INFO_SVG = '<svg viewBox="0 0 12 12" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.75 1.75H3.25C2.42157 1.75 1.75 2.42157 1.75 3.25V8.75C1.75 9.57843 2.42157 10.25 3.25 10.25H8.75C9.57843 10.25 10.25 9.57843 10.25 8.75V3.25C10.25 2.42157 9.57843 1.75 8.75 1.75ZM3.25 0.25C1.59315 0.25 0.25 1.59315 0.25 3.25V8.75C0.25 10.4069 1.59315 11.75 3.25 11.75H8.75C10.4069 11.75 11.75 10.4069 11.75 8.75V3.25C11.75 1.59315 10.4069 0.25 8.75 0.25H3.25Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M4.48182 6.49998C4.48182 6.11338 4.79522 5.79998 5.18182 5.79998H6.27273C6.65933 5.79998 6.97273 6.11338 6.97273 6.49998V8.49998C6.97273 8.88658 6.65933 9.19998 6.27273 9.19998C5.88613 9.19998 5.57273 8.88658 5.57273 8.49998V7.19998H5.18182C4.79522 7.19998 4.48182 6.88658 4.48182 6.49998Z"/><path d="M4.99994 3.99999C4.99994 3.44858 5.44854 2.99999 5.99994 2.99999C6.55134 2.99999 6.99994 3.44858 6.99994 3.99999C6.99994 4.55139 6.55134 4.99999 5.99994 4.99999C5.44854 4.99999 4.99994 4.55139 4.99994 3.99999Z"/></svg>';
+const UPLIFT_SVG = '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1.5 9L4.5 5.5 6.5 7l4-5.5"/><path d="M7.6 1.5h2.9v2.9"/></svg>';
+const OPEN_SVG = '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9L9 3M4.4 3H9v4.6"/></svg>';
+
+const fmt = {
+  pct: v => v.toFixed(1) + '%',
+  usd: v => '$' + Math.round(v).toLocaleString(),
+  'usd-k': v => '$' + Math.round(v).toLocaleString() + 'k',
+};
+
+/* ===========================================================
+   Markup
+   =========================================================== */
+function cardHtml(c) {
+  const legend = c.kind === 'bars'
+    ? `<span class="legend-item"><span class="legend-mark block"></span>${c.withoutLabel}</span>
+       <span class="legend-item"><span class="legend-mark block added"></span>Added by Managed Payments</span>`
+    : `<span class="legend-item"><span class="legend-mark"></span>${c.withLabel}</span>
+       <span class="legend-item"><span class="legend-mark without"></span>${c.withoutLabel}</span>`;
+
+  return `
+    <section class="card${c.hero ? ' hero' : ''}" data-card="${c.id}">
+      <div class="card-head">
+        <div class="card-titles">
+          <div class="card-title">${c.title}</div>
+          <div class="card-sub">
+            Description
+            <span class="info">${INFO_SVG}<span class="info-tip">${c.desc}</span></span>
+            ${c.estimated ? '<span class="tag-est">Estimated</span>' : ''}
+          </div>
+        </div>
+        <button class="open-btn" aria-label="Open report">${OPEN_SVG}</button>
+      </div>
+
+      <div class="card-valrow">
+        <span class="card-val">${c.value}</span>
+        <span class="delta">${c.delta}</span>
+      </div>
+
+      <div class="legend">${legend}</div>
+
+      <div class="chartwrap">
+        <svg preserveAspectRatio="none" aria-label="${c.title}, with and without Managed Payments"></svg>
+        <div class="chart-tip"></div>
+      </div>
+      <div class="xlabels"><span>Jan</span><span>Today</span></div>
+    </section>`;
+}
+
+document.getElementById('cards').innerHTML =
+  cardHtml(CARDS[0]) +
+  `<div class="row">${cardHtml(CARDS[1])}${cardHtml(CARDS[2])}</div>` +
+  `<div class="row">${cardHtml(CARDS[3])}${cardHtml(CARDS[4])}</div>`;
+
+/* ===========================================================
+   Charts
+   -----------------------------------------------------------
+   The line chart is the DPM prototype's counterfactual chart with its
+   annotations removed: solid measured series, dashed modelled series, the gap
+   between them shaded, and a crosshair tooltip naming both. SMP has no
+   per-method enablement dates to mark, so nothing is drawn on the line itself.
+   =========================================================== */
+const NS = 'http://www.w3.org/2000/svg';
+const PAD = { t: 10, r: 42, b: 8, l: 0 };
+
+function el(n, attrs) {
+  const e = document.createElementNS(NS, n);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+
+/* Four gridlines, on a domain padded so neither series touches the frame. */
+function scaleFor(c, ph) {
+  const all = c.with.concat(c.without);
+  const hi = Math.max(...all), lo = Math.min(...all);
+  const span = (hi - lo) || 1;
+  const top = hi + span * 0.18;
+  const bottom = Math.max(0, lo - span * 0.18);
+  return { Y: v => PAD.t + ph - ((v - bottom) / (top - bottom)) * ph, top, bottom };
+}
+
+function drawFrame(svg, c, W, H) {
+  const pw = W - PAD.r, ph = H - PAD.t - PAD.b;
+  const { Y, top, bottom } = scaleFor(c, ph);
+  [0, 0.33, 0.66, 1].forEach(f => {
+    const v = bottom + (top - bottom) * f;
+    svg.appendChild(el('line', { class: 'grid-line', x1: 0, x2: pw, y1: Y(v), y2: Y(v) }));
+    const t = el('text', { class: 'axis-label', x: pw + 8, y: Y(v) + 4 });
+    t.textContent = fmt[c.unit](v);
+    svg.appendChild(t);
+  });
+  return { pw, ph, Y };
+}
+
+function drawLines(card, c) {
+  const svg = card.querySelector('svg');
+  const wrap = card.querySelector('.chartwrap');
+  const W = wrap.clientWidth || 460, H = wrap.clientHeight || 148;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.innerHTML = '';
+
+  const { pw, ph, Y } = drawFrame(svg, c, W, H);
+  const X = i => i * pw / (POINTS - 1);
+  const path = a => a.map((v, i) => `${i ? 'L' : 'M'}${X(i)},${Y(v)}`).join('');
+
+  /* the shaded gap: down the measured series, back along the modelled one */
+  const areaD = path(c.with) +
+    c.without.map((_, i) => `L${X(POINTS - 1 - i)},${Y(c.without[POINTS - 1 - i])}`).join('') + 'Z';
+  svg.appendChild(el('path', { class: 'series-area', d: areaD }));
+  svg.appendChild(el('path', { class: 'series-without', d: path(c.without) }));
+  svg.appendChild(el('path', { class: 'series-with', d: path(c.with) }));
+
+  const hl = el('line', { class: 'hover-line', y1: PAD.t, y2: PAD.t + ph, x1: 0, x2: 0, opacity: 0 });
+  const d1 = el('circle', { class: 'hover-dot', r: 4, stroke: 'var(--chart-with)', opacity: 0 });
+  const d2 = el('circle', { class: 'hover-dot', r: 4, stroke: 'var(--chart-without)', opacity: 0 });
+  svg.append(hl, d1, d2);
+  svg.appendChild(el('rect', { x: 0, y: 0, width: pw, height: H, fill: 'transparent' }));
+
+  card._geom = { X, Y, pw, hl, d1, d2 };
+}
+
+function drawBars(card, c) {
+  const svg = card.querySelector('svg');
+  const wrap = card.querySelector('.chartwrap');
+  const W = wrap.clientWidth || 900, H = wrap.clientHeight || 176;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.innerHTML = '';
+
+  const { pw, ph, Y } = drawFrame(svg, c, W, H);
+  const n = c.with.length;
+  const slot = pw / n, gap = 6, bw = slot - gap;
+  const base = PAD.t + ph;
+
+  c.with.forEach((v, i) => {
+    const g = el('g', { class: 'bar-group' });
+    const x = i * slot + gap / 2;
+    const yWith = Y(v), yWithout = Y(c.without[i]);
+
+    /* base segment: the volume modelled to have happened anyway */
+    g.appendChild(el('rect', { class: 'bar-base', x, y: yWithout, width: bw, height: Math.max(0, base - yWithout) }));
+    /* 2px surface gap, then the attributed cap with rounded data-end */
+    const capH = Math.max(0, yWithout - yWith - 2);
+    g.appendChild(el('rect', { class: 'bar-added', x, y: yWith, width: bw, height: capH, rx: 4 }));
+    g.appendChild(el('rect', { class: 'bar-hit', x: i * slot, y: 0, width: slot, height: H, 'data-i': i }));
+    svg.appendChild(g);
+  });
+
+  card._geom = { slot, bars: true };
+}
+
+/* ===========================================================
+   Hover
+   =========================================================== */
+function showTip(card, c, i, cx) {
+  const tip = card.querySelector('.chart-tip');
+  const wrap = card.querySelector('.chartwrap');
+  const w = c.with[i], wo = c.without[i];
+  const diff = c.inverted ? wo - w : w - wo;
+  const label = c.unit === 'pct' ? diff.toFixed(1) : Math.round(diff).toLocaleString();
+  const period = c.kind === 'bars' ? MONTHS[i] : monthLabel(i);
+
+  tip.innerHTML =
+    `<div class="tip-head">${period}</div>` +
+    `<div class="tip-rule"></div>` +
+    `<div class="tip-rows">` +
+      `<div class="tip-row"><span class="sw with"></span>${c.withLabel}<span class="tip-v">${fmt[c.unit](w)}</span></div>` +
+      `<div class="tip-row"><span class="sw without"></span>${c.withoutLabel}<span class="tip-v">${fmt[c.unit](wo)}</span></div>` +
+    `</div>` +
+    `<div class="tip-foot"><span class="tip-ico">${UPLIFT_SVG}</span><span>${c.foot(label)}</span></div>`;
+
+  tip.style.opacity = 1;
+  const tw = 250;
+  const left = Math.min(Math.max(cx - tw / 2, 0), wrap.clientWidth - tw);
+  tip.style.left = left + 'px';
+  tip.style.top = '0px';
+}
+
+/* Six months across twelve points, so every other point starts a month. */
+function monthLabel(i) {
+  return `${MONTHS[Math.floor(i / 2)]} ${i % 2 ? '16' : '1'}`;
+}
+
+function bindHover(card, c) {
+  const svg = card.querySelector('svg');
+  const tip = card.querySelector('.chart-tip');
+
+  svg.addEventListener('mousemove', e => {
+    const g = card._geom;
+    if (!g) return;
+    const r = svg.getBoundingClientRect();
+    const vw = svg.viewBox.baseVal.width || r.width;
+    const px = (e.clientX - r.left) / r.width * vw;
+
+    if (g.bars) {
+      const i = Math.max(0, Math.min(c.with.length - 1, Math.floor(px / g.slot)));
+      svg.querySelectorAll('.bar-group').forEach((el2, k) => el2.classList.toggle('dim', k !== i));
+      showTip(card, c, i, (i + 0.5) * g.slot);
+      return;
+    }
+
+    if (px > g.pw) return;
+    let i = 0, best = Infinity;
+    c.with.forEach((_, k) => { const d = Math.abs(g.X(k) - px); if (d < best) { best = d; i = k; } });
+    g.hl.setAttribute('x1', g.X(i)); g.hl.setAttribute('x2', g.X(i)); g.hl.setAttribute('opacity', 1);
+    g.d1.setAttribute('cx', g.X(i)); g.d1.setAttribute('cy', g.Y(c.with[i])); g.d1.setAttribute('opacity', 1);
+    g.d2.setAttribute('cx', g.X(i)); g.d2.setAttribute('cy', g.Y(c.without[i])); g.d2.setAttribute('opacity', 1);
+    showTip(card, c, i, g.X(i));
+  });
+
+  svg.addEventListener('mouseleave', () => {
+    const g = card._geom;
+    tip.style.opacity = 0;
+    if (!g) return;
+    if (g.bars) svg.querySelectorAll('.bar-group').forEach(el2 => el2.classList.remove('dim'));
+    else { g.hl.setAttribute('opacity', 0); g.d1.setAttribute('opacity', 0); g.d2.setAttribute('opacity', 0); }
+  });
+}
+
+function drawAll() {
+  CARDS.forEach(c => {
+    const card = document.querySelector(`[data-card="${c.id}"]`);
+    if (c.kind === 'bars') drawBars(card, c);
+    else drawLines(card, c);
+  });
+}
+
+CARDS.forEach(c => bindHover(document.querySelector(`[data-card="${c.id}"]`), c));
+drawAll();
+window.addEventListener('resize', drawAll);
+</script>
+</body>
+</html>
