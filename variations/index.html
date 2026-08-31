@@ -353,16 +353,6 @@
 </div>
 
 <div class="section">
-  <div class="section-heading">V2 — recommend-first flow (B1)</div>
-  <div class="grid" id="grid-v2"></div>
-</div>
-
-<div class="section">
-  <div class="section-heading">Step treatments</div>
-  <div class="grid" id="grid-treatments"></div>
-</div>
-
-<div class="section">
   <div class="section-heading">Onboarding flow</div>
   <div class="grid" id="grid-flow"></div>
 </div>
@@ -378,136 +368,6 @@
 </div>
 
 <script>
-// V2, built against the revised narrative brief: no qualifying question,
-// SMP recommended for digital goods, four steps. One file — the cards are
-// entry points, and every treatment is switchable from its control panel.
-const v2Variations = [
-  {
-    id: 'v2-b1-flow',
-    title: 'B1 — full flow, step 1',
-    file: 'v2-b1.html',
-    preview: 'v2-b1.html',
-  },
-  {
-    id: 'v2-b1-step2',
-    title: 'Step 2 — recommendation + comparison (2B)',
-    file: 'v2-b1.html?s=2',
-    preview: 'v2-b1.html?s=2',
-  },
-  {
-    id: 'v2-b1-step3',
-    title: 'Step 3 — scope, volume bar (3A)',
-    file: 'v2-b1.html?s=3',
-    preview: 'v2-b1.html?s=3',
-  },
-  {
-    id: 'v2-b1-step4-self',
-    title: 'Step 4 — self-managed confirmation',
-    file: 'v2-b1.html?s=4&choice=self',
-    preview: 'v2-b1.html?s=4&choice=self',
-  },
-  // V3 design treatments. Same content, four visual approaches — the answer to
-  // "it's feeling stale". Switchable from the file's own control panel.
-  {
-    id: 'v3-t-handoff',
-    title: 'T1 — The handoff',
-    file: 'v3-treatments.html?t=handoff',
-    preview: 'v3-treatments.html?t=handoff',
-  },
-  {
-    id: 'v3-t-editorial',
-    title: 'T2 — Editorial type',
-    file: 'v3-treatments.html?t=editorial',
-    preview: 'v3-treatments.html?t=editorial',
-  },
-  {
-    id: 'v3-t-stage',
-    title: 'T3 — Split stage',
-    file: 'v3-treatments.html?t=stage',
-    preview: 'v3-treatments.html?t=stage',
-  },
-  {
-    id: 'v3-t-ambient',
-    title: 'T4 — Ambient depth',
-    file: 'v3-treatments.html?t=ambient',
-    preview: 'v3-treatments.html?t=ambient',
-  },
-  // V3: growth-anchored, three narratives, three screens, one decision each.
-  {
-    id: 'v3-nar-alone',
-    title: 'V3 — You won’t be doing this alone',
-    file: 'v3-narratives.html?n=alone',
-    preview: 'v3-narratives.html?n=alone',
-  },
-  {
-    id: 'v3-nar-evidence',
-    title: 'V3 — Ready before you need it',
-    file: 'v3-narratives.html?n=evidence',
-    preview: 'v3-narratives.html?n=evidence',
-  },
-  {
-    id: 'v3-nar-ready',
-    title: 'V3 — Set up now, ready when you are',
-    file: 'v3-narratives.html?n=ready',
-    preview: 'v3-narratives.html?n=ready',
-  },
-  // The Aug 27 alt: same flow, three anchoring frames. Cards sit next to each
-  // other so the comparison Courtney asked for can actually be made at a glance.
-  {
-    id: 'v2-frame-intl',
-    title: 'Frame A — anchored on international',
-    file: 'v2-b1.html?frame=intl',
-    preview: 'v2-b1.html?frame=intl',
-  },
-  {
-    id: 'v2-frame-bridge',
-    title: 'Frame B — growth → markets (recommended)',
-    file: 'v2-b1.html?frame=bridge',
-    preview: 'v2-b1.html?frame=bridge',
-  },
-  {
-    id: 'v2-frame-growth',
-    title: 'Frame C — anchored on growth',
-    file: 'v2-b1.html?frame=growth',
-    preview: 'v2-b1.html?frame=growth',
-  },
-  {
-    id: 'v2-autopilot',
-    title: 'Autopilot framing — full flow',
-    file: 'v2-autopilot.html',
-    preview: 'v2-autopilot.html',
-  },
-  {
-    id: 'v2-autopilot-step2',
-    title: 'Autopilot — step 2 + the MOR exception',
-    file: 'v2-autopilot.html?s=2',
-    preview: 'v2-autopilot.html?s=2',
-  },
-];
-
-// Design treatments for the agreed sequence. One file, switchable from its own
-// control panel — the cards are just two entry points into it.
-const treatmentVariations = [
-  {
-    id: 'treatments-step5',
-    title: 'Step 5 — recommendation + comparison',
-    file: 'treatments.html?t=5A',
-    preview: 'treatments.html?t=5A&preview=1',
-  },
-  {
-    id: 'treatments-step5-5g',
-    title: 'Step 5 — per-market multiplier (5G)',
-    file: 'treatments.html?t=5G',
-    preview: 'treatments.html?t=5G&preview=1',
-  },
-  {
-    id: 'treatments-step6',
-    title: 'Step 6 — extend to all payments',
-    file: 'treatments.html?t=6C',
-    preview: 'treatments.html?t=6C&preview=1',
-  },
-];
-
 const latestVariations = [
   {
     id: 'v3-latest',
@@ -743,26 +603,7 @@ function renderFlowCard(v) {
   `;
 }
 
-// Same shape as a flow card, with a label that says what it actually opens.
-function renderTreatmentCard(v) {
-  return `
-    <a class="card" href="${v.file}">
-      <div class="card-preview" data-src="${v.preview}"></div>
-      <div class="card-body">
-        <div class="card-flow-title">${v.title}</div>
-        <span class="btn-start-flow">Open explorer</span>
-      </div>
-    </a>
-  `;
-}
-
 function renderGrid() {
-  const gridV2 = document.getElementById('grid-v2');
-  gridV2.innerHTML = v2Variations.map(renderTreatmentCard).join('');
-
-  const gridTreatments = document.getElementById('grid-treatments');
-  gridTreatments.innerHTML = treatmentVariations.map(renderTreatmentCard).join('');
-
   const gridFlow = document.getElementById('grid-flow');
   const gridLatest = document.getElementById('grid-latest');
   const gridPast = document.getElementById('grid-past');
