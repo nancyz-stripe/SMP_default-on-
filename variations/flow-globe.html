@@ -428,6 +428,62 @@
             z-index: 0;
         }
 
+        /* Value cards over the globe */
+        .globe-card {
+            position: absolute;
+            z-index: 2;
+            background: white;
+            border-radius: 5px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 30px -2px rgba(0, 55, 112, 0.1), 0 4px 14px -2px rgba(0, 59, 137, 0.04);
+            opacity: 0;
+            transform: translateY(6px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            pointer-events: none;
+            width: 39%;
+        }
+        .globe-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .globe-card-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            border: 1px solid #d6d9fc;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .globe-card-icon svg { width: 12px; height: 12px; }
+        .globe-card-text { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+        .globe-card-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #061b31;
+            letter-spacing: -0.1px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .globe-card-subtitle { font-size: 10px; color: #667691; }
+        .globe-card-check {
+            width: 12px;
+            height: 12px;
+            flex-shrink: 0;
+            color: #30b271;
+        }
+
+        .globe-card.disputes { top: 25%; left: 53%; }
+        .globe-card.tax { top: 40%; left: 10%; }
+        .globe-card.fraud { top: 64%; left: 56%; }
+
+
         /* Opting out is a link under the offer, not a card beside it. */
         .opt-out {
             position: relative;
@@ -1277,6 +1333,30 @@
 <div id="globe-holder">
     <div class="globe" id="globe-container">
         <div class="globe-glow-circle" id="globe-glow-circle"></div>
+
+        <div class="globe-card disputes" id="card-disputes">
+            <div class="globe-card-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M8 1.5L2 4v4c0 3.5 2.5 6 6 7.5 3.5-1.5 6-4 6-7.5V4L8 1.5z" stroke="#635bff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="globe-card-text">
+                <span class="globe-card-title">Dispute handling <svg class="globe-card-check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                <span class="globe-card-subtitle">Dispute countered by Stripe</span>
+            </div>
+        </div>
+
+        <div class="globe-card tax" id="card-tax">
+            <div class="globe-card-icon"><svg viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="#635bff" stroke-width="1.5"/><path d="M5 7h6M5 9.5h4" stroke="#635bff" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+            <div class="globe-card-text">
+                <span class="globe-card-title">Tax collection and remittance <svg class="globe-card-check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                <span class="globe-card-subtitle">Automated tax operations</span>
+            </div>
+        </div>
+
+        <div class="globe-card fraud" id="card-fraud">
+            <div class="globe-card-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M8 1.5L2 4v4c0 3.5 2.5 6 6 7.5 3.5-1.5 6-4 6-7.5V4L8 1.5z" stroke="#635bff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 8l1.5 1.5L10 7" stroke="#635bff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="globe-card-text">
+                <span class="globe-card-title">Fraud detection <svg class="globe-card-check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                <span class="globe-card-subtitle">Proactive fraud prevention</span>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -1649,7 +1729,7 @@ let globeBuilt = false;
 function mountGlobe(host) {
   host.appendChild(el.globe);
   if (globeBuilt) window.dispatchEvent(new Event('resize'));
-  else { globeBuilt = true; buildGlobe(); }
+  else { globeBuilt = true; buildGlobe(); runValueCards(); }
 }
 
 const ACTIONS = {
@@ -1995,6 +2075,44 @@ function buildGlobe() {
               camera.updateProjectionMatrix();
               renderer.setSize(nw, nh);
             });
+}
+
+
+// ---------------------------------------------------------------------------
+// Value cards: fade in one by one over the globe, hold, fade out, repeat.
+// Same cycle as the earlier explorations. Started with the globe, since the
+// cards are meaningless without it.
+// ---------------------------------------------------------------------------
+function runValueCards() {
+  const cards = [
+    document.getElementById('card-disputes'),
+    document.getElementById('card-tax'),
+    document.getElementById('card-fraud'),
+  ];
+  const fadeInDelay = 900;   // delay between each card fading in
+  const holdTime = 2000;     // time all cards stay visible
+  const fadeOutDelay = 600;  // delay between each card fading out
+  const pauseTime = 1200;    // pause before restarting
+
+  function runCycle() {
+    let t = 0;
+
+    // Fade in: disputes, tax, fraud
+    cards.forEach((card, i) => {
+      setTimeout(() => card.classList.add('visible'), t + i * fadeInDelay);
+    });
+    t += cards.length * fadeInDelay + holdTime;
+
+    // Fade out, in the same order
+    cards.forEach((card, i) => {
+      setTimeout(() => card.classList.remove('visible'), t + i * fadeOutDelay);
+    });
+    t += cards.length * fadeOutDelay + pauseTime;
+
+    setTimeout(runCycle, t);
+  }
+
+  setTimeout(runCycle, 1000);
 }
 
 // ?s=2 is 1-based, to read the same way the screens are talked about.
