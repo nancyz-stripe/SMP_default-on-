@@ -370,9 +370,10 @@
         .modal-gradient.hidden { display: none; }
         .modal-header, .modal-body, .modal-footer { position: relative; z-index: 1; }
 
-        /* Two-column step, laid out exactly as v3.2 lays out its own split:
-           the copy column is slightly wider than the globe's, both are inset
-           100px from the modal edge, and the pair is nudged 5% right. */
+        /* Two-column step, laid out as v3.2 lays out its own split: both
+           columns inset 100px from the modal edge, and the pair nudged 5%
+           right. The copy column is 5% wider than v3.2's — its 1.05 : 1 gave
+           the copy 51.2% of the split, and 1.164 : 1 takes it to 53.8%. */
         .modal-body.flush { padding: 0; align-items: stretch; }
         .modal-body.flush .step { flex: 1; display: flex; }
 
@@ -384,7 +385,7 @@
             transform: translateX(5%);
         }
         .split-copy {
-            flex: 1.05;
+            flex: 1.164;
             padding: 48px 32px 48px 100px;
             display: flex;
             flex-direction: column;
