@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cross-border brief — two-screen cut</title>
+    <title>Cross-border brief — flow cut</title>
     <style>
         :root {
             --bg-surface: #ffffff;
@@ -400,6 +400,99 @@
             font-size: 12px;
             line-height: 16px;
             color: var(--text-default);
+        }
+
+        /* Radio cards: the recommended option carries its benefits inline, the
+           alternative is a single line. Both keep a 2px border so selecting one
+           doesn't shift the layout. */
+        .choice-list { display: flex; flex-direction: column; gap: 16px; }
+        .choice-card {
+            border: 2px solid transparent;
+            border-radius: 8px;
+            padding: 16px;
+            background: var(--bg-offset);
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            cursor: pointer;
+            text-align: left;
+            font-family: inherit;
+            width: 100%;
+        }
+        .choice-card.selected {
+            background: var(--bg-surface);
+            border-color: var(--border-action-primary);
+        }
+
+        .radio {
+            flex-shrink: 0;
+            width: 14px;
+            height: 14px;
+            margin: 3px;
+            border-radius: 50%;
+            border: 1px solid var(--border-form-default);
+            background: var(--bg-surface);
+            box-shadow: 0px 1px 1px 0px rgba(33, 37, 44, 0.16);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .choice-card.selected .radio {
+            background: var(--bg-form-accent);
+            border-color: var(--text-action-primary);
+            box-shadow: 0px 1px 1px 0px rgba(10, 33, 86, 0.16);
+        }
+        .radio i { display: none; width: 6px; height: 6px; border-radius: 50%; background: #fff; }
+        .choice-card.selected .radio i { display: block; }
+
+        .choice-body { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+        .choice-title {
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 24px;
+            letter-spacing: -0.31px;
+            color: var(--text-default);
+        }
+        .choice-sub { font-size: 12px; line-height: 16px; color: var(--text-subdued); }
+
+        .choice-benefits { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+        .choice-benefit { display: flex; gap: 8px; align-items: flex-start; }
+        .choice-benefit svg {
+            flex-shrink: 0;
+            width: 12px;
+            height: 12px;
+            margin: 4px;
+            color: var(--text-default);
+        }
+        .choice-benefit-title {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 20px;
+            letter-spacing: -0.15px;
+            color: #3c4f69;
+            margin-bottom: 4px;
+        }
+        .choice-benefit-desc {
+            display: block;
+            font-size: 12px;
+            line-height: 16px;
+            color: #3c4f69;
+        }
+
+        .choice-fee { margin-top: 8px; font-size: 12px; line-height: 16px; color: var(--text-subdued); }
+        /* Gradient per Figma: the fill is clipped to the glyphs, so `color` is
+           left to carry the underline. */
+        .fee-link {
+            background-image: linear-gradient(156deg, #955ef4 3%, #2079f6 99%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: #7a68f5;
+            text-decoration: underline;
+            text-decoration-color: #7a68f5;
+            text-decoration-skip-ink: none;
+            text-underline-position: from-font;
         }
 
         .modal-footer {
@@ -888,10 +981,34 @@ function brief(items) {
     </div>`).join('');
 }
 
+const TICK = '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 6.3l3 3 6-6.6"/></svg>';
+
+// Radio cards: single choice, so `name` keys the selected index in `state`.
+// `benefits` and `fee` are optional — only the recommended card carries them.
+function choices(name, items) {
+  return `<div class="choice-list">${items.map((it, i) => `
+    <div class="choice-card${state[name] === i ? ' selected' : ''}" role="radio" aria-checked="${state[name] === i}" onclick="select('${name}', ${i})">
+      <span class="radio"><i></i></span>
+      <span class="choice-body">
+        <span class="choice-title">${it.title}</span>
+        <span class="choice-sub">${it.label}</span>
+        ${it.benefits ? `<span class="choice-benefits">${it.benefits.map(b => `
+          <span class="choice-benefit">
+            ${TICK}
+            <span style="flex:1">
+              <span class="choice-benefit-title">${b.title}</span>
+              <span class="choice-benefit-desc">${b.label}</span>
+            </span>
+          </span>`).join('')}</span>` : ''}
+        ${it.fee ? `<span class="choice-fee">${it.fee}</span>` : ''}
+      </span>
+    </div>`).join('')}</div>`;
+}
+
 // ---------------------------------------------------------------------------
-// A two-screen cut of the onboarding flow: the goods question, then the
-// cross-border brief it leads into. Everything before and after is trimmed
-// away so the seam between the two can be reviewed on its own.
+// A cut of the onboarding flow: the goods question, the cross-border brief it
+// leads into, and the managed-payments choice. Everything before and after is
+// trimmed away so this stretch can be reviewed on its own.
 // ---------------------------------------------------------------------------
 const STEPS = [
   {
@@ -933,10 +1050,45 @@ const STEPS = [
         ])}
       </div>`,
   },
+  {
+    // Figma 26655:58330 — the offer, and the decision. Managed payments is
+    // preselected and carries its benefits; self-managed is the alternative.
+    id: 'managed-payments',
+    width: 'brief',
+    actions: ['skip', 'continue'],
+    render: () => `
+      <div class="headline">With Stripe Managed Payments, we take on the work of selling internationally. <span class="muted">You’re covered from your first sale abroad.</span></div>
+      ${choices('managed', [
+        {
+          title: 'Managed payments',
+          label: 'You ship your product. Stripe handles the rest.',
+          benefits: [
+            {
+              title: 'Reduces declined payments',
+              label: 'Stripe collects the payment as a local business, so more of your sales go through.',
+            },
+            {
+              title: 'Takes on tax liability',
+              label: 'Calculates, collects, files, and remits. Enter a new country and coverage is already there.',
+            },
+            {
+              title: 'Manages disputes and fraud',
+              label: 'Screens every payment, handles disputes for you, and answers customer billing questions.',
+            },
+          ],
+          fee: '<span class="fee-link">+3.5% per international transaction</span>. No monthly fee, and nothing to pay until your first international sale.',
+        },
+        {
+          title: 'I’ll handle this myself',
+          label: 'You keep control, with support where you want it — you manage tax, fraud, disputes, and registration in each market. Stripe Tax and Radar can help.',
+        },
+      ])}`,
+  },
 ];
 
-// `sell` is the one checkbox group left; the default mirrors the Figma.
-const state = { sell: [0] };
+// `sell` is a checkbox group, so it holds an array; `managed` is the single
+// choice on the last screen. Defaults mirror the Figma.
+const state = { sell: [0], managed: 0 };
 let stepIndex = 0;
 
 const el = {
@@ -952,7 +1104,7 @@ const ACTIONS = {
   skip: '<button class="btn-secondary" onclick="goNext()">Skip</button>',
 };
 
-// Two screens, so the bar reads half then full.
+// The bar fills evenly across the screens in the cut.
 function progressFor(i) {
   return (((i + 1) / STEPS.length) * 100).toFixed(1);
 }
@@ -967,6 +1119,12 @@ function render() {
   el.actions.innerHTML = (step.actions || []).map(a => ACTIONS[a]).join('');
 }
 
+// Single choice — the radio cards.
+function select(name, index) {
+  state[name] = index;
+  render();
+}
+
 // Checkbox groups: add or remove, any number on at once.
 function toggle(name, index) {
   const selected = state[name];
@@ -976,7 +1134,7 @@ function toggle(name, index) {
   render();
 }
 
-// The cut ends on the brief, so continuing past it leaves the flow — the same
+// The cut ends on the choice, so continuing past it leaves the flow — the same
 // exit backing out of the first screen takes.
 function goNext() {
   if (stepIndex < STEPS.length - 1) { stepIndex++; render(); }
