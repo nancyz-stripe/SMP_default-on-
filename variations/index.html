@@ -311,6 +311,13 @@
       margin-bottom: 12px;
       letter-spacing: -0.15px;
     }
+    /* Same title as a flow card, without the button under it. */
+    .card-explore-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-default);
+      letter-spacing: -0.15px;
+    }
     .btn-start-flow {
       display: block;
       width: 100%;
@@ -659,6 +666,19 @@ function renderCard(v, i, section) {
   `;
 }
 
+// Explorations cards: just the preview and the title. No CTA — the whole card
+// is the link.
+function renderExploreCard(v) {
+  return `
+    <a class="card" href="${v.file}">
+      <div class="card-preview" data-src="${v.preview || v.file}"></div>
+      <div class="card-body">
+        <div class="card-explore-title">${v.title}</div>
+      </div>
+    </a>
+  `;
+}
+
 // Flow cards aren't reorderable or editable, and a "Start flow" button stands
 // in for the description.
 function renderFlowCard(v) {
@@ -675,7 +695,7 @@ function renderFlowCard(v) {
 
 function renderGrid() {
   const gridExplore = document.getElementById('grid-explore');
-  gridExplore.innerHTML = exploreVariations.map(renderFlowCard).join('');
+  gridExplore.innerHTML = exploreVariations.map(renderExploreCard).join('');
 
   const gridFlow = document.getElementById('grid-flow');
   const gridLatest = document.getElementById('grid-latest');
