@@ -361,7 +361,6 @@
         .step { width: 100%; max-width: 657px; }
         .step.narrow { max-width: 420px; }
         .step.wide { max-width: 824px; }
-        .step.brief { max-width: 583px; }
 
         /* Informational card: icon, title, detail per row. No art, no colour —
            the screen only has to be read. */
@@ -1092,7 +1091,6 @@ const STEPS = [
     // Figma 26654:54163 — the simplified screen: no gradient, no globe, no
     // choice to make. It states what selling internationally brings with it.
     id: 'cross-border-brief',
-    width: 'brief',
     actions: ['skip', 'continue'],
     render: () => `
       <div class="headline">X% of businesses like yours end up selling internationally as they grow. <span class="muted">Here’s what comes with it.</span></div>
@@ -1120,7 +1118,6 @@ const STEPS = [
     // Figma 26655:58330 — the offer, and the decision. Managed payments is
     // preselected and carries its benefits; self-managed is the alternative.
     id: 'managed-payments',
-    width: 'brief',
     actions: ['skip', 'continue'],
     render: () => `
       <div class="headline">With Stripe Managed Payments, we take on the work of selling internationally. <span class="muted">You’re covered from your first sale abroad.</span></div>
@@ -1157,7 +1154,6 @@ const STEPS = [
     // it only follows a Managed payments choice. Ticking it reveals the
     // billing line, the way the card's own copy does once it applies.
     id: 'domestic-coverage',
-    width: 'brief',
     actions: ['skip', 'continue'],
     when: () => state.managed === 0,
     render: () => `
