@@ -343,6 +343,41 @@
       color: var(--text-default);
       margin-bottom: 20px;
     }
+
+    /* Tabs */
+    .tabs {
+      max-width: 960px;
+      margin: 0 auto 32px;
+      display: flex;
+      gap: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tab {
+      position: relative;
+      padding: 0 2px 12px;
+      background: none;
+      border: none;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-subdued);
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+    .tab:hover { color: var(--text-default); }
+    .tab.active { color: var(--primary); }
+    .tab.active::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 2px;
+      border-radius: 2px 2px 0 0;
+      background: var(--primary);
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
   </style>
 </head>
 <body>
@@ -352,19 +387,28 @@
   <p>Different variants of the SMP modal in intent capture.</p>
 </div>
 
-<div class="section">
-  <div class="section-heading">Onboarding flow</div>
-  <div class="grid" id="grid-flow"></div>
+<div class="tabs" id="tabs">
+  <button class="tab active" data-tab="explorations">Explorations</button>
+  <button class="tab" data-tab="archive">Archive</button>
 </div>
 
-<div class="section">
-  <div class="section-heading">Latest explorations</div>
-  <div class="grid" id="grid-latest"></div>
+<div class="tab-panel active" id="panel-explorations">
+  <div class="section">
+    <div class="section-heading">Onboarding flow</div>
+    <div class="grid" id="grid-flow"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-heading">Latest explorations</div>
+    <div class="grid" id="grid-latest"></div>
+  </div>
 </div>
 
-<div class="section">
-  <div class="section-heading">Past explorations</div>
-  <div class="grid" id="grid-past"></div>
+<div class="tab-panel" id="panel-archive">
+  <div class="section">
+    <div class="section-heading">Past explorations</div>
+    <div class="grid" id="grid-past"></div>
+  </div>
 </div>
 
 <script>
@@ -752,6 +796,8 @@ renderGrid();
 function scalePreviews() {
   document.querySelectorAll('.card-preview[data-src]').forEach(container => {
     if (container.querySelector('iframe')) return;
+    // A card in a hidden tab panel has no width yet; leave it for the switch.
+    if (!container.offsetWidth) return;
     const iframe = document.createElement('iframe');
     iframe.src = container.dataset.src;
     iframe.loading = 'lazy';
@@ -765,6 +811,29 @@ function scalePreviews() {
     iframe.style.top = ((containerHeight - 800 * scale) / 2) + 'px';
   });
 }
+
+// Tabs. The hash keeps the tab across reloads, so a shared link lands on the
+// same one. Previews in a newly revealed panel are built on first switch.
+function showTab(name) {
+  const valid = ['explorations', 'archive'];
+  if (!valid.includes(name)) name = 'explorations';
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === name);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => {
+    p.classList.toggle('active', p.id === 'panel-' + name);
+  });
+  scalePreviews();
+}
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    history.replaceState(null, '', '#' + tab.dataset.tab);
+    showTab(tab.dataset.tab);
+  });
+});
+
+showTab(location.hash.slice(1));
 
 setTimeout(scalePreviews, 100);
 window.addEventListener('resize', () => {
