@@ -403,7 +403,8 @@
 
 <div class="tab-panel active" id="panel-explorations">
   <div class="section">
-    <div class="empty-state">Nothing here yet — new explorations will land in this tab.</div>
+    <div class="section-heading">Onboarding flow</div>
+    <div class="grid" id="grid-explore"></div>
   </div>
 </div>
 
@@ -473,6 +474,17 @@ const flowVariations = [
     id: 'flow-v3',
     title: 'SMP - Upgrade',
     file: 'flow.html?framework=expand',
+    preview: 'smp.html?framework=expand&preview=1',
+  },
+];
+
+// Explorations. Duplicated from the flow above and cut down to the two screens
+// under review: the goods question and the SMP screen it hands off to.
+const exploreVariations = [
+  {
+    id: 'flow-2step',
+    title: 'SMP - Upgrade (two screens)',
+    file: 'flow-2step.html?framework=expand',
     preview: 'smp.html?framework=expand&preview=1',
   },
 ];
@@ -661,6 +673,9 @@ function renderFlowCard(v) {
 }
 
 function renderGrid() {
+  const gridExplore = document.getElementById('grid-explore');
+  gridExplore.innerHTML = exploreVariations.map(renderFlowCard).join('');
+
   const gridFlow = document.getElementById('grid-flow');
   const gridLatest = document.getElementById('grid-latest');
   const gridPast = document.getElementById('grid-past');
