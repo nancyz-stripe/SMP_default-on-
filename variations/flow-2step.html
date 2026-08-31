@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMP onboarding flow</title>
+    <title>Cross-border brief — two-screen cut</title>
     <style>
         :root {
             --bg-surface: #ffffff;
@@ -361,6 +361,46 @@
         .step { width: 100%; max-width: 657px; }
         .step.narrow { max-width: 420px; }
         .step.wide { max-width: 824px; }
+        .step.brief { max-width: 583px; }
+
+        /* Informational card: icon, title, detail per row. No art, no colour —
+           the screen only has to be read. */
+        .brief-card {
+            background: var(--bg-offset);
+            border-radius: 8px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .brief-row { display: flex; gap: 16px; align-items: flex-start; }
+        .brief-icon {
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            background: var(--neutral-50);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-subdued);
+        }
+        .brief-icon svg { width: 12px; height: 12px; }
+        .brief-title {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 20px;
+            letter-spacing: -0.15px;
+            color: var(--text-default);
+            margin-bottom: 4px;
+        }
+        .brief-desc {
+            display: block;
+            font-size: 12px;
+            line-height: 16px;
+            color: var(--text-default);
+        }
 
         .modal-footer {
             display: flex;
@@ -760,21 +800,6 @@
         .floatie-manage { font-size: 12px; color: var(--text-action-primary); cursor: pointer; }
         .floatie-manage:hover { text-decoration: underline; }
 
-        /* Variant hand-off frame (step 5) */
-        /* Viewport-sized, so the variant renders its own shell and modal exactly
-           as it does standalone. */
-        #variant-frame {
-            position: fixed;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-            z-index: 150;
-            display: none;
-            background: var(--bg-offset);
-        }
-        #variant-frame.active { display: block; }
-
     </style>
 </head>
 <body>
@@ -824,38 +849,10 @@
     </div>
 </div>
 
-<!-- Step 5: hands off to the selected variant, which owns its own modal -->
-<iframe id="variant-frame" title="Managed payments intent capture"></iframe>
-
 <script>
-// ---------------------------------------------------------------------------
-// Which variant this run of the flow is threading through. The variant only
-// governs step 5; every other step is shared.
-// ---------------------------------------------------------------------------
-// Step 5 is one merged screen (smp.html) driven by four properties. The three
-// named frameworks are presets over it, not separate builds.
-const VARIANTS = {
-  v1: { label: 'V1', title: 'Choose your scope', framework: 'scope' },
-  v2: { label: 'V2', title: 'Auto-pilot vs Self-managed', framework: 'autopilot' },
-  v3: { label: 'V3', title: 'Expand coverage', framework: 'expand' },
-};
-const BY_FRAMEWORK = Object.fromEntries(
-  Object.entries(VARIANTS).map(([k, v]) => [v.framework, k])
-);
-
+// Deep link for the card previews on the index: ?s=2 opens on the second
+// screen.
 const params = new URLSearchParams(location.search);
-// Accept either ?variant=v2 or ?framework=autopilot as the entry point.
-const variantKey = VARIANTS[params.get('variant')] ? params.get('variant')
-  : BY_FRAMEWORK[params.get('framework')] || 'v1';
-const variant = VARIANTS[variantKey];
-
-// Presentational overrides pass straight through to the SMP step, so a flow URL
-// can pin an exact combination.
-const SMP_PROPS = ['framework', 'gradient', 'globe', 'cards'];
-const smpConfig = { framework: variant.framework };
-for (const p of SMP_PROPS) {
-  if (p !== 'framework' && params.get(p)) smpConfig[p] = params.get(p);
-}
 
 const CHECK = '<svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 5.2l2.2 2.2L8.5 2.6"/></svg>';
 
@@ -872,10 +869,29 @@ function rows(name, items) {
     </div>`).join('')}</div>`;
 }
 
+const ICONS = {
+  bank: '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4.4L6 1.6l5 2.8"/><path d="M2.2 4.8v4.4M4.7 4.8v4.4M7.3 4.8v4.4M9.8 4.8v4.4"/><path d="M1 10.4h10"/></svg>',
+  document: '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 1.2h3.6L9 3.6v7.2H3z"/><path d="M6.4 1.4v2.4h2.4"/><path d="M4.4 6.4h3.2M4.4 8.4h3.2"/></svg>',
+  warning: '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M6 1.6l4.6 8H1.4z"/><path d="M6 4.8v2.4M6 8.6v.4"/></svg>',
+};
+
+// Read-only rows: an icon, a title, and the detail under it. Nothing here is
+// selectable, which is the point of this screen.
+function brief(items) {
+  return items.map(it => `
+    <div class="brief-row">
+      <span class="brief-icon">${it.icon}</span>
+      <span style="flex:1">
+        <span class="brief-title">${it.title}</span>
+        <span class="brief-desc">${it.label}</span>
+      </span>
+    </div>`).join('');
+}
+
 // ---------------------------------------------------------------------------
-// A two-screen cut of the onboarding flow: the goods question, then the SMP
-// screen it leads into. Everything before and after is trimmed away so the
-// seam between the two can be reviewed on its own.
+// A two-screen cut of the onboarding flow: the goods question, then the
+// cross-border brief it leads into. Everything before and after is trimmed
+// away so the seam between the two can be reviewed on its own.
 // ---------------------------------------------------------------------------
 const STEPS = [
   {
@@ -890,10 +906,32 @@ const STEPS = [
       ])}`,
   },
   {
-    // The variant screen itself, rendered by smp.html so the globe, gradient
-    // and option framing stay exactly as designed there.
-    id: 'smp-variant',
-    variantStep: true,
+    // Figma 26654:54163 — the simplified screen: no gradient, no globe, no
+    // choice to make. It states what selling internationally brings with it.
+    id: 'cross-border-brief',
+    width: 'brief',
+    actions: ['skip', 'continue'],
+    render: () => `
+      <div class="headline">X% of businesses like yours end up selling internationally as they grow. <span class="muted">Here’s what comes with it.</span></div>
+      <div class="brief-card">
+        ${brief([
+          {
+            icon: ICONS.bank,
+            title: 'More declined payments',
+            label: 'Foreign banks decline more payments, even when the card is valid. Every decline is revenue you lose.',
+          },
+          {
+            icon: ICONS.document,
+            title: 'You’re liable for tax in every market',
+            label: 'Tax is owed where your customer is, not where you are—and you’re responsible for collecting and filing it there.',
+          },
+          {
+            icon: ICONS.warning,
+            title: 'Costlier fraud and disputes',
+            label: 'Fraud patterns differ by market. Each dispute follows the rules and deadlines of your customer’s country.',
+          },
+        ])}
+      </div>`,
   },
 ];
 
@@ -906,12 +944,12 @@ const el = {
   actions: document.getElementById('footerActions'),
   back: document.getElementById('footerBack'),
   backdrop: document.getElementById('modalBackdrop'),
-  frame: document.getElementById('variant-frame'),
   progress: document.getElementById('progressFill'),
 };
 
 const ACTIONS = {
   continue: '<button class="btn-continue" onclick="goNext()">Continue</button>',
+  skip: '<button class="btn-secondary" onclick="goNext()">Skip</button>',
 };
 
 // Two screens, so the bar reads half then full.
@@ -923,21 +961,6 @@ function render() {
   const step = STEPS[stepIndex];
 
   el.progress.style.width = progressFor(stepIndex) + '%';
-
-  el.frame.classList.toggle('active', !!step.variantStep);
-  el.backdrop.style.display = step.variantStep ? 'none' : 'flex';
-
-  if (step.variantStep) {
-    // Hand the SMP screen its progress so the bar stays continuous across the
-    // seam, plus whichever properties this run of the flow is pinning.
-    const qs = new URLSearchParams({ flow: '1', progress: progressFor(stepIndex), ...smpConfig });
-    const src = `smp.html?${qs}`;
-    if (el.frame.dataset.src !== src) {
-      el.frame.dataset.src = src;
-      el.frame.src = src;
-    }
-    return;
-  }
 
   el.body.innerHTML = `<div class="step ${step.width || ''}">${step.render()}</div>`;
   el.back.style.visibility = step.back === false ? 'hidden' : 'visible';
@@ -953,8 +976,8 @@ function toggle(name, index) {
   render();
 }
 
-// The cut ends on the SMP screen, so continuing past it leaves the flow —
-// the same exit backing out of the first screen takes.
+// The cut ends on the brief, so continuing past it leaves the flow — the same
+// exit backing out of the first screen takes.
 function goNext() {
   if (stepIndex < STEPS.length - 1) { stepIndex++; render(); }
   else goHome();
@@ -975,44 +998,15 @@ el.backdrop.addEventListener('click', (e) => {
   if (e.target === el.backdrop) goHome();
 });
 
-// The SMP step drives navigation through its own Continue / Back, reports
-// control-panel changes so the flow can keep them, and forwards backdrop
-// clicks since only the parent can navigate out of the flow.
-window.addEventListener('message', (e) => {
-  if (!e.data) return;
-
-  if (e.data.type === 'flow-home') {
-    goHome();
-    return;
-  }
-
-  if (e.data.type === 'flow-nav') {
-    if (e.data.dir === 'next') goNext();
-    if (e.data.dir === 'back') goBack();
-    return;
-  }
-
-  if (e.data.type === 'smp-config' && SMP_PROPS.includes(e.data.key)) {
-    smpConfig[e.data.key] = e.data.value;
-
-    const url = new URL(location.href);
-    url.searchParams.delete('variant');
-    for (const p of SMP_PROPS) url.searchParams.set(p, smpConfig[p] ?? '');
-    for (const p of SMP_PROPS) if (!smpConfig[p]) url.searchParams.delete(p);
-    history.replaceState(null, '', url);
-
-    // The iframe reloaded itself, so keep our record of its src in step.
-    const qs = new URLSearchParams({ flow: '1', progress: progressFor(stepIndex), ...smpConfig });
-    el.frame.dataset.src = `smp.html?${qs}`;
-  }
-});
-
 window.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowRight') goNext();
   if (e.key === 'ArrowLeft') goBack();
 });
 
-document.title = `SMP two-screen cut — ${variant.label} ${variant.title}`;
+// ?s=2 is 1-based, to read the same way the screens are talked about.
+const startAt = parseInt(params.get('s'), 10);
+if (startAt >= 1 && startAt <= STEPS.length) stepIndex = startAt - 1;
+
 render();
 </script>
 </body>
