@@ -485,6 +485,7 @@
 
         /* The price, as a badge beside the title rather than a line of copy. */
         .choice-badge {
+            position: relative;
             flex-shrink: 0;
             display: flex;
             align-items: center;
@@ -497,8 +498,56 @@
             line-height: 16px;
             color: #50617a;
             white-space: nowrap;
+            cursor: default;
         }
         .choice-badge svg { width: 12px; height: 12px; fill: #667691; }
+
+        /* Same tooltip the earlier variants use on their fee badges: a card
+           above the badge, centred on it, revealed on hover. */
+        .fee-tooltip {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            width: 280px;
+            padding: 16px;
+            background: var(--bg-surface);
+            border: 1px solid #d4dee9;
+            border-radius: 8px;
+            box-shadow: 0px 2px 2.5px rgba(64, 68, 82, 0.08), 0px 3px 4.5px rgba(64, 68, 82, 0.08);
+            font-size: 14px;
+            line-height: 20px;
+            letter-spacing: -0.15px;
+            color: #1a2c44;
+            white-space: normal;
+            text-align: left;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.15s;
+            z-index: 50;
+        }
+        .choice-badge:hover .fee-tooltip { opacity: 1; visibility: visible; }
+
+        /* Square box for the one card that's a checkbox rather than a radio. */
+        .check-box {
+            flex-shrink: 0;
+            width: 14px;
+            height: 14px;
+            margin: 3px;
+            border-radius: 4px;
+            border: 1px solid var(--border-form-default);
+            background: var(--bg-surface);
+            box-shadow: 0px 1px 1px 0px rgba(33, 37, 44, 0.16);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .choice-card.selected .check-box {
+            background: var(--bg-form-accent);
+            border-color: var(--text-action-primary);
+        }
+        .check-box svg { width: 9px; height: 9px; opacity: 0; color: #fff; }
+        .choice-card.selected .check-box svg { opacity: 1; }
 
         .modal-footer {
             display: flex;
@@ -989,6 +1038,12 @@ function brief(items) {
 const TICK = '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 6.3l3 3 6-6.6"/></svg>';
 const INFO = '<svg viewBox="0 0 12 12" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.75 1.75H3.25C2.42157 1.75 1.75 2.42157 1.75 3.25V8.75C1.75 9.57843 2.42157 10.25 3.25 10.25H8.75C9.57843 10.25 10.25 9.57843 10.25 8.75V3.25C10.25 2.42157 9.57843 1.75 8.75 1.75ZM3.25 0.25C1.59315 0.25 0.25 1.59315 0.25 3.25V8.75C0.25 10.4069 1.59315 11.75 3.25 11.75H8.75C10.4069 11.75 11.75 10.4069 11.75 8.75V3.25C11.75 1.59315 10.4069 0.25 8.75 0.25H3.25Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M4.48182 6.49998C4.48182 6.11338 4.79522 5.79998 5.18182 5.79998H6.27273C6.65933 5.79998 6.97273 6.11338 6.97273 6.49998V8.49998C6.97273 8.88658 6.65933 9.19998 6.27273 9.19998C5.88613 9.19998 5.57273 8.88658 5.57273 8.49998V7.19998H5.18182C4.79522 7.19998 4.48182 6.88658 4.48182 6.49998Z"/><path d="M4.99994 3.99999C4.99994 3.44858 5.44854 2.99999 5.99994 2.99999C6.55134 2.99999 6.99994 3.44858 6.99994 3.99999C6.99994 4.55139 6.55134 4.99999 5.99994 4.99999C5.44854 4.99999 4.99994 4.55139 4.99994 3.99999Z"/></svg>';
 
+// The price badge, with the tooltip explaining what the fee sits on top of.
+// Hovering or clicking it must not toggle the card it sits in.
+function badge(text, tip) {
+  return `<span class="choice-badge" onclick="event.stopPropagation()">${text}${INFO}<span class="fee-tooltip">${tip}</span></span>`;
+}
+
 // Radio cards: single choice, so `name` keys the selected index in `state`.
 // `badge`, `benefits` and `fee` are optional — only the recommended card
 // carries them.
@@ -999,7 +1054,7 @@ function choices(name, items) {
       <span class="choice-body">
         <span class="choice-title-row">
           <span class="choice-title">${it.title}</span>
-          ${it.badge ? `<span class="choice-badge">${it.badge}${INFO}</span>` : ''}
+          ${it.badge ? badge(it.badge, it.tip) : ''}
         </span>
         <span class="choice-sub">${it.label}</span>
         ${it.benefits ? `<span class="choice-benefits">${it.benefits.map(b => `
@@ -1017,8 +1072,9 @@ function choices(name, items) {
 
 // ---------------------------------------------------------------------------
 // A cut of the onboarding flow: the goods question, the cross-border brief it
-// leads into, and the managed-payments choice. Everything before and after is
-// trimmed away so this stretch can be reviewed on its own.
+// leads into, the managed-payments choice, and the domestic upsell that only
+// follows Managed payments. Everything before and after is trimmed away so
+// this stretch can be reviewed on its own.
 // ---------------------------------------------------------------------------
 const STEPS = [
   {
@@ -1087,6 +1143,7 @@ const STEPS = [
             },
           ],
           badge: '+3.5% per transaction',
+          tip: 'This fee is additional to standard processing fees (3.4% for international).',
           fee: 'No monthly fee, and nothing to pay until your first international sale.',
         },
         {
@@ -1095,11 +1152,35 @@ const STEPS = [
         },
       ])}`,
   },
+  {
+    // Figma 26655:59545, checked state 26655:60228 — the domestic upsell, so
+    // it only follows a Managed payments choice. Ticking it reveals the
+    // billing line, the way the card's own copy does once it applies.
+    id: 'domestic-coverage',
+    width: 'brief',
+    actions: ['skip', 'continue'],
+    when: () => state.managed === 0,
+    render: () => `
+      <div class="headline">Want Managed Payments to cover your domestic sales too? <span class="muted">This will give you full payments coverage.</span></div>
+      <div class="choice-list">
+        <div class="choice-card${state.domestic ? ' selected' : ''}" role="checkbox" aria-checked="${state.domestic}" onclick="toggleDomestic()">
+          <span class="check-box">${CHECK}</span>
+          <span class="choice-body">
+            <span class="choice-title-row">
+              <span class="choice-title">Cover domestic sales too</span>
+              ${badge('+2% per transaction', 'This fee is additional to standard processing fees (2.9% for domestic).')}
+            </span>
+            <span class="choice-sub">We’re liable for sales tax in your home market, and we handle fraud, disputes, and customer support on every domestic sale.</span>
+            ${state.domestic ? '<span class="choice-fee">No monthly fee, and nothing to pay until your first domestic sale.</span>' : ''}
+          </span>
+        </div>
+      </div>`,
+  },
 ];
 
 // `sell` is a checkbox group, so it holds an array; `managed` is the single
 // choice on the last screen. Defaults mirror the Figma.
-const state = { sell: [0], managed: 0 };
+const state = { sell: [0], managed: 0, domestic: false };
 let stepIndex = 0;
 
 const el = {
@@ -1115,9 +1196,16 @@ const ACTIONS = {
   skip: '<button class="btn-secondary" onclick="goNext()">Skip</button>',
 };
 
-// The bar fills evenly across the screens in the cut.
+// A step with a `when` only applies to some paths through the cut — the
+// domestic upsell doesn't follow "I'll handle this myself".
+function applies(step) {
+  return !step.when || step.when();
+}
+
+// The bar fills evenly across the screens this path actually visits.
 function progressFor(i) {
-  return (((i + 1) / STEPS.length) * 100).toFixed(1);
+  const path = STEPS.filter(applies);
+  return (((path.indexOf(STEPS[i]) + 1) / path.length) * 100).toFixed(1);
 }
 
 function render() {
@@ -1136,6 +1224,12 @@ function select(name, index) {
   render();
 }
 
+// The one standalone checkbox.
+function toggleDomestic() {
+  state.domestic = !state.domestic;
+  render();
+}
+
 // Checkbox groups: add or remove, any number on at once.
 function toggle(name, index) {
   const selected = state[name];
@@ -1145,16 +1239,20 @@ function toggle(name, index) {
   render();
 }
 
-// The cut ends on the choice, so continuing past it leaves the flow — the same
-// exit backing out of the first screen takes.
+// Continuing past the last screen on this path leaves the flow — the same exit
+// backing out of the first screen takes.
 function goNext() {
-  if (stepIndex < STEPS.length - 1) { stepIndex++; render(); }
-  else goHome();
+  for (let i = stepIndex + 1; i < STEPS.length; i++) {
+    if (applies(STEPS[i])) { stepIndex = i; render(); return; }
+  }
+  goHome();
 }
 
 function goBack() {
-  if (stepIndex > 0) { stepIndex--; render(); }
-  else window.location.href = 'index.html';
+  for (let i = stepIndex - 1; i >= 0; i--) {
+    if (applies(STEPS[i])) { stepIndex = i; render(); return; }
+  }
+  goHome();
 }
 
 function goHome() {
