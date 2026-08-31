@@ -378,6 +378,15 @@
     }
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
+
+    .empty-state {
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 48px 24px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
   </style>
 </head>
 <body>
@@ -394,6 +403,12 @@
 
 <div class="tab-panel active" id="panel-explorations">
   <div class="section">
+    <div class="empty-state">Nothing here yet — new explorations will land in this tab.</div>
+  </div>
+</div>
+
+<div class="tab-panel" id="panel-archive">
+  <div class="section">
     <div class="section-heading">Onboarding flow</div>
     <div class="grid" id="grid-flow"></div>
   </div>
@@ -402,9 +417,7 @@
     <div class="section-heading">Latest explorations</div>
     <div class="grid" id="grid-latest"></div>
   </div>
-</div>
 
-<div class="tab-panel" id="panel-archive">
   <div class="section">
     <div class="section-heading">Past explorations</div>
     <div class="grid" id="grid-past"></div>
