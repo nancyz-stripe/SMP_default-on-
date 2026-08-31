@@ -1406,6 +1406,19 @@ const STEPS = [
       </div>`,
   },
   {
+    id: 'how-to-start',
+    plain: true,
+    actions: ['skip', 'continue'],
+    render: () => `
+      <div class="headline">Select how you want to use Stripe. <span class="muted">You can always add or remove products later.</span></div>
+      ${rows('use', [
+        { title: 'Non-recurring payments', label: 'Let your users collect payments, or collect them yourself and send payouts' },
+        { title: 'Recurring payments', label: 'Let your users collect payments, or collect them yourself and send payouts' },
+        { title: 'Build a platform or marketplace', label: 'Use Connect to enable money movement between multiple parties.' },
+      ])}
+      <span class="text-link">I need something else</span>`,
+  },
+  {
     id: 'types-of-goods',
     // The one screen with no background treatment, exactly as V1 has it.
     plain: true,
@@ -1612,7 +1625,7 @@ const STEPS = [
 
 // `sell` is a checkbox group, so it holds an array; `managed` is the single
 // choice on the last screen. Defaults mirror the Figma.
-const state = { sell: [0], managed: 0, domestic: false, setup: 0 };
+const state = { use: [1], sell: [0], managed: 0, domestic: false, setup: 0 };
 let stepIndex = 0;
 
 const el = {

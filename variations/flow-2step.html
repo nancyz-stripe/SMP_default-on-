@@ -972,6 +972,183 @@
 </div>
 
 
+<!-- Final step: the real dashboard, with its components registered to the image -->
+<div id="dash-layer">
+    <!-- The dashboard, built out (Figma 26370:56250) -->
+    <div class="dash">
+        <div class="dash-banner">
+            <span class="dash-banner-name">Sandbox</span>
+            <span class="dash-banner-copy">Get set up using <b>test data</b> and copy your work when going live.</span>
+            <button class="dash-banner-cta">Get your live account</button>
+        </div>
+
+        <div class="dash-body">
+            <div class="dash-side">
+                <div class="dash-account">
+                    <span class="dash-account-icon"></span>
+                    <span>
+                        <span class="dash-account-name">Default sandbox</span>
+                        <span class="dash-account-sub">Cactus Practice</span>
+                    </span>
+                </div>
+                <div class="dash-nav active"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.5L8 2.5l5.5 4v6a1 1 0 01-1 1h-9a1 1 0 01-1-1v-6z"/><path d="M6.5 13.5V9h3v4.5"/></svg><span>Home</span></div>
+                <div class="dash-nav"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4.5h9M2 8h12M2 11.5h7"/><circle cx="12.5" cy="4.5" r="1.6"/><circle cx="9.5" cy="11.5" r="1.6"/></svg><span>Balances</span></div>
+                <div class="dash-nav"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5h9l-2.2-2.2M13 10.5H4l2.2 2.2"/></svg><span>Transactions</span></div>
+                <div class="dash-nav"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5.5" r="2.6"/><path d="M3 13.2c0-2.4 2.2-3.7 5-3.7s5 1.3 5 3.7"/></svg><span>Customers</span></div>
+                <div class="dash-nav"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2l5 2.8v6.4L8 14 3 11.2V4.8z"/><path d="M3 4.8l5 2.8 5-2.8M8 7.6V14"/></svg><span>Product catalog</span></div>
+
+                <span class="dash-side-label">Shortcuts</span>
+                <div class="dash-nav"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 2.5l3 3-2 1-3.5 3.5-1-1L4.5 12 4 11.5l2-2.5-1-1L8.5 4.5z"/></svg><span>Subscriptions</span></div>
+
+                <span class="dash-side-label">Products</span>
+                <div class="dash-nav"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5l5.5 3-5.5 3-5.5-3z"/><path d="M2.5 9l5.5 3 5.5-3"/></svg><span>Connect</span><svg class="caret" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 3 3-3"/></svg></div>
+                <div class="dash-nav"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="11" height="8" rx="1.6"/><path d="M2.5 7h11"/></svg><span>Payments</span><svg class="caret" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 3 3-3"/></svg></div>
+                <div class="dash-nav"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3" width="11" height="8.5" rx="1.6"/><path d="M5.5 13.5l2-2M5.5 6.5h5M5.5 8.8h3"/></svg><span>Billing</span><svg class="caret" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 3 3-3"/></svg></div>
+                <div class="dash-nav"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13V8M6.5 13V4M10 13V9.5M13.5 13V6"/></svg><span>Reporting</span><svg class="caret" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 3 3-3"/></svg></div>
+                <div class="dash-nav"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="8" r="1"/><circle cx="8" cy="8" r="1"/><circle cx="12" cy="8" r="1"/></svg><span>More</span><svg class="caret" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 3 3-3"/></svg></div>
+
+                <div class="dash-side-foot"><div class="dash-nav"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="12" height="10" rx="1.6"/><path d="M5 7l1.6 1.6L5 10.2M8.6 10.2h2.6"/></svg><span>Developer tools</span></div></div>
+            </div>
+
+            <div class="dash-main">
+                <div class="dash-main-inner">
+                    <div class="dash-topbar">
+                        <span class="dash-search"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="4.2"/><path d="M10.2 10.2L14 14"/></svg><span>Search</span></span>
+                        <span class="dash-topbar-icons">
+                            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="9" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="2.5" y="9" width="4.5" height="4.5" rx="1"/><path d="M11.2 9v4.5M9 11.2h4.5"/></svg><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="5.8"/><path d="M6.3 6.3c0-1 .8-1.7 1.7-1.7s1.7.7 1.7 1.6c0 1.2-1.7 1.3-1.7 2.4"/><circle cx="8" cy="11.2" r=".7" fill="currentColor" stroke="none"/></svg><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7a3.5 3.5 0 017 0c0 2.4 1 3.5 1 3.5H3.5s1-1.1 1-3.5z"/><path d="M6.8 12.4a1.4 1.4 0 002.4 0"/></svg><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="2"/><path d="M8 2.2v1.6M8 12.2v1.6M2.2 8h1.6M12.2 8h1.6M4 4l1.1 1.1M10.9 10.9L12 12M12 4l-1.1 1.1M5.1 10.9L4 12"/></svg>
+                            <span class="plus"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v10M3 8h10"/></svg></span>
+                        </span>
+                    </div>
+
+                    <div class="dash-h1">Today</div>
+                    <div class="dash-rule"></div>
+
+                    <div class="dash-cols">
+                        <div class="dash-col-main">
+                            <span class="dash-metric-label">Gross volume <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 3 3-3"/></svg></span>
+                            <div class="dash-metric-value">$0.00</div>
+                            <div class="dash-chart"></div>
+                            <div class="dash-chart-axis"><span>12:00 AM</span><span>11:59 PM</span></div>
+
+                            <div class="dash-pair">
+                                <div class="dash-pair-item">
+                                    <div class="dash-pair-head">
+                                        <span class="dash-metric-label">USD Balance <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 3 3-3"/></svg></span>
+                                        <span class="view">View</span>
+                                    </div>
+                                    <div class="dash-metric-value">$0.00</div>
+                                </div>
+                                <div class="dash-pair-item">
+                                    <div class="dash-pair-head">
+                                        <span class="dash-metric-label">Payouts</span>
+                                        <span class="view">View</span>
+                                    </div>
+                                    <div class="dash-metric-value">$0.00</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dash-apikeys">
+                            <div class="dash-apikeys-head"><h3>API keys</h3><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M2 2l8 8M10 2l-8 8"/></svg></div>
+                            <div class="dash-apikeys-row"><span>Publishable key</span><span class="val">phkey_123819238y9</span></div>
+                            <div class="dash-apikeys-row"><span>Secret key</span><span class="val dots">••••••••••••••••••</span><svg class="eye" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1 7s2.2-3.6 6-3.6S13 7 13 7s-2.2 3.6-6 3.6S1 7 1 7z"/><circle cx="7" cy="7" r="1.6"/></svg></div>
+                            <span class="dash-apikeys-link">View docs</span>
+                        </div>
+                    </div>
+
+                    <div class="dash-overview">
+                        <div class="dash-overview-head">
+                            <span class="dash-h1">Your overview</span>
+                            <span class="dash-overview-actions">
+                                <button class="dash-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 2v8M2 6h8"/></svg>Add</button>
+                                <button class="dash-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="6" cy="6" r="1.6"/><path d="M6 1.4v1.2M6 9.4v1.2M1.4 6h1.2M9.4 6h1.2"/></svg>Edit</button>
+                            </span>
+                        </div>
+                        <div class="dash-overview-rule"></div>
+                        <div class="dash-overview-cols">
+                            <div class="dash-overview-col">
+                                <span class="dash-metric-label">Payments <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="1.5" width="9" height="9" rx="2"/><path d="M6 5.4v3.2M6 3.6v.5"/></svg></span>
+                                <div class="dash-bar"></div>
+                                <div class="dash-stat-row"><span class="dot"></span><span>Succeeded</span><span class="amt">$0.00</span></div><div class="dash-stat-row"><span class="dot"></span><span>Succeeded</span><span class="amt">$0.00</span></div><div class="dash-stat-row"><span class="dot"></span><span>Refunded</span><span class="amt">$0.00</span></div><div class="dash-stat-row"><span class="dot"></span><span>Failed</span><span class="amt">$0.00</span></div>
+                            </div>
+                            <div class="dash-overview-col">
+                                <span class="dash-metric-label">Gross volume <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="1.5" width="9" height="9" rx="2"/><path d="M6 5.4v3.2M6 3.6v.5"/></svg></span>
+                                <div class="dash-metric-value">$0.00</div>
+                            </div>
+                            <div class="dash-overview-col">
+                                <span class="dash-metric-label">Net volume from sales <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="1.5" width="9" height="9" rx="2"/><path d="M6 5.4v3.2M6 3.6v.5"/></svg></span>
+                                <div class="dash-metric-value">$0.00</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Glow behind the setup-guide moment -->
+        <div class="dash-glow"></div>
+    </div>
+
+    <!-- Step 8: the setup guide + callout, built over the dashboard image -->
+    <div id="dashboard-step">
+        <div class="spotlight">
+            <div class="spotlight-title">Next, set up recurring payments</div>
+            <span class="spotlight-link" onclick="dismissSpotlight()">Got it</span>
+        </div>
+
+        <div class="floatie">
+            <div class="floatie-header">
+                <span class="floatie-title">Setup guide</span>
+                <span class="floatie-icons">
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M7 5l4-4M11 1v3.2M11 1H7.8M5 7l-4 4M1 11V7.8M1 11h3.2"/></svg>
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M1.5 1.5l9 9M10.5 1.5l-9 9"/></svg>
+                </span>
+            </div>
+
+            <div class="floatie-section">
+                <div class="floatie-group-row">
+                    <span class="floatie-group-title">Set up recurring payments</span>
+                    <svg class="chev" viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5l3-3 3 3"/></svg>
+                </div>
+
+                <div class="floatie-task">
+                    <svg class="tick current" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" fill="#d8dee7"/></svg>
+                    <span class="floatie-task-label">Choose a pricing model</span>
+                    <button class="floatie-go" aria-label="Start task">
+                        <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 1l4 4-4 4"/></svg>
+                    </button>
+                </div>
+                <div class="floatie-task">
+                    <svg class="tick" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="7" cy="7" r="6"/><path d="M3.5 10.5l7-7"/></svg>
+                    <span class="floatie-task-label">Choose how to accept recurring payments</span>
+                </div>
+                <div class="floatie-task">
+                    <svg class="tick" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="7" cy="7" r="6"/><path d="M3.5 10.5l7-7"/></svg>
+                    <span class="floatie-task-label">Create a recurring product</span>
+                </div>
+                <div class="floatie-task muted">
+                    <svg class="tick" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="7" cy="7" r="6"/><path d="M3.5 10.5l7-7"/></svg>
+                    <span class="floatie-task-label">Build your Checkout integration</span>
+                </div>
+
+                <div class="floatie-group-row">
+                    <span class="floatie-group-title">Finish your setup</span>
+                    <svg class="chev" viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 3l3 3 3-3"/></svg>
+                </div>
+                <div class="floatie-group-row">
+                    <span class="floatie-group-title locked">Go Live</span>
+                    <svg class="lock" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="2.5" y="5.5" width="7" height="5.5" rx="1"/><path d="M4.2 5.5V4a1.8 1.8 0 013.6 0v1.5"/></svg>
+                </div>
+            </div>
+
+            <div class="floatie-footer">
+                <span class="floatie-progress"><i></i></span>
+                <span class="floatie-manage">Manage tasks</span>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal: logo + progress bar, step content, footer with the CTAs -->
 <div class="modal-backdrop" id="modalBackdrop">
     <div class="modal">
@@ -1070,12 +1247,60 @@ function choices(name, items) {
 }
 
 // ---------------------------------------------------------------------------
-// A cut of the onboarding flow: the goods question, the cross-border brief it
-// leads into, the managed-payments choice, and the domestic upsell that only
-// follows Managed payments. Everything before and after is trimmed away so
-// this stretch can be reviewed on its own.
+// The onboarding flow, end to end: the shared screens come from the Archive
+// flow unchanged, and the cross-border stretch — brief, managed-payments
+// choice, and the domestic upsell that only follows Managed payments — sits
+// between the goods question and the setup method.
 // ---------------------------------------------------------------------------
 const STEPS = [
+  {
+    id: 'welcome',
+    width: 'narrow',
+    back: false,
+    actions: ['continue'],
+    render: () => `
+      <div class="headline"><span class="accent">Welcome to Stripe.</span> <span class="muted">Answer a few questions to get the best setup for your business.</span></div>
+      <div class="field">
+        <label class="field-label" for="biz-name">Business name*</label>
+        <input id="biz-name" type="text" placeholder="Acme Inc.">
+      </div>
+      <div class="inline-field">
+        <span>Business location</span>
+        <svg class="info-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="1.5" width="11" height="11" rx="2"/><path d="M7 6.2v4M7 4.1v.6"/></svg>
+        <span>:</span>
+        <span class="location-value">
+          <span>🇺🇸</span><span>United States</span>
+          <svg class="chevron" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 3.5L5 7l3.5-3.5"/></svg>
+        </span>
+      </div>`,
+  },
+  {
+    id: 'about-business',
+    width: 'narrow',
+    actions: ['skip', 'continue'],
+    render: () => `
+      <div class="headline">Tell us more about your business. <span class="muted">This helps us make setup recommendations for you.</span></div>
+      <div class="field">
+        <label class="field-label" for="website">Website</label>
+        <input id="website" type="text">
+      </div>
+      <div class="field">
+        <label class="field-label" for="how-start">How do you want to get started?</label>
+        <textarea id="how-start"></textarea>
+      </div>`,
+  },
+  {
+    id: 'how-to-start',
+    actions: ['skip', 'continue'],
+    render: () => `
+      <div class="headline">Select how you want to use Stripe. <span class="muted">You can always add or remove products later.</span></div>
+      ${rows('use', [
+        { title: 'Non-recurring payments', label: 'Let your users collect payments, or collect them yourself and send payouts' },
+        { title: 'Recurring payments', label: 'Let your users collect payments, or collect them yourself and send payouts' },
+        { title: 'Build a platform or marketplace', label: 'Use Connect to enable money movement between multiple parties.' },
+      ])}
+      <span class="text-link">I need something else</span>`,
+  },
   {
     id: 'types-of-goods',
     actions: ['continue'],
@@ -1172,11 +1397,104 @@ const STEPS = [
         </div>
       </div>`,
   },
+  {
+    id: 'type-of-setup',
+    actions: ['continue'],
+    render: () => `
+      <div class="headline">Choose how you want to set up:</div>
+      <div class="method-cards">
+        <div class="method-card${state.setup === 0 ? ' selected' : ''}" onclick="select('setup', 0)">
+          <div class="method-art">
+            <div class="mock-dash">
+              <div class="mock-dash-top"><span></span></div>
+              <div class="mock-dash-body">
+                <div class="mock-dash-nav"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                <div class="mock-dash-main">
+                  <i></i>
+                  <div class="mock-dash-row"><div class="block"></div><div class="block sm"></div></div>
+                  <div class="block"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="method-body">
+            <div class="method-title">Set up in the Dashboard</div>
+            <div class="method-label">Explore your account with a guided setup experience.</div>
+          </div>
+        </div>
+        <div class="method-card${state.setup === 1 ? ' selected' : ''}" onclick="select('setup', 1)">
+          <div class="method-art">
+            <div class="mock-term">
+              <svg class="spark" viewBox="0 0 12 12" fill="currentColor"><path d="M6 0l1.1 3.3L10.4 4.4 7.1 5.5 6 8.8 4.9 5.5 1.6 4.4 4.9 3.3z"/><path d="M10 7.6l.5 1.5 1.5.5-1.5.5-.5 1.5-.5-1.5L8 9.6l1.5-.5z"/></svg>
+              <i style="width:34px"></i><i style="width:28px"></i><i style="width:96px"></i>
+            </div>
+          </div>
+          <div class="method-body">
+            <div class="method-title">Set up with an AI tool</div>
+            <div class="method-label">Add Stripe skills to Claude, Cursor, or Codex for integration guidance and best practices.</div>
+          </div>
+        </div>
+      </div>`,
+  },
+  {
+    id: 'get-started',
+    width: 'wide',
+    actions: ['live', 'sandbox'],
+    render: () => `
+      <div class="sandbox-split">
+        <div class="sandbox-copy">
+          <div class="headline">Get started in your sandbox. <span class="muted">Your sandbox is a safe environment for testing. You can try out features without any real money movement.</span></div>
+          <div class="steps-list">
+            <div class="steps-list-item">
+              <span class="step-num">1</span>
+              <span>
+                <span class="step-num-title">Complete your setup</span>
+                <span class="step-num-label">Follow the steps in your setup guide to explore features that fit your business needs.</span>
+              </span>
+            </div>
+            <div class="steps-list-item">
+              <span class="step-num">2</span>
+              <span>
+                <span class="step-num-title">Switch to live account</span>
+                <span class="step-num-label">When you're ready to go live, answer some questions to verify your business.</span>
+              </span>
+            </div>
+            <div class="steps-list-item">
+              <span class="step-num">3</span>
+              <span>
+                <span class="step-num-title">You're ready to go</span>
+                <span class="step-num-label">Copy your work to your live account and start accepting payments.</span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="sandbox-art">
+          <div class="sandbox-window">
+            <div class="sandbox-window-top">Sandbox</div>
+            <div class="sandbox-window-body">
+              <div class="sandbox-window-left">
+                <span class="sandbox-chip"><span class="avatar">M</span><span class="name">matcha</span></span>
+                <i></i><i></i><i></i><i></i>
+              </div>
+              <div class="sandbox-window-right">
+                <i></i><i></i><div class="block"></div><i></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>`,
+  },
+  {
+    // Final step: static dashboard image with the setup guide floatie and the
+    // "next" callout built as components on top.
+    id: 'dashboard',
+    dashboardStep: true,
+  },
 ];
 
-// `sell` is a checkbox group, so it holds an array; `managed` is the single
-// choice on the last screen. Defaults mirror the Figma.
-const state = { sell: [0], managed: 0, domestic: false };
+// `use` and `sell` are checkbox groups, so they hold arrays; `managed` and
+// `setup` are single choices. Defaults mirror the Figma.
+const state = { use: [1], sell: [0], managed: 0, domestic: false, setup: 0 };
 let stepIndex = 0;
 
 const el = {
@@ -1185,11 +1503,15 @@ const el = {
   back: document.getElementById('footerBack'),
   backdrop: document.getElementById('modalBackdrop'),
   progress: document.getElementById('progressFill'),
+  dash: document.getElementById('dashboard-step'),
+  dashLayer: document.getElementById('dash-layer'),
 };
 
 const ACTIONS = {
   continue: '<button class="btn-continue" onclick="goNext()">Continue</button>',
   skip: '<button class="btn-secondary" onclick="goNext()">Skip</button>',
+  live: '<button class="btn-secondary" onclick="goNext()">Get your account live now</button>',
+  sandbox: '<button class="btn-continue" onclick="goNext()">Go to sandbox</button>',
 };
 
 // A step with a `when` only applies to some paths through the cut — the
@@ -1198,16 +1520,28 @@ function applies(step) {
   return !step.when || step.when();
 }
 
-// The bar fills evenly across the screens this path actually visits.
+// The bar fills evenly across the modal screens this path actually visits. The
+// dashboard is the destination rather than a step, so it reads as complete.
 function progressFor(i) {
-  const path = STEPS.filter(applies);
-  return (((path.indexOf(STEPS[i]) + 1) / path.length) * 100).toFixed(1);
+  const path = STEPS.filter(s => applies(s) && !s.dashboardStep);
+  const at = path.indexOf(STEPS[i]);
+  if (at === -1) return '100.0';
+  return (((at + 1) / path.length) * 100).toFixed(1);
 }
 
 function render() {
   const step = STEPS[stepIndex];
 
   el.progress.style.width = progressFor(stepIndex) + '%';
+
+  // The dashboard is the destination, so it replaces the modal rather than
+  // rendering inside it.
+  el.dash.classList.toggle('active', !!step.dashboardStep);
+  el.dashLayer.classList.toggle('active', !!step.dashboardStep);
+  el.dashLayer.classList.toggle('guided', !!step.dashboardStep);
+  el.backdrop.style.display = step.dashboardStep ? 'none' : 'flex';
+
+  if (step.dashboardStep) return;
 
   el.body.innerHTML = `<div class="step ${step.width || ''}">${step.render()}</div>`;
   el.back.style.visibility = step.back === false ? 'hidden' : 'visible';
@@ -1249,6 +1583,10 @@ function goBack() {
     if (applies(STEPS[i])) { stepIndex = i; render(); return; }
   }
   goHome();
+}
+
+function dismissSpotlight() {
+  document.querySelector('.spotlight').style.display = 'none';
 }
 
 function goHome() {
