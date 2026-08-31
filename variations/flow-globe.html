@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cross-border brief — globe</title>
+    <style>
+        :root {
+            --bg-surface: #ffffff;
+            --bg-offset: #f5f6f8;
+            --text-default: #353a44;
+            --text-subdued: #596171;
+            --text-heading: #21252c;
+            --text-muted: #99a5b8;
+            --text-action-primary: #533afd;
+            --icon-action-primary: #675dff;
+            --border-action-primary: #675dff;
+            --border-default: #d4dee9;
+            --bg-form-accent: #675dff;
+            --border-form-default: #d4dee9;
+            --neutral-200: #b6c0cd;
+            --neutral-50: #ebeef1;
+            --shadow-overlay: 0px 15px 35px 0px rgba(48, 49, 61, 0.08), 0px 5px 15px 0px rgba(0, 0, 0, 0.12);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* Viewport-filling, modal at 90% of it — same as the v1 variant. */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+            background: var(--bg-offset);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            z-index: 400;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: var(--bg-surface);
+            border: 1px solid var(--neutral-50);
+            border-radius: 8px;
+            color: var(--text-subdued);
+            font-size: 13px;
+            text-decoration: none;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .back-button:hover { background: var(--bg-offset); }
+
+        /* Background behind the modal — identical to the v1 variant's shell. */
+        .dashboard { display: flex; height: 100vh; width: 100vw; }
+        .sidebar {
+            width: 240px;
+            background: var(--bg-surface);
+            border-right: 1px solid var(--neutral-50);
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .sidebar-logo { padding: 8px 12px; margin-bottom: 20px; }
+        .sidebar-logo svg { width: 60px; height: 24px; }
+        .nav-item {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            color: var(--text-subdued);
+            cursor: pointer;
+        }
+        .nav-item.active { background: var(--bg-offset); color: var(--text-default); font-weight: 500; }
+        .main-content { flex: 1; background: var(--bg-offset); padding: 32px; }
+        .content-placeholder {
+            height: 200px;
+            background: var(--bg-surface);
+            border-radius: 8px;
+            border: 1px solid var(--neutral-50);
+        }
+
+        /* ---------------- Dashboard (Figma 26370:56250) ----------------
+           Built out rather than a screenshot, so later steps can interact with
+           it. Laid out at 1280x840 inside #dash-layer. */
+        .dash {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-surface);
+            font-size: 13px;
+            color: var(--text-default);
+            overflow: hidden;
+        }
+
+        /* Sandbox banner */
+        .dash-banner {
+            height: 56px;
+            flex-shrink: 0;
+            background: #0a2540;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            font-size: 13px;
+        }
+        .dash-banner-name { font-weight: 600; font-size: 14px; }
+        .dash-banner-copy { flex: 1; text-align: center; color: rgba(255,255,255,0.92); }
+        .dash-banner-copy b { font-weight: 600; color: #fff; }
+        .dash-banner-cta {
+            background: var(--bg-form-accent);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 7px 14px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .dash-body { flex: 1; display: flex; min-height: 0; }
+
+        /* Sidebar */
+        .dash-side {
+            width: 240px;
+            flex-shrink: 0;
+            border-right: 1px solid var(--neutral-50);
+            padding: 16px 12px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .dash-account { display: flex; align-items: center; gap: 10px; padding: 4px 8px 14px; }
+        .dash-account-icon {
+            width: 24px; height: 24px; border-radius: 6px; background: #c7cfd9;
+            flex-shrink: 0; position: relative;
+        }
+        .dash-account-icon::after {
+            content: ''; position: absolute; right: -2px; bottom: -2px;
+            width: 13px; height: 13px; border-radius: 3px; background: #8d99a8;
+        }
+        .dash-account-name { font-size: 13px; font-weight: 600; line-height: 17px; }
+        .dash-account-sub { font-size: 12px; color: var(--text-subdued); line-height: 16px; }
+
+        .dash-nav {
+            display: flex; align-items: center; gap: 10px;
+            padding: 7px 8px; border-radius: 6px;
+            font-size: 14px; color: var(--text-default); cursor: pointer;
+        }
+        .dash-nav:hover { background: var(--bg-offset); }
+        .dash-nav.active { color: var(--text-action-primary); font-weight: 500; }
+        .dash-nav svg { width: 16px; height: 16px; flex-shrink: 0; color: currentColor; }
+        .dash-nav .caret { margin-left: auto; width: 10px; height: 10px; color: var(--text-subdued); }
+        .dash-side-label {
+            font-size: 12px; color: var(--text-subdued);
+            padding: 16px 8px 4px;
+        }
+        .dash-side-foot { margin-top: auto; }
+
+        /* Main column */
+        /* The content block stays at its designed 976px and sits centred in the
+           space beside the sidebar, so widening the window opens whitespace
+           rather than stretching anything. */
+        .dash-main {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            justify-content: center;
+            padding: 16px 32px 0;
+            overflow: hidden;
+        }
+        .dash-main-inner { width: 976px; flex-shrink: 0; }
+        .dash-topbar { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+        .dash-search {
+            width: 240px; height: 32px; border-radius: 6px; background: var(--bg-offset);
+            display: flex; align-items: center; gap: 8px; padding: 0 10px;
+            color: var(--text-subdued); font-size: 13px;
+        }
+        .dash-search svg { width: 13px; height: 13px; }
+        .dash-topbar-icons { margin-left: auto; display: flex; align-items: center; gap: 18px; color: #4f5b6d; }
+        .dash-topbar-icons svg { width: 16px; height: 16px; cursor: pointer; }
+        .dash-topbar-icons .plus {
+            width: 22px; height: 22px; border-radius: 50%; background: var(--bg-form-accent);
+            color: #fff; display: flex; align-items: center; justify-content: center;
+        }
+        .dash-topbar-icons .plus svg { width: 11px; height: 11px; }
+
+        .dash-h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; color: var(--text-heading); }
+        .dash-rule { height: 1px; background: var(--neutral-50); margin: 14px 0 24px; }
+
+        .dash-cols { display: flex; gap: 40px; }
+        .dash-col-main { flex: 1; min-width: 0; }
+
+        .dash-metric-label {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 13px; font-weight: 600; color: var(--text-default);
+        }
+        .dash-metric-label svg { width: 10px; height: 10px; color: var(--text-subdued); }
+        .dash-metric-value { font-size: 20px; font-weight: 500; margin-top: 4px; letter-spacing: -0.3px; }
+
+        /* Empty chart: gridlines + baseline */
+        .dash-chart {
+            height: 112px;
+            margin-top: 16px;
+            border-bottom: 1px solid #c9d2dd;
+            background-image: repeating-linear-gradient(to right, var(--neutral-50) 0 1px, transparent 1px 47px);
+        }
+        .dash-chart-axis {
+            display: flex; justify-content: space-between;
+            font-size: 12px; color: var(--text-subdued); margin-top: 6px;
+        }
+
+        .dash-pair { display: flex; gap: 48px; margin-top: 26px; }
+        .dash-pair-item { flex: 1; max-width: 288px; }
+        .dash-pair-head { display: flex; align-items: center; }
+        .dash-pair-head .view { margin-left: auto; color: var(--text-action-primary); font-size: 13px; cursor: pointer; }
+
+        /* API keys card */
+        .dash-apikeys {
+            width: 292px; flex-shrink: 0;
+            background: var(--bg-offset); border-radius: 8px; padding: 16px;
+        }
+        .dash-apikeys-head { display: flex; align-items: center; margin-bottom: 12px; }
+        .dash-apikeys-head h3 { font-size: 16px; font-weight: 600; color: var(--text-heading); }
+        .dash-apikeys-head svg { margin-left: auto; width: 12px; height: 12px; color: var(--text-subdued); cursor: pointer; }
+        .dash-apikeys-row { display: flex; align-items: center; gap: 12px; font-size: 13px; padding: 3px 0; }
+        .dash-apikeys-row span:first-child { color: var(--text-default); }
+        .dash-apikeys-row .val { margin-left: auto; color: var(--text-default); }
+        .dash-apikeys-row .dots { letter-spacing: 1px; color: #4f5b6d; }
+        .dash-apikeys-row .eye { width: 13px; height: 13px; color: var(--text-subdued); }
+        .dash-apikeys-link { display: inline-block; margin-top: 12px; color: var(--text-action-primary); font-size: 13px; cursor: pointer; }
+
+        /* Your overview */
+        .dash-overview { margin-top: 40px; }
+        .dash-overview-head { display: flex; align-items: center; }
+        .dash-overview-head .dash-h1 { font-size: 22px; }
+        .dash-overview-actions { margin-left: auto; display: flex; gap: 8px; }
+        .dash-btn {
+            display: flex; align-items: center; gap: 6px;
+            padding: 6px 12px; border: 1px solid var(--border-default); border-radius: 6px;
+            background: var(--bg-surface); font-family: inherit; font-size: 13px; font-weight: 500;
+            color: var(--text-default); cursor: pointer;
+            box-shadow: 0px 1px 1px rgba(48,49,61,0.05);
+        }
+        .dash-btn svg { width: 11px; height: 11px; }
+        .dash-overview-rule { height: 1px; background: var(--neutral-50); margin: 14px 0 20px; }
+        .dash-overview-cols { display: flex; gap: 56px; }
+        .dash-overview-col { flex: 1; min-width: 0; }
+        .dash-bar { height: 8px; border-radius: 4px; background: #d9dee5; margin: 14px 0 8px; }
+        .dash-stat-row {
+            display: flex; align-items: center; gap: 10px;
+            padding: 11px 0; border-bottom: 1px solid var(--neutral-50);
+            font-size: 13px;
+        }
+        .dash-stat-row .dot { width: 10px; height: 10px; border-radius: 3px; background: #d9dee5; flex-shrink: 0; }
+        .dash-stat-row .amt { margin-left: auto; }
+
+        /* Guided state: the setup-guide moment dims the lower right and glows */
+        .dash-glow {
+            position: absolute;
+            right: -60px; bottom: -120px;
+            width: 760px; height: 520px;
+            border-radius: 50%;
+            background:
+                radial-gradient(45% 55% at 38% 42%, rgba(150, 190, 255, 0.55) 0%, rgba(150, 190, 255, 0) 70%),
+                radial-gradient(50% 50% at 62% 30%, rgba(196, 160, 255, 0.5) 0%, rgba(196, 160, 255, 0) 72%),
+                radial-gradient(45% 45% at 70% 62%, rgba(255, 138, 128, 0.55) 0%, rgba(255, 138, 128, 0) 70%),
+                radial-gradient(40% 40% at 32% 78%, rgba(255, 190, 150, 0.45) 0%, rgba(255, 190, 150, 0) 72%);
+            filter: blur(28px);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+        #dash-layer.guided .dash-glow { opacity: 1; }
+        #dash-layer.guided .dash-overview { opacity: 0.32; }
+
+        /* The final step is the real dashboard: a 1280x840 layer scaled to cover
+           the viewport. Scaling the layer rather than the image keeps the
+           components built over it pinned to their Figma coordinates. */
+        /* Fills the viewport at 1:1 — nothing is scaled, so no element grows
+           with the window. Extra width becomes whitespace between the sidebar
+           and the main content (see .dash-main). */
+        #dash-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 150;
+            display: none;
+        }
+        #dash-layer.active { display: block; }
+        .dashboard-bg {
+            position: absolute;
+            inset: 0;
+            width: 1280px;
+            height: 840px;
+            display: block;
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(182, 192, 205, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .modal {
+            width: 90%;
+            height: 90%;
+            background: var(--bg-surface);
+            border-radius: 12px;
+            box-shadow: var(--shadow-overlay);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            padding: 16px;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 32px 42px 0;
+            flex-shrink: 0;
+        }
+        .stripe-logo svg { width: 60px; height: 25px; }
+
+        .progress-bar {
+            width: 125px;
+            height: 5px;
+            background: var(--bg-offset);
+            border-radius: 100px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--icon-action-primary);
+            border-radius: 100px;
+            transition: width 0.4s ease;
+        }
+
+        /* Spotlight gradient, lifted from the earlier explorations (smp.html):
+           layered radials inside the modal's padding box. The goods question
+           opts out of it, so the flow starts plain and warms up. */
+        .modal-gradient {
+            position: absolute;
+            inset: 16px;
+            border-radius: 8px;
+            z-index: 0;
+            background:
+                /* cool blue wash, left */
+                radial-gradient(52% 70% at 46% 70%, rgba(207, 226, 255, 0.24) 0%, rgba(207, 226, 255, 0) 94%),
+                /* lilac, right upper-mid */
+                radial-gradient(105% 45% at 93% 37%, rgba(216, 128, 236, 0.26) 0%, rgba(216, 128, 236, 0) 79%),
+                /* pink, right lower-mid */
+                radial-gradient(45% 83% at 136% 64%, rgba(214, 159, 199, 0.37) 0%, rgba(214, 159, 199, 0) 79%),
+                /* peach, bottom-right */
+                radial-gradient(60% 46% at 105% 72%, rgba(254, 180, 203, 0.52) 0%, rgba(254, 180, 203, 0) 103%),
+                #fefefe;
+        }
+        .modal-gradient.hidden { display: none; }
+        .modal-header, .modal-body, .modal-footer { position: relative; z-index: 1; }
+
+        /* Two-column step: copy left, globe right. */
+        .split { display: flex; align-items: center; gap: 40px; width: 100%; }
+        .split-copy { flex: 0 0 545px; max-width: 545px; }
+        .split-globe { flex: 1; align-self: stretch; position: relative; min-height: 420px; }
+
+        /* Globe (same build as the earlier explorations). It lives in a holder
+           outside the step so re-rendering a step never destroys the canvas. */
+        #globe-holder { display: none; }
+        .globe {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 12px;
+        }
+        .globe canvas { position: relative; z-index: 1; display: block; width: 100%; height: 100%; }
+        .globe-glow-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background: white;
+            box-shadow:
+                -10px 0 20px 5px rgba(255, 140, 200, 0.2),
+                10px 0 20px 5px rgba(140, 100, 255, 0.2);
+            z-index: 0;
+        }
+
+        /* Opting out is a link under the offer, not a card beside it. */
+        .opt-out {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 16px;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: -0.15px;
+            color: var(--text-action-primary);
+            cursor: pointer;
+        }
+        .opt-out:hover { text-decoration: underline; }
+        .opt-out svg { width: 12px; height: 12px; fill: currentColor; }
+        .opt-out .fee-tooltip { text-decoration: none; font-weight: 400; }
+        .opt-out:hover .fee-tooltip { opacity: 1; visibility: visible; }
+
+        /* Step content is centred in the modal; each step sets its own width. */
+        .modal-body {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 0;
+            padding: 24px 42px;
+            overflow-y: auto;
+        }
+        .step { width: 100%; max-width: 657px; }
+        .step.full { max-width: none; }
+        .step.narrow { max-width: 420px; }
+        .step.wide { max-width: 824px; }
+
+        /* Informational card: icon, title, detail per row. No art, no colour —
+           the screen only has to be read. */
+        .brief-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--neutral-50);
+            border-radius: 8px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .brief-row { display: flex; gap: 16px; align-items: flex-start; }
+        .brief-icon {
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            background: var(--neutral-50);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-subdued);
+        }
+        .brief-icon svg { width: 12px; height: 12px; }
+        .brief-title {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 20px;
+            letter-spacing: -0.15px;
+            color: var(--text-default);
+            margin-bottom: 4px;
+        }
+        .brief-desc {
+            display: block;
+            font-size: 12px;
+            line-height: 16px;
+            color: var(--text-default);
+        }
+
+        /* Radio cards: the recommended option carries its benefits inline, the
+           alternative is a single line. Both keep a 2px border so selecting one
+           doesn't shift the layout. */
+        .choice-list { display: flex; flex-direction: column; gap: 16px; }
+        .choice-card {
+            border: 2px solid var(--neutral-50);
+            border-radius: 8px;
+            padding: 16px;
+            background: var(--bg-surface);
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            cursor: pointer;
+            text-align: left;
+            font-family: inherit;
+            width: 100%;
+        }
+        .choice-card.selected {
+            background: var(--bg-surface);
+            border-color: var(--border-action-primary);
+        }
+
+        .radio {
+            flex-shrink: 0;
+            width: 14px;
+            height: 14px;
+            margin: 3px;
+            border-radius: 50%;
+            border: 1px solid var(--border-form-default);
+            background: var(--bg-surface);
+            box-shadow: 0px 1px 1px 0px rgba(33, 37, 44, 0.16);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .choice-card.selected .radio {
+            background: var(--bg-form-accent);
+            border-color: var(--text-action-primary);
+            box-shadow: 0px 1px 1px 0px rgba(10, 33, 86, 0.16);
+        }
+        .radio i { display: none; width: 6px; height: 6px; border-radius: 50%; background: #fff; }
+        .choice-card.selected .radio i { display: block; }
+
+        .choice-body { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+        .choice-title-row { display: flex; align-items: center; gap: 16px; }
+        .choice-title {
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 24px;
+            letter-spacing: -0.31px;
+            color: var(--text-default);
+        }
+        .choice-sub { font-size: 12px; line-height: 16px; color: var(--text-subdued); }
+
+        .choice-benefits { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+        .choice-benefit { display: flex; gap: 8px; align-items: flex-start; }
+        .choice-benefit svg {
+            flex-shrink: 0;
+            width: 12px;
+            height: 12px;
+            margin: 4px;
+            color: var(--text-default);
+        }
+        .choice-benefit-title {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 20px;
+            letter-spacing: -0.15px;
+            color: #3c4f69;
+            margin-bottom: 4px;
+        }
+        .choice-benefit-desc {
+            display: block;
+            font-size: 12px;
+            line-height: 16px;
+            color: #3c4f69;
+        }
+
+        .choice-fee { margin-top: 8px; font-size: 12px; line-height: 16px; color: var(--text-subdued); }
+
+        /* The price, as a badge beside the title rather than a line of copy. */
+        .choice-badge {
+            position: relative;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 6px;
+            border: 1px solid var(--border-default);
+            border-radius: 4px;
+            background: #f4f7fa;
+            font-size: 12px;
+            line-height: 16px;
+            color: #50617a;
+            white-space: nowrap;
+            cursor: default;
+        }
+        .choice-badge svg { width: 12px; height: 12px; fill: #667691; }
+
+        /* Same tooltip the earlier variants use on their fee badges: a card
+           above the badge, centred on it, revealed on hover. */
+        .fee-tooltip {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            width: 280px;
+            padding: 16px;
+            background: var(--bg-surface);
+            border: 1px solid #d4dee9;
+            border-radius: 8px;
+            box-shadow: 0px 2px 2.5px rgba(64, 68, 82, 0.08), 0px 3px 4.5px rgba(64, 68, 82, 0.08);
+            font-size: 14px;
+            line-height: 20px;
+            letter-spacing: -0.15px;
+            color: #1a2c44;
+            white-space: normal;
+            text-align: left;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.15s;
+            z-index: 50;
+        }
+        .choice-badge:hover .fee-tooltip { opacity: 1; visibility: visible; }
+
+        /* Square box for the one card that's a checkbox rather than a radio. */
+        .check-box {
+            flex-shrink: 0;
+            width: 14px;
+            height: 14px;
+            margin: 3px;
+            border-radius: 4px;
+            border: 1px solid var(--border-form-default);
+            background: var(--bg-surface);
+            box-shadow: 0px 1px 1px 0px rgba(33, 37, 44, 0.16);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .choice-card.selected .check-box {
+            background: var(--bg-form-accent);
+            border-color: var(--text-action-primary);
+        }
+        .check-box svg { width: 9px; height: 9px; opacity: 0; color: #fff; }
+        .choice-card.selected .check-box svg { opacity: 1; }
+
+        .modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 42px 32px;
+            flex-shrink: 0;
+        }
+        .footer-actions { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+
+        .back-link {
+            font-size: 16px;
+            line-height: 24px;
+            letter-spacing: -0.31px;
+            color: var(--text-action-primary);
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-family: inherit;
+        }
+        .back-link:hover { text-decoration: underline; }
+
+        .btn-continue {
+            background: var(--bg-form-accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            letter-spacing: -0.15px;
+            line-height: 20px;
+            box-shadow: 0px 1px 1px 0px rgba(47, 14, 99, 0.32);
+            transition: background 0.15s;
+        }
+        .btn-continue:hover { background: #5b52e6; }
+
+        .btn-secondary {
+            background: var(--bg-surface);
+            color: var(--text-default);
+            border: 1px solid var(--border-default);
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            letter-spacing: -0.15px;
+            line-height: 20px;
+            box-shadow: 0px 1px 1px 0px rgba(48, 49, 61, 0.05);
+            transition: background 0.15s;
+        }
+        .btn-secondary:hover { background: var(--bg-offset); }
+
+        /* Headline: bold lead sentence, muted remainder. */
+        .headline {
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 28px;
+            letter-spacing: 0.3px;
+            color: var(--text-heading);
+            margin-bottom: 24px;
+        }
+        .headline .muted { font-weight: 400; color: var(--text-muted); }
+        .headline .accent { color: var(--text-action-primary); }
+
+        /* Form fields */
+        .field { margin-bottom: 24px; }
+        .field-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-default);
+            margin-bottom: 8px;
+        }
+        .field input,
+        .field textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border-default);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            color: var(--text-default);
+            background: var(--bg-surface);
+            outline: none;
+            box-shadow: 0px 1px 1px 0px rgba(48, 49, 61, 0.04);
+        }
+        .field textarea { min-height: 118px; resize: none; }
+        .field input::placeholder { color: var(--text-muted); }
+        .field input:focus,
+        .field textarea:focus {
+            border-color: var(--border-action-primary);
+            box-shadow: 0 0 0 3px rgba(103, 93, 255, 0.12);
+        }
+
+        .inline-field {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: var(--text-default);
+        }
+        .info-icon {
+            width: 14px;
+            height: 14px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+        .location-value {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+        .chevron { width: 10px; height: 10px; color: var(--text-subdued); }
+
+        /* Selectable rows ("product with details" in the Figma) */
+        .options { display: flex; flex-direction: column; gap: 8px; }
+        .option-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px;
+            border-radius: 8px;
+            /* Only the selected state shows a border. Kept transparent rather
+               than absent so selecting doesn't shift the row by 2px. */
+            border: 2px solid transparent;
+            background: var(--bg-offset);
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s;
+        }
+        .option-row.selected {
+            background: var(--bg-surface);
+            border-color: var(--border-action-primary);
+        }
+        .option-row .box {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            border: 1px solid var(--neutral-200);
+            background: var(--bg-surface);
+            flex-shrink: 0;
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .option-row.selected .box {
+            border-color: var(--bg-form-accent);
+            background: var(--bg-form-accent);
+        }
+        .option-row .box svg { width: 10px; height: 10px; opacity: 0; color: #fff; }
+        .option-row.selected .box svg { opacity: 1; }
+        .option-row .row-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-default);
+            margin-bottom: 4px;
+        }
+        .option-row .row-label { font-size: 13px; color: var(--text-subdued); line-height: 1.5; }
+        .text-link {
+            display: inline-block;
+            margin-top: 16px;
+            font-size: 14px;
+            color: var(--text-action-primary);
+            cursor: pointer;
+        }
+        .text-link:hover { text-decoration: underline; }
+
+        /* Step 6 — two setup-method cards */
+        .method-cards { display: flex; gap: 12px; }
+        .method-card {
+            width: 297px;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            background: var(--bg-offset);
+            overflow: hidden;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s;
+        }
+        .method-card.selected { background: var(--bg-surface); border-color: var(--border-action-primary); }
+        .method-art {
+            height: 136px;
+            margin: 18px 18px 0;
+            border-radius: 6px 6px 0 0;
+            overflow: hidden;
+            position: relative;
+        }
+        .method-body { padding: 16px 18px 20px; }
+        .method-title { font-size: 14px; font-weight: 600; color: var(--text-default); margin-bottom: 6px; }
+        .method-card.selected .method-title { color: var(--text-action-primary); }
+        .method-label { font-size: 13px; color: var(--text-subdued); line-height: 1.45; }
+
+        /* Dashboard mock inside the first method card */
+        .mock-dash { position: absolute; inset: 0 -24px 0 0; background: #fff; border-radius: 6px 0 0 0; box-shadow: 0 2px 8px rgba(48,49,61,0.08); overflow: hidden; }
+        .mock-dash-top { height: 14px; background: #0a2540; display: flex; align-items: center; padding-left: 8px; }
+        .mock-dash-top span { width: 18px; height: 4px; border-radius: 2px; background: #fff; }
+        .mock-dash-body { display: flex; gap: 8px; padding: 8px; }
+        .mock-dash-nav { display: flex; flex-direction: column; gap: 6px; width: 52px; }
+        .mock-dash-nav i { height: 6px; border-radius: 3px; background: #e3e8ee; display: block; }
+        .mock-dash-nav i:nth-child(2n) { width: 80%; }
+        .mock-dash-main { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+        .mock-dash-main i { height: 6px; width: 34%; border-radius: 3px; background: #e3e8ee; display: block; }
+        .mock-dash-main .block { height: 34px; border-radius: 4px; background: #eef1f6; }
+        .mock-dash-row { display: flex; gap: 6px; }
+        .mock-dash-row .block { flex: 1; }
+        .mock-dash-row .block.sm { flex: 0 0 34px; }
+
+        /* Terminal mock inside the second method card */
+        .mock-term { position: absolute; inset: 0 -24px auto 0; margin-top: 34px; background: #2a2f3a; border-radius: 6px; padding: 9px 10px; display: flex; align-items: center; gap: 8px; }
+        .mock-term .spark { width: 12px; height: 12px; color: #fff; flex-shrink: 0; }
+        .mock-term i { height: 7px; border-radius: 3px; background: #5b6270; display: block; }
+
+        /* Step 7 — numbered list + sandbox art */
+        .sandbox-split { display: flex; gap: 40px; align-items: flex-start; }
+        .sandbox-copy { width: 400px; flex-shrink: 0; }
+        .steps-list { display: flex; flex-direction: column; position: relative; }
+        .steps-list-item { display: flex; gap: 12px; padding-bottom: 20px; position: relative; }
+        .steps-list-item:last-child { padding-bottom: 0; }
+        .steps-list-item::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 20px;
+            bottom: 2px;
+            width: 1px;
+            background: var(--neutral-50);
+        }
+        .steps-list-item:last-child::before { display: none; }
+        .step-num {
+            width: 17px;
+            height: 17px;
+            border-radius: 50%;
+            background: var(--bg-form-accent);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+        }
+        .step-num-title { font-size: 13px; font-weight: 600; color: var(--text-default); margin-bottom: 2px; }
+        .step-num-label { font-size: 12px; color: var(--text-subdued); line-height: 1.45; }
+
+        .sandbox-art {
+            flex: 1;
+            height: 310px;
+            border-radius: 8px;
+            background: linear-gradient(120deg, #e6f0f6 0%, #eae7f6 45%, #f7e6ec 75%, #fdeee4 100%);
+            padding: 56px 0 0 56px;
+            overflow: hidden;
+        }
+        .sandbox-window { height: 100%; background: rgba(255,255,255,0.55); border-radius: 6px 0 0 0; overflow: hidden; }
+        .sandbox-window-top {
+            height: 30px;
+            background: #0a2540;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            padding-left: 14px;
+        }
+        .sandbox-window-body { display: flex; gap: 18px; padding: 16px 0 0 14px; }
+        .sandbox-window-left { width: 176px; display: flex; flex-direction: column; gap: 10px; }
+        .sandbox-chip { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+        .sandbox-chip .avatar {
+            width: 22px; height: 22px; border-radius: 5px; background: #7fd1c1;
+            color: #10403b; font-size: 11px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .sandbox-chip .name { font-size: 13px; font-weight: 700; color: var(--text-heading); }
+        .sandbox-window-left i { height: 8px; border-radius: 4px; background: #fff; display: block; }
+        .sandbox-window-left i:nth-child(3) { width: 62%; }
+        .sandbox-window-left i:nth-child(4) { width: 76%; }
+        .sandbox-window-left i:nth-child(5) { width: 54%; }
+        .sandbox-window-right { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+        .sandbox-window-right i { height: 10px; border-radius: 5px; background: #fff; display: block; }
+        .sandbox-window-right i:nth-child(2) { width: 84%; }
+        .sandbox-window-right .block { height: 44px; border-radius: 6px; background: rgba(255,255,255,0.75); }
+
+        /* ---------- Final step: components over the dashboard image ---------- */
+        #dashboard-step { position: absolute; inset: 0; z-index: 150; display: none; }
+        #dashboard-step.active { display: block; }
+
+        /* Spotlight callout ("Next, set up recurring payments" + Got it) */
+        /* Both track the centred content block: its right edge sits
+           (100vw - 1216px)/2 from the window edge, which is 32px at the frame's
+           1280px. The callout keeps its 361px inset from that edge. */
+        .spotlight {
+            position: absolute;
+            right: calc(361px + (100vw - 1216px) / 2);
+            bottom: 61px;
+            width: 330px;
+        }
+        .spotlight-title {
+            font-size: 30px;
+            font-weight: 700;
+            line-height: 40px;
+            letter-spacing: -0.5px;
+            color: var(--text-heading);
+        }
+        .spotlight-link {
+            display: inline-block;
+            margin-top: 8px;
+            font-size: 14px;
+            color: var(--text-default);
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        /* Setup guide floatie */
+        .floatie {
+            position: absolute;
+            right: calc((100vw - 1216px) / 2);
+            bottom: 30px;
+            width: 342px;
+            background: var(--bg-surface);
+            border-radius: 8px;
+            box-shadow: 0px 15px 35px rgba(48, 49, 61, 0.1), 0px 5px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            font-size: 13px;
+        }
+        .floatie-header {
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 12px;
+            border-bottom: 1px solid var(--neutral-50);
+        }
+        .floatie-title { font-size: 13px; font-weight: 600; color: var(--text-default); }
+        .floatie-icons { display: flex; align-items: center; gap: 12px; color: var(--text-muted); }
+        .floatie-icons svg { width: 12px; height: 12px; cursor: pointer; }
+        .floatie-icons svg:hover { color: var(--text-default); }
+
+        .floatie-section { padding: 4px; }
+        .floatie-group-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .floatie-group-row:hover { background: var(--bg-offset); }
+        .floatie-group-title { font-size: 13px; font-weight: 600; color: var(--text-default); }
+        .floatie-group-title.locked { color: var(--text-default); }
+        .floatie-group-row .chev { width: 8px; height: 8px; color: var(--text-subdued); }
+        .floatie-group-row .lock { width: 12px; height: 12px; color: var(--text-muted); }
+
+        .floatie-task {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            height: 36px;
+            padding: 0 8px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .floatie-task:hover { background: var(--bg-offset); }
+        .floatie-task .tick { width: 14px; height: 14px; flex-shrink: 0; color: var(--neutral-200); }
+        .floatie-task .tick.current { color: var(--neutral-200); }
+        .floatie-task-label { flex: 1; font-size: 13px; color: var(--text-default); }
+        .floatie-task.muted .floatie-task-label { color: var(--text-muted); }
+        .floatie-go {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            background: var(--bg-form-accent);
+            border: none;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0px 1px 1px rgba(47, 14, 99, 0.32);
+        }
+        .floatie-go svg { width: 10px; height: 10px; }
+
+        .floatie-footer {
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 12px;
+            border-top: 1px solid var(--neutral-50);
+        }
+        .floatie-progress { width: 76px; height: 4px; border-radius: 2px; background: var(--neutral-50); overflow: hidden; }
+        .floatie-progress i { display: block; height: 100%; width: 18%; background: var(--bg-form-accent); }
+        .floatie-manage { font-size: 12px; color: var(--text-action-primary); cursor: pointer; }
+        .floatie-manage:hover { text-decoration: underline; }
+
+    </style>
+</head>
+<body>
+
+<a href="index.html" class="back-button">&larr; Home</a>
+<!-- Background behind the modal: the same shell v1 uses -->
+<div class="dashboard">
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <svg viewBox="0 0 60 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M8.8 4.4C8.8 3.2 9.7 2.7 11.2 2.7C13.4 2.7 16.2 3.4 18.4 4.7V0.5C16 -0.4 13.6 -0.1 11.2 0C5.6 0 2 3 2 7.4C2 14.2 11.6 13 11.6 15.9C11.6 17.3 10.4 17.8 8.9 17.8C6.5 17.8 3.4 16.8 1 15.3V19.6C3.6 20.8 6.3 21.3 8.9 21.3C14.6 21.3 18.4 18.5 18.4 14C18.4 6.7 8.8 8.1 8.8 4.4Z" fill="#635BFF"/>
+            </svg>
+        </div>
+        <div class="nav-item active">Home</div>
+        <div class="nav-item">Payments</div>
+        <div class="nav-item">Balances</div>
+        <div class="nav-item">Customers</div>
+        <div class="nav-item">Products</div>
+        <div class="nav-item">Settings</div>
+    </div>
+    <div class="main-content">
+        <div class="content-placeholder"></div>
+    </div>
+</div>
+
+
+<!-- Modal: logo + progress bar, step content, footer with the CTAs -->
+<div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal">
+        <div class="modal-gradient hidden" id="modalGradient"></div>
+        <div class="modal-header">
+            <div class="stripe-logo">
+                <svg viewBox="0 0 60 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M60 12.9C60 8.6 57.9 5.3 54 5.3C50.1 5.3 47.6 8.6 47.6 12.9C47.6 17.9 50.5 20.5 54.6 20.5C56.6 20.5 58.1 20 59.3 19.2V16C58.1 16.7 56.7 17.2 55 17.2C53.3 17.2 51.8 16.6 51.6 14.5H59.9C59.9 14.3 60 13.4 60 12.9ZM51.5 11.7C51.5 9.7 52.7 8.9 53.9 8.9C55.1 8.9 56.3 9.7 56.3 11.7H51.5ZM41.2 5.3C39.5 5.3 38.4 6.1 37.8 6.6L37.6 5.6H34V24.5L37.9 23.7V20.1C38.5 20.5 39.4 21.1 40.9 21.1C44.1 21.1 46.9 18.5 46.9 12.9C46.9 8 44 5.3 41.2 5.3ZM40.3 17.5C39.2 17.5 38.6 17.1 38.2 16.7L37.9 9.5C38.3 9.1 39 8.7 40 8.7C41.6 8.7 42.7 10.5 42.7 13.1C42.7 15.8 41.6 17.5 40.3 17.5ZM28.3 4.5L32.2 3.7V0.5L28.3 1.3V4.5ZM28.3 5.6H32.2V20.2H28.3V5.6ZM24.2 6.8L24 5.6H20.5V20.2H24.4V10C25.3 8.8 26.8 9 27.3 9.2V5.6C26.7 5.4 25 5.1 24.2 6.8ZM16.5 2L12.7 2.8V16.1C12.7 18.6 14.6 20.5 17.1 20.5C18.5 20.5 19.5 20.3 20 20V16.8C19.6 17 16.5 17.8 16.5 15.3V9H20V5.6H16.5V2ZM4.7 9.8C4.7 9.2 5.2 8.9 6 8.9C7.1 8.9 8.6 9.2 9.7 9.9V6.2C8.5 5.7 7.3 5.3 6 5.3C2.6 5.3 0.5 7 0.5 9.9C0.5 14.5 6.7 13.8 6.7 15.8C6.7 16.5 6.1 16.8 5.2 16.8C4 16.8 2.4 16.3 1.1 15.5V19.2C2.6 19.9 4 20.2 5.2 20.2C8.7 20.2 10.9 18.6 10.9 15.7C10.9 10.7 4.7 11.5 4.7 9.8Z" fill="#635BFF"/>
+                </svg>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 4%;"></div>
+            </div>
+        </div>
+
+        <div class="modal-body" id="modalBody"></div>
+
+        <div class="modal-footer">
+            <button class="back-link" id="footerBack" onclick="goBack()">← Back</button>
+            <div class="footer-actions" id="footerActions"></div>
+        </div>
+    </div>
+</div>
+
+<!-- The globe waits here while other steps are on screen -->
+<div id="globe-holder">
+    <div class="globe" id="globe-container">
+        <div class="globe-glow-circle" id="globe-glow-circle"></div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// Deep link for the card previews on the index: ?s=2 opens on the second
+// screen.
+const params = new URLSearchParams(location.search);
+
+const CHECK = '<svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 5.2l2.2 2.2L8.5 2.6"/></svg>';
+
+// Checkbox rows: multi-select, so any number of choices can be on at once.
+// `name` keys an array of selected indexes in `state`.
+function rows(name, items) {
+  return `<div class="options">${items.map((it, i) => `
+    <div class="option-row${state[name].includes(i) ? ' selected' : ''}" onclick="toggle('${name}', ${i})">
+      <span class="box">${CHECK}</span>
+      <span style="flex:1">
+        <span class="row-title">${it.title}</span>
+        ${it.label ? `<span class="row-label">${it.label}</span>` : ''}
+      </span>
+    </div>`).join('')}</div>`;
+}
+
+const ICONS = {
+  bank: '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4.4L6 1.6l5 2.8"/><path d="M2.2 4.8v4.4M4.7 4.8v4.4M7.3 4.8v4.4M9.8 4.8v4.4"/><path d="M1 10.4h10"/></svg>',
+  document: '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 1.2h3.6L9 3.6v7.2H3z"/><path d="M6.4 1.4v2.4h2.4"/><path d="M4.4 6.4h3.2M4.4 8.4h3.2"/></svg>',
+  warning: '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M6 1.6l4.6 8H1.4z"/><path d="M6 4.8v2.4M6 8.6v.4"/></svg>',
+};
+
+// Read-only rows: an icon, a title, and the detail under it. Nothing here is
+// selectable, which is the point of this screen.
+function brief(items) {
+  return items.map(it => `
+    <div class="brief-row">
+      <span class="brief-icon">${it.icon}</span>
+      <span style="flex:1">
+        <span class="brief-title">${it.title}</span>
+        <span class="brief-desc">${it.label}</span>
+      </span>
+    </div>`).join('');
+}
+
+const TICK = '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 6.3l3 3 6-6.6"/></svg>';
+const INFO = '<svg viewBox="0 0 12 12" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.75 1.75H3.25C2.42157 1.75 1.75 2.42157 1.75 3.25V8.75C1.75 9.57843 2.42157 10.25 3.25 10.25H8.75C9.57843 10.25 10.25 9.57843 10.25 8.75V3.25C10.25 2.42157 9.57843 1.75 8.75 1.75ZM3.25 0.25C1.59315 0.25 0.25 1.59315 0.25 3.25V8.75C0.25 10.4069 1.59315 11.75 3.25 11.75H8.75C10.4069 11.75 11.75 10.4069 11.75 8.75V3.25C11.75 1.59315 10.4069 0.25 8.75 0.25H3.25Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M4.48182 6.49998C4.48182 6.11338 4.79522 5.79998 5.18182 5.79998H6.27273C6.65933 5.79998 6.97273 6.11338 6.97273 6.49998V8.49998C6.97273 8.88658 6.65933 9.19998 6.27273 9.19998C5.88613 9.19998 5.57273 8.88658 5.57273 8.49998V7.19998H5.18182C4.79522 7.19998 4.48182 6.88658 4.48182 6.49998Z"/><path d="M4.99994 3.99999C4.99994 3.44858 5.44854 2.99999 5.99994 2.99999C6.55134 2.99999 6.99994 3.44858 6.99994 3.99999C6.99994 4.55139 6.55134 4.99999 5.99994 4.99999C5.44854 4.99999 4.99994 4.55139 4.99994 3.99999Z"/></svg>';
+
+// The price badge, with the tooltip explaining what the fee sits on top of.
+// Hovering or clicking it must not toggle the card it sits in.
+function badge(text, tip) {
+  return `<span class="choice-badge" onclick="event.stopPropagation()">${text}${INFO}<span class="fee-tooltip">${tip}</span></span>`;
+}
+
+// Radio cards: single choice, so `name` keys the selected index in `state`.
+// `badge`, `benefits` and `fee` are optional — only the recommended card
+// carries them.
+// The checked benefit rows, shared by the offer card and any radio card that
+// carries them.
+function briefBenefits(items) {
+  return items.map(b => `
+    <span class="choice-benefit">
+      ${TICK}
+      <span style="flex:1">
+        <span class="choice-benefit-title">${b.title}</span>
+        <span class="choice-benefit-desc">${b.label}</span>
+      </span>
+    </span>`).join('');
+}
+
+function choices(name, items) {
+  return `<div class="choice-list">${items.map((it, i) => `
+    <div class="choice-card${state[name] === i ? ' selected' : ''}" role="radio" aria-checked="${state[name] === i}" onclick="select('${name}', ${i})">
+      <span class="radio"><i></i></span>
+      <span class="choice-body">
+        <span class="choice-title-row">
+          <span class="choice-title">${it.title}</span>
+          ${it.badge ? badge(it.badge, it.tip) : ''}
+        </span>
+        <span class="choice-sub">${it.label}</span>
+        ${it.benefits ? `<span class="choice-benefits">${briefBenefits(it.benefits)}</span>` : ''}
+        ${it.fee ? `<span class="choice-fee">${it.fee}</span>` : ''}
+      </span>
+    </div>`).join('')}</div>`;
+}
+
+// ---------------------------------------------------------------------------
+// A cut of the onboarding flow: the goods question, the cross-border brief it
+// leads into, the managed-payments choice, and the domestic upsell that only
+// follows Managed payments. Everything before and after is trimmed away so
+// this stretch can be reviewed on its own.
+// ---------------------------------------------------------------------------
+const STEPS = [
+  {
+    id: 'types-of-goods',
+    // The one screen with no background treatment, exactly as V1 has it.
+    plain: true,
+    actions: ['continue'],
+    render: () => `
+      <div class="headline">Next, tell us what you sell. <span class="muted">This helps us get you the best setup.</span></div>
+      ${rows('sell', [
+        { title: 'Digital goods', label: 'Software as a service, video games, eBooks, online courses and others.' },
+        { title: 'Physical goods', label: 'Magazines, keyboards, food, clothing and others.' },
+        { title: 'Services', label: 'Landscaping, hairdressing, training and others.' },
+      ])}`,
+  },
+  {
+    // Figma 26654:54163 — the simplified screen: no gradient, no globe, no
+    // choice to make. It states what selling internationally brings with it.
+    id: 'cross-border-brief',
+    actions: ['skip', 'continue'],
+    render: () => `
+      <div class="headline">X% of businesses like yours end up selling internationally as they grow. <span class="muted">Here’s what comes with it.</span></div>
+      <div class="brief-card">
+        ${brief([
+          {
+            icon: ICONS.bank,
+            title: 'Banks are stricter with international payments',
+            label: 'They decline more payments to foreign businesses, even when the card is valid. Every decline is lost revenue.',
+          },
+          {
+            icon: ICONS.document,
+            title: 'You’re liable for tax in every market',
+            label: 'Tax is owed where your customer is, not where you are—and you’re responsible for collecting and filing it there.',
+          },
+          {
+            icon: ICONS.warning,
+            title: 'Disputes and fraud cost more across borders',
+            label: 'Fraud patterns differ by market, and each dispute comes with its own rules and deadlines depending on where your customer is.',
+          },
+        ])}
+      </div>`,
+  },
+  {
+    // Figma 26654:57908 — the opt-in. One offer, stated beside the globe;
+    // declining is a link under it rather than a second card, so the screen
+    // reads as an offer with a way out instead of a two-way choice.
+    id: 'managed-payments',
+    width: 'full',
+    globe: true,
+    actions: ['skip', 'continue'],
+    render: () => `
+      <div class="split">
+        <div class="split-copy">
+          <div class="headline">With Stripe Managed Payments, we take on the work of selling internationally. <span class="muted">You’re covered from your first sale abroad.</span></div>
+          <div class="choice-card">
+            <span class="choice-body">
+              <span class="choice-title-row">
+                <span class="choice-title">Managed payments</span>
+                ${badge('+3.5% per transaction', '3.5% for each international transaction in addition to the standard processing fees.')}
+              </span>
+              <span class="choice-sub">You ship your product. Stripe handles the rest.</span>
+              <span class="choice-benefits">
+                ${briefBenefits([
+                  {
+                    title: 'Takes on tax liability',
+                    label: 'Calculates, collects, files, and remits. Enter a new country and coverage is already there.',
+                  },
+                  {
+                    title: 'Reduces declined payments',
+                    label: 'Stripe collects the payment as a local business, so more of your sales go through.',
+                  },
+                  {
+                    title: 'Manages disputes and fraud',
+                    label: 'Screens every payment, handles disputes for you, and answers customer billing questions.',
+                  },
+                ])}
+              </span>
+              <span class="choice-fee">No monthly fee, and nothing to pay until your first international sale.</span>
+            </span>
+          </div>
+          <span class="opt-out" onclick="optOut()">I’ll handle this myself${INFO}<span class="fee-tooltip">You keep control, with support where you want it — you manage tax, fraud, disputes, and registration in each market. Stripe Tax and Radar can help.</span></span>
+        </div>
+        <div class="split-globe" id="globe-host"></div>
+      </div>`,
+  },
+  {
+    // Figma 26655:59545, checked state 26655:60228 — the domestic upsell, so
+    // it only follows a Managed payments choice. Ticking it reveals the
+    // billing line, the way the card's own copy does once it applies.
+    id: 'domestic-coverage',
+    actions: ['skip', 'continue'],
+    when: () => state.managed === 0,
+    render: () => `
+      <div class="headline">Want Managed Payments to cover your domestic sales too? <span class="muted">This will give you full payments coverage.</span></div>
+      <div class="choice-list">
+        <div class="choice-card${state.domestic ? ' selected' : ''}" role="checkbox" aria-checked="${state.domestic}" onclick="toggleDomestic()">
+          <span class="check-box">${CHECK}</span>
+          <span class="choice-body">
+            <span class="choice-title-row">
+              <span class="choice-title">Cover domestic sales too</span>
+              ${badge('+2% per transaction', '2% for each domestic transaction in addition to the standard processing fees.')}
+            </span>
+            <span class="choice-sub">We’re liable for sales tax in your home market, and we handle fraud, disputes, and customer support on every domestic sale.</span>
+            ${state.domestic ? '<span class="choice-fee">No monthly fee, and nothing to pay until your first domestic sale.</span>' : ''}
+          </span>
+        </div>
+      </div>`,
+  },
+];
+
+// `sell` is a checkbox group, so it holds an array; `managed` is the single
+// choice on the last screen. Defaults mirror the Figma.
+const state = { sell: [0], managed: 0, domestic: false };
+let stepIndex = 0;
+
+const el = {
+  body: document.getElementById('modalBody'),
+  actions: document.getElementById('footerActions'),
+  back: document.getElementById('footerBack'),
+  backdrop: document.getElementById('modalBackdrop'),
+  progress: document.getElementById('progressFill'),
+  gradient: document.getElementById('modalGradient'),
+  globe: document.getElementById('globe-container'),
+  globeHolder: document.getElementById('globe-holder'),
+};
+
+// Built on first use: the renderer measures its container, so it can't be set
+// up while the step it belongs to is off screen. Afterwards the element is
+// just moved, and a resize re-measures it.
+let globeBuilt = false;
+function mountGlobe(host) {
+  host.appendChild(el.globe);
+  if (globeBuilt) window.dispatchEvent(new Event('resize'));
+  else { globeBuilt = true; buildGlobe(); }
+}
+
+const ACTIONS = {
+  continue: '<button class="btn-continue" onclick="goNext()">Continue</button>',
+  skip: '<button class="btn-secondary" onclick="goNext()">Skip</button>',
+};
+
+// A step with a `when` only applies to some paths through the cut — the
+// domestic upsell doesn't follow "I'll handle this myself".
+function applies(step) {
+  return !step.when || step.when();
+}
+
+// The bar fills evenly across the screens this path actually visits.
+function progressFor(i) {
+  const path = STEPS.filter(applies);
+  return (((path.indexOf(STEPS[i]) + 1) / path.length) * 100).toFixed(1);
+}
+
+function render() {
+  const step = STEPS[stepIndex];
+
+  el.progress.style.width = progressFor(stepIndex) + '%';
+  el.gradient.classList.toggle('hidden', !!step.plain);
+
+  // Park the globe before the step's markup is replaced, or innerHTML would
+  // take the canvas with it and the context would have to be rebuilt.
+  el.globeHolder.appendChild(el.globe);
+
+  el.body.innerHTML = `<div class="step ${step.width || ''}">${step.render()}</div>`;
+
+  if (step.globe) mountGlobe(document.getElementById('globe-host'));
+  el.back.style.visibility = step.back === false ? 'hidden' : 'visible';
+  el.actions.innerHTML = (step.actions || []).map(a => ACTIONS[a]).join('');
+}
+
+// Single choice — the radio cards.
+function select(name, index) {
+  state[name] = index;
+  render();
+}
+
+// Declining the offer. `managed` drives whether the domestic step applies, so
+// setting it here is what makes the next step the end of the flow.
+function optOut() {
+  state.managed = 1;
+  goNext();
+}
+
+// The one standalone checkbox.
+function toggleDomestic() {
+  state.domestic = !state.domestic;
+  render();
+}
+
+// Checkbox groups: add or remove, any number on at once.
+function toggle(name, index) {
+  const selected = state[name];
+  const at = selected.indexOf(index);
+  if (at === -1) selected.push(index);
+  else selected.splice(at, 1);
+  render();
+}
+
+// Continuing past the last screen on this path leaves the flow — the same exit
+// backing out of the first screen takes.
+function goNext() {
+  for (let i = stepIndex + 1; i < STEPS.length; i++) {
+    if (applies(STEPS[i])) { stepIndex = i; render(); return; }
+  }
+  goHome();
+}
+
+function goBack() {
+  for (let i = stepIndex - 1; i >= 0; i--) {
+    if (applies(STEPS[i])) { stepIndex = i; render(); return; }
+  }
+  goHome();
+}
+
+function goHome() {
+  window.location.href = 'index.html';
+}
+
+// Clicking outside the modal leaves the flow and returns home. Guarded on the
+// target so clicks inside the modal don't bubble up into an exit.
+el.backdrop.addEventListener('click', (e) => {
+  if (e.target === el.backdrop) goHome();
+});
+
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight') goNext();
+  if (e.key === 'ArrowLeft') goBack();
+});
+
+
+// ---------------------------------------------------------------------------
+// Globe — the same build the earlier explorations use (smp.html), at their
+// "medium" scale. Non-interactive: it rotates, and arcs come and go.
+// ---------------------------------------------------------------------------
+const GLOBE_SCALE = 0.7225;
+
+function buildGlobe() {
+            const container = document.getElementById('globe-container');
+            const w = container.clientWidth, h = container.clientHeight;
+
+            const scene = new THREE.Scene();
+            const camera = new THREE.OrthographicCamera(-w/2, w/2, h/2, -h/2, 1, 10000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(w, h);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.setClearColor(0x000000, 0);
+            renderer.sortObjects = false;
+            container.appendChild(renderer.domElement);
+
+            const globeRadius = (100 + Math.min(w, h) * 0.25) * GLOBE_SCALE;
+            const globeSegments = Math.floor((globeRadius / 250) * 10) + 20;
+            camera.position.z = globeRadius * 4;
+
+            // Size the glow circle to match the globe
+            const glowCircle = document.getElementById('globe-glow-circle');
+            const circleDiameter = globeRadius * 2;
+            glowCircle.style.width = circleDiameter + 'px';
+            glowCircle.style.height = circleDiameter + 'px';
+
+            const globeContainer = new THREE.Group();
+            globeContainer.rotation.x = Math.PI * 0.1111;
+            globeContainer.rotation.y = Math.PI * 0.55;
+            scene.add(globeContainer);
+
+            const globeGeometry = new THREE.SphereGeometry(globeRadius, globeSegments, globeSegments);
+            const globeMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color('#f7f6fc'), shininess: 3, transparent: true, opacity: 0.85 });
+            globeContainer.add(new THREE.Mesh(globeGeometry, globeMaterial));
+
+            scene.add(new THREE.AmbientLight(new THREE.Color('#F8F7FC'), 1.3));
+            const backLight = new THREE.PointLight(new THREE.Color('#666677'), 0.08, 0, 2);
+            backLight.position.set(-1000, -1100, -3300);
+            scene.add(backLight);
+            const frontLight = new THREE.PointLight(new THREE.Color('#777788'), 0.5, 0, 20);
+            frontLight.position.set(-3000, 3000, 3300);
+            scene.add(frontLight);
+            // Soft fill from the lower right to lift the shaded side of the sphere
+            const fillLight = new THREE.DirectionalLight(new THREE.Color('#FFFFFF'), 0.35);
+            fillLight.position.set(2, -2, 2);
+            scene.add(fillLight);
+
+            const DOT_COUNT = 40000;
+            const dotVertexShader = `
+              uniform float u_time;
+              uniform vec3 u_cameraDir;
+              attribute float a_random;
+              varying float v_random;
+              varying float v_facing;
+              void main() {
+                v_random = a_random;
+                vec3 worldNormal = normalize((modelMatrix * vec4(normalize(position), 0.0)).xyz);
+                v_facing = dot(worldNormal, u_cameraDir);
+                vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                gl_Position = projectionMatrix * mvPosition;
+                gl_PointSize = 3.0;
+              }
+            `;
+            const dotFragmentShader = `
+              uniform float u_time;
+              uniform vec3 u_color;
+              varying float v_random;
+              varying float v_facing;
+              void main() {
+                if (v_facing < 0.0) discard;
+                vec2 uv = gl_PointCoord * 2.0 - 1.0;
+                float rotAngle = v_random * 6.28;
+                float cs = cos(rotAngle), sn = sin(rotAngle);
+                uv = vec2(uv.x * cs - uv.y * sn, uv.x * sn + uv.y * cs);
+                float angle = atan(uv.y, uv.x);
+                float radius = length(uv);
+                float a = 3.14159 / 5.0;
+                float sector = floor(angle / (2.0 * a) + 0.5);
+                float sectorAngle = sector * 2.0 * a;
+                vec2 tip = vec2(cos(sectorAngle), sin(sectorAngle));
+                float d = dot(uv, tip);
+                if (d > cos(a)) discard;
+                if (radius > 0.95) discard;
+                float edgeFade = smoothstep(0.0, 0.6, v_facing);
+                float blink = 0.75 + 0.25 * sin(u_time * 2.0 + v_random * 12.56);
+                vec3 darkenedColor = u_color * 0.55;
+                gl_FragColor = vec4(darkenedColor, blink * edgeFade);
+              }
+            `;
+            const dotUniforms = {
+              u_time: { value: 0 },
+              u_color: { value: new THREE.Color('#b8c0f0') },
+              u_cameraDir: { value: new THREE.Vector3(0, 0, 1) },
+            };
+
+            const mapImg = new Image();
+            mapImg.crossOrigin = 'anonymous';
+            mapImg.src = 'https://images.ctfassets.net/fzn2n1nzq965/11064gUb2CgTJXKVwAt5J9/297a98a65d04d4fbb979072ce60466ab/map_fill-a78643e8.png';
+            mapImg.onload = () => {
+              const c = document.createElement('canvas');
+              c.width = mapImg.width; c.height = mapImg.height;
+              const ctx = c.getContext('2d');
+              ctx.drawImage(mapImg, 0, 0);
+              const imgData = ctx.getImageData(0, 0, c.width, c.height);
+              const positions = [], randoms = [];
+              for (let i = 0; i < DOT_COUNT; i++) {
+                const phi = Math.acos(-1 + (2 * i) / DOT_COUNT);
+                const theta = Math.sqrt(DOT_COUNT * Math.PI) * phi;
+                const latDeg = 90 - (phi * 180 / Math.PI);
+                const lngDeg = ((theta * 180 / Math.PI) % 360) - 180;
+                const u = (lngDeg + 180) / 360;
+                const v = (90 - latDeg) / 180;
+                const px = Math.floor(u * c.width) % c.width;
+                const py = Math.floor(v * c.height) % c.height;
+                const idx = (py * c.width + px) * 4;
+                if (imgData.data[idx + 3] > 128) {
+                  const latRad = latDeg * Math.PI / 180;
+                  const lngRad = lngDeg * Math.PI / 180;
+                  positions.push(globeRadius * Math.cos(latRad) * Math.sin(lngRad), globeRadius * Math.sin(latRad), globeRadius * Math.cos(latRad) * Math.cos(lngRad));
+                  randoms.push(Math.random());
+                }
+              }
+              const geo = new THREE.BufferGeometry();
+              geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+              geo.setAttribute('a_random', new THREE.Float32BufferAttribute(randoms, 1));
+              const mat = new THREE.ShaderMaterial({ uniforms: dotUniforms, vertexShader: dotVertexShader, fragmentShader: dotFragmentShader, transparent: true, depthWrite: false });
+              globeContainer.add(new THREE.Points(geo, mat));
+            };
+
+            // Arcs
+            const arcColors = [
+              [new THREE.Color(0xf94148), new THREE.Color(0xFF8352)],
+              [new THREE.Color(0x533AFD), new THREE.Color(0x0D8EFF)],
+              [new THREE.Color(0xf94148), new THREE.Color(0x533AFD)],
+              [new THREE.Color(0xFF8352), new THREE.Color(0x0D8EFF)],
+            ];
+            const arcs = [];
+            const MAX_ARCS = 5;
+            const majorCities = [
+              {lat:40.7,lng:-74},{lat:37.8,lng:-122.4},{lat:19.4,lng:-99.1},{lat:-23.5,lng:-46.6},{lat:51.5,lng:-0.1},
+              {lat:48.9,lng:2.3},{lat:52.5,lng:13.4},{lat:55.8,lng:37.6},{lat:25.2,lng:55.3},{lat:19.1,lng:72.9},
+              {lat:39.9,lng:116.4},{lat:35.7,lng:139.7},{lat:1.3,lng:103.8},{lat:-33.9,lng:151.2},{lat:6.5,lng:3.4},
+              {lat:30,lng:31.2},{lat:-26.2,lng:28},{lat:43.7,lng:-79.4},{lat:41.9,lng:-87.6}
+            ];
+            function cityToVec3(city) {
+              const r = globeRadius + 1, latRad = city.lat * Math.PI / 180, lngRad = city.lng * Math.PI / 180;
+              return new THREE.Vector3(r * Math.cos(latRad) * Math.sin(lngRad), r * Math.sin(latRad), r * Math.cos(latRad) * Math.cos(lngRad));
+            }
+            function createEndpointMarker(color) {
+              const group = new THREE.Group();
+              const dotMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 1, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+              group.add(new THREE.Mesh(new THREE.SphereGeometry(2.2, 12, 12), dotMat));
+              const ringMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 1, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+              group.add(new THREE.Mesh(new THREE.TorusGeometry(5.5, 0.6, 8, 32), ringMat));
+              group.userData = { dotMat, ringMat };
+              return group;
+            }
+            function setMarkerOpacity(marker, opacity) { marker.userData.dotMat.opacity = opacity; marker.userData.ringMat.opacity = opacity; }
+
+            function createArc() {
+              if (arcs.length >= MAX_ARCS) return;
+              const cityA = majorCities[Math.floor(Math.random() * majorCities.length)];
+              let cityB = majorCities[Math.floor(Math.random() * majorCities.length)];
+              while (cityB === cityA) cityB = majorCities[Math.floor(Math.random() * majorCities.length)];
+              const start = cityToVec3(cityA), end = cityToVec3(cityB);
+              const dist = start.distanceTo(end);
+              const arcHeight = 1.8 + (dist / (globeRadius * 2)) * 1.5;
+              const mid = start.clone().add(end).multiplyScalar(0.5).normalize().multiplyScalar(globeRadius * arcHeight);
+              const ctrl1 = start.clone().lerp(mid, 0.4), ctrl2 = end.clone().lerp(mid, 0.4);
+              const curve = new THREE.CubicBezierCurve3(start, ctrl1, ctrl2, end);
+              const points = curve.getPoints(64);
+              const colorPair = arcColors[Math.floor(Math.random() * arcColors.length)];
+              const geometry = new THREE.BufferGeometry().setFromPoints(points);
+              const material = new THREE.LineBasicMaterial({ color: colorPair[0].clone().lerp(colorPair[1], 0.5), transparent: true, opacity: 1 });
+              const line = new THREE.Line(geometry, material);
+              globeContainer.add(line);
+              const glowStart = createEndpointMarker(colorPair[0]);
+              const glowEnd = createEndpointMarker(colorPair[1]);
+              glowStart.position.copy(start); glowEnd.position.copy(end);
+              glowStart.lookAt(start.clone().multiplyScalar(2)); glowEnd.lookAt(end.clone().multiplyScalar(2));
+              setMarkerOpacity(glowStart, 1); setMarkerOpacity(glowEnd, 0);
+              globeContainer.add(glowStart); globeContainer.add(glowEnd);
+              line.geometry.setDrawRange(0, 0);
+              arcs.push({ line, glowStart, glowEnd, totalPoints: 65, created: Date.now(), drawDuration: 600, holdDuration: 3000, fadeDuration: 800 });
+            }
+            setTimeout(createArc, 500);
+            setInterval(createArc, 1000);
+
+            const clock = new THREE.Clock();
+            function animate() {
+              requestAnimationFrame(animate);
+              const elapsed = clock.getElapsedTime();
+              dotUniforms.u_time.value = elapsed;
+              dotUniforms.u_cameraDir.value.copy(camera.position).normalize();
+              globeContainer.rotation.y -= 0.001;
+              const now = Date.now();
+              for (let i = arcs.length - 1; i >= 0; i--) {
+                const arc = arcs[i], age = now - arc.created;
+                const totalLife = arc.drawDuration + arc.holdDuration + arc.fadeDuration;
+                if (age > totalLife) {
+                  globeContainer.remove(arc.line); globeContainer.remove(arc.glowStart); globeContainer.remove(arc.glowEnd);
+                  arc.line.geometry.dispose(); arc.line.material.dispose();
+                  arc.glowStart.userData.dotMat.dispose(); arc.glowStart.userData.ringMat.dispose();
+                  arc.glowEnd.userData.dotMat.dispose(); arc.glowEnd.userData.ringMat.dispose();
+                  arcs.splice(i, 1);
+                } else if (age < arc.drawDuration) {
+                  const p = age / arc.drawDuration;
+                  arc.line.geometry.setDrawRange(0, Math.floor(p * arc.totalPoints));
+                  arc.line.material.opacity = 1; setMarkerOpacity(arc.glowStart, 1);
+                  setMarkerOpacity(arc.glowEnd, p > 0.9 ? (p - 0.9) / 0.1 : 0);
+                } else if (age < arc.drawDuration + arc.holdDuration) {
+                  arc.line.geometry.setDrawRange(0, arc.totalPoints);
+                  arc.line.material.opacity = 1; setMarkerOpacity(arc.glowStart, 1); setMarkerOpacity(arc.glowEnd, 1);
+                } else {
+                  const fadeProgress = 1 - ((age - arc.drawDuration - arc.holdDuration) / arc.fadeDuration);
+                  arc.line.geometry.setDrawRange(0, arc.totalPoints);
+                  arc.line.material.opacity = fadeProgress; setMarkerOpacity(arc.glowStart, fadeProgress); setMarkerOpacity(arc.glowEnd, fadeProgress);
+                }
+              }
+              renderer.render(scene, camera);
+            }
+            animate();
+
+            window.addEventListener('resize', () => {
+              const nw = container.clientWidth, nh = container.clientHeight;
+              camera.left = -nw/2; camera.right = nw/2; camera.top = nh/2; camera.bottom = -nh/2;
+              camera.updateProjectionMatrix();
+              renderer.setSize(nw, nh);
+            });
+}
+
+// ?s=2 is 1-based, to read the same way the screens are talked about.
+const startAt = parseInt(params.get('s'), 10);
+if (startAt >= 1 && startAt <= STEPS.length) stepIndex = startAt - 1;
+
+render();
+</script>
+</body>
+</html>
