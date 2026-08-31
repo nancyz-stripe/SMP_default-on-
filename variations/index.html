@@ -485,23 +485,15 @@ const flowVariations = [
   },
 ];
 
-// Explorations. Duplicated from the flow above and cut down to the two screens
-// under review: the goods question and the cross-border brief. The preview
-// opens on the second one, since that's the screen being explored.
-// V2 is the same flow with a coverage summary on the domestic screen, so the
-// two previews open on that screen — it's the only place they differ.
+// Explorations. Duplicated from the flow above and cut down to the screens
+// under review, starting with the goods question. The preview opens on the
+// cross-border brief, since that's the screen being explored.
 const exploreVariations = [
   {
     id: 'flow-2step',
-    title: 'V1 — price per screen',
+    title: 'V1',
     file: 'flow-2step.html',
-    preview: 'flow-2step.html?s=4',
-  },
-  {
-    id: 'flow-summary',
-    title: 'V2 — coverage summary',
-    file: 'flow-summary.html',
-    preview: 'flow-summary.html?s=4',
+    preview: 'flow-2step.html?s=2',
   },
 ];
 
