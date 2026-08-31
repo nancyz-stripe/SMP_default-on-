@@ -31,7 +31,7 @@
                lighter step DPM uses: at 1.65:1 against this surface the lighter
                one needed relief, and 400 clears the 3:1 floor outright while
                staying recessive. Purple↔gray separation is ΔE 16 (deutan), and
-               the dashed stroke plus named legend carry identity regardless. */
+               the dashed stroke carries identity independently of colour. */
             --chart-with: #9966ff;
             --chart-without: #7d8ba4;
         }
@@ -227,14 +227,6 @@
         .card-title { font-size: 14px; font-weight: 600; color: var(--text-default); }
         .card-sub { display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 12px; line-height: 16px; color: var(--text-secondary); }
 
-        /* Estimated vs counted: the two modelled cards say so on the face of the
-           card, not in a footnote. Same chrome for both kinds of metric would
-           lend the estimates a precision they don't have. */
-        .tag-est {
-            padding: 1px 6px; border: 1px solid var(--neutral-100); border-radius: 4px;
-            font-size: 11px; line-height: 15px; color: var(--text-secondary);
-        }
-
         /* The ⓘ carries the description; hovering it is how you read it. */
         .info { position: relative; display: inline-flex; }
         .info svg { width: 12px; height: 12px; fill: var(--icon-subdued); }
@@ -261,14 +253,10 @@
         .card.hero .card-val { font-size: 28px; line-height: 36px; }
         .delta { font-size: 12px; line-height: 16px; font-weight: 600; color: var(--text-success); }
 
-        /* Two series, so a legend is always present — identity is never colour
-           alone. Solid accent = what happened; dashed gray = the counterfactual. */
-        .legend { display: flex; flex-wrap: wrap; gap: 16px; margin: 10px 0 4px; }
-        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; line-height: 16px; color: var(--text-secondary); }
-        .legend-mark { width: 14px; height: 0; border-top: 2px solid var(--chart-with); flex-shrink: 0; }
-        .legend-mark.without { border-top-style: dashed; border-top-color: var(--chart-without); }
-        .legend-mark.block { height: 10px; border: 0; border-radius: 2px; background: var(--chart-with); }
-        .legend-mark.block.added { background: var(--chart-with); opacity: 0.28; }
+        /* No legend on the cards: with the counterfactual named in the tooltip
+           and the description behind the ⓘ, a permanent two-line legend on
+           every card was more chrome than identity. The dashed stroke carries
+           the distinction on the face of the chart. */
 
         .chartwrap { position: relative; height: 148px; margin-top: 4px; }
         .card.hero .chartwrap { height: 176px; }
@@ -463,8 +451,8 @@
             <p class="page-note">
                 Placeholder figures throughout. The dashed series on every card is a
                 modelled counterfactual — the same traffic without Managed Payments —
-                not an observed one; cards marked <span class="tag-est">Estimated</span>
-                depend on that model for their headline figure too.
+                rather than an observed one, and each headline is computed from the
+                series beneath it, so the two can't disagree.
             </p>
         </div>
     </div>
@@ -493,71 +481,62 @@ const CARDS = [
     kind: 'bars',
     hero: true,
     title: 'Payment volume',
-    desc: 'Payment volume processed through Managed Payments. The pale cap on each bar is the volume attributed to it — payments that were approved because Stripe collected them locally.',
-    value: '$300,232.43',
-    delta: '+2%',
-    estimated: true,
-    unit: 'usd-k',
+    desc: 'Payment volume processed through Managed Payments, by month. The pale cap on each bar is the volume attributed to it — payments approved because Stripe collected them locally.',
+    unit: 'usd',
+    /* headline = the window's total; delta = second half against first */
+    headline: 'sum',
     withLabel: 'Volume with Managed Payments',
     withoutLabel: 'Volume without',
-    /* with = counted total; without = the modelled part that would have
-       happened anyway. The difference is what the pale segment shows. */
-    with:    [212, 248, 236, 259, 244, 300],
-    without: [205, 236, 221, 240, 225, 276],
-    foot: from => `$${from}k of this month's volume is attributed to Managed Payments.`,
+    with:    [41880.12, 48904.55, 46317.90, 52401.33, 49077.20, 61651.33],
+    without: [38700.00, 45120.00, 42480.00, 48010.00, 44730.00, 55980.00],
+    foot: d => `$${d} of this month's volume is attributed to Managed Payments.`,
   },
   {
     id: 'uplift',
     title: 'Revenue uplift',
-    desc: 'Approval rate on international payments with Managed Payments against your modelled rate without it. The headline figure is the revenue behind the gap over the whole period.',
-    value: '$18,430',
-    delta: '+2%',
-    estimated: true,
-    unit: 'pct',
-    withLabel: 'Approval rate with Managed Payments',
-    withoutLabel: 'Approval rate without',
-    with:    [91.2, 92.0, 92.4, 93.1, 92.8, 93.6, 94.0, 93.7, 94.4, 94.9, 94.6, 95.2],
-    without: [89.9, 90.1, 89.8, 90.4, 90.0, 90.3, 90.6, 90.2, 90.5, 90.8, 90.4, 90.9],
-    foot: d => `${d} points of approval rate attributed to Managed Payments.`,
+    desc: 'Revenue from international payments against the modelled revenue on the same traffic without Managed Payments. The headline is the gap across the whole window.',
+    unit: 'usd',
+    /* headline = the gap itself, which is what "uplift" names */
+    headline: 'gap',
+    withLabel: 'Revenue with Managed Payments',
+    withoutLabel: 'Revenue without',
+    with:    [18400, 19100, 18800, 20200, 19700, 21400, 20900, 22600, 21800, 23900, 23100, 25200],
+    without: [17300, 17900, 17500, 18700, 18200, 19600, 19100, 20500, 19800, 21500, 20800, 22400],
+    foot: d => `$${d} of revenue attributed to Managed Payments.`,
   },
   {
     id: 'tax',
     title: 'Tax liability covered',
-    desc: 'Sales tax and VAT owed across your markets, and how much of it sits with you. With Managed Payments Stripe is the liable party; the gap is what it took off your books.',
-    value: '$42,180',
-    delta: '+2%',
-    estimated: false,
+    desc: 'Sales tax and VAT owed across your markets, and how much of it sits with you. Under Managed Payments Stripe is the liable party; the gap is what it takes off your books.',
     unit: 'usd',
+    headline: 'gap',
     inverted: true,
     withLabel: 'Your liability with Managed Payments',
     withoutLabel: 'Your liability without',
     with:    [420, 380, 410, 360, 390, 340, 370, 320, 350, 300, 330, 280],
     without: [2100, 2450, 2380, 2760, 2610, 2980, 3120, 2890, 3260, 3480, 3310, 3620],
-    foot: d => `$${d} of liability carried by Stripe this month.`,
+    foot: d => `$${d} of liability carried by Stripe.`,
   },
   {
     id: 'fraud',
     title: 'Fraud prevented',
-    desc: 'Losses from fraudulent payments, against the modelled losses on the same traffic without Managed Payments screening it. The gap is what was stopped.',
-    value: '$6,940',
-    delta: '+2%',
-    estimated: true,
+    desc: 'Losses to fraudulent payments, against the modelled losses on the same traffic without Managed Payments screening it. The gap is what was stopped.',
     unit: 'usd',
+    headline: 'gap',
     inverted: true,
     withLabel: 'Fraud loss with Managed Payments',
     withoutLabel: 'Fraud loss without',
     with:    [180, 210, 160, 190, 150, 175, 140, 165, 130, 155, 125, 145],
     without: [820, 910, 780, 960, 840, 1020, 890, 1080, 940, 1140, 980, 1210],
-    foot: d => `$${d} of fraud loss prevented this month.`,
+    foot: d => `$${d} of fraud loss prevented.`,
   },
   {
     id: 'disputes',
     title: 'Disputes won',
     desc: 'Share of disputes resolved in your favour. Stripe contests them on your behalf; the dashed line is the win rate on disputes handled without Managed Payments.',
-    value: '72%',
-    delta: '+2%',
-    estimated: true,
     unit: 'pct',
+    /* a rate, so the headline is where it stands now rather than a total */
+    headline: 'last',
     withLabel: 'Win rate with Managed Payments',
     withoutLabel: 'Win rate without',
     with:    [64, 66, 65, 69, 68, 71, 70, 73, 72, 75, 74, 77],
@@ -565,6 +544,49 @@ const CARDS = [
     foot: d => `${d} points of win rate attributed to Managed Payments.`,
   },
 ];
+
+/* ===========================================================
+   Headline figures
+   -----------------------------------------------------------
+   Derived from the series rather than authored beside it, so the number at the
+   top of a card and the shape under it can't drift apart.
+
+   `sum`  — the window's total (payment volume)
+   `gap`  — the distance between the two series, which for uplift, liability and
+            fraud IS the metric the card is named for
+   `last` — where a rate stands now
+   =========================================================== */
+const gapAt = (c, i) => c.inverted ? c.without[i] - c.with[i] : c.with[i] - c.without[i];
+const sum = a => a.reduce((x, y) => x + y, 0);
+
+function headlineValue(c) {
+  if (c.headline === 'sum') return sum(c.with);
+  if (c.headline === 'gap') return sum(c.with.map((_, i) => gapAt(c, i)));
+  return c.with[c.with.length - 1];
+}
+
+function headline(c) {
+  /* volume is the one figure quoted to the cent, as the reference has it */
+  if (c.id === 'volume') return '$' + headlineValue(c).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return fmt[c.unit](headlineValue(c));
+}
+
+/* A rate is compared with the period before it; a total or a gap is compared
+   with the first half of its own window, since there's no prior window here. */
+function deltaOf(c) {
+  let now, then;
+  if (c.headline === 'last') {
+    now = c.with[c.with.length - 1];
+    then = c.with[c.with.length - 2];
+  } else {
+    const vals = c.headline === 'sum' ? c.with : c.with.map((_, i) => gapAt(c, i));
+    const half = vals.length / 2;
+    then = sum(vals.slice(0, half));
+    now = sum(vals.slice(half));
+  }
+  const pc = ((now - then) / then) * 100;
+  return (pc >= 0 ? '+' : '') + pc.toFixed(1) + '%';
+}
 
 /* Twelve points on the line cards, six bars on the hero — the x labels are the
    ends only, as the reference has them. */
@@ -577,19 +599,17 @@ const OPEN_SVG = '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" str
 const fmt = {
   pct: v => v.toFixed(1) + '%',
   usd: v => '$' + Math.round(v).toLocaleString(),
-  'usd-k': v => '$' + Math.round(v).toLocaleString() + 'k',
 };
+
+/* Axis ticks are compact so four of them fit the gutter: $61k, not $61,651. */
+const tick = (unit, v) => unit === 'pct'
+  ? Math.round(v) + '%'
+  : (v >= 1000 ? '$' + Math.round(v / 1000) + 'k' : '$' + Math.round(v));
 
 /* ===========================================================
    Markup
    =========================================================== */
 function cardHtml(c) {
-  const legend = c.kind === 'bars'
-    ? `<span class="legend-item"><span class="legend-mark block"></span>${c.withoutLabel}</span>
-       <span class="legend-item"><span class="legend-mark block added"></span>Added by Managed Payments</span>`
-    : `<span class="legend-item"><span class="legend-mark"></span>${c.withLabel}</span>
-       <span class="legend-item"><span class="legend-mark without"></span>${c.withoutLabel}</span>`;
-
   return `
     <section class="card${c.hero ? ' hero' : ''}" data-card="${c.id}">
       <div class="card-head">
@@ -598,18 +618,15 @@ function cardHtml(c) {
           <div class="card-sub">
             Description
             <span class="info">${INFO_SVG}<span class="info-tip">${c.desc}</span></span>
-            ${c.estimated ? '<span class="tag-est">Estimated</span>' : ''}
           </div>
         </div>
         <button class="open-btn" aria-label="Open report">${OPEN_SVG}</button>
       </div>
 
       <div class="card-valrow">
-        <span class="card-val">${c.value}</span>
-        <span class="delta">${c.delta}</span>
+        <span class="card-val">${headline(c)}</span>
+        <span class="delta">${deltaOf(c)}</span>
       </div>
-
-      <div class="legend">${legend}</div>
 
       <div class="chartwrap">
         <svg preserveAspectRatio="none" aria-label="${c.title}, with and without Managed Payments"></svg>
@@ -641,13 +658,12 @@ function el(n, attrs) {
   return e;
 }
 
-/* Four gridlines, on a domain padded so neither series touches the frame. */
+/* Four gridlines on a zero-based domain, with headroom above the higher series
+   so nothing touches the frame. Zero-based is required for the bars and honest
+   for the rest — none of these metrics is a narrow band worth truncating. */
 function scaleFor(c, ph) {
-  const all = c.with.concat(c.without);
-  const hi = Math.max(...all), lo = Math.min(...all);
-  const span = (hi - lo) || 1;
-  const top = hi + span * 0.18;
-  const bottom = Math.max(0, lo - span * 0.18);
+  const hi = Math.max(...c.with, ...c.without);
+  const top = hi * 1.18, bottom = 0;
   return { Y: v => PAD.t + ph - ((v - bottom) / (top - bottom)) * ph, top, bottom };
 }
 
@@ -658,7 +674,7 @@ function drawFrame(svg, c, W, H) {
     const v = bottom + (top - bottom) * f;
     svg.appendChild(el('line', { class: 'grid-line', x1: 0, x2: pw, y1: Y(v), y2: Y(v) }));
     const t = el('text', { class: 'axis-label', x: pw + 8, y: Y(v) + 4 });
-    t.textContent = fmt[c.unit](v);
+    t.textContent = tick(c.unit, v);
     svg.appendChild(t);
   });
   return { pw, ph, Y };
@@ -727,8 +743,7 @@ function showTip(card, c, i, cx) {
   const tip = card.querySelector('.chart-tip');
   const wrap = card.querySelector('.chartwrap');
   const w = c.with[i], wo = c.without[i];
-  const diff = c.inverted ? wo - w : w - wo;
-  const label = c.unit === 'pct' ? diff.toFixed(1) : Math.round(diff).toLocaleString();
+  const label = c.unit === 'pct' ? gapAt(c, i).toFixed(1) : Math.round(gapAt(c, i)).toLocaleString();
   const period = c.kind === 'bars' ? MONTHS[i] : monthLabel(i);
 
   tip.innerHTML =
