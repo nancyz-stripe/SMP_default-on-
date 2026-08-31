@@ -446,6 +446,7 @@
         .choice-card.selected .radio i { display: block; }
 
         .choice-body { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+        .choice-title-row { display: flex; align-items: center; gap: 16px; }
         .choice-title {
             font-size: 16px;
             font-weight: 700;
@@ -481,19 +482,23 @@
         }
 
         .choice-fee { margin-top: 8px; font-size: 12px; line-height: 16px; color: var(--text-subdued); }
-        /* Gradient per Figma: the fill is clipped to the glyphs, so `color` is
-           left to carry the underline. */
-        .fee-link {
-            background-image: linear-gradient(156deg, #955ef4 3%, #2079f6 99%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            color: #7a68f5;
-            text-decoration: underline;
-            text-decoration-color: #7a68f5;
-            text-decoration-skip-ink: none;
-            text-underline-position: from-font;
+
+        /* The price, as a badge beside the title rather than a line of copy. */
+        .choice-badge {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 6px;
+            border: 1px solid var(--border-default);
+            border-radius: 4px;
+            background: #f4f7fa;
+            font-size: 12px;
+            line-height: 16px;
+            color: #50617a;
+            white-space: nowrap;
         }
+        .choice-badge svg { width: 12px; height: 12px; fill: #667691; }
 
         .modal-footer {
             display: flex;
@@ -982,15 +987,20 @@ function brief(items) {
 }
 
 const TICK = '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 6.3l3 3 6-6.6"/></svg>';
+const INFO = '<svg viewBox="0 0 12 12" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.75 1.75H3.25C2.42157 1.75 1.75 2.42157 1.75 3.25V8.75C1.75 9.57843 2.42157 10.25 3.25 10.25H8.75C9.57843 10.25 10.25 9.57843 10.25 8.75V3.25C10.25 2.42157 9.57843 1.75 8.75 1.75ZM3.25 0.25C1.59315 0.25 0.25 1.59315 0.25 3.25V8.75C0.25 10.4069 1.59315 11.75 3.25 11.75H8.75C10.4069 11.75 11.75 10.4069 11.75 8.75V3.25C11.75 1.59315 10.4069 0.25 8.75 0.25H3.25Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M4.48182 6.49998C4.48182 6.11338 4.79522 5.79998 5.18182 5.79998H6.27273C6.65933 5.79998 6.97273 6.11338 6.97273 6.49998V8.49998C6.97273 8.88658 6.65933 9.19998 6.27273 9.19998C5.88613 9.19998 5.57273 8.88658 5.57273 8.49998V7.19998H5.18182C4.79522 7.19998 4.48182 6.88658 4.48182 6.49998Z"/><path d="M4.99994 3.99999C4.99994 3.44858 5.44854 2.99999 5.99994 2.99999C6.55134 2.99999 6.99994 3.44858 6.99994 3.99999C6.99994 4.55139 6.55134 4.99999 5.99994 4.99999C5.44854 4.99999 4.99994 4.55139 4.99994 3.99999Z"/></svg>';
 
 // Radio cards: single choice, so `name` keys the selected index in `state`.
-// `benefits` and `fee` are optional — only the recommended card carries them.
+// `badge`, `benefits` and `fee` are optional — only the recommended card
+// carries them.
 function choices(name, items) {
   return `<div class="choice-list">${items.map((it, i) => `
     <div class="choice-card${state[name] === i ? ' selected' : ''}" role="radio" aria-checked="${state[name] === i}" onclick="select('${name}', ${i})">
       <span class="radio"><i></i></span>
       <span class="choice-body">
-        <span class="choice-title">${it.title}</span>
+        <span class="choice-title-row">
+          <span class="choice-title">${it.title}</span>
+          ${it.badge ? `<span class="choice-badge">${it.badge}${INFO}</span>` : ''}
+        </span>
         <span class="choice-sub">${it.label}</span>
         ${it.benefits ? `<span class="choice-benefits">${it.benefits.map(b => `
           <span class="choice-benefit">
@@ -1076,7 +1086,8 @@ const STEPS = [
               label: 'Screens every payment, handles disputes for you, and answers customer billing questions.',
             },
           ],
-          fee: '<span class="fee-link">+3.5% per international transaction</span>. No monthly fee, and nothing to pay until your first international sale.',
+          badge: '+3.5% per transaction',
+          fee: 'No monthly fee, and nothing to pay until your first international sale.',
         },
         {
           title: 'I’ll handle this myself',
