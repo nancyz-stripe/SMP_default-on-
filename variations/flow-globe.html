@@ -434,34 +434,27 @@
             z-index: 2;
             background: white;
             border-radius: 5px;
-            padding: 10px 12px;
+            padding: 11px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 11px;
             box-shadow: 0 10px 30px -2px rgba(0, 55, 112, 0.1), 0 4px 14px -2px rgba(0, 59, 137, 0.04);
             opacity: 0;
             transform: translateY(6px);
             transition: opacity 0.8s ease, transform 0.8s ease;
             pointer-events: none;
-            width: 39%;
+            /* Wider than the design's 30% of the globe: this globe pane is less
+               than half the width of the Figma frame, so holding that ratio
+               would wrap every subtitle onto three lines. */
+            width: 46%;
         }
         .globe-card.visible {
             opacity: 1;
             transform: translateY(0);
         }
-        .globe-card-icon {
-            width: 28px;
-            height: 28px;
-            border-radius: 4px;
-            border: 1px solid #d6d9fc;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-        .globe-card-icon svg { width: 12px; height: 12px; }
-        .globe-card-text { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+        /* Each logo SVG carries its own rounded background, so no tile here. */
+        .globe-card-logo { width: 18px; height: 18px; flex-shrink: 0; display: block; }
+        .globe-card-text { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
         .globe-card-title {
             font-size: 11px;
             font-weight: 600;
@@ -479,9 +472,12 @@
             color: #30b271;
         }
 
-        .globe-card.disputes { top: 25%; left: 53%; }
-        .globe-card.tax { top: 40%; left: 10%; }
-        .globe-card.fraud { top: 64%; left: 56%; }
+        /* Staggered right-left-right-left down the globe, as the design has
+           them. Kept clear of each other at 46% wide. */
+        .globe-card.tax { top: 28%; left: 48%; }
+        .globe-card.fraud { top: 43%; left: 4%; }
+        .globe-card.payment { top: 60%; left: 46%; }
+        .globe-card.dispute { top: 77%; left: 12%; }
 
 
         /* Step content is centred in the modal; each step sets its own width. */
@@ -1334,27 +1330,39 @@
     <div class="globe" id="globe-container">
         <div class="globe-glow-circle" id="globe-glow-circle"></div>
 
-        <div class="globe-card disputes" id="card-disputes">
-            <div class="globe-card-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M8 1.5L2 4v4c0 3.5 2.5 6 6 7.5 3.5-1.5 6-4 6-7.5V4L8 1.5z" stroke="#635bff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-            <div class="globe-card-text">
-                <span class="globe-card-title">Dispute handling <svg class="globe-card-check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                <span class="globe-card-subtitle">Dispute countered by Stripe</span>
-            </div>
-        </div>
-
+        <!-- Figma 26702:76384. Named businesses rather than capability labels:
+             each card is something that happened to a company the merchant has
+             heard of, so the globe reads as evidence instead of a second copy of
+             the benefit list beside it. -->
         <div class="globe-card tax" id="card-tax">
-            <div class="globe-card-icon"><svg viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="#635bff" stroke-width="1.5"/><path d="M5 7h6M5 9.5h4" stroke="#635bff" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+            <img class="globe-card-logo" src="assets/logos/lovable.svg" alt="">
             <div class="globe-card-text">
-                <span class="globe-card-title">Tax collection and remittance <svg class="globe-card-check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                <span class="globe-card-subtitle">Automated tax operations</span>
+                <span class="globe-card-title">Lovable <svg class="globe-card-check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                <span class="globe-card-subtitle">crossed a tax threshold managed by Stripe</span>
             </div>
         </div>
 
         <div class="globe-card fraud" id="card-fraud">
-            <div class="globe-card-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M8 1.5L2 4v4c0 3.5 2.5 6 6 7.5 3.5-1.5 6-4 6-7.5V4L8 1.5z" stroke="#635bff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 8l1.5 1.5L10 7" stroke="#635bff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <img class="globe-card-logo" src="assets/logos/unity.svg" alt="">
             <div class="globe-card-text">
-                <span class="globe-card-title">Fraud detection <svg class="globe-card-check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                <span class="globe-card-subtitle">Proactive fraud prevention</span>
+                <span class="globe-card-title">Unity <svg class="globe-card-check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                <span class="globe-card-subtitle">avoided a fraud attempt caught by Stripe</span>
+            </div>
+        </div>
+
+        <div class="globe-card payment" id="card-payment">
+            <img class="globe-card-logo" src="assets/logos/revenuecat.svg" alt="">
+            <div class="globe-card-text">
+                <span class="globe-card-title">RevenueCat <svg class="globe-card-check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                <span class="globe-card-subtitle">recovered a payment optimized by Stripe</span>
+            </div>
+        </div>
+
+        <div class="globe-card dispute" id="card-dispute">
+            <img class="globe-card-logo" src="assets/logos/mobbin.svg" alt="">
+            <div class="globe-card-text">
+                <span class="globe-card-title">Mobbin.com <svg class="globe-card-check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                <span class="globe-card-subtitle">won a dispute managed by Stripe</span>
             </div>
         </div>
     </div>
@@ -2090,12 +2098,14 @@ function buildGlobe() {
 // cards are meaningless without it.
 // ---------------------------------------------------------------------------
 function runValueCards() {
+  // Top to bottom, so the feed reads down the globe as it fills in.
   const cards = [
-    document.getElementById('card-disputes'),
     document.getElementById('card-tax'),
     document.getElementById('card-fraud'),
+    document.getElementById('card-payment'),
+    document.getElementById('card-dispute'),
   ];
-  const fadeInDelay = 900;   // delay between each card fading in
+  const fadeInDelay = 700;   // delay between each card fading in
   const holdTime = 2000;     // time all cards stay visible
   const fadeOutDelay = 600;  // delay between each card fading out
   const pauseTime = 1200;    // pause before restarting
