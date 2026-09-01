@@ -52,13 +52,13 @@
             overflow: hidden;
         }
 
-        /* Both controls float on the gray, clear of the container: the way back
-           on the left, as the onboarding flow has it, and the stage switch on
-           the right. */
+        /* Both controls float on the gray above the container, their outer edges
+           flush with its sides as the design has them: the way back on the left,
+           as the onboarding flow has it, and the stage switch on the right. */
         .back-button {
             position: fixed;
-            top: 16px;
-            left: 16px;
+            top: 24px;
+            left: 52px;
             z-index: 400;
             padding: 8px 14px;
             background: var(--bg-surface);
@@ -75,8 +75,8 @@
            control rather than product UI, so it sits outside the container. */
         .stage-switch {
             position: fixed;
-            top: 16px;
-            right: 16px;
+            top: 24px;
+            right: 52px;
             z-index: 400;
             display: flex;
             gap: 4px;
@@ -123,8 +123,9 @@
            so the nav stays put. */
         .shell {
             display: flex;
-            height: calc(100vh - 64px);
-            margin: 64px 24px 0;
+            /* 84/52 from the frame: gray above and beside, none below. */
+            height: calc(100vh - 84px);
+            margin: 84px 52px 0;
             background: var(--bg-surface);
             border: 1px solid var(--neutral-50);
             border-bottom: 0;
