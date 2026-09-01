@@ -416,22 +416,25 @@
         .bar-hit { fill: transparent; }
         .bar-group.dim { opacity: 0.55; }
 
+        /* Same tooltip as the DPM incremental-conversion chart, down to the 260px
+           width and the 14/20 rows. */
         .chart-tip {
-            position: absolute; pointer-events: none; z-index: 5; width: 250px; overflow: hidden;
+            position: absolute; pointer-events: none; z-index: 5; width: 260px; overflow: hidden;
             background: var(--bg-surface); border-radius: 8px; box-shadow: var(--shadow-medium);
-            opacity: 0; transition: opacity .1s;
+            opacity: 0; transition: opacity .1s; color: var(--text-default);
         }
-        .tip-head { padding: 12px 12px 8px; font-size: 14px; font-weight: 600; }
+        .tip-head { padding: 12px 12px 8px; font-size: 14px; line-height: 20px; font-weight: 600; letter-spacing: -0.15px; }
         .tip-rule { height: 1px; background: var(--border-default); }
         .tip-rows { padding: 8px 12px 12px; }
-        .tip-row { display: flex; align-items: center; gap: 8px; padding: 1px 0; font-size: 14px; }
+        .tip-row { display: flex; align-items: center; gap: 8px; padding: 1px 0; font-size: 14px; line-height: 20px; letter-spacing: -0.15px; }
         .tip-row .sw { width: 12px; height: 12px; border-radius: 2px; flex: 0 0 12px; }
         .tip-row .sw.without { background: var(--chart-without); }
         .tip-row .sw.with { background: var(--chart-with); }
         .tip-row .tip-v { margin-left: auto; font-weight: 600; font-variant-numeric: tabular-nums; }
         .tip-foot {
             display: flex; align-items: center; gap: 8px; padding: 12px;
-            background: var(--bg-offset); font-size: 14px; color: var(--text-default);
+            background: var(--bg-offset); font-size: 14px; line-height: 20px;
+            letter-spacing: -0.15px; color: var(--text-default);
         }
         .tip-ico { width: 16px; height: 16px; flex: 0 0 16px; display: grid; place-items: center; color: #2b8700; }
         .tip-ico svg { width: 14px; height: 14px; }
@@ -1007,7 +1010,7 @@ function drawBars(card, c) {
     svg.appendChild(g);
   });
 
-  card._geom = { slot, bars: true };
+  card._geom = { slot, pw, Y, bars: true };
 }
 
 /* ===========================================================
@@ -1032,11 +1035,17 @@ function showTip(card, c, i, cx, cy) {
     `</div>` +
     `<div class="tip-foot"><span class="tip-ico">${UPLIFT_SVG}</span><span>${c.foot(label)}</span></div>`;
 
+  /* Sits beside the crosshair and flips side near the right edge, tracking the
+     hovered point vertically — the DPM incremental-conversion chart's behaviour,
+     rather than a card pinned to the top of the plot. */
+  const wrapW = wrap.clientWidth, wrapH = wrap.clientHeight;
+  const vbW = svg.viewBox.baseVal.width || wrapW;
+  const vbH = svg.viewBox.baseVal.height || wrapH;
+  const px = cx / vbW * wrapW, py = cy / vbH * wrapH;
+  const tw = 260, th = tip.offsetHeight || 150;
+  tip.style.left = (px + 12 + tw <= wrapW ? px + 12 : px - 12 - tw) + 'px';
+  tip.style.top = Math.max(-PAD.t, Math.min(wrapH - th, py - 24)) + 'px';
   tip.style.opacity = 1;
-  const tw = 250;
-  const left = Math.min(Math.max(cx - tw / 2, 0), wrap.clientWidth - tw);
-  tip.style.left = left + 'px';
-  tip.style.top = '0px';
 }
 
 /* Six months across twelve points, so every other point starts a month. */
@@ -1059,7 +1068,8 @@ function bindHover(card, c) {
     if (g.bars) {
       const i = Math.max(0, Math.min(c.with.length - 1, Math.floor(px / g.slot)));
       svg.querySelectorAll('.bar-group').forEach((el2, k) => el2.classList.toggle('dim', k !== i));
-      showTip(card, c, i, (i + 0.5) * g.slot);
+      /* the top of the bar, so the tooltip meets it the way it meets a line's point */
+      showTip(card, c, i, (i + 0.5) * g.slot, g.Y(Math.max(c.with[i], c.without[i])));
       return;
     }
 
@@ -1069,7 +1079,7 @@ function bindHover(card, c) {
     g.hl.setAttribute('x1', g.X(i)); g.hl.setAttribute('x2', g.X(i)); g.hl.setAttribute('opacity', 1);
     g.d1.setAttribute('cx', g.X(i)); g.d1.setAttribute('cy', g.Y(c.with[i])); g.d1.setAttribute('opacity', 1);
     g.d2.setAttribute('cx', g.X(i)); g.d2.setAttribute('cy', g.Y(c.without[i])); g.d2.setAttribute('opacity', 1);
-    showTip(card, c, i, g.X(i));
+    showTip(card, c, i, g.X(i), g.Y(c.with[i]));
   });
 
   svg.addEventListener('mouseleave', () => {
