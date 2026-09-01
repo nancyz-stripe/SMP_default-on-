@@ -1513,28 +1513,30 @@ const STEPS = [
       ])}`,
   },
   {
-    // Figma 26654:54163 — the simplified screen: no gradient, no globe, no
-    // choice to make. It states what selling internationally brings with it.
+    // Figma 26702:75374 — the simplified screen: no gradient, no globe, no
+    // choice to make. It names what a new market takes, and pairs it with the
+    // promise that Stripe can carry it, so the list reads as scope rather than
+    // as a warning.
     id: 'cross-border-brief',
     actions: ['skip', 'continue'],
     render: () => `
-      <div class="headline">X% of businesses like yours end up selling internationally as they grow. <span class="muted">Here’s what comes with it.</span></div>
+      <div class="headline">X% of businesses like yours sell globally as they grow. <span class="muted">Here’s what selling in a new market takes, and what Stripe can handle for you.</span></div>
       <div class="brief-card">
         ${brief([
           {
             icon: ICONS.bank,
-            title: 'Banks are stricter with international payments',
-            label: 'They decline more payments to foreign businesses, even when the card is valid. Every decline is lost revenue.',
+            title: 'Banks are stricter across borders',
+            label: 'Foreign banks decline more payments, even when the card is valid. Every decline is revenue you lose.',
           },
           {
             icon: ICONS.document,
-            title: 'You’re liable for tax in every market',
-            label: 'Tax is owed where your customer is, not where you are—and you’re responsible for collecting and filing it there.',
+            title: 'Tax rules differ in every country',
+            label: 'Tax is owed where your customer is, and each country has its own process for registering, collecting, and filing.',
           },
           {
             icon: ICONS.warning,
-            title: 'Disputes and fraud cost more across borders',
-            label: 'Fraud patterns differ by market, and each dispute comes with its own rules and deadlines depending on where your customer is.',
+            title: 'Disputes follow your customer’s local rules',
+            label: 'Each country sets its own process and deadlines, and fraud looks different in each market.',
           },
         ])}
       </div>`,
