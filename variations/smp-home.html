@@ -922,7 +922,7 @@ function cardHtml(c) {
         ${c.masked ? '' : `<button class="open-btn" aria-label="Open report">${OPEN_SVG}</button>`}
       </div>
 
-      <div class="card-desc">${c.desc}</div>
+      ${c.masked ? '' : `<div class="card-desc">${c.desc}</div>`}
 
       ${c.masked ? '' : `
       <div class="card-valrow">
