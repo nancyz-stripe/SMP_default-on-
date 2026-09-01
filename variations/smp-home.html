@@ -1013,9 +1013,11 @@ function drawBars(card, c) {
 /* ===========================================================
    Hover
    =========================================================== */
-function showTip(card, c, i, cx) {
+/* `cx`/`cy` are the hovered point in viewBox units. */
+function showTip(card, c, i, cx, cy) {
   const tip = card.querySelector('.chart-tip');
   const wrap = card.querySelector('.chartwrap');
+  const svg = card.querySelector('.chartwrap svg');
   const u = seriesUnit(c);
   const w = c.with[i], wo = c.without[i];
   const label = u === 'pct' ? gapAt(c, i).toFixed(1) : Math.round(gapAt(c, i)).toLocaleString();
