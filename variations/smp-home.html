@@ -116,16 +116,19 @@
            asset URLs expire. They carry alpha only, so each is applied as a
            mask over currentColor, which is how the design composes them and
            what lets one shape serve both the default and active colours. */
-        /* The container: inset from the gray on all sides, clipped to its own
-           radius, and the only thing on the page with a scrollbar — which it
-           gives to the main column, so the nav stays put. */
+        /* The container: gray above it and to its sides, but it runs to the
+           bottom edge of the window — so the bottom corners are square and the
+           bottom keyline is dropped. Clipped to its own radius, and the only
+           thing on the page with a scrollbar, which it gives to the main column
+           so the nav stays put. */
         .shell {
             display: flex;
-            height: calc(100vh - 88px);
-            margin: 64px 24px 24px;
+            height: calc(100vh - 64px);
+            margin: 64px 24px 0;
             background: var(--bg-surface);
             border: 1px solid var(--neutral-50);
-            border-radius: 12px;
+            border-bottom: 0;
+            border-radius: 12px 12px 0 0;
             box-shadow: 0 1px 2px rgba(48, 49, 61, 0.04), 0 12px 32px -8px rgba(48, 49, 61, 0.10);
             overflow: hidden;
         }
@@ -369,10 +372,6 @@
         .tip-ico { width: 16px; height: 16px; flex: 0 0 16px; display: grid; place-items: center; color: #2b8700; }
         .tip-ico svg { width: 14px; height: 14px; }
 
-        .page-note {
-            margin-top: 24px; padding: 12px 14px; border-radius: 8px;
-            background: var(--bg-offset); font-size: 12px; line-height: 18px; color: var(--text-secondary);
-        }
     </style>
 </head>
 <body>
@@ -512,13 +511,6 @@
             </div>
 
             <div class="cards" id="cards"></div>
-
-            <p class="page-note">
-                Placeholder figures throughout. The dashed series on every card is a
-                modelled counterfactual — the same traffic without Managed Payments —
-                rather than an observed one, and each headline is computed from the
-                series beneath it, so the two can't disagree.
-            </p>
         </div>
     </div>
 </div>
@@ -624,31 +616,21 @@ const CARDS = [
 /* ===========================================================
    Stages
    -----------------------------------------------------------
-   The same account at four points in its life. Rather than author four sets of
-   figures, each stage truncates the one series: no months, one month, half the
-   window, all of it. The chart geometry always spans the full window, so early
-   stages read as a window filling up rather than as a shorter chart.
+   The same account before and after it has any volume. Rather than author a
+   second set of figures, the new-user stage drops the series entirely and each
+   card says it has nothing to show yet.
    =========================================================== */
 const STAGES = [
-  { id: 'new',     label: 'New users' },
-  { id: 'first',   label: 'First sale' },
-  { id: 'growing', label: 'Growing' },
-  { id: 'volume',  label: 'With volume' },
+  { id: 'new',    label: 'New users' },
+  { id: 'volume', label: 'With volume' },
 ];
 
 let stageId = 'volume';
 
-function pointsFor(len) {
-  if (stageId === 'new') return 0;
-  if (stageId === 'first') return 1;
-  if (stageId === 'growing') return Math.ceil(len / 2);
-  return len;
-}
-
-/* `full` keeps the window's length so the axes don't shrink with the data. */
+/* `full` keeps the window's length so the axes don't depend on the stage. */
 function stageViews() {
   return CARDS.map(c => {
-    const n = pointsFor(c.with.length);
+    const n = stageId === 'new' ? 0 : c.with.length;
     return { ...c, full: c.with.length, with: c.with.slice(0, n), without: c.without.slice(0, n) };
   });
 }
@@ -736,13 +718,9 @@ function cardHtml(c) {
     </section>`;
 }
 
-/* The right label is "Today" only when the window is complete; mid-window it
-   names the last period with data, so the axis can't claim more than it shows. */
+/* Nothing plotted, nothing to label. */
 function xLabels(c) {
-  const m = c.with.length;
-  if (!m) return '';
-  const last = m === c.full ? 'Today' : (c.kind === 'bars' ? MONTHS[m - 1] : monthLabel(m - 1));
-  return m === 1 ? `<span>${last}</span>` : `<span>Jan</span><span>${last}</span>`;
+  return c.with.length ? '<span>Jan</span><span>Today</span>' : '';
 }
 
 const STAGE_EL = document.getElementById('stageSwitch');
@@ -831,12 +809,6 @@ function drawLines(card, c) {
   svg.appendChild(el('path', { class: 'series-without', d: path(c.without) }));
   svg.appendChild(el('path', { class: 'series-with', d: path(c.with) }));
 
-  /* A single period has no line to draw, so mark the two values instead. */
-  if (m === 1) {
-    svg.appendChild(el('circle', { class: 'hover-dot', r: 4, cx: X(0), cy: Y(c.without[0]), stroke: 'var(--chart-without)', opacity: 1 }));
-    svg.appendChild(el('circle', { class: 'hover-dot', r: 4, cx: X(0), cy: Y(c.with[0]), stroke: 'var(--chart-with)', opacity: 1 }));
-  }
-
   const hl = el('line', { class: 'hover-line', y1: PAD.t, y2: PAD.t + ph, x1: 0, x2: 0, opacity: 0 });
   const d1 = el('circle', { class: 'hover-dot', r: 4, stroke: 'var(--chart-with)', opacity: 0 });
   const d2 = el('circle', { class: 'hover-dot', r: 4, stroke: 'var(--chart-without)', opacity: 0 });
@@ -919,13 +891,7 @@ function bindHover(card, c) {
     const px = (e.clientX - r.left) / r.width * vw;
 
     if (g.bars) {
-      const i = Math.floor(px / g.slot);
-      /* past the last month with data there's no bar to describe */
-      if (i < 0 || i >= c.with.length) {
-        tip.style.opacity = 0;
-        svg.querySelectorAll('.bar-group').forEach(el2 => el2.classList.remove('dim'));
-        return;
-      }
+      const i = Math.max(0, Math.min(c.with.length - 1, Math.floor(px / g.slot)));
       svg.querySelectorAll('.bar-group').forEach((el2, k) => el2.classList.toggle('dim', k !== i));
       showTip(card, c, i, (i + 0.5) * g.slot);
       return;
