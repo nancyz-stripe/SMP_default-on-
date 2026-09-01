@@ -319,19 +319,26 @@
         .cards { display: flex; flex-direction: column; gap: 16px; }
         .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
+        /* Type and spacing from Figma 26707:82501: 12/16 padding, a 14/20 title
+           with the ⓘ beside it rather than under it, then the 18/28 value with
+           its 12/16 subvalues on the baseline. */
         .card {
             border: 1px solid var(--neutral-50);
             border-radius: 8px;
-            padding: 16px;
+            padding: 12px 16px;
             background: var(--bg-surface);
             box-shadow: var(--shadow-card);
             display: flex;
             flex-direction: column;
+            gap: 8px;
         }
-        .card-head { display: flex; align-items: flex-start; gap: 12px; }
-        .card-titles { flex: 1; min-width: 0; }
-        .card-title { font-size: 14px; font-weight: 600; color: var(--text-default); }
-        .card-sub { display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 12px; line-height: 16px; color: var(--text-secondary); }
+        .card-head { display: flex; align-items: center; gap: 8px; }
+        .card-titles { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; }
+        .card-title {
+            font-size: 14px; font-weight: 600; line-height: 20px;
+            letter-spacing: -0.15px; color: var(--text-value);
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
 
         /* The ⓘ carries the description; hovering it is how you read it. */
         .info { position: relative; display: inline-flex; }
@@ -354,18 +361,25 @@
         .card:hover .open-btn { background: var(--bg-offset); }
         .open-btn svg { width: 12px; height: 12px; }
 
-        .card-valrow { display: flex; align-items: baseline; gap: 8px; margin: 12px 0 0; }
-        .card-val { font-size: 24px; line-height: 32px; font-weight: 700; letter-spacing: -0.31px; color: var(--text-value); }
-        .card.hero .card-val { font-size: 28px; line-height: 36px; }
-        .delta { font-size: 12px; line-height: 16px; font-weight: 600; color: var(--text-success); }
+        .card-valrow { display: flex; align-items: baseline; gap: 4px; }
+        .card-val {
+            font-size: 18px; line-height: 28px; font-weight: 600;
+            letter-spacing: -0.48px; color: var(--text-value);
+        }
+        /* The subvalues share one 6px-gapped group: the count this rate is drawn
+           from, then the movement. */
+        .card-subvals { display: flex; align-items: baseline; gap: 6px; }
+        .card-count { font-size: 12px; line-height: 16px; letter-spacing: -0.024px; color: var(--text-secondary); }
+        .delta { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: -0.024px; color: var(--text-success); }
 
         /* No legend on the cards: with the counterfactual named in the tooltip
            and the description behind the ⓘ, a permanent two-line legend on
            every card was more chrome than identity. The dashed stroke carries
            the distinction on the face of the chart. */
 
-        .chartwrap { position: relative; height: 148px; margin-top: 4px; }
-        .card.hero .chartwrap { height: 176px; }
+        /* 175px of chart in the design: 151 of plot, 24 of x axis. The hero is no
+           taller than the rest — only wider. */
+        .chartwrap { position: relative; height: 151px; }
         .chartwrap svg { display: block; width: 100%; height: 100%; overflow: visible; }
         /* Before the first sale there's no series to draw and no counterfactual
            to compare it with, so the card says so rather than drawing a flat
@@ -375,7 +389,10 @@
             display: grid; place-items: center;
             font-size: 12px; color: var(--text-secondary);
         }
-        .xlabels { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); padding-right: 42px; }
+        .xlabels {
+            display: flex; align-items: center; justify-content: space-between;
+            height: 24px; font-size: 11px; color: var(--text-secondary); padding-right: 42px;
+        }
 
         .grid-line { stroke: var(--neutral-50); stroke-width: 1; }
         .axis-label { fill: var(--text-secondary); font-size: 11px; }
@@ -597,70 +614,82 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
 const CARDS = [
   {
     id: 'volume',
-    kind: 'bars',
     hero: true,
     title: 'Payment volume',
-    desc: 'Payment volume processed through Managed Payments, by month. The pale cap on each bar is the volume attributed to it — payments approved because Stripe collected them locally.',
+    desc: 'The total value of successful payments processed through Stripe Managed Payments.',
     unit: 'usd',
     /* headline = the window's total; delta = second half against first */
     headline: 'sum',
     withLabel: 'Volume with Managed Payments',
     withoutLabel: 'Volume without',
-    with:    [41880.12, 48904.55, 46317.90, 52401.33, 49077.20, 61651.33],
-    without: [38700.00, 45120.00, 42480.00, 48010.00, 44730.00, 55980.00],
-    foot: d => `$${d} of this month's volume is attributed to Managed Payments.`,
+    with:    [13100, 13600, 13900, 14400, 14800, 15200, 15600, 16000, 16400, 16900, 17200, 17100],
+    without: [12200, 12600, 12900, 13400, 13800, 14100, 14500, 14900, 15300, 15700, 16000, 15900],
+    foot: d => `$${d} of this period's volume is attributed to Managed Payments.`,
   },
   {
-    id: 'uplift',
-    title: 'Revenue uplift',
-    desc: 'Revenue from international payments against the modelled revenue on the same traffic without Managed Payments. The headline is the gap across the whole window.',
+    id: 'revenue',
+    title: 'Revenue',
+    desc: 'Revenue earned from successful Managed Payments sales, excluding tax and adjusted for refunds.',
     unit: 'usd',
-    /* headline = the gap itself, which is what "uplift" names */
-    headline: 'gap',
+    headline: 'sum',
     withLabel: 'Revenue with Managed Payments',
     withoutLabel: 'Revenue without',
-    with:    [18400, 19100, 18800, 20200, 19700, 21400, 20900, 22600, 21800, 23900, 23100, 25200],
-    without: [17300, 17900, 17500, 18700, 18200, 19600, 19100, 20500, 19800, 21500, 20800, 22400],
+    with:    [11100, 11500, 11800, 12200, 12600, 12900, 13200, 13600, 14000, 14300, 14500, 14700],
+    without: [10300, 10700, 11000, 11300, 11700, 12000, 12300, 12600, 13000, 13300, 13500, 13700],
     foot: d => `$${d} of revenue attributed to Managed Payments.`,
   },
   {
     id: 'tax',
     title: 'Tax liability covered',
-    desc: 'Sales tax and VAT owed across your markets, and how much of it sits with you. Under Managed Payments Stripe is the liable party; the gap is what it takes off your books.',
-    unit: 'usd',
-    headline: 'gap',
-    inverted: true,
-    withLabel: 'Your liability with Managed Payments',
-    withoutLabel: 'Your liability without',
-    with:    [420, 380, 410, 360, 390, 340, 370, 320, 350, 300, 330, 280],
-    without: [2100, 2450, 2380, 2760, 2610, 2980, 3120, 2890, 3260, 3480, 3310, 3620],
-    foot: d => `$${d} of liability carried by Stripe.`,
+    desc: 'The share of successful Managed Payments transactions where Stripe assumed tax liability instead of your business.',
+    unit: 'pct',
+    /* a share, so the headline is where it stands now rather than a total */
+    headline: 'last',
+    /* the counterfactual is zero by definition: without Managed Payments the
+       liability is all yours, so there is no coverage to plot */
+    withLabel: 'Covered by Stripe',
+    withoutLabel: 'Covered without Managed Payments',
+    covered: 1884,
+    determined: 2000,
+    sub: c => `${c.covered.toLocaleString()} of ${c.determined.toLocaleString()} payments`,
+    with:    [88.4, 89.1, 90.0, 90.6, 91.3, 91.9, 92.4, 92.8, 93.2, 93.6, 93.9, 94.2],
+    without: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    foot: d => `${d}% of this period's payments covered by Stripe.`,
   },
   {
     id: 'fraud',
+    kind: 'bars',
     title: 'Fraud prevented',
-    desc: 'Losses to fraudulent payments, against the modelled losses on the same traffic without Managed Payments screening it. The gap is what was stopped.',
+    desc: "Estimated fraud loss avoided by Stripe's Managed Payments fraud controls.",
     unit: 'usd',
+    /* headline = the gap, which is the loss avoided */
     headline: 'gap',
+    /* the modelled series sits above the measured one: less loss is the win */
     inverted: true,
-    withLabel: 'Fraud loss with Managed Payments',
-    withoutLabel: 'Fraud loss without',
-    with:    [180, 210, 160, 190, 150, 175, 140, 165, 130, 155, 125, 145],
-    without: [820, 910, 780, 960, 840, 1020, 890, 1080, 940, 1140, 980, 1210],
-    foot: d => `$${d} of fraud loss prevented.`,
+    withLabel: 'Loss that still occurred',
+    withoutLabel: 'Expected loss without controls',
+    with:    [400, 370, 345, 325, 305, 305],
+    without: [900, 950, 1000, 1050, 1100, 1150],
+    foot: d => `$${d} of fraud loss avoided this month.`,
   },
   {
     id: 'disputes',
+    kind: 'bars',
     title: 'Disputes won',
-    desc: 'Share of disputes resolved in your favour. Stripe contests them on your behalf; the dashed line is the win rate on disputes handled without Managed Payments.',
+    desc: 'Disputes Stripe won after submitting evidence, shown as a share of resolved disputes.',
+    /* counts on the chart, a win rate in the headline */
     unit: 'pct',
-    /* a rate, so the headline is where it stands now rather than a total */
-    headline: 'last',
-    withLabel: 'Win rate with Managed Payments',
-    withoutLabel: 'Win rate without',
-    with:    [64, 66, 65, 69, 68, 71, 70, 73, 72, 75, 74, 77],
-    without: [41, 39, 43, 40, 44, 41, 45, 42, 46, 43, 47, 44],
-    foot: d => `${d} points of win rate attributed to Managed Payments.`,
+    seriesUnit: 'count',
+    headline: 'rate',
+    withLabel: 'Won with Stripe\u2019s evidence',
+    withoutLabel: 'Won without',
+    recovered: 3800,
+    sub: c => `${sum(c.with)} of ${sum(c.total)} \u00b7 $${c.recovered.toLocaleString()} recovered`,
+    with:    [2, 3, 3, 3, 4, 3],
+    without: [1, 1, 2, 1, 2, 1],
+    /* resolved disputes: the denominator the win rate is drawn from */
+    total:   [3, 4, 4, 4, 5, 4],
+    foot: d => `${d} more disputes won than without Managed Payments.`,
   },
 ];
 
@@ -693,7 +722,9 @@ let stageId = 'volume';
 function stageViews() {
   return CARDS.map(c => {
     const n = stageId === 'new' ? 0 : c.with.length;
-    return { ...c, full: c.with.length, with: c.with.slice(0, n), without: c.without.slice(0, n) };
+    const v = { ...c, full: c.with.length, with: c.with.slice(0, n), without: c.without.slice(0, n) };
+    if (c.total) v.total = c.total.slice(0, n);
+    return v;
   });
 }
 
@@ -702,18 +733,28 @@ let VIEWS = stageViews();
 const gapAt = (c, i) => c.inverted ? c.without[i] - c.with[i] : c.with[i] - c.without[i];
 const sum = a => a.reduce((x, y) => x + y, 0);
 
+/* A win rate over a slice of the window: what was won against what resolved. */
+function rateOf(c, from, to) {
+  const won = sum(c.with.slice(from, to)), all = sum(c.total.slice(from, to));
+  return all ? (won / all) * 100 : 0;
+}
+
 function headlineValue(c) {
   if (c.headline === 'sum') return sum(c.with);
   if (c.headline === 'gap') return sum(c.with.map((_, i) => gapAt(c, i)));
+  if (c.headline === 'rate') return rateOf(c, 0, c.with.length);
   return c.with[c.with.length - 1];
 }
 
 function headline(c) {
   /* nothing has happened yet, so there's no figure to quote */
   if (!c.with.length) return '—';
-  /* volume is the one figure quoted to the cent, as the reference has it */
-  if (c.id === 'volume') return '$' + headlineValue(c).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   return fmt[c.unit](headlineValue(c));
+}
+
+/* The count a rate is drawn from, where the metric has one. */
+function subvalue(c) {
+  return c.with.length && c.sub ? c.sub(c) : '';
 }
 
 /* A rate is compared with the period before it; a total or a gap is compared
@@ -725,6 +766,10 @@ function deltaOf(c) {
   if (c.headline === 'last') {
     now = c.with[c.with.length - 1];
     then = c.with[c.with.length - 2];
+  } else if (c.headline === 'rate') {
+    const half = Math.floor(c.with.length / 2);
+    then = rateOf(c, 0, half);
+    now = rateOf(c, half, c.with.length);
   } else {
     const vals = c.headline === 'sum' ? c.with : c.with.map((_, i) => gapAt(c, i));
     const half = Math.floor(vals.length / 2);
@@ -742,12 +787,19 @@ const OPEN_SVG = '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" str
 const fmt = {
   pct: v => v.toFixed(1) + '%',
   usd: v => '$' + Math.round(v).toLocaleString(),
+  count: v => Math.round(v).toLocaleString(),
 };
 
+/* What the plotted series are in, which is not always what the headline is in:
+   disputes are counted on the chart and quoted as a rate. */
+const seriesUnit = c => c.seriesUnit || c.unit;
+
 /* Axis ticks are compact so four of them fit the gutter: $61k, not $61,651. */
-const tick = (unit, v) => unit === 'pct'
-  ? Math.round(v) + '%'
-  : (v >= 1000 ? '$' + Math.round(v / 1000) + 'k' : '$' + Math.round(v));
+const tick = (unit, v) => {
+  if (unit === 'pct') return Math.round(v) + '%';
+  if (unit === 'count') return Math.round(v).toLocaleString();
+  return v >= 1000 ? '$' + Math.round(v / 1000) + 'k' : '$' + Math.round(v);
+};
 
 /* ===========================================================
    Markup
@@ -758,17 +810,17 @@ function cardHtml(c) {
       <div class="card-head">
         <div class="card-titles">
           <div class="card-title">${c.title}</div>
-          <div class="card-sub">
-            Description
-            <span class="info">${INFO_SVG}<span class="info-tip">${c.desc}</span></span>
-          </div>
+          <span class="info">${INFO_SVG}<span class="info-tip">${c.desc}</span></span>
         </div>
         <button class="open-btn" aria-label="Open report">${OPEN_SVG}</button>
       </div>
 
       <div class="card-valrow">
         <span class="card-val">${headline(c)}</span>
-        <span class="delta">${deltaOf(c)}</span>
+        <span class="card-subvals">
+          ${subvalue(c) ? `<span class="card-count">${subvalue(c)}</span>` : ''}
+          <span class="delta">${deltaOf(c)}</span>
+        </span>
       </div>
 
       <div class="chartwrap">
@@ -891,7 +943,7 @@ function drawFrame(svg, c, W, H) {
     const v = bottom + (top - bottom) * f;
     svg.appendChild(el('line', { class: 'grid-line', x1: 0, x2: pw, y1: Y(v), y2: Y(v) }));
     const t = el('text', { class: 'axis-label', x: pw + 8, y: Y(v) + 4 });
-    t.textContent = tick(c.unit, v);
+    t.textContent = tick(seriesUnit(c), v);
     svg.appendChild(t);
   });
   return { pw, ph, Y };
@@ -941,13 +993,16 @@ function drawBars(card, c) {
   c.with.forEach((v, i) => {
     const g = el('g', { class: 'bar-group' });
     const x = i * slot + gap / 2;
-    const yWith = Y(v), yWithout = Y(c.without[i]);
+    /* The bar is the taller of the two series, split at the shorter one — so it
+       reads the same way whichever series is on top: what would have happened
+       anyway at the base, what Managed Payments accounts for as the cap. Fraud
+       prevented is inverted, and there the base is the loss that still landed. */
+    const yLo = Y(Math.min(v, c.without[i])), yHi = Y(Math.max(v, c.without[i]));
 
-    /* base segment: the volume modelled to have happened anyway */
-    g.appendChild(el('rect', { class: 'bar-base', x, y: yWithout, width: bw, height: Math.max(0, base - yWithout) }));
+    g.appendChild(el('rect', { class: 'bar-base', x, y: yLo, width: bw, height: Math.max(0, base - yLo) }));
     /* 2px surface gap, then the attributed cap with rounded data-end */
-    const capH = Math.max(0, yWithout - yWith - 2);
-    g.appendChild(el('rect', { class: 'bar-added', x, y: yWith, width: bw, height: capH, rx: 4 }));
+    const capH = Math.max(0, yLo - yHi - 2);
+    g.appendChild(el('rect', { class: 'bar-added', x, y: yHi, width: bw, height: capH, rx: 4 }));
     g.appendChild(el('rect', { class: 'bar-hit', x: i * slot, y: 0, width: slot, height: H, 'data-i': i }));
     svg.appendChild(g);
   });
@@ -961,16 +1016,17 @@ function drawBars(card, c) {
 function showTip(card, c, i, cx) {
   const tip = card.querySelector('.chart-tip');
   const wrap = card.querySelector('.chartwrap');
+  const u = seriesUnit(c);
   const w = c.with[i], wo = c.without[i];
-  const label = c.unit === 'pct' ? gapAt(c, i).toFixed(1) : Math.round(gapAt(c, i)).toLocaleString();
+  const label = u === 'pct' ? gapAt(c, i).toFixed(1) : Math.round(gapAt(c, i)).toLocaleString();
   const period = c.kind === 'bars' ? MONTHS[i] : monthLabel(i);
 
   tip.innerHTML =
     `<div class="tip-head">${period}</div>` +
     `<div class="tip-rule"></div>` +
     `<div class="tip-rows">` +
-      `<div class="tip-row"><span class="sw with"></span>${c.withLabel}<span class="tip-v">${fmt[c.unit](w)}</span></div>` +
-      `<div class="tip-row"><span class="sw without"></span>${c.withoutLabel}<span class="tip-v">${fmt[c.unit](wo)}</span></div>` +
+      `<div class="tip-row"><span class="sw with"></span>${c.withLabel}<span class="tip-v">${fmt[u](w)}</span></div>` +
+      `<div class="tip-row"><span class="sw without"></span>${c.withoutLabel}<span class="tip-v">${fmt[u](wo)}</span></div>` +
     `</div>` +
     `<div class="tip-foot"><span class="tip-ico">${UPLIFT_SVG}</span><span>${c.foot(label)}</span></div>`;
 

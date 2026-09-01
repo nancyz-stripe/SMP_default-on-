@@ -408,6 +408,10 @@
         .globe {
             position: absolute;
             inset: 0;
+            /* The globe's diameter, which the value cards size and place
+               themselves against. buildGlobe() overwrites this with the real
+               figure; this stands in until it does. */
+            --globe-d: 320px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -428,57 +432,105 @@
             z-index: 0;
         }
 
-        /* Value cards over the globe */
+        /* Value cards over the globe
+           -----------------------------------------------------------
+           Figma 26702:76384. Every dimension here is a fraction of the globe's
+           diameter rather than of the pane, because that's what the design
+           actually holds constant: the sphere there (Ellipse 2078) is 499.49
+           across and each card is 302.43 x 57.24, so a card is 60.55% of the
+           diameter. Measuring against the pane instead let the cards drift —
+           the pane is wider than the sphere by a margin that changes with the
+           viewport, so no single percentage could hold the ratio.
+
+           --globe-d is set by buildGlobe() from the same globeRadius the sphere
+           and its glow use, so the cards track the globe at any size. The value
+           below is a fallback for the moment before that runs.
+
+           The internals are fractions of the card width, taken from the Figma
+           frame: padding and title 14.232, subtitle 12.031, icon 24, check 12,
+           radius 5.693, title-to-subtitle gap 6. Scaling the type with the card
+           is the part that was missing — absolute 10px/9px text on a card this
+           size is what made it read chunkier than the design. */
         .globe-card {
             position: absolute;
             z-index: 2;
+            /* 302.432 / 499.493 */
+            --gc-w: calc(var(--globe-d) * 0.6055);
+            width: var(--gc-w);
             background: white;
-            border-radius: 5px;
-            padding: 10px;
+            /* 5.693 / 302.432 */
+            border-radius: calc(var(--gc-w) * 0.01882);
+            /* 14.232 / 302.432, for both the inset and the icon-to-text gap */
+            padding: calc(var(--gc-w) * 0.04706);
+            gap: calc(var(--gc-w) * 0.04706);
             display: flex;
             align-items: center;
-            gap: 10px;
+            /* Authored in Figma at the card's unscaled size; at the 0.64 the
+               card sits at here that comes out where these values already are. */
             box-shadow: 0 10px 30px -2px rgba(0, 55, 112, 0.1), 0 4px 14px -2px rgba(0, 59, 137, 0.04);
             opacity: 0;
             transform: translateY(6px);
             transition: opacity 0.8s ease, transform 0.8s ease;
             pointer-events: none;
-            /* Wider than the design's 30% of the globe: this globe pane is less
-               than half the width of the Figma frame, so holding that ratio
-               would wrap every subtitle onto three lines. Everything on the card
-               is scaled to 90% of that first pass. */
-            width: 41.4%;
         }
         .globe-card.visible {
             opacity: 1;
             transform: translateY(0);
         }
         /* Each logo SVG carries its own rounded background, so no tile here. */
-        .globe-card-logo { width: 16px; height: 16px; flex-shrink: 0; display: block; }
-        .globe-card-text { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+        .globe-card-logo {
+            /* 24 / 302.432 */
+            width: calc(var(--gc-w) * 0.07936);
+            height: calc(var(--gc-w) * 0.07936);
+            flex-shrink: 0;
+            display: block;
+        }
+        .globe-card-text {
+            display: flex;
+            flex-direction: column;
+            /* 6 / 302.432 */
+            gap: calc(var(--gc-w) * 0.01984);
+            flex: 1;
+            min-width: 0;
+        }
         .globe-card-title {
-            font-size: 10px;
+            /* 14.232 / 302.432 */
+            font-size: calc(var(--gc-w) * 0.04706);
             font-weight: 600;
             color: #061b31;
-            letter-spacing: -0.1px;
+            /* -0.1186 on 14.232 in the design, so it rides the font size */
+            letter-spacing: -0.0083em;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
-        .globe-card-subtitle { font-size: 9px; color: #667691; }
+        /* 12.031 / 302.432 */
+        .globe-card-subtitle { font-size: calc(var(--gc-w) * 0.03978); color: #667691; }
         .globe-card-check {
-            width: 11px;
-            height: 11px;
+            /* 12 / 302.432 */
+            width: calc(var(--gc-w) * 0.03968);
+            height: calc(var(--gc-w) * 0.03968);
             flex-shrink: 0;
             color: #30b271;
         }
 
-        /* Staggered right-left-right-left down the globe, as the design has
-           them. Kept clear of each other at 41.4% wide. */
-        .globe-card.tax { top: 28%; left: 48%; }
-        .globe-card.fraud { top: 43%; left: 4%; }
-        .globe-card.payment { top: 60%; left: 46%; }
-        .globe-card.dispute { top: 77%; left: 12%; }
+        /* Staggered right-left-right-left down the globe. Each card's top-left
+           in the Figma frame, expressed against the sphere's own top-left
+           (245.576, 252.204) as a fraction of its 499.493 diameter:
+
+             Loveable / tax      +48.935%, +5.565%
+             Unity / fraud       -15.731%, +34.394%
+             RevenueCat/payment  +60.146%, +55.416%
+             Mobbin / dispute     +2.487%, +85.847%
+
+           The sphere's top-left sits at 50% - --globe-d/2 within the pane, so
+           each offset below is that minus or plus the figure above. Fraud hangs
+           off the sphere's left edge in the design, which is why its left is the
+           largest negative. */
+        .globe-card.tax     { left: calc(50% - var(--globe-d) * 0.01065); top: calc(50% - var(--globe-d) * 0.44435); }
+        .globe-card.fraud   { left: calc(50% - var(--globe-d) * 0.65731); top: calc(50% - var(--globe-d) * 0.15606); }
+        .globe-card.payment { left: calc(50% + var(--globe-d) * 0.10146); top: calc(50% + var(--globe-d) * 0.05416); }
+        .globe-card.dispute { left: calc(50% - var(--globe-d) * 0.47513); top: calc(50% + var(--globe-d) * 0.35847); }
 
 
         /* Step content is centred in the modal; each step sets its own width. */
@@ -1888,6 +1940,10 @@ function buildGlobe() {
             const circleDiameter = globeRadius * 2;
             glowCircle.style.width = circleDiameter + 'px';
             glowCircle.style.height = circleDiameter + 'px';
+
+            // Hand the same diameter to the value cards, which take their width,
+            // their type sizes and their positions off it.
+            container.style.setProperty('--globe-d', circleDiameter + 'px');
 
             const globeContainer = new THREE.Group();
             globeContainer.rotation.x = Math.PI * 0.1111;
