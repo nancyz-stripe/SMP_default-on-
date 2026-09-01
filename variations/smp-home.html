@@ -38,9 +38,14 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        /* The page is the gray field the dashboard container sits in, so nothing
-           here scrolls — the container scrolls its own content (Figma
-           26704:81359). */
+        /* The page is the gray field the dashboard container sits in: a row of
+           prototype controls, then the container taking whatever is left, down to
+           the bottom edge (Figma 26704:81359). Nothing here scrolls — the
+           container scrolls its own content.
+
+           A flex column rather than a fixed control row over an inset container,
+           so the container's top is whatever the controls leave and the two can
+           never overlap, however tall the controls get. */
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
             background: var(--bg-offset);
@@ -50,16 +55,21 @@
             letter-spacing: -0.15px;
             height: 100vh;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* Both controls float on the gray above the container, their outer edges
-           flush with its sides as the design has them: the way back on the left,
-           as the onboarding flow has it, and the stage switch on the right. */
+        /* Controls sit on the gray above the container, outer edges flush with
+           its sides as the design has them: the way back on the left, as the
+           onboarding flow has it, and the stage switch on the right. */
+        .page-top {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 24px 52px 20px;
+        }
         .back-button {
-            position: fixed;
-            top: 24px;
-            left: 52px;
-            z-index: 400;
             padding: 8px 14px;
             background: var(--bg-surface);
             border: 1px solid var(--neutral-50);
@@ -74,10 +84,6 @@
         /* Stage switch: the same account at four points in its life. A prototype
            control rather than product UI, so it sits outside the container. */
         .stage-switch {
-            position: fixed;
-            top: 24px;
-            right: 52px;
-            z-index: 400;
             display: flex;
             gap: 4px;
             padding: 5px;
@@ -123,9 +129,10 @@
            so the nav stays put. */
         .shell {
             display: flex;
-            /* 84/52 from the frame: gray above and beside, none below. */
-            height: calc(100vh - 84px);
-            margin: 84px 52px 0;
+            /* fills what the control row leaves, down to the bottom edge */
+            flex: 1;
+            min-height: 0;
+            margin: 0 52px 0;
             background: var(--bg-surface);
             border: 1px solid var(--neutral-50);
             border-bottom: 0;
@@ -377,8 +384,10 @@
 </head>
 <body>
 
-<a href="index.html" class="back-button">&larr; Home</a>
-<div class="stage-switch" id="stageSwitch"></div>
+<div class="page-top">
+    <a href="index.html" class="back-button">&larr; Home</a>
+    <div class="stage-switch" id="stageSwitch"></div>
+</div>
 
 <div class="shell">
     <div class="side">
