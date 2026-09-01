@@ -950,7 +950,7 @@ function drawFrame(svg, c, W, H) {
 }
 
 function drawLines(card, c) {
-  const svg = card.querySelector('svg');
+  const svg = card.querySelector('.chartwrap svg');
   const wrap = card.querySelector('.chartwrap');
   const W = wrap.clientWidth || 460, H = wrap.clientHeight || 148;
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
@@ -979,7 +979,7 @@ function drawLines(card, c) {
 }
 
 function drawBars(card, c) {
-  const svg = card.querySelector('svg');
+  const svg = card.querySelector('.chartwrap svg');
   const wrap = card.querySelector('.chartwrap');
   const W = wrap.clientWidth || 900, H = wrap.clientHeight || 176;
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
@@ -1044,7 +1044,7 @@ function monthLabel(i) {
 
 function bindHover(card, c) {
   if (!c.with.length) return;   /* nothing plotted, nothing to inspect */
-  const svg = card.querySelector('svg');
+  const svg = card.querySelector('.chartwrap svg');
   const tip = card.querySelector('.chart-tip');
 
   svg.addEventListener('mousemove', e => {
