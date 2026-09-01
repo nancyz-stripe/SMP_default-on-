@@ -265,6 +265,45 @@
         .section-title { font-size: 20px; line-height: 28px; font-weight: 700; letter-spacing: -0.31px; color: var(--text-heading); margin-bottom: 16px; }
 
         /* Filters in one row above the charts, as the reference has them. */
+        /* ---------------- New-user banner ----------------
+           Figma 26655:64533. Only shown before there's any volume: the same three
+           promises the onboarding flow makes, on the offset fill. */
+        .ap-intro {
+            display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+            gap: 16px 32px; padding: 24px; margin-bottom: 24px;
+            background: var(--bg-offset); border-radius: 8px; overflow: hidden;
+        }
+        /* display on the class would otherwise beat the hidden attribute */
+        .ap-intro[hidden] { display: none; }
+        .ap-content { flex: 1; min-width: 240px; display: flex; flex-direction: column; gap: 16px; }
+        .ap-title {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            font-size: 20px; line-height: 28px; font-weight: 700;
+            letter-spacing: 0.3px; color: var(--text-default);
+        }
+        .ap-rows { display: flex; flex-direction: column; gap: 12px; }
+        .ap-row { display: flex; align-items: flex-start; gap: 12px; }
+        .ap-ico { width: 16px; flex-shrink: 0; padding-top: 2px; color: var(--icon-default); }
+        .ap-ico svg { width: 16px; height: 16px; display: block; }
+        .ap-row-title { font-size: 14px; line-height: 20px; font-weight: 600; letter-spacing: -0.15px; color: var(--text-default); }
+        .ap-row-desc { font-size: 14px; line-height: 20px; letter-spacing: -0.15px; color: var(--text-subdued); }
+        .ap-actions { display: flex; align-items: center; gap: 16px; }
+        .btn-primary {
+            padding: 4px 12px; border: 0; border-radius: 6px;
+            background: var(--bg-form-accent); color: #fff;
+            font-family: inherit; font-size: 14px; line-height: 20px; font-weight: 600;
+            letter-spacing: -0.15px; cursor: pointer;
+            box-shadow: 0 1px 1px 0 rgba(47, 14, 99, 0.32);
+        }
+        .btn-primary:hover { background: #5b51e8; }
+        .ap-link {
+            font-size: 14px; line-height: 20px; letter-spacing: -0.15px;
+            color: var(--text-action-primary); text-decoration: none; cursor: pointer;
+        }
+        .ap-link:hover { text-decoration: underline; }
+        .ap-art { width: 380px; height: 232px; flex-shrink: 0; border-radius: 16px; overflow: hidden; }
+        .ap-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
         /* ---------------- View controls ----------------
            Figma 26655:71467: the scope select, then the filter chips. Everything
            here is 12px semibold — the label subdued, the chosen value in the
@@ -381,14 +420,26 @@
            taller than the rest — only wider. */
         .chartwrap { position: relative; height: 151px; }
         .chartwrap svg { display: block; width: 100%; height: 100%; overflow: visible; }
-        /* Before the first sale there's no series to draw and no counterfactual
-           to compare it with, so the card says so rather than drawing a flat
-           line at zero. */
-        .chart-empty {
-            position: absolute; inset: 0;
-            display: grid; place-items: center;
-            font-size: 12px; color: var(--text-secondary);
+        /* ---- masked metrics (no Managed Payments yet) ----------------------
+           The DPM treatment: the shape stays so the card reads as a chart, but the
+           values are blurred out and the figure is withheld entirely. The x labels
+           blur with the plot — they're part of what isn't ours to state yet. */
+        .card.masked .chartwrap,
+        .card.masked .xlabels { filter: blur(5px); pointer-events: none; user-select: none; }
+        .masked-wrap { position: relative; display: inline-flex; flex: 0 0 auto; }
+        .masked-eye { width: 16px; height: 16px; display: grid; place-items: center; color: var(--icon-subdued); cursor: help; }
+        .masked-eye:hover { color: var(--icon-default); }
+        .masked-eye svg { width: 15px; height: 15px; }
+        /* wraps to two lines — the message is a sentence, not a label */
+        .masked-tip {
+            position: absolute; top: calc(100% + 6px); left: -4px;
+            width: 236px; padding: 8px 10px; border-radius: 6px;
+            background: var(--text-subdued); color: #fff;
+            font-size: 12px; line-height: 16px; letter-spacing: 0;
+            opacity: 0; pointer-events: none; transition: opacity .1s; z-index: 8;
         }
+        .masked-eye:hover + .masked-tip,
+        .masked-eye:focus-visible + .masked-tip { opacity: 1; }
         .xlabels {
             display: flex; align-items: center; justify-content: space-between;
             height: 24px; font-size: 11px; color: var(--text-secondary); padding-right: 42px;
@@ -560,6 +611,41 @@
                 <button class="tab">Locations</button>
             </div>
 
+            <!-- Figma 26655:64533 — only up before there's any volume -->
+            <div class="ap-intro" id="apIntro" hidden>
+                <div class="ap-content">
+                    <div class="ap-title">Grow globally without the complexity</div>
+                    <div class="ap-rows">
+                        <div class="ap-row">
+                            <span class="ap-ico"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12l3.5-4.5 2.5 2L13 3.5"/><path d="M9.8 3.5H13v3.2"/></svg></span>
+                            <span>
+                                <span class="ap-row-title">Reduces declined payments</span><br>
+                                <span class="ap-row-desc">Stripe collects the payment as a local business, so more of your sales go through.</span>
+                            </span>
+                        </div>
+                        <div class="ap-row">
+                            <span class="ap-ico"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2h5l3 3v9H4z"/><path d="M9 2v3h3"/><path d="M6 8.5h4M6 11h2.5"/></svg></span>
+                            <span>
+                                <span class="ap-row-title">Takes on tax responsibility</span><br>
+                                <span class="ap-row-desc">Stripe registers where needed, charges the right amount, and sends it on—in 80+ countries. Enter a new one and coverage is already there.</span>
+                            </span>
+                        </div>
+                        <div class="ap-row">
+                            <span class="ap-ico"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2l5 2v4.2c0 3-2.1 5-5 6.3-2.9-1.3-5-3.3-5-6.3V4l5-2z"/><path d="M5.8 8l1.6 1.6L10.4 6.6"/></svg></span>
+                            <span>
+                                <span class="ap-row-title">Manages disputes and fraud</span><br>
+                                <span class="ap-row-desc">If a customer disputes a charge, Stripe responds to their bank for you. It also screens every payment for fraud.</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="ap-actions">
+                        <button class="btn-primary">Set up Managed Payments</button>
+                        <a class="ap-link">Learn more</a>
+                    </div>
+                </div>
+                <div class="ap-art"><img src="assets/ap-intro.png" alt=""></div>
+            </div>
+
             <h2 class="section-title">Performance overview</h2>
 
             <div class="filters">
@@ -710,9 +796,10 @@ const CARDS = [
 /* ===========================================================
    Stages
    -----------------------------------------------------------
-   The same account before and after it has any volume. Rather than author a
-   second set of figures, the new-user stage drops the series entirely and each
-   card says it has nothing to show yet.
+   The same account before and after it has any volume. The new-user stage keeps
+   the series — the shape is what makes the card read as a chart — but masks it:
+   blurred, the figure withheld, and an eye saying why (Figma 26655:71422, and the
+   DPM incremental-conversion card's treatment below its reporting threshold).
    =========================================================== */
 const STAGES = [
   { id: 'new',    label: 'New users' },
@@ -723,12 +810,8 @@ let stageId = 'volume';
 
 /* `full` keeps the window's length so the axes don't depend on the stage. */
 function stageViews() {
-  return CARDS.map(c => {
-    const n = stageId === 'new' ? 0 : c.with.length;
-    const v = { ...c, full: c.with.length, with: c.with.slice(0, n), without: c.without.slice(0, n) };
-    if (c.total) v.total = c.total.slice(0, n);
-    return v;
-  });
+  const masked = stageId === 'new';
+  return CARDS.map(c => ({ ...c, full: c.with.length, masked }));
 }
 
 let VIEWS = stageViews();
@@ -786,6 +869,7 @@ function deltaOf(c) {
 const INFO_SVG = '<svg viewBox="0 0 12 12" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.75 1.75H3.25C2.42157 1.75 1.75 2.42157 1.75 3.25V8.75C1.75 9.57843 2.42157 10.25 3.25 10.25H8.75C9.57843 10.25 10.25 9.57843 10.25 8.75V3.25C10.25 2.42157 9.57843 1.75 8.75 1.75ZM3.25 0.25C1.59315 0.25 0.25 1.59315 0.25 3.25V8.75C0.25 10.4069 1.59315 11.75 3.25 11.75H8.75C10.4069 11.75 11.75 10.4069 11.75 8.75V3.25C11.75 1.59315 10.4069 0.25 8.75 0.25H3.25Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M4.48182 6.49998C4.48182 6.11338 4.79522 5.79998 5.18182 5.79998H6.27273C6.65933 5.79998 6.97273 6.11338 6.97273 6.49998V8.49998C6.97273 8.88658 6.65933 9.19998 6.27273 9.19998C5.88613 9.19998 5.57273 8.88658 5.57273 8.49998V7.19998H5.18182C4.79522 7.19998 4.48182 6.88658 4.48182 6.49998Z"/><path d="M4.99994 3.99999C4.99994 3.44858 5.44854 2.99999 5.99994 2.99999C6.55134 2.99999 6.99994 3.44858 6.99994 3.99999C6.99994 4.55139 6.55134 4.99999 5.99994 4.99999C5.44854 4.99999 4.99994 4.55139 4.99994 3.99999Z"/></svg>';
 const UPLIFT_SVG = '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1.5 9L4.5 5.5 6.5 7l4-5.5"/><path d="M7.6 1.5h2.9v2.9"/></svg>';
 const OPEN_SVG = '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9L9 3M4.4 3H9v4.6"/></svg>';
+const EYE_CLOSED_SVG = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M1.8 8S4.1 4.2 8 4.2s6.2 3.8 6.2 3.8-2.3 3.8-6.2 3.8S1.8 8 1.8 8Z"/><circle cx="8" cy="8" r="1.9"/><path d="M2.6 13.4 13.4 2.6"/></svg>';
 
 const fmt = {
   pct: v => v.toFixed(1) + '%',
@@ -807,28 +891,38 @@ const tick = (unit, v) => {
 /* ===========================================================
    Markup
    =========================================================== */
+const MASK_NOTE = 'Data only available with Managed Payments.';
+
+/* Masked, the card keeps its title and its chart and gives up everything else:
+   no figure, no way into a report that has nothing in it, and an eye in place of
+   the ⓘ carrying the reason. */
 function cardHtml(c) {
   return `
-    <section class="card${c.hero ? ' hero' : ''}" data-card="${c.id}">
+    <section class="card${c.hero ? ' hero' : ''}${c.masked ? ' masked' : ''}" data-card="${c.id}">
       <div class="card-head">
         <div class="card-titles">
           <div class="card-title">${c.title}</div>
-          <span class="info">${INFO_SVG}<span class="info-tip">${c.desc}</span></span>
+          ${c.masked ? `
+            <span class="masked-wrap">
+              <span class="masked-eye" tabindex="0" role="img" aria-label="${MASK_NOTE}">${EYE_CLOSED_SVG}</span>
+              <span class="masked-tip" role="tooltip">${MASK_NOTE}</span>
+            </span>` : `
+            <span class="info">${INFO_SVG}<span class="info-tip">${c.desc}</span></span>`}
         </div>
-        <button class="open-btn" aria-label="Open report">${OPEN_SVG}</button>
+        ${c.masked ? '' : `<button class="open-btn" aria-label="Open report">${OPEN_SVG}</button>`}
       </div>
 
+      ${c.masked ? '' : `
       <div class="card-valrow">
         <span class="card-val">${headline(c)}</span>
         <span class="card-subvals">
           ${subvalue(c) ? `<span class="card-count">${subvalue(c)}</span>` : ''}
           <span class="delta">${deltaOf(c)}</span>
         </span>
-      </div>
+      </div>`}
 
       <div class="chartwrap">
         <svg preserveAspectRatio="none" aria-label="${c.title}, with and without Managed Payments"></svg>
-        ${c.with.length ? '' : '<div class="chart-empty">No payments yet</div>'}
         <div class="chart-tip"></div>
       </div>
       <div class="xlabels">${xLabels(c)}</div>
@@ -896,6 +990,8 @@ function renderSwitch() {
 
 function renderCards() {
   VIEWS = stageViews();
+  /* the pitch stands in for the figures that aren't there yet */
+  document.getElementById('apIntro').hidden = stageId !== 'new';
   document.getElementById('cards').innerHTML =
     cardHtml(VIEWS[0]) +
     `<div class="row">${cardHtml(VIEWS[1])}${cardHtml(VIEWS[2])}</div>` +
@@ -1054,7 +1150,8 @@ function monthLabel(i) {
 }
 
 function bindHover(card, c) {
-  if (!c.with.length) return;   /* nothing plotted, nothing to inspect */
+  /* nothing plotted, or nothing we'd stand behind — either way, nothing to inspect */
+  if (!c.with.length || c.masked) return;
   const svg = card.querySelector('.chartwrap svg');
   const tip = card.querySelector('.chart-tip');
 
