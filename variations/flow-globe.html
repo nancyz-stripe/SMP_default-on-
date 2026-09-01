@@ -1494,8 +1494,8 @@ function briefBenefits(items) {
 
 // Radio cards: single choice, so `name` keys the selected index in `state`.
 // `badge`, `benefits`, `feeNote` and `fee` are optional — only the recommended
-// card carries them, and they only show while it's the selected option (Figma
-// 26655:59166), so declining leaves it as a title and one line of description.
+// card carries them, and they stay up whichever card is selected, so declining
+// doesn't hide what's being declined or what it would have cost.
 function choices(name, items) {
   return `<div class="choice-list">${items.map((it, i) => {
     const on = state[name] === i;
@@ -1508,9 +1508,9 @@ function choices(name, items) {
           ${it.badge ? badge(it.badge, it.tip) : ''}
         </span>
         <span class="choice-sub">${it.label}</span>
-        ${on && it.benefits ? `<span class="choice-benefits">${briefBenefits(it.benefits)}</span>` : ''}
-        ${on && it.fee ? `<span class="choice-fee">${it.fee}</span>` : ''}
-        ${on && it.feeNote ? feeLink(it.feeNote, it.feeTip) : ''}
+        ${it.benefits ? `<span class="choice-benefits">${briefBenefits(it.benefits)}</span>` : ''}
+        ${it.fee ? `<span class="choice-fee">${it.fee}</span>` : ''}
+        ${it.feeNote ? feeLink(it.feeNote, it.feeTip) : ''}
       </span>
     </div>`;
   }).join('')}</div>`;
@@ -1663,8 +1663,8 @@ const STEPS = [
   {
     // Figma 26655:63516, checked state 26669:84902 — the domestic upsell, so it
     // only follows a Managed payments choice. The price is the same footnote the
-    // international fee uses, and like the benefits on that card it only appears
-    // once the option is selected.
+    // international fee uses, and it's up whether or not the box is ticked: it's
+    // the cost of ticking it.
     id: 'domestic-coverage',
     actions: ['skip', 'continue'],
     when: () => state.managed === 0,
@@ -1678,7 +1678,7 @@ const STEPS = [
               <span class="choice-title">Cover domestic sales too</span>
             </span>
             <span class="choice-sub">We’re liable for sales tax in your home market, and we handle fraud, disputes, and customer support on every domestic sale.</span>
-            ${state.domestic ? feeLink('+2% per domestic transaction', 'This fee is in addition to the standard domestic processing fee of 2%.') : ''}
+            ${feeLink('+2% per domestic transaction', 'This fee is in addition to the standard domestic processing fee of 2%.')}
           </span>
         </div>
       </div>`,
