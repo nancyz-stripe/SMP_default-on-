@@ -38,18 +38,26 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        /* The page is the gray field the dashboard container sits in, so nothing
+           here scrolls — the container scrolls its own content (Figma
+           26704:81359). */
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
-            background: var(--bg-surface);
+            background: var(--bg-offset);
             color: var(--text-default);
             font-size: 14px;
             line-height: 20px;
             letter-spacing: -0.15px;
+            height: 100vh;
+            overflow: hidden;
         }
 
+        /* Both controls float on the gray, clear of the container: the way back
+           on the left, as the onboarding flow has it, and the stage switch on
+           the right. */
         .back-button {
             position: fixed;
-            bottom: 16px;
+            top: 16px;
             left: 16px;
             z-index: 400;
             padding: 8px 14px;
@@ -63,6 +71,40 @@
         }
         .back-button:hover { background: var(--bg-offset); }
 
+        /* Stage switch: the same account at four points in its life. A prototype
+           control rather than product UI, so it sits outside the container. */
+        .stage-switch {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 400;
+            display: flex;
+            gap: 4px;
+            padding: 5px;
+            background: var(--bg-surface);
+            border: 1px solid var(--neutral-50);
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .stage-btn {
+            padding: 7px 14px;
+            border: 0;
+            border-radius: 6px;
+            background: transparent;
+            font-family: inherit;
+            font-size: 13px;
+            letter-spacing: -0.15px;
+            color: var(--text-subdued);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .stage-btn:hover { background: var(--bg-offset); }
+        .stage-btn.active {
+            background: #ece9ff;
+            color: var(--text-action-primary);
+            font-weight: 600;
+        }
+
         /* ---------------- Dashboard shell ----------------
            Sidebar built to Figma 26655:71425: a 228px column, the account row
            60px tall so it lines up with the top bar, then a 188px nav column
@@ -74,7 +116,19 @@
            asset URLs expire. They carry alpha only, so each is applied as a
            mask over currentColor, which is how the design composes them and
            what lets one shape serve both the default and active colours. */
-        .shell { display: flex; min-height: 100vh; }
+        /* The container: inset from the gray on all sides, clipped to its own
+           radius, and the only thing on the page with a scrollbar — which it
+           gives to the main column, so the nav stays put. */
+        .shell {
+            display: flex;
+            height: calc(100vh - 88px);
+            margin: 64px 24px 24px;
+            background: var(--bg-surface);
+            border: 1px solid var(--neutral-50);
+            border-radius: 12px;
+            box-shadow: 0 1px 2px rgba(48, 49, 61, 0.04), 0 12px 32px -8px rgba(48, 49, 61, 0.10);
+            overflow: hidden;
+        }
 
         .side {
             flex: 0 0 228px;
@@ -83,13 +137,7 @@
             border-right: 1px solid var(--neutral-50);
             display: flex;
             flex-direction: column;
-            /* Held in place while the main column scrolls, the way the real
-               Dashboard nav behaves. align-self keeps it from stretching to the
-               document height, so the 100vh box is what sticks. */
-            position: sticky;
-            top: 0;
-            align-self: flex-start;
-            height: 100vh;
+            height: 100%;
             overflow-y: auto;
         }
 
@@ -158,7 +206,7 @@
 
         .side-foot { margin-top: auto; padding: 16px 20px; }
 
-        .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+        .main { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow-y: auto; }
 
         .topbar { height: 60px; flex-shrink: 0; display: flex; align-items: center; gap: 16px; padding: 0 24px; }
         .search {
@@ -269,6 +317,14 @@
         .chartwrap { position: relative; height: 148px; margin-top: 4px; }
         .card.hero .chartwrap { height: 176px; }
         .chartwrap svg { display: block; width: 100%; height: 100%; overflow: visible; }
+        /* Before the first sale there's no series to draw and no counterfactual
+           to compare it with, so the card says so rather than drawing a flat
+           line at zero. */
+        .chart-empty {
+            position: absolute; inset: 0;
+            display: grid; place-items: center;
+            font-size: 12px; color: var(--text-secondary);
+        }
         .xlabels { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); padding-right: 42px; }
 
         .grid-line { stroke: var(--neutral-50); stroke-width: 1; }
@@ -322,6 +378,7 @@
 <body>
 
 <a href="index.html" class="back-button">&larr; Home</a>
+<div class="stage-switch" id="stageSwitch"></div>
 
 <div class="shell">
     <div class="side">
@@ -564,6 +621,40 @@ const CARDS = [
             fraud IS the metric the card is named for
    `last` — where a rate stands now
    =========================================================== */
+/* ===========================================================
+   Stages
+   -----------------------------------------------------------
+   The same account at four points in its life. Rather than author four sets of
+   figures, each stage truncates the one series: no months, one month, half the
+   window, all of it. The chart geometry always spans the full window, so early
+   stages read as a window filling up rather than as a shorter chart.
+   =========================================================== */
+const STAGES = [
+  { id: 'new',     label: 'New users' },
+  { id: 'first',   label: 'First sale' },
+  { id: 'growing', label: 'Growing' },
+  { id: 'volume',  label: 'With volume' },
+];
+
+let stageId = 'volume';
+
+function pointsFor(len) {
+  if (stageId === 'new') return 0;
+  if (stageId === 'first') return 1;
+  if (stageId === 'growing') return Math.ceil(len / 2);
+  return len;
+}
+
+/* `full` keeps the window's length so the axes don't shrink with the data. */
+function stageViews() {
+  return CARDS.map(c => {
+    const n = pointsFor(c.with.length);
+    return { ...c, full: c.with.length, with: c.with.slice(0, n), without: c.without.slice(0, n) };
+  });
+}
+
+let VIEWS = stageViews();
+
 const gapAt = (c, i) => c.inverted ? c.without[i] - c.with[i] : c.with[i] - c.without[i];
 const sum = a => a.reduce((x, y) => x + y, 0);
 
@@ -574,31 +665,31 @@ function headlineValue(c) {
 }
 
 function headline(c) {
+  /* nothing has happened yet, so there's no figure to quote */
+  if (!c.with.length) return '—';
   /* volume is the one figure quoted to the cent, as the reference has it */
   if (c.id === 'volume') return '$' + headlineValue(c).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   return fmt[c.unit](headlineValue(c));
 }
 
 /* A rate is compared with the period before it; a total or a gap is compared
-   with the first half of its own window, since there's no prior window here. */
+   with the first half of its own window, since there's no prior window here.
+   One period in, there's nothing to compare with either way. */
 function deltaOf(c) {
+  if (c.with.length < 2) return '';
   let now, then;
   if (c.headline === 'last') {
     now = c.with[c.with.length - 1];
     then = c.with[c.with.length - 2];
   } else {
     const vals = c.headline === 'sum' ? c.with : c.with.map((_, i) => gapAt(c, i));
-    const half = vals.length / 2;
+    const half = Math.floor(vals.length / 2);
     then = sum(vals.slice(0, half));
     now = sum(vals.slice(half));
   }
   const pc = ((now - then) / then) * 100;
   return (pc >= 0 ? '+' : '') + pc.toFixed(1) + '%';
 }
-
-/* Twelve points on the line cards, six bars on the hero — the x labels are the
-   ends only, as the reference has them. */
-const POINTS = 12;
 
 const INFO_SVG = '<svg viewBox="0 0 12 12" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.75 1.75H3.25C2.42157 1.75 1.75 2.42157 1.75 3.25V8.75C1.75 9.57843 2.42157 10.25 3.25 10.25H8.75C9.57843 10.25 10.25 9.57843 10.25 8.75V3.25C10.25 2.42157 9.57843 1.75 8.75 1.75ZM3.25 0.25C1.59315 0.25 0.25 1.59315 0.25 3.25V8.75C0.25 10.4069 1.59315 11.75 3.25 11.75H8.75C10.4069 11.75 11.75 10.4069 11.75 8.75V3.25C11.75 1.59315 10.4069 0.25 8.75 0.25H3.25Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M4.48182 6.49998C4.48182 6.11338 4.79522 5.79998 5.18182 5.79998H6.27273C6.65933 5.79998 6.97273 6.11338 6.97273 6.49998V8.49998C6.97273 8.88658 6.65933 9.19998 6.27273 9.19998C5.88613 9.19998 5.57273 8.88658 5.57273 8.49998V7.19998H5.18182C4.79522 7.19998 4.48182 6.88658 4.48182 6.49998Z"/><path d="M4.99994 3.99999C4.99994 3.44858 5.44854 2.99999 5.99994 2.99999C6.55134 2.99999 6.99994 3.44858 6.99994 3.99999C6.99994 4.55139 6.55134 4.99999 5.99994 4.99999C5.44854 4.99999 4.99994 4.55139 4.99994 3.99999Z"/></svg>';
 const UPLIFT_SVG = '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1.5 9L4.5 5.5 6.5 7l4-5.5"/><path d="M7.6 1.5h2.9v2.9"/></svg>';
@@ -638,16 +729,48 @@ function cardHtml(c) {
 
       <div class="chartwrap">
         <svg preserveAspectRatio="none" aria-label="${c.title}, with and without Managed Payments"></svg>
+        ${c.with.length ? '' : '<div class="chart-empty">No payments yet</div>'}
         <div class="chart-tip"></div>
       </div>
-      <div class="xlabels"><span>Jan</span><span>Today</span></div>
+      <div class="xlabels">${xLabels(c)}</div>
     </section>`;
 }
 
-document.getElementById('cards').innerHTML =
-  cardHtml(CARDS[0]) +
-  `<div class="row">${cardHtml(CARDS[1])}${cardHtml(CARDS[2])}</div>` +
-  `<div class="row">${cardHtml(CARDS[3])}${cardHtml(CARDS[4])}</div>`;
+/* The right label is "Today" only when the window is complete; mid-window it
+   names the last period with data, so the axis can't claim more than it shows. */
+function xLabels(c) {
+  const m = c.with.length;
+  if (!m) return '';
+  const last = m === c.full ? 'Today' : (c.kind === 'bars' ? MONTHS[m - 1] : monthLabel(m - 1));
+  return m === 1 ? `<span>${last}</span>` : `<span>Jan</span><span>${last}</span>`;
+}
+
+const STAGE_EL = document.getElementById('stageSwitch');
+
+function renderSwitch() {
+  STAGE_EL.innerHTML = STAGES.map(s =>
+    `<button class="stage-btn${s.id === stageId ? ' active' : ''}" data-stage="${s.id}">${s.label}</button>`
+  ).join('');
+}
+
+function renderCards() {
+  VIEWS = stageViews();
+  document.getElementById('cards').innerHTML =
+    cardHtml(VIEWS[0]) +
+    `<div class="row">${cardHtml(VIEWS[1])}${cardHtml(VIEWS[2])}</div>` +
+    `<div class="row">${cardHtml(VIEWS[3])}${cardHtml(VIEWS[4])}</div>`;
+  VIEWS.forEach(c => bindHover(document.querySelector(`[data-card="${c.id}"]`), c));
+  drawAll();
+}
+
+/* Delegated, so re-rendering the buttons doesn't drop the handler. */
+STAGE_EL.addEventListener('click', e => {
+  const btn = e.target.closest('.stage-btn');
+  if (!btn || btn.dataset.stage === stageId) return;
+  stageId = btn.dataset.stage;
+  renderSwitch();
+  renderCards();
+});
 
 /* ===========================================================
    Charts
@@ -670,8 +793,8 @@ function el(n, attrs) {
    so nothing touches the frame. Zero-based is required for the bars and honest
    for the rest — none of these metrics is a narrow band worth truncating. */
 function scaleFor(c, ph) {
-  const hi = Math.max(...c.with, ...c.without);
-  const top = hi * 1.18, bottom = 0;
+  const hi = Math.max(0, ...c.with, ...c.without);
+  const top = (hi || 1) * 1.18, bottom = 0;
   return { Y: v => PAD.t + ph - ((v - bottom) / (top - bottom)) * ph, top, bottom };
 }
 
@@ -696,15 +819,23 @@ function drawLines(card, c) {
   svg.innerHTML = '';
 
   const { pw, ph, Y } = drawFrame(svg, c, W, H);
-  const X = i => i * pw / (POINTS - 1);
+  /* spaced across the full window, not across the points in hand */
+  const X = i => i * pw / (c.full - 1);
+  const m = c.with.length;
   const path = a => a.map((v, i) => `${i ? 'L' : 'M'}${X(i)},${Y(v)}`).join('');
 
   /* the shaded gap: down the measured series, back along the modelled one */
   const areaD = path(c.with) +
-    c.without.map((_, i) => `L${X(POINTS - 1 - i)},${Y(c.without[POINTS - 1 - i])}`).join('') + 'Z';
+    c.without.map((_, i) => `L${X(m - 1 - i)},${Y(c.without[m - 1 - i])}`).join('') + 'Z';
   svg.appendChild(el('path', { class: 'series-area', d: areaD }));
   svg.appendChild(el('path', { class: 'series-without', d: path(c.without) }));
   svg.appendChild(el('path', { class: 'series-with', d: path(c.with) }));
+
+  /* A single period has no line to draw, so mark the two values instead. */
+  if (m === 1) {
+    svg.appendChild(el('circle', { class: 'hover-dot', r: 4, cx: X(0), cy: Y(c.without[0]), stroke: 'var(--chart-without)', opacity: 1 }));
+    svg.appendChild(el('circle', { class: 'hover-dot', r: 4, cx: X(0), cy: Y(c.with[0]), stroke: 'var(--chart-with)', opacity: 1 }));
+  }
 
   const hl = el('line', { class: 'hover-line', y1: PAD.t, y2: PAD.t + ph, x1: 0, x2: 0, opacity: 0 });
   const d1 = el('circle', { class: 'hover-dot', r: 4, stroke: 'var(--chart-with)', opacity: 0 });
@@ -723,8 +854,8 @@ function drawBars(card, c) {
   svg.innerHTML = '';
 
   const { pw, ph, Y } = drawFrame(svg, c, W, H);
-  const n = c.with.length;
-  const slot = pw / n, gap = 6, bw = slot - gap;
+  /* slots for the whole window, so a part-filled window keeps the bar width */
+  const slot = pw / c.full, gap = 6, bw = slot - gap;
   const base = PAD.t + ph;
 
   c.with.forEach((v, i) => {
@@ -776,6 +907,7 @@ function monthLabel(i) {
 }
 
 function bindHover(card, c) {
+  if (!c.with.length) return;   /* nothing plotted, nothing to inspect */
   const svg = card.querySelector('svg');
   const tip = card.querySelector('.chart-tip');
 
@@ -787,7 +919,13 @@ function bindHover(card, c) {
     const px = (e.clientX - r.left) / r.width * vw;
 
     if (g.bars) {
-      const i = Math.max(0, Math.min(c.with.length - 1, Math.floor(px / g.slot)));
+      const i = Math.floor(px / g.slot);
+      /* past the last month with data there's no bar to describe */
+      if (i < 0 || i >= c.with.length) {
+        tip.style.opacity = 0;
+        svg.querySelectorAll('.bar-group').forEach(el2 => el2.classList.remove('dim'));
+        return;
+      }
       svg.querySelectorAll('.bar-group').forEach((el2, k) => el2.classList.toggle('dim', k !== i));
       showTip(card, c, i, (i + 0.5) * g.slot);
       return;
@@ -812,15 +950,16 @@ function bindHover(card, c) {
 }
 
 function drawAll() {
-  CARDS.forEach(c => {
+  VIEWS.forEach(c => {
     const card = document.querySelector(`[data-card="${c.id}"]`);
+    if (!card || !c.with.length) return;
     if (c.kind === 'bars') drawBars(card, c);
     else drawLines(card, c);
   });
 }
 
-CARDS.forEach(c => bindHover(document.querySelector(`[data-card="${c.id}"]`), c));
-drawAll();
+renderSwitch();
+renderCards();
 window.addEventListener('resize', drawAll);
 </script>
 </body>
