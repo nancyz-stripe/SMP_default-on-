@@ -218,9 +218,13 @@
 
         .side-foot { margin-top: auto; padding: 16px 20px; }
 
-        .main { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow-y: auto; }
+        /* The Figma's Main: 40px spacers either side of a 972px Center column, so
+           the toolbar and the page share one centred measure however wide the
+           window gets. The nav keeps its own 228px and is untouched by this. */
+        .main { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow-y: auto; padding: 0 40px; }
+        .main > * { width: 100%; max-width: 972px; margin-left: auto; margin-right: auto; }
 
-        .topbar { height: 60px; flex-shrink: 0; display: flex; align-items: center; gap: 16px; padding: 0 24px; }
+        .topbar { height: 60px; flex-shrink: 0; display: flex; align-items: center; gap: 16px; }
         .search {
             flex: 1; max-width: 512px; height: 32px; border-radius: 8px;
             background: rgba(0, 39, 77, 0.04); display: flex; align-items: center;
@@ -236,7 +240,7 @@
         .topbar-icons .plus svg { width: 11px; height: 11px; }
 
         /* ---------------- Page ---------------- */
-        .page { padding: 12px 32px 64px; max-width: 1024px; }
+        .page { padding: 12px 0 64px; }
 
         .page-head { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
         .page-title { font-size: 28px; line-height: 36px; font-weight: 700; letter-spacing: -0.5px; color: var(--text-heading); }
