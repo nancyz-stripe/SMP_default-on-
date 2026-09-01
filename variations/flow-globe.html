@@ -484,24 +484,6 @@
         .globe-card.fraud { top: 64%; left: 56%; }
 
 
-        /* Opting out is a link under the offer, not a card beside it. */
-        .opt-out {
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 16px;
-            font-size: 14px;
-            font-weight: 500;
-            letter-spacing: -0.15px;
-            color: var(--text-action-primary);
-            cursor: pointer;
-        }
-        .opt-out:hover { text-decoration: underline; }
-        .opt-out svg { width: 12px; height: 12px; fill: currentColor; }
-        .opt-out .fee-tooltip { text-decoration: none; font-weight: 400; }
-        .opt-out:hover .fee-tooltip { opacity: 1; visibility: visible; }
-
         /* Step content is centred in the modal; each step sets its own width. */
         .modal-body {
             flex: 1;
@@ -637,6 +619,22 @@
         }
 
         .choice-fee { margin-top: 8px; font-size: 12px; line-height: 16px; color: var(--text-subdued); }
+
+        /* The price as an underlined line under the benefits. Left-aligned, so
+           the tooltip anchors to its left edge rather than its centre — centred
+           on a line this long would hang off the copy column. */
+        .choice-fee-link {
+            position: relative;
+            align-self: flex-start;
+            margin-top: 8px;
+            font-size: 12px;
+            line-height: 16px;
+            color: #3c4f69;
+            text-decoration: underline;
+            cursor: default;
+        }
+        .choice-fee-link .fee-tooltip { left: 0; transform: none; }
+        .choice-fee-link:hover .fee-tooltip { opacity: 1; visibility: visible; }
 
         /* The price, as a badge beside the title rather than a line of copy. */
         .choice-badge {
@@ -1409,9 +1407,13 @@ function badge(text, tip) {
   return `<span class="choice-badge" onclick="event.stopPropagation()">${text}${INFO}<span class="fee-tooltip">${tip}</span></span>`;
 }
 
-// Radio cards: single choice, so `name` keys the selected index in `state`.
-// `badge`, `benefits` and `fee` are optional — only the recommended card
-// carries them.
+// The price as a line under the card's benefits rather than a badge beside the
+// title (Figma 26702:75102). It carries the same tooltip the badge does, since
+// the number means nothing without what it sits on top of.
+function feeLink(text, tip) {
+  return `<span class="choice-fee-link" onclick="event.stopPropagation()">${text}<span class="fee-tooltip">${tip}</span></span>`;
+}
+
 // The checked benefit rows, shared by the offer card and any radio card that
 // carries them.
 function briefBenefits(items) {
@@ -1425,9 +1427,15 @@ function briefBenefits(items) {
     </span>`).join('');
 }
 
+// Radio cards: single choice, so `name` keys the selected index in `state`.
+// `badge`, `benefits`, `feeNote` and `fee` are optional — only the recommended
+// card carries them, and they only show while it's the selected option (Figma
+// 26655:59166), so declining leaves it as a title and one line of description.
 function choices(name, items) {
-  return `<div class="choice-list">${items.map((it, i) => `
-    <div class="choice-card${state[name] === i ? ' selected' : ''}" role="radio" aria-checked="${state[name] === i}" onclick="select('${name}', ${i})">
+  return `<div class="choice-list">${items.map((it, i) => {
+    const on = state[name] === i;
+    return `
+    <div class="choice-card${on ? ' selected' : ''}" role="radio" aria-checked="${on}" onclick="select('${name}', ${i})">
       <span class="radio"><i></i></span>
       <span class="choice-body">
         <span class="choice-title-row">
@@ -1435,10 +1443,12 @@ function choices(name, items) {
           ${it.badge ? badge(it.badge, it.tip) : ''}
         </span>
         <span class="choice-sub">${it.label}</span>
-        ${it.benefits ? `<span class="choice-benefits">${briefBenefits(it.benefits)}</span>` : ''}
-        ${it.fee ? `<span class="choice-fee">${it.fee}</span>` : ''}
+        ${on && it.benefits ? `<span class="choice-benefits">${briefBenefits(it.benefits)}</span>` : ''}
+        ${on && it.feeNote ? feeLink(it.feeNote, it.feeTip) : ''}
+        ${on && it.fee ? `<span class="choice-fee">${it.fee}</span>` : ''}
       </span>
-    </div>`).join('')}</div>`;
+    </div>`;
+  }).join('')}</div>`;
 }
 
 // ---------------------------------------------------------------------------
@@ -1542,9 +1552,9 @@ const STEPS = [
       </div>`,
   },
   {
-    // Figma 26654:57908 — the opt-in. One offer, stated beside the globe;
-    // declining is a link under it rather than a second card, so the screen
-    // reads as an offer with a way out instead of a two-way choice.
+    // Figma 26702:75040 — the choice, stated beside the globe. Declining is now
+    // a second card rather than a link under the offer, so both options carry
+    // the same weight and the merchant-of-record trade is stated on each side.
     id: 'managed-payments',
     width: 'full',
     globe: true,
@@ -1552,34 +1562,33 @@ const STEPS = [
     render: () => `
       <div class="split">
         <div class="split-copy">
-          <div class="headline">With Stripe Managed Payments, we take on the work of selling internationally. <span class="muted">You’re covered from your first sale abroad.</span></div>
-          <div class="choice-card">
-            <span class="choice-body">
-              <span class="choice-title-row">
-                <span class="choice-title">Managed payments</span>
-                ${badge('+3.5% per transaction', '3.5% for each international transaction in addition to the standard processing fees.')}
-              </span>
-              <span class="choice-sub">You ship your product. Stripe handles the rest.</span>
-              <span class="choice-benefits">
-                ${briefBenefits([
-                  {
-                    title: 'Takes on tax liability',
-                    label: 'Calculates, collects, files, and remits. Enter a new country and coverage is already there.',
-                  },
-                  {
-                    title: 'Reduces declined payments',
-                    label: 'Stripe collects the payment as a local business, so more of your sales go through.',
-                  },
-                  {
-                    title: 'Manages disputes and fraud',
-                    label: 'Screens every payment, handles disputes for you, and answers customer billing questions.',
-                  },
-                ])}
-              </span>
-              <span class="choice-fee">No monthly fee, and nothing to pay until your first international sale.</span>
-            </span>
-          </div>
-          <span class="opt-out" onclick="optOut()">I’ll handle this myself${INFO}<span class="fee-tooltip">You keep control, with support where you want it — you manage tax, fraud, disputes, and registration in each market. Stripe Tax and Radar can help.</span></span>
+          <div class="headline">With Managed Payments, we handle the work of selling globally. <span class="muted">You’re covered from your first sale abroad.</span></div>
+          ${choices('managed', [
+            {
+              title: 'Managed payments',
+              label: 'Stripe becomes the merchant of record—the business legally responsible for these sales.',
+              benefits: [
+                {
+                  title: 'Reduces declined payments',
+                  label: 'Stripe collects the payment as a local business, so more of your sales go through.',
+                },
+                {
+                  title: 'Takes on tax responsibility',
+                  label: 'Stripe registers where needed, charges the right amount, and sends it on—in 80+ countries. Enter a new one and coverage is already there.',
+                },
+                {
+                  title: 'Manages disputes and fraud',
+                  label: 'If a customer disputes a charge, Stripe responds to their bank for you. It also screens every payment for fraud.',
+                },
+              ],
+              feeNote: '+3.2% per international transaction',
+              feeTip: 'This fee is in addition to the standard international processing fee of 3.2%.',
+            },
+            {
+              title: 'I’ll handle this myself',
+              label: 'You stay the merchant of record. You handle registration, filing, disputes, and fraud in each country—Stripe Tax and Radar can help.',
+            },
+          ])}
         </div>
         <div class="split-globe-wrap">
           <div class="split-globe" id="globe-host"></div>
@@ -1785,13 +1794,6 @@ function render() {
 function select(name, index) {
   state[name] = index;
   render();
-}
-
-// Declining the offer. `managed` drives whether the domestic step applies, so
-// setting it here is what makes the next step the end of the flow.
-function optOut() {
-  state.managed = 1;
-  goNext();
 }
 
 // The one standalone checkbox.
