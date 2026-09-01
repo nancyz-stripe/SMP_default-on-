@@ -50,7 +50,7 @@
         .back-button {
             position: fixed;
             bottom: 16px;
-            right: 16px;
+            left: 16px;
             z-index: 400;
             padding: 8px 14px;
             background: var(--bg-surface);
@@ -83,6 +83,14 @@
             border-right: 1px solid var(--neutral-50);
             display: flex;
             flex-direction: column;
+            /* Held in place while the main column scrolls, the way the real
+               Dashboard nav behaves. align-self keeps it from stretching to the
+               document height, so the 100vh box is what sticks. */
+            position: sticky;
+            top: 0;
+            align-self: flex-start;
+            height: 100vh;
+            overflow-y: auto;
         }
 
         .side-account {
