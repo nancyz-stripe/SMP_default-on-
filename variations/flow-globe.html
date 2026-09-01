@@ -536,13 +536,14 @@
         }
 
         /* Radio cards: the recommended option carries its benefits inline, the
-           alternative is a single line. Both keep a 2px border so selecting one
-           doesn't shift the layout. */
+           alternative is a single line. Unselected takes a 1px keyline (Figma
+           26702:75400); selected thickens to 2px in the accent colour, and gives
+           back the extra pixel in padding so nothing shifts. */
         .choice-list { display: flex; flex-direction: column; gap: 16px; }
         .choice-card {
-            border: 2px solid var(--neutral-50);
+            border: 1px solid var(--neutral-50);
             border-radius: 8px;
-            padding: 16px;
+            padding: 17px;
             background: var(--bg-surface);
             display: flex;
             gap: 12px;
@@ -554,7 +555,8 @@
         }
         .choice-card.selected {
             background: var(--bg-surface);
-            border-color: var(--border-action-primary);
+            border: 2px solid var(--border-action-primary);
+            padding: 16px;
         }
 
         .radio {
