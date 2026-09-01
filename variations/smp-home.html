@@ -400,6 +400,13 @@
         .card:hover .open-btn { background: var(--bg-offset); }
         .open-btn svg { width: 12px; height: 12px; }
 
+        /* One line under the title, ellipsised as the design has it — the ⓘ beside
+           the title carries the sentence in full. */
+        .card-desc {
+            font-size: 12px; line-height: 16px; letter-spacing: 0; color: var(--text-value);
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+
         .card-valrow { display: flex; align-items: baseline; gap: 4px; }
         .card-val {
             font-size: 18px; line-height: 28px; font-weight: 600;
@@ -430,12 +437,15 @@
         .masked-eye { width: 16px; height: 16px; display: grid; place-items: center; color: var(--icon-subdued); cursor: help; }
         .masked-eye:hover { color: var(--icon-default); }
         .masked-eye svg { width: 15px; height: 15px; }
-        /* wraps to two lines — the message is a sentence, not a label */
+        /* Figma 26655:65826 — the light Sail tooltip, not the dark one DPM uses.
+           Wraps to two lines: the message is a sentence, not a label. */
         .masked-tip {
             position: absolute; top: calc(100% + 6px); left: -4px;
-            width: 236px; padding: 8px 10px; border-radius: 6px;
-            background: var(--text-subdued); color: #fff;
-            font-size: 12px; line-height: 16px; letter-spacing: 0;
+            width: 270px; padding: 16px; border-radius: 8px;
+            background: var(--bg-surface); border: 1px solid var(--neutral-100);
+            box-shadow: 0 2px 2.5px rgba(64, 68, 82, 0.08), 0 3px 4.5px rgba(64, 68, 82, 0.08);
+            font-size: 14px; line-height: 20px; letter-spacing: -0.15px; color: var(--text-value);
+            text-align: left;
             opacity: 0; pointer-events: none; transition: opacity .1s; z-index: 8;
         }
         .masked-eye:hover + .masked-tip,
@@ -911,6 +921,8 @@ function cardHtml(c) {
         </div>
         ${c.masked ? '' : `<button class="open-btn" aria-label="Open report">${OPEN_SVG}</button>`}
       </div>
+
+      <div class="card-desc">${c.desc}</div>
 
       ${c.masked ? '' : `
       <div class="card-valrow">
