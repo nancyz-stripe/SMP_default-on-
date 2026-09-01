@@ -555,6 +555,9 @@
             text-align: left;
             font-family: inherit;
             width: 100%;
+            /* So the fee footnote can wrap onto its own line below the row,
+               flush with the radio rather than indented under the copy. */
+            flex-wrap: wrap;
         }
         .choice-card.selected {
             background: var(--bg-surface);
@@ -620,13 +623,13 @@
 
         .choice-fee { margin-top: 8px; font-size: 12px; line-height: 16px; color: var(--text-subdued); }
 
-        /* The price as an underlined line under the benefits. Left-aligned, so
-           the tooltip anchors to its left edge rather than its centre — centred
-           on a line this long would hang off the copy column. */
+        /* The price as an underlined footnote below the card's row, flush with
+           the radio. The tooltip anchors to its left edge rather than its
+           centre — centred on a line this long would hang off the column. */
         .choice-fee-link {
             position: relative;
-            align-self: flex-start;
-            margin-top: 8px;
+            flex-basis: 100%;
+            margin-top: 16px;
             font-size: 12px;
             line-height: 16px;
             color: #667691;
@@ -1444,9 +1447,9 @@ function choices(name, items) {
         </span>
         <span class="choice-sub">${it.label}</span>
         ${on && it.benefits ? `<span class="choice-benefits">${briefBenefits(it.benefits)}</span>` : ''}
-        ${on && it.feeNote ? feeLink(it.feeNote, it.feeTip) : ''}
         ${on && it.fee ? `<span class="choice-fee">${it.fee}</span>` : ''}
       </span>
+      ${on && it.feeNote ? feeLink(it.feeNote, it.feeTip) : ''}
     </div>`;
   }).join('')}</div>`;
 }
@@ -1596,9 +1599,10 @@ const STEPS = [
       </div>`,
   },
   {
-    // Figma 26655:59545, checked state 26655:60228 — the domestic upsell, so
-    // it only follows a Managed payments choice. Ticking it reveals the
-    // billing line, the way the card's own copy does once it applies.
+    // Figma 26669:84902 — the domestic upsell, so it only follows a Managed
+    // payments choice. The price is a footnote under the card, the same line the
+    // international fee uses, rather than a badge beside the title. It shows
+    // whether or not the box is ticked: it's the cost of ticking it.
     id: 'domestic-coverage',
     actions: ['skip', 'continue'],
     when: () => state.managed === 0,
@@ -1610,11 +1614,10 @@ const STEPS = [
           <span class="choice-body">
             <span class="choice-title-row">
               <span class="choice-title">Cover domestic sales too</span>
-              ${badge('+2% per transaction', '2% for each domestic transaction in addition to the standard processing fees.')}
             </span>
             <span class="choice-sub">We’re liable for sales tax in your home market, and we handle fraud, disputes, and customer support on every domestic sale.</span>
-            ${state.domestic ? '<span class="choice-fee">No monthly fee, and nothing to pay until your first domestic sale.</span>' : ''}
           </span>
+          ${feeLink('+2% per domestic transaction', '2% for each domestic transaction in addition to the standard processing fees.')}
         </div>
       </div>`,
   },
