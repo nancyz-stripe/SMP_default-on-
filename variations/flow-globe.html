@@ -3238,14 +3238,16 @@ const STEPS = [
       ])}`,
   },
   {
-    // Figma 26702:75374 — the simplified screen: no gradient, no globe, no
-    // choice to make. The peer group is now digital goods sellers rather than
-    // "businesses like yours", and the home market is named, so the list below
-    // reads as what leaving Canada brings with it.
+    // Figma 26702:75374, headline 26776:53120 — the simplified screen: no
+    // gradient, no globe, no choice to make. The peer group is digital goods
+    // sellers rather than "businesses like yours", and the home market is named,
+    // so the list below reads as what leaving Canada brings with it. The share is
+    // stated as Stripe's own (87% on Stripe) rather than an unsourced X%, which
+    // is a claim the page can actually stand behind.
     id: 'cross-border-brief',
     actions: ['skip', 'continue'],
     render: () => `
-      <div class="headline">X% of digital goods businesses sell globally. <span class="muted">Here’s what comes with selling outside of Canada.</span></div>
+      <div class="headline">For digital goods businesses, selling globally is common—87% on Stripe do. <span class="muted">Here’s what selling outside Canada involves.</span></div>
       <div class="brief-card">
         ${brief([
           {
