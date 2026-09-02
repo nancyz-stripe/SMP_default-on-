@@ -3457,9 +3457,15 @@ const el = {
 // up while the step it belongs to is off screen. Afterwards the element is
 // just moved, and a resize re-measures it.
 let globeBuilt = false;
+// Set by buildGlobe: re-fits the globe to whatever host it's currently in.
+let fitGlobe = null;
 function mountGlobe(host) {
   host.appendChild(el.globe);
-  if (globeBuilt) window.dispatchEvent(new Event('resize'));
+  // The canvas is built once and then moved between hosts, which are different
+  // sizes — the landing page's is more than twice the opt-in step's. Its
+  // geometry is fixed at whatever the first host wanted, so every move has to
+  // re-fit it, or a later host shows the first host's globe.
+  if (globeBuilt) fitGlobe();
   else { globeBuilt = true; buildGlobe(); runValueCards(); }
 }
 
@@ -3960,12 +3966,26 @@ function buildGlobe() {
             }
             animate();
 
-            window.addEventListener('resize', () => {
+            // The sphere, arcs and points are built once at builtRadius, so a
+            // host that wants a different diameter is served by the camera's
+            // zoom rather than a rebuild. The glow circle and --globe-d are CSS,
+            // so they're re-published: the value cards take their width, type
+            // sizes and positions off that diameter.
+            const builtRadius = globeRadius;
+            fitGlobe = () => {
               const nw = container.clientWidth, nh = container.clientHeight;
+              if (!nw || !nh) return;
+              const want = (100 + Math.min(nw, nh) * 0.25) * GLOBE_SCALE;
               camera.left = -nw/2; camera.right = nw/2; camera.top = nh/2; camera.bottom = -nh/2;
+              camera.zoom = want / builtRadius;
               camera.updateProjectionMatrix();
               renderer.setSize(nw, nh);
-            });
+              const d = want * 2;
+              glowCircle.style.width = d + 'px';
+              glowCircle.style.height = d + 'px';
+              container.style.setProperty('--globe-d', d + 'px');
+            };
+            window.addEventListener('resize', () => fitGlobe());
 }
 
 
