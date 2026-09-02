@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email — First payment</title>
+    <style>
+        /* ===========================================================
+           First-payment email (Figma 26799:123149)
+           -----------------------------------------------------------
+           A single screen: the mail client's own chrome across the top, and the
+           600px email below it. The email's palette is its own — #1a2c44 text
+           rather than the dashboard's #353a44 — so the tokens below are scoped
+           to this page rather than borrowed from the product surfaces.
+           =========================================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+            --font-display: 'SF Pro Display', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            --text-default: #1a2c44;
+            --text-subdued: #596171;
+            --action-primary: #533afd;
+            --bg-surface: #ffffff;
+            --bg-offset: #f5f6f8;
+            --bg-details: #f7f9fc;
+            --rule: #e3e8ee;
+        }
+
+        body {
+            font-family: var(--font);
+            /* Body/Medium is the email's base, so the parts that use it don't
+               each have to restate it. */
+            font-size: 16px;
+            line-height: 24px;
+            letter-spacing: -0.31px;
+            color: var(--text-default);
+            background: var(--bg-offset);
+        }
+
+        /* Same floating control the other screens carry, bottom left */
+        .back-button {
+            position: fixed;
+            left: 20px;
+            bottom: 20px;
+            z-index: 400;
+            display: block;
+            width: fit-content;
+            padding: 8px 16px;
+            background: var(--bg-surface);
+            border: 1px solid #ebeef1;
+            border-radius: 8px;
+            color: var(--text-subdued);
+            font-size: 13px;
+            text-decoration: none;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .back-button:hover { background: var(--bg-offset); }
+
+        /* ---- Mail client chrome: a 92px white band ---------------------- */
+        .chrome {
+            height: 92px;
+            background: var(--bg-surface);
+            display: flex;
+            align-items: center;
+            padding: 0 32px;
+            /* The client's own type, a size down from the email's */
+            font-size: 14px;
+            line-height: 22px;
+            letter-spacing: -0.15px;
+        }
+        .sender { display: flex; align-items: center; gap: 16px; }
+        .avatar {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: var(--action-primary);
+            display: grid; place-items: center;
+            flex-shrink: 0;
+        }
+        .avatar svg { width: 26px; height: 11px; fill: #fff; }
+        .sender-from { display: block; }
+        .sender-from b { font-weight: 600; }
+        .sender-from span { color: var(--text-subdued); }
+        .sender-to { display: block; color: var(--text-subdued); }
+
+        .chrome-actions {
+            margin-left: auto;
+            display: flex; align-items: center; gap: 20px;
+            color: var(--text-subdued);
+        }
+        .chrome-date { white-space: nowrap; }
+        .chrome-actions svg { display: block; cursor: pointer; }
+        .chrome-actions .star { width: 18px; height: 18px; }
+        .chrome-actions .reply { width: 22px; height: 22px; }
+        .chrome-actions .more { width: 4px; height: 16px; }
+
+        /* ---- The email ------------------------------------------------- */
+        /* 48px under the chrome and 56px below the card, which is the frame's
+           own 981px height at a 1280 window. */
+        .mail { padding: 48px 0 56px; }
+        /* The 600px wrapper the email is built to, centred in the window */
+        .email {
+            width: 600px;
+            margin: 0 auto;
+            padding: 48px;
+            background: var(--bg-surface);
+            border-radius: 16px;
+            /* 48px between the logo and everything under it */
+            display: flex;
+            flex-direction: column;
+            gap: 48px;
+        }
+        .email-logo { width: 70px; height: 30px; }
+        .email-logo svg { display: block; width: 70px; height: 29px; fill: var(--action-primary); }
+
+        /* 16px under the heading, then 32px between the body, the box and the
+           footer — the design's own rhythm. */
+        .email-body { display: flex; flex-direction: column; gap: 16px; }
+        /* Heading/XLarge */
+        .email-h1 {
+            font-family: var(--font-display);
+            font-size: 28px; line-height: 36px; font-weight: 700;
+            letter-spacing: 0.38px;
+        }
+        .email-stack { display: flex; flex-direction: column; gap: 32px; }
+        .email-copy { display: flex; flex-direction: column; gap: 24px; }
+        /* The amount is bold rather than semibold, as drawn */
+        .email-copy b { font-weight: 700; }
+
+        /* Details box: 270px tall as drawn, its sections split by a white rule */
+        .details {
+            background: var(--bg-details);
+            border-radius: 12px;
+            padding: 24px;
+        }
+        .details-label {
+            display: block;
+            font-size: 12px; line-height: 16px; letter-spacing: 0;
+            color: var(--text-subdued);
+            margin-bottom: 6px;
+        }
+        .details-amount { font-weight: 700; color: var(--action-primary); }
+        /* Full-bleed, so it has to come back out of the box's 24px padding */
+        .details-rule {
+            height: 1px;
+            background: var(--bg-surface);
+            margin: 20px -24px;
+        }
+        .details-customer { color: var(--text-default); }
+        .details-email { margin-top: 2px; color: var(--text-subdued); }
+        .details-btn {
+            display: flex; align-items: center; justify-content: center;
+            height: 44px; margin-top: 20px;
+            background: var(--action-primary);
+            border-radius: 8px;
+            color: #fff; font-weight: 600;
+            text-decoration: none;
+        }
+
+        .email-foot { display: flex; flex-direction: column; gap: 32px; }
+        .email-foot-rule { height: 1px; background: var(--rule); }
+        .email-foot a { color: var(--action-primary); font-weight: 600; text-decoration: none; }
+        .email-foot a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<a href="index.html" class="back-button">&larr; Home</a>
+
+<div class="chrome">
+    <div class="sender">
+        <span class="avatar">
+            <svg viewBox="0 0 60 25" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M60 12.9C60 8.6 57.9 5.3 54 5.3C50.1 5.3 47.6 8.6 47.6 12.9C47.6 17.9 50.5 20.5 54.6 20.5C56.6 20.5 58.1 20 59.3 19.2V16C58.1 16.7 56.7 17.2 55 17.2C53.3 17.2 51.8 16.6 51.6 14.5H59.9C59.9 14.3 60 13.4 60 12.9ZM51.5 11.7C51.5 9.7 52.7 8.9 53.9 8.9C55.1 8.9 56.3 9.7 56.3 11.7H51.5ZM41.2 5.3C39.5 5.3 38.4 6.1 37.8 6.6L37.6 5.6H34V24.5L37.9 23.7V20.1C38.5 20.5 39.4 21.1 40.9 21.1C44.1 21.1 46.9 18.5 46.9 12.9C46.9 8 44 5.3 41.2 5.3ZM40.3 17.5C39.2 17.5 38.6 17.1 38.2 16.7L37.9 9.5C38.3 9.1 39 8.7 40 8.7C41.6 8.7 42.7 10.5 42.7 13.1C42.7 15.8 41.6 17.5 40.3 17.5ZM28.3 4.5L32.2 3.7V0.5L28.3 1.3V4.5ZM28.3 5.6H32.2V20.2H28.3V5.6ZM24.2 6.8L24 5.6H20.5V20.2H24.4V10C25.3 8.8 26.8 9 27.3 9.2V5.6C26.7 5.4 25 5.1 24.2 6.8ZM16.5 2L12.7 2.8V16.1C12.7 18.6 14.6 20.5 17.1 20.5C18.5 20.5 19.5 20.3 20 20V16.8C19.6 17 16.5 17.8 16.5 15.3V9H20V5.6H16.5V2ZM4.7 9.8C4.7 9.2 5.2 8.9 6 8.9C7.1 8.9 8.6 9.2 9.7 9.9V6.2C8.5 5.7 7.3 5.3 6 5.3C2.6 5.3 0.5 7 0.5 9.9C0.5 14.5 6.7 13.8 6.7 15.8C6.7 16.5 6.1 16.8 5.2 16.8C4 16.8 2.4 16.3 1.1 15.5V19.2C2.6 19.9 4 20.2 5.2 20.2C8.7 20.2 10.9 18.6 10.9 15.7C10.9 10.7 4.7 11.5 4.7 9.8Z"/>
+            </svg>
+        </span>
+        <span>
+            <span class="sender-from"><b>Stripe</b> <span>managedpayments@stripe.com</span></span>
+            <span class="sender-to">to recipient</span>
+        </span>
+    </div>
+
+    <div class="chrome-actions">
+        <span class="chrome-date">Sep 3, 2026, 11:02 AM</span>
+        <svg class="star" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-label="Star">
+            <path d="M9 1.6l2.28 4.62 5.1.74-3.69 3.6.87 5.08L9 13.24l-4.56 2.4.87-5.08-3.69-3.6 5.1-.74z"/>
+        </svg>
+        <svg class="reply" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-label="Reply">
+            <path d="M8 5.5L3 10.5l5 5"/>
+            <path d="M3 10.5h9a7 7 0 017 7v0"/>
+        </svg>
+        <svg class="more" viewBox="0 0 4 16" fill="currentColor" aria-label="More">
+            <circle cx="2" cy="2.5" r="1.6"/><circle cx="2" cy="8" r="1.6"/><circle cx="2" cy="13.5" r="1.6"/>
+        </svg>
+    </div>
+</div>
+
+<div class="mail">
+    <div class="email">
+        <span class="email-logo">
+            <svg viewBox="0 0 60 25" xmlns="http://www.w3.org/2000/svg" aria-label="Stripe">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M60 12.9C60 8.6 57.9 5.3 54 5.3C50.1 5.3 47.6 8.6 47.6 12.9C47.6 17.9 50.5 20.5 54.6 20.5C56.6 20.5 58.1 20 59.3 19.2V16C58.1 16.7 56.7 17.2 55 17.2C53.3 17.2 51.8 16.6 51.6 14.5H59.9C59.9 14.3 60 13.4 60 12.9ZM51.5 11.7C51.5 9.7 52.7 8.9 53.9 8.9C55.1 8.9 56.3 9.7 56.3 11.7H51.5ZM41.2 5.3C39.5 5.3 38.4 6.1 37.8 6.6L37.6 5.6H34V24.5L37.9 23.7V20.1C38.5 20.5 39.4 21.1 40.9 21.1C44.1 21.1 46.9 18.5 46.9 12.9C46.9 8 44 5.3 41.2 5.3ZM40.3 17.5C39.2 17.5 38.6 17.1 38.2 16.7L37.9 9.5C38.3 9.1 39 8.7 40 8.7C41.6 8.7 42.7 10.5 42.7 13.1C42.7 15.8 41.6 17.5 40.3 17.5ZM28.3 4.5L32.2 3.7V0.5L28.3 1.3V4.5ZM28.3 5.6H32.2V20.2H28.3V5.6ZM24.2 6.8L24 5.6H20.5V20.2H24.4V10C25.3 8.8 26.8 9 27.3 9.2V5.6C26.7 5.4 25 5.1 24.2 6.8ZM16.5 2L12.7 2.8V16.1C12.7 18.6 14.6 20.5 17.1 20.5C18.5 20.5 19.5 20.3 20 20V16.8C19.6 17 16.5 17.8 16.5 15.3V9H20V5.6H16.5V2ZM4.7 9.8C4.7 9.2 5.2 8.9 6 8.9C7.1 8.9 8.6 9.2 9.7 9.9V6.2C8.5 5.7 7.3 5.3 6 5.3C2.6 5.3 0.5 7 0.5 9.9C0.5 14.5 6.7 13.8 6.7 15.8C6.7 16.5 6.1 16.8 5.2 16.8C4 16.8 2.4 16.3 1.1 15.5V19.2C2.6 19.9 4 20.2 5.2 20.2C8.7 20.2 10.9 18.6 10.9 15.7C10.9 10.7 4.7 11.5 4.7 9.8Z"/>
+            </svg>
+        </span>
+
+        <div class="email-body">
+            <h1 class="email-h1">Congratulations, Screen Studio!</h1>
+
+            <div class="email-stack">
+                <div class="email-copy">
+                    <p>You&rsquo;ve just made your first charge through Stripe Managed Payments for <b>$29.00!</b></p>
+                    <p>Managed Payments reduces declined payments, takes on tax responsibility, and handles fraud and disputes so you can focus on what&rsquo;s next for your business.</p>
+                </div>
+
+                <div class="details">
+                    <span class="details-label">PAYMENT</span>
+                    <div class="details-amount">$29.00</div>
+
+                    <div class="details-rule"></div>
+
+                    <span class="details-label">CUSTOMER</span>
+                    <div class="details-customer">Jane Diaz</div>
+                    <div class="details-email">janediaz@gmail.com</div>
+
+                    <a class="details-btn" href="smp-home.html">View in Dashboard</a>
+                </div>
+
+                <div class="email-foot">
+                    <div class="email-foot-rule"></div>
+                    <p>We&rsquo;re here to help. Visit our <a href="#">support website</a> for answers to most questions and to get in touch with us.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
