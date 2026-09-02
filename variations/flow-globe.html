@@ -220,12 +220,110 @@
         .dash-main-inner { width: 976px; flex-shrink: 0; }
         /* 32px row at y72; "Today" follows at y138 */
         .dash-topbar { display: flex; align-items: center; height: 32px; margin-bottom: 34px; }
+        .dash-search-wrap { position: relative; }
         .dash-search {
             width: 240px; height: 32px; border-radius: 6px; background: var(--bg-offset);
             display: flex; align-items: center; gap: 8px; padding: 0 10px;
-            color: var(--text-subdued);
+            color: var(--text-subdued); cursor: text;
         }
         .dash-search svg { width: 12px; height: 12px; }
+
+        /* ---- Global search, open ----------------------------------------
+           Focusing the field grows it from the 240px pill to the 796px the
+           Figma header nav leaves before the icon cluster, and hangs the
+           results under it. It's an overlay off the collapsed pill so nothing
+           in the topbar reflows: the 48px field grows 8px either side of the
+           32px row it replaces. */
+        .dash-searchbox {
+            display: none;
+            position: absolute;
+            top: -8px; left: 0;
+            width: 796px;
+            /* Above #dashboard-step's 150, so the panel isn't painted under the
+               setup guide where the two overlap. .dash sets no z-index, so this
+               competes in #dash-layer's stacking context directly. */
+            z-index: 200;
+        }
+        .dash-search-wrap.open .dash-searchbox { display: block; }
+        .dash-search-wrap.open .dash-search { visibility: hidden; }
+
+        .dash-searchfield {
+            height: 48px;
+            display: flex; align-items: center; gap: 8px;
+            padding: 0 12px;
+            border-radius: 8px;
+            background: var(--bg-offset);
+        }
+        .dash-searchfield > svg:first-child { width: 16px; height: 16px; color: var(--icon-subdued); flex-shrink: 0; }
+        /* Body/Large */
+        .dash-searchfield input {
+            flex: 1; min-width: 0;
+            border: 0; background: none; outline: none;
+            font-family: inherit; font-size: 18px; line-height: 28px;
+            letter-spacing: -0.48px; color: var(--text-default);
+        }
+        .dash-searchfield input::placeholder { color: var(--text-subdued); }
+        .dash-search-scope {
+            display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+            color: var(--text-default); cursor: pointer;
+        }
+        .dash-search-scope svg { width: 12px; height: 12px; color: var(--icon-default); }
+
+        /* Results panel: 32px rows under a 24px section header, full-bleed
+           keylines between the sections, and the footer on the offset grey */
+        .dash-search-panel {
+            margin-top: 8px;
+            background: var(--bg-surface);
+            border-radius: 8px;
+            box-shadow: var(--shadow-overlay);
+            overflow: hidden;
+        }
+        .dash-search-section { padding: 8px 0; }
+        .dash-search-section + .dash-search-section { border-top: 1px solid var(--neutral-50); }
+        .dash-search-section h4 {
+            height: 24px; padding: 0 20px;
+            font-size: 14px; line-height: 24px; font-weight: 600;
+            letter-spacing: -0.15px; color: var(--text-default);
+        }
+        .dash-search-row {
+            display: flex; align-items: center; gap: 8px;
+            height: 32px; padding: 0 20px;
+            color: var(--text-default); cursor: pointer;
+        }
+        .dash-search-row:hover { background: var(--bg-offset); }
+        .dash-search-row.tall { height: 36px; }
+        .dash-search-row mark { background: #ded9f7; color: inherit; border-radius: 2px; }
+        /* The ">" between a settings crumb and the page it sits under */
+        .dash-search-row .crumb { display: flex; align-items: center; gap: 8px; }
+        .dash-search-row .crumb svg { width: 10px; height: 10px; color: var(--icon-subdued); }
+        .dash-search-row .doc { width: 16px; height: 16px; flex-shrink: 0; color: var(--icon-default); }
+        .dash-search-row .avatar {
+            width: 24px; height: 24px; flex-shrink: 0; border-radius: 4px;
+            background: var(--bg-offset); color: var(--text-subdued);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; line-height: 16px;
+        }
+        .dash-search-row .handle {
+            padding: 0 6px; border-radius: 4px; background: var(--bg-offset);
+            color: var(--text-subdued);
+        }
+        /* Suggested filters: the token, then the example, then what it filters */
+        .dash-search-row .token {
+            height: 20px; padding: 0 6px; flex-shrink: 0;
+            border: 1px solid var(--neutral-100); border-radius: 4px;
+            font-size: 12px; line-height: 18px; font-weight: 600;
+            letter-spacing: -0.2px; color: var(--text-default);
+        }
+        .dash-search-row .example { margin-left: 8px; color: var(--text-default); }
+        .dash-search-row .about { margin-left: auto; color: var(--text-subdued); }
+        .dash-search-foot {
+            height: 48px; padding: 0 20px;
+            display: flex; align-items: center;
+            border-top: 1px solid var(--neutral-50);
+            background: var(--bg-offset);
+            font-weight: 600; color: var(--text-action-primary); cursor: pointer;
+        }
+        .dash-search-empty { padding: 8px 20px 16px; color: var(--text-subdued); }
         .dash-topbar-icons { margin-left: auto; display: flex; align-items: center; gap: 16px; color: var(--icon-default); }
         .dash-topbar-icons svg { width: 16px; height: 16px; cursor: pointer; }
         .dash-topbar-icons .plus {
@@ -1857,7 +1955,17 @@
             <div class="dash-main">
                 <div class="dash-main-inner">
                     <div class="dash-topbar">
-                        <span class="dash-search"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="4.2"/><path d="M10.2 10.2L14 14"/></svg><span>Search</span></span>
+                        <span class="dash-search-wrap" id="dashSearchWrap">
+                            <span class="dash-search" onclick="openDashSearch()"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="4.2"/><path d="M10.2 10.2L14 14"/></svg><span>Search</span></span>
+                            <div class="dash-searchbox">
+                                <div class="dash-searchfield">
+                                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="4.2"/><path d="M10.2 10.2L14 14"/></svg>
+                                    <input id="dashSearchInput" type="text" placeholder="Search" autocomplete="off" oninput="renderDashSearch()">
+                                    <span class="dash-search-scope">Cactus Practice <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5L6 8l3.5-3.5"/></svg></span>
+                                </div>
+                                <div class="dash-search-panel" id="dashSearchPanel"></div>
+                            </div>
+                        </span>
                         <span class="dash-topbar-icons">
                             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="9" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="2.5" y="9" width="4.5" height="4.5" rx="1"/><path d="M11.2 9v4.5M9 11.2h4.5"/></svg><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="5.8"/><path d="M6.3 6.3c0-1 .8-1.7 1.7-1.7s1.7.7 1.7 1.6c0 1.2-1.7 1.3-1.7 2.4"/><circle cx="8" cy="11.2" r=".7" fill="currentColor" stroke="none"/></svg><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7a3.5 3.5 0 017 0c0 2.4 1 3.5 1 3.5H3.5s1-1.1 1-3.5z"/><path d="M6.8 12.4a1.4 1.4 0 002.4 0"/></svg><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="2"/><path d="M8 2.2v1.6M8 12.2v1.6M2.2 8h1.6M12.2 8h1.6M4 4l1.1 1.1M10.9 10.9L12 12M12 4l-1.1 1.1M5.1 10.9L4 12"/></svg>
                             <span class="plus"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v10M3 8h10"/></svg></span>
@@ -2501,6 +2609,7 @@ function render() {
   el.dashLayer.classList.toggle('guided', !!step.dashboardStep);
   // Arriving on the step always starts with the guide open and the callout up
   el.dash.classList.remove('collapsed', 'spotlight-dismissed');
+  closeDashSearch();
   el.pricing.classList.toggle('active', !!step.pricingStep);
   el.backdrop.style.display = step.dashboardStep || step.pricingStep ? 'none' : 'flex';
 
@@ -2559,6 +2668,127 @@ function goBack() {
 function dismissSpotlight() {
   el.dash.classList.add('spotlight-dismissed');
 }
+
+/* ---------------- Global search --------------------------------------
+   Empty field: the suggested filters. Anything typed: the Go to / Docs /
+   Profiles results. Only the plain "Managed Payments" go-to row leads
+   anywhere — it's the SMP surface, so it opens SMP Home. */
+const SEARCH_FILTERS = [
+  ['is:', 'is:customer', 'object type'],
+  ['last4:', 'last4:2326', 'last four digits of the card or account'],
+  ['date:', 'date:YYYY/MM/DD', 'object created on date or range'],
+  ['email:', 'email:jenny@example.com', 'email address'],
+  ['status:', 'status:canceled', 'status of an object'],
+  ['profile:', 'profile:@username', 'other businesses on Stripe'],
+];
+
+const SEARCH_SECTIONS = [
+  { title: 'Go to', rows: [
+    { label: 'Data management' },
+    { crumb: 'Settings', label: 'Managed Payments' },
+    { label: 'Managed Payments', href: 'smp-home.html' },
+  ]},
+  { title: 'Docs', kind: 'doc', rows: [
+    { label: 'Managed Support' },
+    { label: 'Managed Payments' },
+    { label: 'Managed API keys' },
+    { label: 'Managed Payments changelog' },
+  ]},
+  { title: 'Profiles', kind: 'profile', rows: [
+    { label: 'Managed Services', handle: '@managedservices' },
+    { label: 'Managed Company', handle: '@managedco' },
+    { label: 'Managed Wild', handle: '@managedwildfarm' },
+    { label: 'Managed Websites UK', handle: '@managedwebsitesuk' },
+  ]},
+];
+
+const esc = s => s.replace(/[&<>]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[ch]));
+
+// Only exact occurrences of what's been typed get marked, which is why
+// "Data management" comes back for "managed" without a highlight on it.
+function mark(text, q) {
+  if (!q) return esc(text);
+  const at = text.toLowerCase().indexOf(q.toLowerCase());
+  if (at === -1) return esc(text);
+  return esc(text.slice(0, at)) + '<mark>' + esc(text.slice(at, at + q.length)) +
+         '</mark>' + esc(text.slice(at + q.length));
+}
+
+// A row keeps its place if any of its words shares a four-letter start with
+// the query — loose enough that "managed" still surfaces "Data management".
+function hits(row, q) {
+  const n = Math.min(4, q.length);
+  const head = q.slice(0, n).toLowerCase();
+  const words = (row.label + ' ' + (row.crumb || '') + ' ' + (row.handle || '')).toLowerCase().split(/[\s@]+/);
+  return words.some(w => w.startsWith(head));
+}
+
+const CHEV_RIGHT = '<svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 1.5L7 5l-3.5 3.5"/></svg>';
+const DOC_ICON = '<svg class="doc" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2h5l3 3v9H4z"/><path d="M6.2 6.5h3.4M6.2 9h3.4M6.2 11.5h2"/></svg>';
+
+function searchRow(row, kind, q) {
+  const label = mark(row.label, q);
+  const go = row.href ? ` onclick="location.href='${row.href}'"` : '';
+  if (kind === 'doc') {
+    return `<div class="dash-search-row"${go}>${DOC_ICON}<span>${label}</span></div>`;
+  }
+  if (kind === 'profile') {
+    return `<div class="dash-search-row tall"${go}><span class="avatar">${esc(row.label[0])}</span>` +
+           `<span>${label}</span><span class="handle">${mark(row.handle, q)}</span></div>`;
+  }
+  const lead = row.crumb
+    ? `<span class="crumb">${mark(row.crumb, q)} ${CHEV_RIGHT}</span>` : '';
+  return `<div class="dash-search-row"${go}>${lead}<span>${label}</span></div>`;
+}
+
+function renderDashSearch() {
+  const q = document.getElementById('dashSearchInput').value.trim();
+  const panel = document.getElementById('dashSearchPanel');
+
+  if (!q) {
+    panel.innerHTML =
+      '<div class="dash-search-section"><h4>Suggested filters</h4>' +
+      SEARCH_FILTERS.map(([token, example, about]) =>
+        `<div class="dash-search-row"><span class="token">${esc(token)}</span>` +
+        `<span class="example">${esc(example)}</span><span class="about">${esc(about)}</span></div>`
+      ).join('') +
+      '</div><div class="dash-search-foot">View more filters</div>';
+    return;
+  }
+
+  const sections = SEARCH_SECTIONS
+    .map(s => ({ ...s, rows: s.rows.filter(r => hits(r, q)) }))
+    .filter(s => s.rows.length);
+
+  panel.innerHTML = sections.length
+    ? sections.map(s =>
+        `<div class="dash-search-section"><h4>${esc(s.title)}</h4>` +
+        s.rows.map(r => searchRow(r, s.kind, q)).join('') + '</div>'
+      ).join('') + '<div class="dash-search-foot">View all results</div>'
+    : `<div class="dash-search-section"><div class="dash-search-empty">No results for &ldquo;${esc(q)}&rdquo;</div></div>`;
+}
+
+function openDashSearch() {
+  document.getElementById('dashSearchWrap').classList.add('open');
+  renderDashSearch();
+  document.getElementById('dashSearchInput').focus();
+}
+
+function closeDashSearch() {
+  const wrap = document.getElementById('dashSearchWrap');
+  if (!wrap || !wrap.classList.contains('open')) return;
+  wrap.classList.remove('open');
+  document.getElementById('dashSearchInput').value = '';
+}
+
+// Clicking anywhere else on the dashboard, or Escape, puts it away again.
+document.addEventListener('mousedown', e => {
+  const wrap = document.getElementById('dashSearchWrap');
+  if (wrap && wrap.classList.contains('open') && !wrap.contains(e.target)) closeDashSearch();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeDashSearch();
+});
 
 // Collapsing the guide is also the moment the dashboard comes forward: the
 // gradient goes and the overview comes back to full strength, so the collapsed

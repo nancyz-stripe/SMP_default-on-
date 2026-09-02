@@ -227,6 +227,7 @@
             mask: url(assets/nav/chevron.svg) no-repeat center / 8px 8px;
         }
         /* The asset is a chevron-down, so an expanded group turns it over. */
+        .nav-chevron { transition: transform 0.12s ease; }
         .nav-item.open .nav-chevron { transform: rotate(180deg); }
 
         /* Children of an expanded group are labels only, indented to where the
@@ -597,8 +598,8 @@
                     <span class="nav-label">Connect</span>
                     <span class="nav-chevron"></span>
                 </div>
-                <!-- Collapsed by default; add `open` to show the children -->
-                <div class="nav-item">
+                <!-- Collapsed by default; clicking the row opens it -->
+                <div class="nav-item" aria-expanded="false">
                     <span class="nav-icobox"><span class="nav-ico" style="-webkit-mask-image:url(assets/nav/wallet.svg);mask-image:url(assets/nav/wallet.svg)"></span></span>
                     <span class="nav-label">Payments</span>
                     <span class="nav-chevron"></span>
@@ -1078,6 +1079,18 @@ function renderCards() {
   VIEWS.forEach(c => bindHover(document.querySelector(`[data-card="${c.id}"]`), c));
   drawAll();
 }
+
+/* Nav groups open and close. Delegated from the nav, and it only fires for rows
+   that actually have children after them — the other chevron groups have none
+   here, and turning a chevron over to reveal nothing would be a lie. */
+document.querySelector('.side-nav').addEventListener('click', e => {
+  const row = e.target.closest('.nav-item');
+  if (!row) return;
+  const sub = row.nextElementSibling;
+  if (!sub || !sub.classList.contains('nav-sub')) return;
+  const open = row.classList.toggle('open');
+  row.setAttribute('aria-expanded', open);
+});
 
 /* Delegated, so re-rendering the buttons doesn't drop the handler. */
 STAGE_EL.addEventListener('click', e => {
