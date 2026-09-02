@@ -103,8 +103,8 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.06);
         }
         .stage-btn {
-            /* 4px here puts the label 16px in from the panel edge, which is where
-               the Home button's label sits, so the two line up. */
+            /* 4px is a minimum inset rather than where the label sits — the text
+               is centred, so this only stops the longest one touching the edges. */
             padding: 4px 4px;
             border: 0;
             border-radius: 6px;
@@ -117,7 +117,7 @@
             letter-spacing: -0.15px;
             color: var(--text-subdued);
             cursor: pointer;
-            text-align: left;
+            text-align: center;
             /* One line each. If a future label outgrows the column it shows as
                overflow rather than silently reflowing the panel taller. */
             white-space: nowrap;
