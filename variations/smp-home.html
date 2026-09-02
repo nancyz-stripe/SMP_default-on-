@@ -104,8 +104,11 @@
             border-radius: 6px;
             background: transparent;
             font-family: inherit;
+            /* 13px emphasized on every segment, so the selected one is told
+               apart by its colour and fill rather than by gaining weight. */
             font-size: 13px;
             line-height: 20px;
+            font-weight: 600;
             letter-spacing: -0.15px;
             color: var(--text-subdued);
             cursor: pointer;
@@ -117,7 +120,6 @@
         .stage-btn.active {
             background: #ece9ff;
             color: var(--text-action-primary);
-            font-weight: 600;
         }
 
         /* ---------------- Dashboard shell ----------------
