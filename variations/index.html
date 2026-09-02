@@ -84,13 +84,16 @@
       border: none;
       pointer-events: none;
     }
-    /* Cropped to fill, which is how the live previews behave too — they scale by
-       the larger of the two ratios rather than fitting inside. */
+    /* Fitted rather than cropped, so the frame's own padding stays in view. The
+       preview takes the thumbnails' pale purple, which is also what their
+       rounded corners are cut out of — so the band left above and below the
+       fitted shot reads as the same field rather than as letterboxing. */
+    .card-preview.has-thumb { background: #f7f5fc; }
     .card-thumb {
       display: block;
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
     }
     .card-preview-placeholder {
       color: var(--text-muted);
@@ -705,7 +708,7 @@ function renderExploreCard(v) {
   return `
     <a class="card" href="${v.file}">
       ${v.thumb
-        ? `<div class="card-preview"><img class="card-thumb" src="${v.thumb}" alt=""></div>`
+        ? `<div class="card-preview has-thumb"><img class="card-thumb" src="${v.thumb}" alt=""></div>`
         : `<div class="card-preview" data-src="${v.preview || v.file}"></div>`}
       <div class="card-body">
         <div class="card-explore-title">${v.title}</div>
