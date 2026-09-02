@@ -1198,9 +1198,11 @@ function drawBars(card, c) {
     const yLo = Y(Math.min(v, c.without[i])), yHi = Y(Math.max(v, c.without[i]));
 
     g.appendChild(el('rect', { class: 'bar-base', x, y: yLo, width: bw, height: Math.max(0, base - yLo) }));
-    /* 2px surface gap, then the attributed cap with rounded data-end */
+    /* 2px surface gap, then the attributed cap. Square, like the base: the design
+       has no radius anywhere on these, and a rounded cap on a square base read as
+       a separate block floating above it rather than the top of one bar. */
     const capH = Math.max(0, yLo - yHi - 2);
-    g.appendChild(el('rect', { class: 'bar-added', x, y: yHi, width: bw, height: capH, rx: 4 }));
+    g.appendChild(el('rect', { class: 'bar-added', x, y: yHi, width: bw, height: capH }));
     g.appendChild(el('rect', { class: 'bar-hit', x: i * slot, y: 0, width: slot, height: H, 'data-i': i }));
     svg.appendChild(g);
   });
