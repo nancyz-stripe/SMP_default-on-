@@ -316,11 +316,12 @@
             color: var(--text-action-primary); text-decoration: none; cursor: pointer;
         }
         .ap-link:hover { text-decoration: underline; }
-        .ap-art { width: 380px; height: 308px; flex-shrink: 0; border-radius: 16px; overflow: hidden; }
-        /* The frame is taller than it is wide and the art is a wide globe, so the
-           crop is held off-centre — 78.3% lands the same window Figma shows, with
-           the two amount labels and the flags inside it. */
-        .ap-art img { width: 100%; height: 100%; object-fit: cover; object-position: 78.3% center; display: block; }
+        /* Figma 26767:91686 shortened this to 232px. The art is a wide globe, so the
+           shorter frame zooms out rather than cropping the top and bottom off:
+           centred cover now shows the middle 74% of it — four flags, both amount
+           labels — where the 308px frame only had room for 56%. */
+        .ap-art { width: 380px; height: 232px; flex-shrink: 0; border-radius: 16px; overflow: hidden; }
+        .ap-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
         /* ---------------- View controls ----------------
            Figma 26655:71467: the scope select, then the filter chips. Everything
