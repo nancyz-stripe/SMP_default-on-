@@ -88,34 +88,39 @@
 
         /* Stacked rather than side by side — the column is too narrow to seat two
            labels in a row. */
+        /* 12px of horizontal padding rather than 16: "New users (without SMP)"
+           needs 159px of the 153px it had, and the panel can't grow — the 228px
+           nav column leaves it 188px once its own margins are taken. Paying for
+           it out of the padding is what keeps every label on one line. */
         .stage-switch {
             display: flex;
             flex-direction: column;
             gap: 8px;
-            padding: 8px 16px;
+            padding: 8px 12px;
             background: var(--bg-surface);
             border: 1px solid var(--neutral-50);
             border-radius: 10px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.06);
         }
         .stage-btn {
-            padding: 4px 8px;
+            /* 4px here puts the label 16px in from the panel edge, which is where
+               the Home button's label sits, so the two line up. */
+            padding: 4px 4px;
             border: 0;
             border-radius: 6px;
             background: transparent;
             font-family: inherit;
-            /* 12px, and the selected segment is the only one that carries
-               weight. Line height stays 20px so the buttons keep their height
-               and the wrapped labels keep their leading. */
+            /* 12px, and the selected segment is the only one that carries weight. */
             font-size: 12px;
             line-height: 20px;
             font-weight: 400;
             letter-spacing: -0.15px;
             color: var(--text-subdued);
             cursor: pointer;
-            /* The qualified new-user labels are wider than the 187px column, so
-               they wrap rather than push out of the rounded container. */
             text-align: left;
+            /* One line each. If a future label outgrows the column it shows as
+               overflow rather than silently reflowing the panel taller. */
+            white-space: nowrap;
         }
         .stage-btn:hover { background: var(--bg-offset); }
         .stage-btn.active {
