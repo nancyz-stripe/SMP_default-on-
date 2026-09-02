@@ -513,8 +513,11 @@
         /* Hero bars: the counted total, split into the part that would have
            happened anyway and the part attributed to Managed Payments. A 2px
            surface gap separates the two segments. */
-        .bar-base { fill: var(--chart-with); }
-        .bar-added { fill: var(--chart-with); opacity: 0.28; }
+        /* Same pairing as the lines: gray is the modelled figure without the
+           product, purple is what Managed Payments accounts for. Both were purple
+           before, which read as one series shaded rather than two. */
+        .bar-base { fill: var(--chart-without); opacity: 0.55; }
+        .bar-added { fill: var(--chart-with); }
         .bar-hit { fill: transparent; }
         .bar-group.dim { opacity: 0.55; }
 
@@ -774,9 +777,10 @@
    covered", which would be zero without the product and leave nothing to
    compare. Card titles stay as the reference names them.
 
-   `inverted` marks the metrics where the counterfactual sits ABOVE the measured
-   line — less fraud loss and less liability are the wins, so the gap reads the
-   same way while the geometry flips.
+   Every metric is phrased so that more is better and the measured series sits
+   above the modelled one — fraud is what was PREVENTED rather than what was
+   lost, for that reason. So the gap is always with − without, and purple is
+   always the part Managed Payments accounts for, on the bars as on the lines.
    =========================================================== */
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
 
@@ -791,8 +795,8 @@ const CARDS = [
     headline: 'sum',
     withLabel: 'Volume with Managed Payments',
     withoutLabel: 'Volume without',
-    with:    [13100, 13600, 13900, 14400, 14800, 15200, 15600, 16000, 16400, 16900, 17200, 17100],
-    without: [12200, 12600, 12900, 13400, 13800, 14100, 14500, 14900, 15300, 15700, 16000, 15900],
+    with:    [12500, 13200, 13900, 14700, 15300, 15700, 16100, 15800, 16400, 16800, 17100, 16700],
+    without: [10200, 10700, 11100, 11500, 11800, 11800, 11900, 11400, 11600, 11600, 11600, 11000],
     foot: d => `$${d} of this period's volume is attributed to Managed Payments.`,
   },
   {
@@ -803,8 +807,8 @@ const CARDS = [
     headline: 'sum',
     withLabel: 'Revenue with Managed Payments',
     withoutLabel: 'Revenue without',
-    with:    [11100, 11500, 11800, 12200, 12600, 12900, 13200, 13600, 14000, 14300, 14500, 14700],
-    without: [10300, 10700, 11000, 11300, 11700, 12000, 12300, 12600, 13000, 13300, 13500, 13700],
+    with:    [10600, 11200, 11800, 12500, 13000, 13300, 13600, 13400, 14000, 14300, 14500, 14200],
+    without: [8700, 9100, 9400, 9800, 10000, 10000, 10100, 9600, 9900, 9900, 9900, 9400],
     foot: d => `$${d} of revenue attributed to Managed Payments.`,
   },
   {
@@ -821,7 +825,7 @@ const CARDS = [
     covered: 1884,
     determined: 2000,
     sub: c => `${c.covered.toLocaleString()} of ${c.determined.toLocaleString()} payments`,
-    with:    [88.4, 89.1, 90.0, 90.6, 91.3, 91.9, 92.4, 92.8, 93.2, 93.6, 93.9, 94.2],
+    with:    [86.5, 87.8, 88.9, 89.8, 90.6, 91.3, 91.9, 92.4, 92.9, 93.4, 93.8, 94.2],
     without: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     foot: d => `${d}% of this period's payments covered by Stripe.`,
   },
@@ -831,15 +835,16 @@ const CARDS = [
     title: 'Fraud prevented',
     desc: "Estimated fraud loss avoided by Stripe's Managed Payments fraud controls.",
     unit: 'usd',
-    /* headline = the gap, which is the loss avoided */
+    /* headline = the gap, which is what Managed Payments' controls account for */
     headline: 'gap',
-    /* the modelled series sits above the measured one: less loss is the win */
-    inverted: true,
-    withLabel: 'Loss that still occurred',
-    withoutLabel: 'Expected loss without controls',
-    with:    [400, 370, 345, 325, 305, 305],
-    without: [900, 950, 1000, 1050, 1100, 1150],
-    foot: d => `$${d} of fraud loss avoided this month.`,
+    /* Plotted as loss PREVENTED, not loss taken: the baseline controls stop some
+       of it without the product, so gray is that floor and purple is what
+       Managed Payments adds on top of it. */
+    withLabel: 'Prevented with Managed Payments',
+    withoutLabel: 'Prevented without',
+    with:    [1040, 1140, 1240, 1320, 1400, 1420],
+    without: [480, 520, 560, 600, 640, 660],
+    foot: d => `$${d} more fraud prevented than without Managed Payments.`,
   },
   {
     id: 'disputes',
@@ -855,7 +860,7 @@ const CARDS = [
     recovered: 3800,
     sub: c => `${sum(c.with)} of ${sum(c.total)} \u00b7 $${c.recovered.toLocaleString()} recovered`,
     with:    [2, 3, 3, 3, 4, 3],
-    without: [1, 1, 2, 1, 2, 1],
+    without: [1, 1, 1, 1, 1, 1],
     /* resolved disputes: the denominator the win rate is drawn from */
     total:   [3, 4, 4, 4, 5, 4],
     foot: d => `${d} more disputes won than without Managed Payments.`,
@@ -896,7 +901,8 @@ function stageViews() {
 
 let VIEWS = stageViews();
 
-const gapAt = (c, i) => c.inverted ? c.without[i] - c.with[i] : c.with[i] - c.without[i];
+/* Every metric is phrased so more is better, so the gap is always this way round. */
+const gapAt = (c, i) => c.with[i] - c.without[i];
 const sum = a => a.reduce((x, y) => x + y, 0);
 
 /* A win rate over a slice of the window: what was won against what resolved. */
@@ -1184,10 +1190,11 @@ function drawBars(card, c) {
   c.with.forEach((v, i) => {
     const g = el('g', { class: 'bar-group' });
     const x = i * slot + gap / 2;
-    /* The bar is the taller of the two series, split at the shorter one — so it
-       reads the same way whichever series is on top: what would have happened
-       anyway at the base, what Managed Payments accounts for as the cap. Fraud
-       prevented is inverted, and there the base is the loss that still landed. */
+    /* The bar reaches the measured figure and is split at the modelled one: gray
+       to the base is what would have happened without the product, purple on top
+       is what Managed Payments accounts for. Still the shorter/taller of the two
+       rather than without/with, so a month where the product is behind draws
+       something sane instead of a negative cap. */
     const yLo = Y(Math.min(v, c.without[i])), yHi = Y(Math.max(v, c.without[i]));
 
     g.appendChild(el('rect', { class: 'bar-base', x, y: yLo, width: bw, height: Math.max(0, base - yLo) }));
