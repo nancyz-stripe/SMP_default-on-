@@ -231,7 +231,11 @@
 
         /* Children of an expanded group are labels only, indented to where the
            parent's label starts (24px icon + 8px gap) so the icon column stays
-           the group's rather than looking like a missing icon on each child. */
+           the group's rather than looking like a missing icon on each child.
+           Collapsed is the default, so `open` on the parent is the whole
+           difference between the two states. */
+        .nav-sub { display: none; flex-direction: column; }
+        .nav-item.open + .nav-sub { display: flex; }
         .nav-subitem { padding-left: 32px; }
 
         .side-foot { margin-top: auto; padding: 16px 20px; }
@@ -594,35 +598,37 @@
                     <span class="nav-label">Connect</span>
                     <span class="nav-chevron"></span>
                 </div>
-                <!-- Expanded, because this is where the page we're on lives -->
-                <div class="nav-item open">
+                <!-- Collapsed by default; add `open` to show the children -->
+                <div class="nav-item">
                     <span class="nav-icobox"><span class="nav-ico" style="-webkit-mask-image:url(assets/nav/wallet.svg);mask-image:url(assets/nav/wallet.svg)"></span></span>
                     <span class="nav-label">Payments</span>
                     <span class="nav-chevron"></span>
                 </div>
-                <div class="nav-item nav-subitem">
-                    <span class="nav-label">Analytics</span>
-                </div>
-                <div class="nav-item nav-subitem">
-                    <span class="nav-label">Checkout</span>
-                </div>
-                <div class="nav-item nav-subitem active">
-                    <span class="nav-label">Managed Payments</span>
-                </div>
-                <div class="nav-item nav-subitem">
-                    <span class="nav-label">Disputes</span>
-                </div>
-                <div class="nav-item nav-subitem">
-                    <span class="nav-label">Radar</span>
-                </div>
-                <div class="nav-item nav-subitem">
-                    <span class="nav-label">Payment Links</span>
-                </div>
-                <div class="nav-item nav-subitem">
-                    <span class="nav-label">Terminal</span>
-                </div>
-                <div class="nav-item nav-subitem">
-                    <span class="nav-label">Agentic commerce</span>
+                <div class="nav-sub">
+                    <div class="nav-item nav-subitem">
+                        <span class="nav-label">Analytics</span>
+                    </div>
+                    <div class="nav-item nav-subitem">
+                        <span class="nav-label">Checkout</span>
+                    </div>
+                    <div class="nav-item nav-subitem active">
+                        <span class="nav-label">Managed Payments</span>
+                    </div>
+                    <div class="nav-item nav-subitem">
+                        <span class="nav-label">Disputes</span>
+                    </div>
+                    <div class="nav-item nav-subitem">
+                        <span class="nav-label">Radar</span>
+                    </div>
+                    <div class="nav-item nav-subitem">
+                        <span class="nav-label">Payment Links</span>
+                    </div>
+                    <div class="nav-item nav-subitem">
+                        <span class="nav-label">Terminal</span>
+                    </div>
+                    <div class="nav-item nav-subitem">
+                        <span class="nav-label">Agentic commerce</span>
+                    </div>
                 </div>
                 <div class="nav-item">
                     <span class="nav-icobox"><span class="nav-ico" style="-webkit-mask-image:url(assets/nav/billing.svg);mask-image:url(assets/nav/billing.svg)"></span></span>
