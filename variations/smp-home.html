@@ -606,17 +606,20 @@
         }
         .loc-body .loc-row:hover::before { opacity: 1; }
 
-        .loc-flag { font-size: 15px; line-height: 1; }
+        .loc-flag { display: block; width: 16px; height: 12px; flex-shrink: 0; }
         .loc-name { font-size: 14px; line-height: 20px; letter-spacing: -0.15px; color: var(--text-default); }
         .loc-figure { display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 20px; letter-spacing: -0.15px; color: var(--text-default); }
         .loc-spark { display: block; width: 34px; height: 14px; }
 
+        /* Sail's subdued feedback badge (Figma 26655:64008): a 1px keyline over
+           a tinted fill, on Label/Small rather than a weighted solid chip. */
         .badge {
             display: inline-flex; align-items: center; height: 20px; padding: 0 6px;
-            border-radius: 4px; font-size: 12px; line-height: 16px; font-weight: 500;
+            border: 1px solid; border-radius: 4px;
+            font-size: 12px; line-height: 16px; letter-spacing: 0;
         }
-        .badge.on { background: #cbf4c9; color: #0e6245; }
-        .badge.off { background: #e3e8ee; color: #4f566b; }
+        .badge.on  { background: #eafcdd; border-color: #a8f170; color: #217005; }
+        .badge.off { background: #f5f6f8; border-color: #d8dee4; color: #596171; }
 
         /* Actions sit in a 35px cell, so the pair that appears on hover is
            positioned rather than laid out — it has to grow leftwards into the
@@ -1475,26 +1478,26 @@ CONFIRM_BTN.addEventListener('click', () => {
    than authored, so they can't disagree with the rows underneath them.
    =========================================================== */
 const LOCATIONS = [
-  { flag: '🇺🇸', name: 'United States',  on: true,  vol: 310500 },
-  { flag: '🇮🇪', name: 'Ireland',        on: true,  vol: 250200 },
-  { flag: '🇬🇧', name: 'United Kingdom', on: true,  vol: 219000 },
-  { flag: '🇩🇪', name: 'Germany',        on: true,  vol: 178800 },
-  { flag: '🇪🇸', name: 'Spain',          on: true,  vol: 154200 },
-  { flag: '🇮🇹', name: 'Italy',          on: true,  vol: 111300 },
-  { flag: '🇫🇷', name: 'France',         on: true,  vol: 103900 },
-  { flag: '🇧🇷', name: 'Brazil',         on: true,  vol: 92700 },
-  { flag: '🇮🇳', name: 'India',          on: true,  vol: 64200 },
-  { flag: '🇳🇱', name: 'Netherlands',    on: true,  vol: 58400 },
-  { flag: '🇯🇵', name: 'Japan',          on: true,  vol: 47900 },
-  { flag: '🇸🇪', name: 'Sweden',         on: true,  vol: 42000 },
-  { flag: '🇨🇦', name: 'Canada',         on: true,  vol: 39500 },
-  { flag: '🇦🇹', name: 'Austria',        on: true,  vol: 32200 },
-  { flag: '🇩🇿', name: 'Algeria',        on: true,  vol: 28800 },
-  { flag: '🇳🇬', name: 'Nigeria',        on: false },
-  { flag: '🇨🇴', name: 'Colombia',       on: false },
-  { flag: '🇦🇷', name: 'Argentina',      on: false },
-  { flag: '🇵🇹', name: 'Portugal',       on: false },
-  { flag: '🇸🇬', name: 'Singapore',      on: false },
+  { code: 'US', name: 'United States',  on: true,  vol: 310500 },
+  { code: 'IE', name: 'Ireland',        on: true,  vol: 250200 },
+  { code: 'GB', name: 'United Kingdom', on: true,  vol: 219000 },
+  { code: 'DE', name: 'Germany',        on: true,  vol: 178800 },
+  { code: 'ES', name: 'Spain',          on: true,  vol: 154200 },
+  { code: 'IT', name: 'Italy',          on: true,  vol: 111300 },
+  { code: 'FR', name: 'France',         on: true,  vol: 103900 },
+  { code: 'BR', name: 'Brazil',         on: true,  vol: 92700 },
+  { code: 'IN', name: 'India',          on: true,  vol: 64200 },
+  { code: 'NL', name: 'Netherlands',    on: true,  vol: 58400 },
+  { code: 'JP', name: 'Japan',          on: true,  vol: 47900 },
+  { code: 'SE', name: 'Sweden',         on: true,  vol: 42000 },
+  { code: 'CA', name: 'Canada',         on: true,  vol: 39500 },
+  { code: 'AT', name: 'Austria',        on: true,  vol: 32200 },
+  { code: 'DZ', name: 'Algeria',        on: true,  vol: 28800 },
+  { code: 'NG', name: 'Nigeria',        on: false },
+  { code: 'CO', name: 'Colombia',       on: false },
+  { code: 'AR', name: 'Argentina',      on: false },
+  { code: 'PT', name: 'Portugal',       on: false },
+  { code: 'SG', name: 'Singapore',      on: false },
 ];
 
 let locFilter = 'all';
@@ -1530,7 +1533,7 @@ function renderLocations() {
   const rows = LOCATIONS.filter(l => locFilter === 'all' || (locFilter === 'on') === l.on);
   document.getElementById('locBody').innerHTML = rows.map(l => `
     <div class="loc-row">
-      <span class="loc-flag">${l.flag}</span>
+      <img class="loc-flag" src="assets/flags/${l.code}.svg" alt="">
       <span class="loc-name">${l.name}</span>
       <span><span class="badge ${l.on ? 'on' : 'off'}">${l.on ? 'Enabled' : 'Disabled'}</span></span>
       <span class="loc-figure">${l.vol ? usdK(l.vol) + sparkline(l.vol) : ''}</span>
