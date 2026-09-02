@@ -86,89 +86,117 @@
             border: 1px solid var(--neutral-50);
         }
 
-        /* ---------------- Dashboard (Figma 26370:56250) ----------------
+        /* ---------------- Dashboard (Figma 26001:19232) ----------------
            Built out rather than a screenshot, so later steps can interact with
-           it. Laid out at 1280x840 inside #dash-layer. */
+           it. Every number below is the Figma frame's own, so at a 1280x840
+           viewport each element lands on its design coordinate. The type ramp
+           is Stripe's: Display/Small 32/40, Heading/XLarge 28/36,
+           Heading/Medium 20/28, Heading/Small 16/24, Label/Medium 14/20,
+           Label/Small 12/16. */
         .dash {
             position: absolute;
             inset: 0;
             display: flex;
             flex-direction: column;
             background: var(--bg-surface);
-            font-size: 13px;
+            /* Label/Medium */
+            font-size: 14px;
+            line-height: 20px;
+            letter-spacing: -0.15px;
             color: var(--text-default);
             overflow: hidden;
         }
 
-        /* Sandbox banner */
+        /* Sandbox banner — 1280x56, name at x20, CTA's right edge at x1262 */
         .dash-banner {
             height: 56px;
             flex-shrink: 0;
-            background: #0a2540;
+            background: #0e3359;
             color: #fff;
             display: flex;
             align-items: center;
-            padding: 0 16px;
-            font-size: 13px;
+            padding: 0 18px 0 20px;
         }
-        .dash-banner-name { font-weight: 600; font-size: 14px; }
-        .dash-banner-copy { flex: 1; text-align: center; color: rgba(255,255,255,0.92); }
-        .dash-banner-copy b { font-weight: 600; color: #fff; }
+        /* Label/Medium emphasized */
+        .dash-banner-name { font-weight: 600; }
+        .dash-banner-copy { flex: 1; text-align: center; }
+        .dash-banner-copy b { font-weight: 600; }
         .dash-banner-cta {
+            height: 28px;
+            padding: 0 12px;
             background: var(--bg-form-accent);
             color: #fff;
             border: none;
             border-radius: 6px;
-            padding: 7px 14px;
             font-family: inherit;
-            font-size: 13px;
+            font-size: 14px;
+            line-height: 20px;
+            letter-spacing: -0.15px;
             font-weight: 600;
+            box-shadow: 0px 1px 1px rgba(47, 14, 99, 0.32);
             cursor: pointer;
         }
 
         .dash-body { flex: 1; display: flex; min-height: 0; }
 
-        /* Sidebar */
+        /* Sidebar — the account switcher is the left end of Figma's "Header nav"
+           row, so it sits above the nav rather than in it. The keyline is the
+           design's 2px vector at x240. */
         .dash-side {
-            width: 240px;
+            width: 239px;
             flex-shrink: 0;
-            border-right: 1px solid var(--neutral-50);
-            padding: 16px 12px 12px;
+            border-right: 2px solid var(--bg-offset);
+            padding: 0 8px 16px;
             display: flex;
             flex-direction: column;
-            gap: 2px;
         }
-        .dash-account { display: flex; align-items: center; gap: 10px; padding: 4px 8px 14px; }
+        /* 16px under the banner, and 34px of air before the first nav row at y138 */
+        .dash-account {
+            display: flex; align-items: center; gap: 8px;
+            height: 32px; margin: 16px 12px 34px;
+        }
         .dash-account-icon {
-            width: 24px; height: 24px; border-radius: 6px; background: #c7cfd9;
+            width: 24px; height: 24px; border-radius: 6px; background: var(--neutral-200);
             flex-shrink: 0; position: relative;
         }
         .dash-account-icon::after {
-            content: ''; position: absolute; right: -2px; bottom: -2px;
-            width: 13px; height: 13px; border-radius: 3px; background: #8d99a8;
+            content: ''; position: absolute; left: 10px; top: 11px;
+            width: 16px; height: 16px; border-radius: 4px;
+            background: var(--bg-surface); border: 1.5px solid var(--icon-subdued);
         }
-        .dash-account-name { font-size: 13px; font-weight: 600; line-height: 17px; }
-        .dash-account-sub { font-size: 12px; color: var(--text-subdued); line-height: 16px; }
+        /* Label/Small emphasized over Label/Small */
+        .dash-account-name {
+            display: block; font-size: 12px; line-height: 16px;
+            font-weight: 600; letter-spacing: -0.2px;
+        }
+        .dash-account-sub { display: block; font-size: 12px; line-height: 16px; letter-spacing: 0; }
 
+        /* Nav rows are 200x24 at x20 on a 30px pitch */
         .dash-nav {
-            display: flex; align-items: center; gap: 10px;
-            padding: 7px 8px; border-radius: 6px;
-            font-size: 14px; color: var(--text-default); cursor: pointer;
+            display: flex; align-items: center; gap: 8px;
+            height: 24px; margin: 0 12px 6px;
+            border-radius: 6px;
+            color: var(--text-default); cursor: pointer;
         }
         .dash-nav:hover { background: var(--bg-offset); }
-        .dash-nav.active { color: var(--text-action-primary); font-weight: 500; }
-        .dash-nav svg { width: 16px; height: 16px; flex-shrink: 0; color: currentColor; }
-        .dash-nav .caret { margin-left: auto; width: 10px; height: 10px; color: var(--text-subdued); }
+        .dash-nav.active { color: var(--text-action-primary); font-weight: 600; }
+        /* 16px glyph centred in a 24px icon box, so the label starts at x52 */
+        .dash-nav > svg:first-child {
+            width: 16px; height: 16px; margin: 0 4px; flex-shrink: 0; color: currentColor;
+        }
+        .dash-nav .caret { margin-left: auto; width: 12px; height: 12px; color: var(--icon-subdued); }
+        /* Heading/XSmall subdued, on a row of its own with 24px between groups */
         .dash-side-label {
-            font-size: 12px; color: var(--text-subdued);
-            padding: 16px 8px 4px;
+            display: block; height: 24px; line-height: 24px;
+            margin: 18px 12px 6px;
+            font-size: 12px; letter-spacing: 0; color: var(--text-subdued);
         }
         .dash-side-foot { margin-top: auto; }
 
         /* Main column */
         /* The content block stays at its designed 976px and sits centred in the
            space beside the sidebar, so widening the window opens whitespace
-           rather than stretching anything. */
+           rather than stretching anything. At 1280 that puts it on x272. */
         .dash-main {
             flex: 1;
             min-width: 0;
@@ -178,109 +206,137 @@
             overflow: hidden;
         }
         .dash-main-inner { width: 976px; flex-shrink: 0; }
-        .dash-topbar { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+        /* 32px row at y72; "Today" follows at y138 */
+        .dash-topbar { display: flex; align-items: center; height: 32px; margin-bottom: 34px; }
         .dash-search {
             width: 240px; height: 32px; border-radius: 6px; background: var(--bg-offset);
             display: flex; align-items: center; gap: 8px; padding: 0 10px;
-            color: var(--text-subdued); font-size: 13px;
+            color: var(--text-subdued);
         }
-        .dash-search svg { width: 13px; height: 13px; }
-        .dash-topbar-icons { margin-left: auto; display: flex; align-items: center; gap: 18px; color: #4f5b6d; }
+        .dash-search svg { width: 12px; height: 12px; }
+        .dash-topbar-icons { margin-left: auto; display: flex; align-items: center; gap: 16px; color: var(--icon-default); }
         .dash-topbar-icons svg { width: 16px; height: 16px; cursor: pointer; }
         .dash-topbar-icons .plus {
-            width: 22px; height: 22px; border-radius: 50%; background: var(--bg-form-accent);
+            width: 20px; height: 20px; border-radius: 50%; background: var(--bg-form-accent);
             color: #fff; display: flex; align-items: center; justify-content: center;
         }
-        .dash-topbar-icons .plus svg { width: 11px; height: 11px; }
+        .dash-topbar-icons .plus svg { width: 12px; height: 12px; }
 
-        .dash-h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; color: var(--text-heading); }
-        .dash-rule { height: 1px; background: var(--neutral-50); margin: 14px 0 24px; }
+        /* Heading/XLarge */
+        .dash-h1 {
+            font-family: var(--font-display);
+            font-size: 28px; line-height: 36px; font-weight: 700;
+            letter-spacing: 0.38px; color: var(--text-default);
+        }
+        .dash-rule { height: 1px; background: var(--neutral-50); margin: 8px 0 40px; }
 
+        /* 642 + 40 + 294 = the 976 content column */
         .dash-cols { display: flex; gap: 40px; }
-        .dash-col-main { flex: 1; min-width: 0; }
+        .dash-col-main { width: 642px; flex: none; }
 
+        /* Label/Medium emphasized */
         .dash-metric-label {
-            display: flex; align-items: center; gap: 6px;
-            font-size: 13px; font-weight: 600; color: var(--text-default);
+            display: flex; align-items: center; gap: 8px;
+            font-size: 14px; line-height: 20px; font-weight: 600;
+            letter-spacing: -0.15px; color: var(--text-default);
         }
-        .dash-metric-label svg { width: 10px; height: 10px; color: var(--text-subdued); }
-        .dash-metric-value { font-size: 20px; font-weight: 500; margin-top: 4px; letter-spacing: -0.3px; }
+        .dash-metric-label svg { width: 8px; height: 8px; color: var(--icon-subdued); }
+        /* Heading/Medium subdued */
+        .dash-metric-value {
+            font-family: var(--font-display);
+            font-size: 20px; line-height: 28px; font-weight: 400;
+            letter-spacing: 0.3px; margin-top: 4px;
+        }
 
-        /* Empty chart: gridlines + baseline */
+        /* Empty chart: 24 hourly gridlines over 642, baseline on y412 */
         .dash-chart {
-            height: 112px;
-            margin-top: 16px;
-            border-bottom: 1px solid #c9d2dd;
-            background-image: repeating-linear-gradient(to right, var(--neutral-50) 0 1px, transparent 1px 47px);
+            height: 109px;
+            margin-top: 28px;
+            border-bottom: 1px solid var(--neutral-50);
+            background-image: repeating-linear-gradient(to right, var(--neutral-50) 0 1px, transparent 1px 26.75px);
         }
+        /* Label/Small */
         .dash-chart-axis {
             display: flex; justify-content: space-between;
-            font-size: 12px; color: var(--text-subdued); margin-top: 6px;
+            font-size: 12px; line-height: 16px; letter-spacing: 0;
+            color: var(--text-subdued); margin-top: 8px;
         }
 
-        .dash-pair { display: flex; gap: 48px; margin-top: 26px; }
-        .dash-pair-item { flex: 1; max-width: 288px; }
+        .dash-pair { display: flex; gap: 32px; margin-top: 24px; }
+        .dash-pair-item { width: 305px; flex: none; }
         .dash-pair-head { display: flex; align-items: center; }
-        .dash-pair-head .view { margin-left: auto; color: var(--text-action-primary); font-size: 13px; cursor: pointer; }
+        .dash-pair-head .view { margin-left: auto; color: var(--text-action-primary); cursor: pointer; }
 
-        /* API keys card */
+        /* API keys card — 294x160 with a 20px inset */
         .dash-apikeys {
-            width: 292px; flex-shrink: 0;
-            background: var(--bg-offset); border-radius: 8px; padding: 16px;
+            width: 294px; height: 160px; flex-shrink: 0;
+            background: var(--bg-offset); border-radius: 8px; padding: 20px;
+            position: relative;
         }
-        .dash-apikeys-head { display: flex; align-items: center; margin-bottom: 12px; }
-        .dash-apikeys-head h3 { font-size: 16px; font-weight: 600; color: var(--text-heading); }
-        .dash-apikeys-head svg { margin-left: auto; width: 12px; height: 12px; color: var(--text-subdued); cursor: pointer; }
-        .dash-apikeys-row { display: flex; align-items: center; gap: 12px; font-size: 13px; padding: 3px 0; }
+        /* Heading/Medium */
+        .dash-apikeys-head h3 {
+            font-family: var(--font-display);
+            font-size: 20px; line-height: 28px; font-weight: 700;
+            letter-spacing: 0.3px; color: var(--text-default);
+        }
+        .dash-apikeys-head svg {
+            position: absolute; top: 20px; right: 20px;
+            width: 12px; height: 12px; color: var(--icon-default); cursor: pointer;
+        }
+        .dash-apikeys-row { display: flex; align-items: center; height: 20px; margin-top: 8px; }
         .dash-apikeys-row span:first-child { color: var(--text-default); }
         .dash-apikeys-row .val { margin-left: auto; color: var(--text-default); }
-        .dash-apikeys-row .dots { letter-spacing: 1px; color: #4f5b6d; }
-        .dash-apikeys-row .eye { width: 13px; height: 13px; color: var(--text-subdued); }
-        .dash-apikeys-link { display: inline-block; margin-top: 12px; color: var(--text-action-primary); font-size: 13px; cursor: pointer; }
+        .dash-apikeys-row .dots { letter-spacing: 1px; color: var(--text-subdued); }
+        .dash-apikeys-row .eye { width: 16px; height: 16px; margin-left: 8px; color: var(--icon-subdued); }
+        .dash-apikeys-link { display: inline-block; height: 20px; margin-top: 16px; color: var(--text-action-primary); cursor: pointer; }
 
-        /* Your overview */
-        .dash-overview { margin-top: 40px; }
-        .dash-overview-head { display: flex; align-items: center; }
-        .dash-overview-head .dash-h1 { font-size: 22px; }
+        /* Your overview — three 283px widgets on a 64px gutter, starting y569 */
+        .dash-overview { margin-top: 56px; }
+        .dash-overview-head { display: flex; align-items: center; height: 36px; }
         .dash-overview-actions { margin-left: auto; display: flex; gap: 8px; }
         .dash-btn {
             display: flex; align-items: center; gap: 6px;
-            padding: 6px 12px; border: 1px solid var(--border-default); border-radius: 6px;
-            background: var(--bg-surface); font-family: inherit; font-size: 13px; font-weight: 500;
+            height: 28px; padding: 0 8px;
+            border: 1px solid var(--neutral-100); border-radius: 6px;
+            background: var(--bg-surface); font-family: inherit;
+            font-size: 14px; line-height: 20px; letter-spacing: -0.15px; font-weight: 600;
             color: var(--text-default); cursor: pointer;
-            box-shadow: 0px 1px 1px rgba(48,49,61,0.05);
+            box-shadow: 0px 1px 1px rgba(33, 37, 44, 0.16);
         }
-        .dash-btn svg { width: 11px; height: 11px; }
-        .dash-overview-rule { height: 1px; background: var(--neutral-50); margin: 14px 0 20px; }
-        .dash-overview-cols { display: flex; gap: 56px; }
+        .dash-btn svg { width: 12px; height: 12px; color: var(--icon-default); }
+        .dash-overview-rule { height: 1px; background: var(--neutral-50); margin: 12px 0; }
+        .dash-overview-cols { display: flex; gap: 64px; }
         .dash-overview-col { flex: 1; min-width: 0; }
-        .dash-bar { height: 8px; border-radius: 4px; background: #d9dee5; margin: 14px 0 8px; }
-        .dash-stat-row {
-            display: flex; align-items: center; gap: 10px;
-            padding: 11px 0; border-bottom: 1px solid var(--neutral-50);
-            font-size: 13px;
+        /* Heading/Small */
+        .dash-widget-title {
+            display: flex; align-items: center; gap: 8px; height: 24px;
+            font-size: 16px; line-height: 24px; font-weight: 700;
+            letter-spacing: -0.31px; color: var(--text-default);
         }
-        .dash-stat-row .dot { width: 10px; height: 10px; border-radius: 3px; background: #d9dee5; flex-shrink: 0; }
+        .dash-widget-title svg { width: 12px; height: 12px; color: var(--icon-subdued); }
+        .dash-bar { height: 16px; border-radius: 4px; background: #ebebf5; margin-top: 8px; }
+        .dash-stat-row {
+            display: flex; align-items: center; gap: 12px;
+            height: 44px; border-bottom: 1px solid var(--neutral-100);
+        }
+        .dash-stat-row .dot { width: 12px; height: 12px; border-radius: 2px; background: #ebebf5; flex-shrink: 0; }
         .dash-stat-row .amt { margin-left: auto; }
+        .dash-overview-col .dash-metric-value { margin-top: 8px; }
 
-        /* Guided state: the setup-guide moment dims the lower right and glows */
+        /* Guided state: the setup-guide moment fades "Your overview" back to
+           10% and brings up the design's wave-wall gradient over it. The image
+           is the Figma asset, anchored to the frame's bottom-right corner. */
         .dash-glow {
             position: absolute;
-            right: -60px; bottom: -120px;
-            width: 760px; height: 520px;
-            border-radius: 50%;
-            background:
-                radial-gradient(45% 55% at 38% 42%, rgba(150, 190, 255, 0.55) 0%, rgba(150, 190, 255, 0) 70%),
-                radial-gradient(50% 50% at 62% 30%, rgba(196, 160, 255, 0.5) 0%, rgba(196, 160, 255, 0) 72%),
-                radial-gradient(45% 45% at 70% 62%, rgba(255, 138, 128, 0.55) 0%, rgba(255, 138, 128, 0) 70%),
-                radial-gradient(40% 40% at 32% 78%, rgba(255, 190, 150, 0.45) 0%, rgba(255, 190, 150, 0) 72%);
-            filter: blur(28px);
+            right: 4px; bottom: -1px;
+            width: 1181px; height: 372px;
+            background: url('assets/dash-wave-wall.png') no-repeat center / 100% 100%;
             opacity: 0;
             transition: opacity 0.4s ease;
             pointer-events: none;
         }
         #dash-layer.guided .dash-glow { opacity: 1; }
-        #dash-layer.guided .dash-overview { opacity: 0.32; }
+        #dash-layer.guided .dash-overview { opacity: 0.1; }
 
         /* The final step is the real dashboard: a 1280x840 layer scaled to cover
            the viewport. Scaling the layer rather than the image keeps the
@@ -1050,36 +1106,41 @@
         #dashboard-step.active { display: block; }
 
         /* Spotlight callout ("Next, set up recurring payments" + Got it) */
-        /* Both track the centred content block: its right edge sits
+        /* Tracks the centred content block: its right edge sits
            (100vw - 1216px)/2 from the window edge, which is 32px at the frame's
-           1280px. The callout keeps its 361px inset from that edge. */
+           1280px. That lands the 312px callout on x557, and the bottom inset
+           puts its last line on y776 with "Got it" below. */
         .spotlight {
             position: absolute;
-            right: calc(361px + (100vw - 1216px) / 2);
-            bottom: 61px;
-            width: 330px;
+            right: calc(379px + (100vw - 1216px) / 2);
+            bottom: 36px;
+            width: 312px;
         }
+        /* Display/Small */
         .spotlight-title {
-            font-size: 30px;
+            font-family: var(--font-display);
+            font-size: 32px;
             font-weight: 700;
             line-height: 40px;
-            letter-spacing: -0.5px;
-            color: var(--text-heading);
+            letter-spacing: 0.41px;
+            color: var(--text-default);
         }
         .spotlight-link {
             display: inline-block;
+            height: 20px;
             margin-top: 8px;
             font-size: 14px;
+            line-height: 20px;
             color: var(--text-default);
             text-decoration: underline;
             cursor: pointer;
         }
 
-        /* Setup guide floatie */
+        /* Setup guide floatie — 20px in from the frame's bottom-right corner */
         .floatie {
             position: absolute;
-            right: calc((100vw - 1216px) / 2);
-            bottom: 30px;
+            right: 20px;
+            bottom: 20px;
             width: 342px;
             background: var(--bg-surface);
             border-radius: 8px;
@@ -1278,16 +1339,16 @@
                         <div class="dash-overview-rule"></div>
                         <div class="dash-overview-cols">
                             <div class="dash-overview-col">
-                                <span class="dash-metric-label">Payments <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="1.5" width="9" height="9" rx="2"/><path d="M6 5.4v3.2M6 3.6v.5"/></svg></span>
+                                <span class="dash-widget-title">Payments <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="1.5" width="9" height="9" rx="2"/><path d="M6 5.4v3.2M6 3.6v.5"/></svg></span>
                                 <div class="dash-bar"></div>
                                 <div class="dash-stat-row"><span class="dot"></span><span>Succeeded</span><span class="amt">$0.00</span></div><div class="dash-stat-row"><span class="dot"></span><span>Succeeded</span><span class="amt">$0.00</span></div><div class="dash-stat-row"><span class="dot"></span><span>Refunded</span><span class="amt">$0.00</span></div><div class="dash-stat-row"><span class="dot"></span><span>Failed</span><span class="amt">$0.00</span></div>
                             </div>
                             <div class="dash-overview-col">
-                                <span class="dash-metric-label">Gross volume <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="1.5" width="9" height="9" rx="2"/><path d="M6 5.4v3.2M6 3.6v.5"/></svg></span>
+                                <span class="dash-widget-title">Gross volume <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="1.5" width="9" height="9" rx="2"/><path d="M6 5.4v3.2M6 3.6v.5"/></svg></span>
                                 <div class="dash-metric-value">$0.00</div>
                             </div>
                             <div class="dash-overview-col">
-                                <span class="dash-metric-label">Net volume from sales <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="1.5" width="9" height="9" rx="2"/><path d="M6 5.4v3.2M6 3.6v.5"/></svg></span>
+                                <span class="dash-widget-title">Net volume from sales <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="1.5" width="9" height="9" rx="2"/><path d="M6 5.4v3.2M6 3.6v.5"/></svg></span>
                                 <div class="dash-metric-value">$0.00</div>
                             </div>
                         </div>

@@ -295,7 +295,10 @@
             font-size: 20px; line-height: 28px; font-weight: 700;
             letter-spacing: 0.3px; color: var(--text-default);
         }
-        .ap-desc { font-size: 14px; line-height: 20px; letter-spacing: -0.15px; color: var(--text-subdued); }
+        /* Title and standfirst are one unit at 4px, so the 16px in .ap-content is
+           the gap to the rows rather than something the standfirst floats in. */
+        .ap-head { display: flex; flex-direction: column; gap: 4px; }
+        .ap-desc { font-size: 12px; line-height: 16px; color: var(--text-subdued); }
         .ap-rows { display: flex; flex-direction: column; gap: 12px; }
         .ap-row { display: flex; align-items: flex-start; gap: 12px; }
         .ap-ico { width: 16px; flex-shrink: 0; padding-top: 2px; color: var(--icon-default); }
@@ -640,8 +643,10 @@
             <!-- Figma 26721:39365 — only up before there's any volume -->
             <div class="ap-intro" id="apIntro" hidden>
                 <div class="ap-content">
-                    <div class="ap-title">Sell globally without the complexity</div>
-                    <p class="ap-desc">Focus on growth while Managed Payments handles tax, fraud, disputes, and more as your merchant of record.</p>
+                    <div class="ap-head">
+                        <div class="ap-title">Sell globally without the complexity</div>
+                        <p class="ap-desc">Focus on growth while Managed Payments handles tax, fraud, disputes, and more as your merchant of record.</p>
+                    </div>
                     <div class="ap-rows">
                         <!-- Tax leads: it's the responsibility being handed over, so the
                              other two read as consequences of it rather than extras. -->
