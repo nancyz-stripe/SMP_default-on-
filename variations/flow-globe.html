@@ -1862,7 +1862,11 @@
            twelve o'clock until it closes the loop. Two layers do it: ::before is
            the full gradient ring, ::after is the card face laid back over it so
            only a 1px edge shows, and the ring's conic mask is what sweeps. The
-           angle has to be a registered property or it wouldn't interpolate. */
+           angle has to be a registered property or it wouldn't interpolate.
+
+           Leaving fades the finished ring out rather than un-drawing it: the
+           sweep resets with a zero-length transition delayed by the length of
+           the fade, so it snaps back to 0 only once there's nothing to see. */
         .lp-ksp-card::before,
         .lp-ksp-card::after { content: ''; position: absolute; z-index: 0; pointer-events: none; }
         .lp-ksp-card::before {
@@ -1876,10 +1880,15 @@
                 #a855f7 220deg, #f472b6 300deg, #d946c8 360deg);
             -webkit-mask: conic-gradient(#000 0deg var(--lp-sweep), transparent var(--lp-sweep) 360deg);
                     mask: conic-gradient(#000 0deg var(--lp-sweep), transparent var(--lp-sweep) 360deg);
-            transition: --lp-sweep 0.75s linear;
+            opacity: 0;
+            transition: opacity 0.35s ease, --lp-sweep 0s linear 0.35s;
         }
         .lp-ksp-card::after { inset: 1px; border-radius: 5px; background: #fff; }
-        .lp-ksp-card:hover::before { --lp-sweep: 360deg; }
+        .lp-ksp-card:hover::before {
+            opacity: 1;
+            --lp-sweep: 360deg;
+            transition: opacity 0.12s ease, --lp-sweep 0.75s linear;
+        }
         /* Card content sits above both layers */
         .lp-ksp-card > * { position: relative; z-index: 1; }
 
@@ -2147,13 +2156,13 @@
             </div>
           </div>
         </div>
-        <div class="lp-split-visual"><img src="assets/landing/tax-diagram.png" width="606" height="606" alt="Customer purchase flowing through Managed Payments to a Stripe payout"></div>
+        <div class="lp-split-visual"><img src="assets/landing/tax-diagram.svg" width="606" height="606" alt="Customer purchase flowing through Managed Payments to a Stripe payout"></div>
       </div>
     </div>
 
     <div class="lp-sec" style="padding-bottom:0">
       <div class="lp-split middle">
-        <div class="lp-split-copy">
+        <div class="lp-split-copy" style="width:520px">
           <p class="lp-h-md">Grow global revenue</p>
           <p style="margin-top:16px">Increase conversion with localized checkout, and streamline post-purchase support through Link, Stripe’s consumer platform.</p>
           <div class="lp-notes" style="margin-top:40px">
@@ -2162,7 +2171,7 @@
             <p><b>Streamline post-purchase support.</b> Let your customers manage purchases, update payment methods, handle subscriptions, and access 24/7 multilingual support in their Link account.</p>
           </div>
         </div>
-        <div class="lp-split-visual"><img src="assets/landing/checkout.png" width="608" height="608" alt="Localized Stripe Checkout with Link"></div>
+        <div class="lp-split-visual"><img src="assets/landing/checkout.svg" width="608" height="608" alt="Localized Stripe Checkout with Link"></div>
       </div>
       <div class="lp-stats" style="margin-top:96px">
         <div class="lp-stat">
