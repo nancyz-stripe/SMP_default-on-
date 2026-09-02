@@ -1522,18 +1522,20 @@
             vertical-align: middle;
             cursor: help;
         }
-        .mkt-addon-hint { position: absolute; right: 24px; top: 31px; }
+        /* Runs with the sentence it belongs to rather than being pinned to the
+           Figma's x, so it stays put when the copy sets to a different width. */
+        .mkt-addon-hint { margin-left: 8px; }
 
         /* Custom pricing */
         .mkt-custom { margin-top: 40px; }
         .mkt-custom-card { border: 1px solid #e5edf5; border-radius: 6px; overflow: hidden; }
-        .mkt-custom-row { background: #f8fafd; display: flex; align-items: center; gap: 16px; padding: 24px; }
+        .mkt-custom-row { background: #f8fafd; min-height: 102px; display: flex; align-items: center; gap: 16px; padding: 24px; }
         .mkt-custom-text { flex: 1 0 0; min-width: 0; }
         .mkt-custom-text h3 { font-size: 20px; line-height: 1.12; letter-spacing: -0.2px; margin-bottom: 8px; }
         .mkt-custom-text p { width: 863px; }
 
         /* What's included: one table per capability group */
-        .mkt-included { padding: 96px 0 0; }
+        .mkt-included { padding: 96px 16px 0; }
         .mkt-included h2 { font-size: 32px; line-height: 36px; letter-spacing: -0.32px; margin-bottom: 40px; }
         .mkt-groups { display: flex; flex-direction: column; gap: 24px; }
         /* Ring rather than border: the Figma's block heights are the sum of the
@@ -1545,28 +1547,30 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            min-height: 55px;
+            height: 55px;
             background: #f8fafd;
-            padding: 16px;
+            padding: 0 16px;
             font-weight: 500;
             color: #061b31;
         }
         .mkt-thead .mkt-hint { width: 20px; height: 20px; background: #eef1f6; }
-        .mkt-tr { display: flex; min-height: 77px; border-top: 1px solid #e5edf5; }
+        .mkt-tr { display: flex; height: 77px; border-top: 1px solid #e5edf5; }
         .mkt-td-name { width: 816px; flex-shrink: 0; padding: 15px 16px; }
         .mkt-td-name b { display: block; font-weight: 500; color: #061b31; }
         .mkt-td-name .mkt-hint { width: 20px; height: 20px; margin-left: 8px; }
-        .mkt-td-value { flex: 1; padding: 15px 16px; border-left: 1px solid #eef2f7; display: flex; align-items: flex-start; gap: 8px; }
+        .mkt-td-value { flex: 1; padding: 15px 16px; border-left: 1px dashed #e5edf5; display: flex; align-items: flex-start; gap: 8px; }
         .mkt-td-value svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 3px; }
         .mkt-td-value a { color: #061b31; text-decoration: underline; }
         /* The pricing footer row: one cell, the fee pushed to the far edge */
-        .mkt-tr-total { border-top: 0; min-height: 55px; background: #f8fafd; padding: 16px; display: flex; align-items: center; justify-content: space-between; color: #061b31; }
+        .mkt-tr-total { border-top: 0; height: 55px; background: #f8fafd; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; color: #061b31; }
         .mkt-tr-total b { font-weight: 500; }
 
         /* How Managed Payments differs */
-        .mkt-differs { padding: 64px 0 100px; }
+        .mkt-differs { padding: 64px 16px 100px; }
         .mkt-differs h2 { font-size: 20px; line-height: 1.12; letter-spacing: -0.2px; margin-bottom: 16px; }
-        .mkt-differs p { max-width: 830px; }
+        /* Wide enough to hold the Figma's four lines in the system font, which
+           sets a little wider than Sohne does. */
+        .mkt-differs p { max-width: 880px; }
 
         /* FAQ */
         .mkt-faq { background: #f8fafd; }
@@ -1579,7 +1583,7 @@
             justify-content: space-between;
             gap: 16px;
             min-height: 60px;
-            border-bottom: 1px solid #e5edf5;
+            border-bottom: 1px dashed #e5edf5;
             font-size: 18px;
             line-height: 28px;
             color: #061b31;
@@ -1600,26 +1604,44 @@
         }
 
         /* Closing CTA */
-        .mkt-cta { text-align: center; padding: 96px 0 100px; }
-        .mkt-cta h2 { width: 640px; margin: 0 auto; font-size: 32px; line-height: 40px; letter-spacing: -0.32px; }
-        .mkt-cta p { width: 660px; margin: 16px auto 0; font-size: 20px; line-height: 28px; letter-spacing: -0.2px; }
-        .mkt-cta-actions { display: flex; justify-content: center; gap: 8px; margin-top: 28px; }
+        .mkt-cta { text-align: center; padding: 92px 16px 96px; }
+        /* Widths set so the system font breaks these two where Sohne does */
+        .mkt-cta h2 { width: 625px; margin: 0 auto; font-size: 32px; line-height: 40px; letter-spacing: -0.32px; }
+        .mkt-cta p { width: 645px; margin: 12px auto 0; font-size: 20px; line-height: 28px; letter-spacing: -0.2px; }
+        .mkt-cta-actions { display: flex; justify-content: center; gap: 8px; margin-top: 31px; }
 
         /* Footer */
         .mkt-footer { padding-top: 64px; font-size: 14px; line-height: 24px; }
-        .mkt-footer-cols { position: relative; display: flex; padding-bottom: 64px; }
+        /* Column starts and the rules between them are the Figma's own x
+           positions, which aren't on an even rhythm — hence the explicit
+           track widths and the rules drawn as their own layer. */
+        .mkt-footer-cols {
+            position: relative;
+            display: grid;
+            grid-template-columns: 314px 310px 312px 256px;
+            padding-bottom: 56px;
+        }
         .mkt-footer-col { width: 256px; }
-        .mkt-footer-col + .mkt-footer-col { margin-left: 58px; border-left: 1px solid #e5edf5; padding-left: 58px; }
-        .mkt-footer-group + .mkt-footer-group { margin-top: 40px; }
+        .mkt-footer-cols > i {
+            position: absolute;
+            top: 0;
+            bottom: 56px;
+            width: 1px;
+            background: #e5edf5;
+        }
+        .mkt-footer-cols > i:nth-of-type(1) { left: 294px; }
+        .mkt-footer-cols > i:nth-of-type(2) { left: 606px; }
+        .mkt-footer-cols > i:nth-of-type(3) { left: 921px; }
+        .mkt-footer-group + .mkt-footer-group { margin-top: 64px; }
         .mkt-footer h3 { font-size: 14px; line-height: 20px; font-weight: 600; margin-bottom: 7px; }
         .mkt-footer a { display: block; color: #50617a; text-decoration: none; }
         .mkt-footer a:hover { color: #061b31; }
-        .mkt-footer-callout { display: inline-flex; align-items: center; gap: 5px; color: #533afd; margin-top: 16px; }
+        .mkt-footer-callout { display: inline-flex; align-items: center; gap: 5px; color: #533afd; margin-top: 46px; }
         .mkt-footer-callout svg { width: 5px; height: 8px; }
         .mkt-footer-bar { border-top: 1px solid #e5edf5; padding: 36px 0 64px; }
-        .mkt-footer-locale { display: flex; align-items: center; gap: 8px; }
+        .mkt-footer-locale { display: flex; align-items: center; gap: 8px; line-height: 16px; }
         .mkt-footer-locale svg { width: 16px; height: 16px; color: #3c4f69; }
-        .mkt-footer-copy { margin-top: 10px; }
+        .mkt-footer-copy { margin-top: 10px; font-size: 16px; line-height: 23px; }
 
     </style>
 </head>
@@ -1710,9 +1732,8 @@
         <div class="mkt-card mkt-addon">
           <div class="mkt-addon-row">
             <div class="mkt-addon-left">
-              <span class="mkt-hint mkt-addon-hint" title="Managed Payments can be turned on per transaction.">?</span>
               <h3>Flexible add-on pricing</h3>
-              <p>Use Managed Payments across your business or selectively for the transactions where you want merchant of record responsibilities handled for you.</p>
+              <p>Use Managed Payments across your business or selectively for the transactions where you want merchant of record responsibilities handled for you.<span class="mkt-hint mkt-addon-hint" title="Managed Payments can be turned on per transaction.">?</span></p>
               <div class="mkt-addon-checks">
                 <div class="mkt-check-col">
                   <span class="mkt-check"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="8" fill="#e2e4ff"/><path d="M4.5 8.3l2.3 2.3 4.7-5" stroke="#533afd" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> Tax calculation, collection, filing, and remittance in supported countries</span>
@@ -1851,6 +1872,7 @@
     <div class="mkt-footer">
       <div class="mkt-row">
         <div class="mkt-footer-cols">
+          <i></i><i></i><i></i>
           <div class="mkt-footer-col">
             <div class="mkt-footer-group">
               <h3>Products and Pricing</h3>
