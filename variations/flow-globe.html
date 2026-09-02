@@ -3248,13 +3248,13 @@ const ALL_STEPS = [
     // Figma 26702:75374, headline 26799:94394 — the simplified screen: no
     // gradient, no globe, no choice to make. The peer group is digital goods
     // sellers rather than "businesses like yours", and the home market is named,
-    // so the list below reads as what leaving it brings with it. The headline
-    // keeps the figure the earlier copy carried: the design leaves it as the
-    // placeholder "x%", and 87% on Stripe is a claim the page can stand behind.
+    // so the list below reads as what leaving it brings with it. The share is
+    // the design's own "x%" — a placeholder standing in until the figure is
+    // settled, so don't read it as a number that's gone missing.
     id: 'cross-border-brief',
     actions: ['skip', 'continue'],
     render: () => `
-      <div class="headline">87% of digital goods businesses on Stripe sell globally. <span class="muted">Here’s what comes with selling outside of the United States.</span></div>
+      <div class="headline">x% of digital goods businesses on Stripe sell globally. <span class="muted">Here’s what comes with selling outside of the United States.</span></div>
       <div class="brief-card">
         ${brief([
           {
