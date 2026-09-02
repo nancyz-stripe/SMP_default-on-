@@ -475,10 +475,9 @@
             font-size: 18px; line-height: 28px; font-weight: 600;
             letter-spacing: -0.48px; color: var(--text-value);
         }
-        /* The subvalues share one 6px-gapped group: the count this rate is drawn
-           from, then the movement. */
+        /* Just the movement now, but it keeps its own group so a second subvalue
+           beside it would sit on the same baseline. */
         .card-subvals { display: flex; align-items: baseline; gap: 6px; }
-        .card-count { font-size: 12px; line-height: 16px; letter-spacing: -0.024px; color: var(--text-secondary); }
         .delta { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: -0.024px; color: var(--text-success); }
 
         /* No legend on the cards: with the counterfactual named in the tooltip
@@ -1197,9 +1196,6 @@ const CARDS = [
        liability is all yours, so there is no coverage to plot */
     withLabel: 'Tax coverage with Managed Payments',
     withoutLabel: 'Tax coverage without',
-    covered: 1884,
-    determined: 2000,
-    sub: c => `${c.covered.toLocaleString()} of ${c.determined.toLocaleString()} payments`,
     with:    [86.5, 87.8, 88.9, 89.8, 90.6, 91.3, 91.9, 92.4, 92.9, 93.4, 93.8, 94.2],
     without: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     foot: p => `Managed Payments contributed to ${p} uplift tax coverage.`,
@@ -1232,8 +1228,6 @@ const CARDS = [
     headline: 'rate',
     withLabel: 'Won with Managed Payments',
     withoutLabel: 'Won without',
-    recovered: 3800,
-    sub: c => `${sum(c.with)} of ${sum(c.total)} \u00b7 $${c.recovered.toLocaleString()} recovered`,
     with:    [2, 3, 3, 3, 4, 3],
     without: [1, 1, 1, 1, 1, 1],
     /* resolved disputes: the denominator the win rate is drawn from */
@@ -1305,11 +1299,6 @@ function headline(c) {
   /* nothing has happened yet, so there's no figure to quote */
   if (!c.with.length) return '—';
   return fmt[c.unit](headlineValue(c));
-}
-
-/* The count a rate is drawn from, where the metric has one. */
-function subvalue(c) {
-  return c.with.length && c.sub ? c.sub(c) : '';
 }
 
 /* A rate is compared with the period before it; a total or a gap is compared
@@ -1385,7 +1374,6 @@ function cardHtml(c) {
       <div class="card-valrow">
         <span class="card-val">${headline(c)}</span>
         <span class="card-subvals">
-          ${subvalue(c) ? `<span class="card-count">${subvalue(c)}</span>` : ''}
           <span class="delta">${deltaOf(c)}</span>
         </span>
       </div>`}
