@@ -84,6 +84,14 @@
       border: none;
       pointer-events: none;
     }
+    /* Cropped to fill, which is how the live previews behave too — they scale by
+       the larger of the two ratios rather than fitting inside. */
+    .card-thumb {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
     .card-preview-placeholder {
       color: var(--text-muted);
       font-size: 13px;
@@ -496,6 +504,7 @@ const exploreVariations = [
     id: 'website',
     title: 'Website',
     file: 'flow-globe.html?site=1&s=1',
+    thumb: 'assets/thumbs/website.png',
   },
   {
     // The flow, on the spotlight gradient, with the globe on the opt-in step —
@@ -506,6 +515,7 @@ const exploreVariations = [
     title: 'Onboarding',
     file: 'flow-globe.html',
     preview: 'flow-globe.html?s=6',
+    thumb: 'assets/thumbs/onboarding.png',
   },
   {
     // Not part of the flow: the post-signup surface, where the counterfactual
@@ -514,6 +524,7 @@ const exploreVariations = [
     title: 'SMP Home',
     file: 'smp-home.html',
     preview: 'smp-home.html',
+    thumb: 'assets/thumbs/smp-home.png',
   },
 ];
 
@@ -688,10 +699,14 @@ function renderCard(v, i, section) {
 
 // Explorations cards: just the preview and the title. No CTA — the whole card
 // is the link.
+// A designed thumbnail wins over a live preview: no data-src, so scalePreviews
+// leaves the card alone and never puts an iframe behind the image.
 function renderExploreCard(v) {
   return `
     <a class="card" href="${v.file}">
-      <div class="card-preview" data-src="${v.preview || v.file}"></div>
+      ${v.thumb
+        ? `<div class="card-preview"><img class="card-thumb" src="${v.thumb}" alt=""></div>`
+        : `<div class="card-preview" data-src="${v.preview || v.file}"></div>`}
       <div class="card-body">
         <div class="card-explore-title">${v.title}</div>
       </div>
