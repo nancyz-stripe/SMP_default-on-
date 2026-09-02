@@ -3624,7 +3624,10 @@ const SEARCH_SECTIONS = [
   { title: 'Go to', rows: [
     { label: 'Data management' },
     { crumb: 'Settings', label: 'Managed Payments' },
-    { label: 'Managed Payments', href: 'smp-home.html' },
+    /* Home opens on the stage the onboarding choice puts the account in, so
+       the state that follows from that choice is the one that's waiting. */
+    { label: 'Managed Payments',
+      href: () => `smp-home.html?stage=${state.managed === 0 ? 'new-smp' : 'new-no-smp'}` },
   ]},
   { title: 'Docs', kind: 'doc', rows: [
     { label: 'Managed Support' },
@@ -3666,7 +3669,9 @@ const DOC_ICON = '<svg class="doc" viewBox="0 0 16 16" fill="none" stroke="curre
 
 function searchRow(row, kind, q) {
   const label = mark(row.label, q);
-  const go = row.href ? ` onclick="location.href='${row.href}'"` : '';
+  // A row's href can be a function when it depends on the flow's state.
+  const href = typeof row.href === 'function' ? row.href() : row.href;
+  const go = href ? ` onclick="location.href='${href}'"` : '';
   if (kind === 'doc') {
     return `<div class="dash-search-row"${go}>${DOC_ICON}<span>${label}</span></div>`;
   }

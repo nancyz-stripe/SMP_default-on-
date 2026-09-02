@@ -1275,23 +1275,28 @@ const CARDS = [
    carry the hero either: there's nothing left to sell. */
 const STAGES = [
   {
-    id: 'new-smp',
-    label: 'New users (with SMP)',
-    masked: true,
-    hero: false,
-    note: 'Nothing to show yet. Data will appear once payments start coming in.',
-  },
-  {
     id: 'new-no-smp',
     label: 'New users (without SMP)',
     masked: true,
     hero: true,
     note: 'Data only available with Managed Payments.',
   },
+  {
+    id: 'new-smp',
+    label: 'New users (with SMP)',
+    masked: true,
+    hero: false,
+    note: 'Nothing to show yet. Data will appear once payments start coming in.',
+  },
   { id: 'volume', label: 'With volume', masked: false, hero: false },
 ];
 
-let stageId = 'new-smp';
+/* Arriving from the onboarding flow, the search result that got here carries the
+   stage the account's own choice puts it in — opting into Managed Payments lands
+   on the with-SMP stage, handling it yourself on the without. Opened on its own,
+   Home still starts on with-SMP. */
+const stageParam = new URLSearchParams(location.search).get('stage');
+let stageId = STAGES.some(s => s.id === stageParam) ? stageParam : 'new-smp';
 
 const stage = () => STAGES.find(s => s.id === stageId);
 
