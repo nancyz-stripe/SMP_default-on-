@@ -1124,13 +1124,17 @@
         }
         .option-row .box svg { width: 10px; height: 10px; opacity: 0; color: #fff; }
         .option-row.selected .box svg { opacity: 1; }
+        /* Both blocks, so the examples sit under the title rather than running on
+           from it — the margin below was doing nothing on an inline span. Same
+           pairing as .brief-title/.brief-desc. */
         .option-row .row-title {
+            display: block;
             font-size: 14px;
             font-weight: 600;
             color: var(--text-default);
             margin-bottom: 4px;
         }
-        .option-row .row-label { font-size: 13px; color: var(--text-subdued); line-height: 1.5; }
+        .option-row .row-label { display: block; font-size: 12px; line-height: 16px; color: var(--text-subdued); }
         .text-link {
             display: inline-block;
             margin-top: 16px;
@@ -3232,7 +3236,10 @@ const STEPS = [
     render: () => `
       <div class="headline">Next, tell us what you sell. <span class="muted">This helps us get you the best setup.</span></div>
       ${rows('sell', [
-        { title: 'Digital goods', label: 'Software as a service, video games, eBooks, online courses and others.' },
+        // AI services lead the examples: it's the fastest-growing thing sold
+        // this way, and it's what a reader scanning for themselves looks for
+        // first (Figma 26608:46700).
+        { title: 'Digital goods', label: 'AI services, Software as a service, video games, eBooks, online courses and others.' },
         { title: 'Physical goods', label: 'Magazines, keyboards, food, clothing and others.' },
         { title: 'Services', label: 'Landscaping, hairdressing, training and others.' },
       ])}`,
