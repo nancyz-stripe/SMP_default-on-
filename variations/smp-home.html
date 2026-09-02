@@ -1569,8 +1569,7 @@ CONFIRM_BTN.addEventListener('click', () => {
   stageId = 'volume';
   setModalOpen(false);
   renderScope();
-  renderSwitch();
-  renderCards();
+  renderStage();
 });
 
 /* ===========================================================
@@ -1609,7 +1608,30 @@ const LOCATIONS = [
 
 let locFilter = 'all';
 
-const usdK = v => '$' + (v / 1000).toFixed(1) + 'K';
+/* The table follows the same stage the cards do. LOCATIONS above is the
+   with-volume truth; before there's volume the account has only just switched on,
+   so its home market is the one covered and nowhere else is. Without the product
+   nothing is covered at all — there'd be no location for Stripe to be managing.
+
+   A working copy rather than a derived view, so Enable can still flip a row in
+   whichever stage you're in without writing back into the authored data. */
+function locationRows() {
+  const s = stage();
+  if (!s.masked) return LOCATIONS.map(l => ({ ...l }));
+  const home = s.id === 'new-smp' ? 'United States' : null;
+  return LOCATIONS.map(l => ({
+    ...l,
+    on: l.name === home,
+    /* covered as of today: zero is a figure, so it's reported rather than left
+       blank the way an uncovered location's columns are */
+    vol: l.name === home ? 0 : undefined,
+  }));
+}
+
+let locRows = locationRows();
+
+/* Zero is exact, so it's stated to the cent rather than rounded to $0.0K. */
+const usdK = v => (v === 0 ? '$0.00' : '$' + (v / 1000).toFixed(1) + 'K');
 
 /* A sparkline from the row's own volume, so no two are identical and none of
    them is random — the same figure always draws the same shape. */
@@ -1624,12 +1646,21 @@ function sparkline(seed) {
   return `<svg class="loc-spark" viewBox="0 0 32 14" fill="var(--chart-with)" aria-hidden="true">${bars.join('')}</svg>`;
 }
 
+/* Three states, not two: a figure, a zero, or nothing at all. Zero gets no
+   sparkline — there's no history to draw yet — and an uncovered location gets no
+   cell content, because the column isn't reporting on it. */
+function figure(v, seed = 0) {
+  if (v == null || v === false) return '';
+  if (!v) return usdK(0);
+  return usdK(v) + sparkline(v + seed);
+}
+
 function renderLocations() {
-  const on = LOCATIONS.filter(l => l.on).length;
+  const on = locRows.filter(l => l.on).length;
   const tiles = [
-    { id: 'all', label: 'All locations', value: LOCATIONS.length },
+    { id: 'all', label: 'All locations', value: locRows.length },
     { id: 'on',  label: 'Enabled',       value: on },
-    { id: 'off', label: 'Disabled',      value: LOCATIONS.length - on },
+    { id: 'off', label: 'Disabled',      value: locRows.length - on },
   ];
   document.getElementById('locTiles').innerHTML = tiles.map(t => `
     <button class="loc-tile${t.id === locFilter ? ' active' : ''}" data-filter="${t.id}" aria-pressed="${t.id === locFilter}">
@@ -1637,14 +1668,14 @@ function renderLocations() {
       <div class="loc-tile-value">${t.value}</div>
     </button>`).join('');
 
-  const rows = LOCATIONS.filter(l => locFilter === 'all' || (locFilter === 'on') === l.on);
+  const rows = locRows.filter(l => locFilter === 'all' || (locFilter === 'on') === l.on);
   document.getElementById('locBody').innerHTML = rows.map(l => `
     <div class="loc-row">
       <img class="loc-flag" src="assets/flags/${l.code}.svg" alt="">
       <span class="loc-name">${l.name}</span>
       <span><span class="badge ${l.on ? 'on' : 'off'}">${l.on ? 'Enabled' : 'Disabled'}</span></span>
-      <span class="loc-figure">${l.vol ? usdK(l.vol) + sparkline(l.vol) : ''}</span>
-      <span class="loc-figure">${l.vol ? usdK(l.vol * 0.94) + sparkline(l.vol + 7) : ''}</span>
+      <span class="loc-figure">${figure(l.vol)}</span>
+      <span class="loc-figure">${figure(l.vol && l.vol * 0.94, 7)}</span>
       <span class="loc-actions">
         <span class="loc-dots">···</span>
         <span class="loc-qa">
@@ -1654,7 +1685,7 @@ function renderLocations() {
       </span>
     </div>`).join('');
 
-  document.getElementById('locCount').textContent = `${rows.length} of ${LOCATIONS.length} results`;
+  document.getElementById('locCount').textContent = `${rows.length} of ${locRows.length} results`;
 }
 
 document.getElementById('locTiles').addEventListener('click', e => {
@@ -1668,9 +1699,10 @@ document.getElementById('locTiles').addEventListener('click', e => {
 document.getElementById('locBody').addEventListener('click', e => {
   const btn = e.target.closest('[data-enable]');
   if (!btn) return;
-  const loc = LOCATIONS.find(l => l.name === btn.dataset.enable);
+  const loc = locRows.find(l => l.name === btn.dataset.enable);
   loc.on = true;
-  /* covered from today, so the figure columns stay empty until it has volume */
+  /* covered from today, so it reports zero rather than nothing */
+  loc.vol = 0;
   renderLocations();
 });
 
@@ -1691,6 +1723,15 @@ function renderSwitch() {
   STAGE_EL.innerHTML = STAGES.map(s =>
     `<button class="stage-btn${s.id === stageId ? ' active' : ''}" data-stage="${s.id}">${s.label}</button>`
   ).join('');
+}
+
+/* The stage owns both tabs, so changing it re-seeds the table too — otherwise the
+   Locations tab would still be showing the previous stage's coverage. */
+function renderStage() {
+  renderSwitch();
+  renderCards();
+  locRows = locationRows();
+  renderLocations();
 }
 
 function renderCards() {
@@ -1722,8 +1763,7 @@ STAGE_EL.addEventListener('click', e => {
   const btn = e.target.closest('.stage-btn');
   if (!btn || btn.dataset.stage === stageId) return;
   stageId = btn.dataset.stage;
-  renderSwitch();
-  renderCards();
+  renderStage();
 });
 
 /* ===========================================================
@@ -1925,8 +1965,7 @@ function drawAll() {
 }
 
 renderScope();
-renderSwitch();
-renderCards();
+renderStage();
 window.addEventListener('resize', drawAll);
 </script>
 </body>
