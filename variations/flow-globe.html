@@ -1543,9 +1543,19 @@
         .mkt-included { padding: 96px 16px 0; }
         .mkt-included h2 { font-size: 32px; line-height: 36px; letter-spacing: -0.32px; margin-bottom: 40px; }
         .mkt-groups { display: flex; flex-direction: column; gap: 24px; }
-        /* Ring rather than border: the Figma's block heights are the sum of the
-           rows, so an outer border must not add to them. */
-        .mkt-table { box-shadow: inset 0 0 0 1px #e5edf5; border-radius: 6px; overflow: hidden; background: #fff; }
+        /* The outline is drawn over the rows rather than as a border on the
+           table: the Figma's block heights are the sum of the rows, so it must
+           not add to them, and the group header's own background would paint
+           over anything underneath it. */
+        .mkt-table { position: relative; border-radius: 6px; overflow: hidden; background: #fff; }
+        .mkt-table::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 1px solid #e5edf5;
+            border-radius: 6px;
+            pointer-events: none;
+        }
         /* Row heights are pinned to the Figma's 55 and 77 so a long group of
            tables doesn't drift a pixel a row against the design. */
         .mkt-thead {
