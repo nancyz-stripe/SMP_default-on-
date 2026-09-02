@@ -410,6 +410,11 @@
 
 <div class="tab-panel active" id="panel-explorations">
   <div class="section">
+    <div class="section-heading">Website</div>
+    <div class="grid" id="grid-website"></div>
+  </div>
+
+  <div class="section">
     <div class="section-heading">SMP Flows</div>
     <div class="grid" id="grid-explore"></div>
   </div>
@@ -483,6 +488,15 @@ const flowVariations = [
     file: 'flow.html?framework=expand',
     preview: 'smp.html?framework=expand&preview=1',
   },
+];
+
+// The public site: the two stripe.com pages that sit in front of the flow.
+// Both live in flow-globe.html as its first two steps, and they link to each
+// other in place — Pricing off the landing nav, Overview off the pricing nav —
+// so either card drops you into a site you can move around.
+const websiteVariations = [
+  { id: 'site-landing', title: 'Landing page', file: 'flow-globe.html?s=1' },
+  { id: 'site-pricing', title: 'Pricing page', file: 'flow-globe.html?s=2' },
 ];
 
 // Explorations: the full onboarding flow, with the cross-border stretch under
@@ -705,6 +719,9 @@ function renderFlowCard(v) {
 }
 
 function renderGrid() {
+  const gridWebsite = document.getElementById('grid-website');
+  gridWebsite.innerHTML = websiteVariations.map(renderExploreCard).join('');
+
   const gridExplore = document.getElementById('grid-explore');
   gridExplore.innerHTML = exploreVariations.map(renderExploreCard).join('');
 
