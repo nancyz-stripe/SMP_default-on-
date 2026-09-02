@@ -544,6 +544,121 @@
         .tip-ico { width: 16px; height: 16px; flex: 0 0 16px; display: grid; place-items: center; color: #2b8700; }
         .tip-ico svg { width: 14px; height: 14px; }
 
+        /* ---------------- Locations tab ----------------
+           Figma 26655:63683. A 36px-row table over the three count tiles, the
+           filter chips and a search field. Column tracks are the design's own
+           offsets: the flag at 4, the name at 36, status at 290, volume at 481,
+           tax at 663, the action cell last — the middle track absorbs the slack
+           so the row still adds up if the window is narrower than 972. */
+        .panel[hidden] { display: none; }
+
+        .loc-tiles { display: flex; gap: 8px; margin-bottom: 16px; }
+        .loc-tile {
+            flex: 1; min-width: 80px; padding: 11px;
+            background: var(--bg-surface); border: 1px solid #d8dee4; border-radius: 6px;
+            cursor: pointer; text-align: left; font-family: inherit;
+        }
+        .loc-tile-label { font-size: 14px; line-height: 20px; letter-spacing: -0.15px; color: var(--text-default); }
+        .loc-tile-value { font-size: 16px; line-height: 24px; font-weight: 600; letter-spacing: -0.31px; color: var(--text-default); }
+        /* the selected tile keeps the 1px border and lays a 2px one over it */
+        .loc-tile.active { box-shadow: inset 0 0 0 2px var(--bg-form-accent); }
+        .loc-tile.active .loc-tile-label { color: var(--text-action-primary); }
+
+        .loc-chips { display: flex; gap: 8px; margin-bottom: 12px; }
+        .loc-chip {
+            display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 8px;
+            border: 1px solid #d8dee4; border-radius: 999px; background: var(--bg-surface);
+            font-family: inherit; font-size: 12px; font-weight: 600; line-height: 16px;
+            letter-spacing: -0.024px; color: var(--text-subdued); cursor: pointer;
+        }
+        .loc-chip:hover { background: var(--bg-offset); }
+        .loc-chip svg { width: 12px; height: 12px; color: var(--icon-subdued); }
+
+        .loc-search {
+            display: flex; align-items: center; gap: 8px; height: 28px; padding: 0 8px;
+            margin-bottom: 12px;
+            border: 1px solid #d8dee4; border-radius: 6px; background: var(--bg-surface);
+            font-size: 14px; line-height: 20px; letter-spacing: -0.15px; color: var(--text-subdued);
+        }
+        .loc-search svg { width: 12px; height: 12px; flex-shrink: 0; color: var(--icon-subdued); }
+
+        .loc-row {
+            display: grid;
+            grid-template-columns: 32px 254px 191px 182px minmax(80px, 1fr) 35px;
+            align-items: center;
+            height: 36px; padding-left: 4px;
+            border-bottom: 1px solid var(--neutral-50);
+            position: relative;
+        }
+        .loc-head {
+            font-size: 12px; line-height: 16px; font-weight: 600;
+            letter-spacing: -0.024px; color: var(--text-subdued);
+        }
+        .loc-head .sortable { display: inline-flex; align-items: center; gap: 4px; }
+        .loc-head .sortable svg { width: 10px; height: 10px; }
+
+        /* the hovered row: the offset fill, and a 2px brand edge that bleeds past
+           the 4px gutter so it sits on the table's own left edge */
+        .loc-body .loc-row:hover { background: var(--bg-offset); }
+        .loc-body .loc-row::before {
+            content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
+            background: var(--bg-form-accent); opacity: 0;
+        }
+        .loc-body .loc-row:hover::before { opacity: 1; }
+
+        .loc-flag { font-size: 15px; line-height: 1; }
+        .loc-name { font-size: 14px; line-height: 20px; letter-spacing: -0.15px; color: var(--text-default); }
+        .loc-figure { display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 20px; letter-spacing: -0.15px; color: var(--text-default); }
+        .loc-spark { display: block; width: 34px; height: 14px; }
+
+        .badge {
+            display: inline-flex; align-items: center; height: 20px; padding: 0 6px;
+            border-radius: 4px; font-size: 12px; line-height: 16px; font-weight: 500;
+        }
+        .badge.on { background: #cbf4c9; color: #0e6245; }
+        .badge.off { background: #e3e8ee; color: #4f566b; }
+
+        /* Actions sit in a 35px cell, so the pair that appears on hover is
+           positioned rather than laid out — it has to grow leftwards into the
+           column beside it, as it does in the design. */
+        .loc-actions { position: relative; height: 100%; display: flex; align-items: center; justify-content: center; }
+        .loc-dots { color: var(--icon-subdued); font-size: 14px; letter-spacing: 1px; line-height: 1; }
+        .loc-qa {
+            position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+            display: none; align-items: stretch;
+        }
+        .loc-body .loc-row:hover .loc-qa { display: flex; }
+        .loc-body .loc-row:hover .loc-dots { display: none; }
+        /* Joined, so the two read as one control: the Enable button loses its
+           right corners and the overflow button its left ones. */
+        .loc-qa button {
+            height: 24px; padding: 4px 8px; background: var(--bg-surface);
+            border: 1px solid #d8dee4; font-family: inherit;
+            font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: -0.2px;
+            color: var(--text-default); cursor: pointer;
+            box-shadow: 0 1px 1px 0 rgba(33, 37, 44, 0.16);
+        }
+        .loc-qa button:hover { background: var(--bg-offset); }
+        .loc-qa .qa-main { border-radius: 6px 0 0 6px; }
+        .loc-qa .qa-more { border-radius: 0 6px 6px 0; border-left: 0; width: 24px; padding: 0; color: var(--icon-subdued); }
+        /* an enabled location has nothing to enable, so it keeps just the overflow */
+        .loc-qa .qa-more.only { border-radius: 6px; border-left: 1px solid #d8dee4; }
+
+        .loc-foot {
+            display: flex; align-items: center; justify-content: space-between;
+            padding-top: 12px;
+            font-size: 14px; line-height: 20px; letter-spacing: -0.15px; color: var(--text-subdued);
+        }
+        .loc-page { display: flex; gap: 8px; }
+        .loc-page button {
+            height: 28px; padding: 0 12px; border: 1px solid #d8dee4; border-radius: 6px;
+            background: var(--bg-surface); box-shadow: 0 1px 1px 0 rgba(33, 37, 44, 0.16);
+            font-family: inherit; font-size: 14px; font-weight: 600; letter-spacing: -0.15px;
+            color: var(--text-default); cursor: pointer;
+        }
+        .loc-page button:hover:not([disabled]) { background: var(--bg-offset); }
+        .loc-page button[disabled] { opacity: 0.5; cursor: not-allowed; }
+
         /* ---------------- Coverage modal ----------------
            Figma 26767:96108: a 648x500 card centred in the viewport, 32px padding,
            the two choices in the middle and the buttons pinned to the bottom —
@@ -799,10 +914,12 @@
                 </button>
             </div>
 
-            <div class="tabs">
-                <button class="tab active">Performance</button>
-                <button class="tab">Locations</button>
+            <div class="tabs" id="tabs">
+                <button class="tab active" data-tab="performance">Performance</button>
+                <button class="tab" data-tab="locations">Locations</button>
             </div>
+
+            <div class="panel" id="panelPerformance">
 
             <!-- Figma 26721:39365 — only up before there's any volume -->
             <div class="ap-intro" id="apIntro" hidden>
@@ -877,6 +994,50 @@
             </div>
 
             <div class="cards" id="cards"></div>
+            </div><!-- /panelPerformance -->
+
+            <!-- Figma 26655:63683 -->
+            <div class="panel" id="panelLocations" hidden>
+                <div class="loc-tiles" id="locTiles"></div>
+
+                <div class="loc-chips">
+                    <button class="loc-chip">
+                        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="6" cy="6" r="5"/><path d="M6 3.6v4.8M3.6 6h4.8"/></svg>
+                        Region
+                    </button>
+                    <button class="loc-chip">
+                        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="6" cy="6" r="5"/><path d="M6 3.6v4.8M3.6 6h4.8"/></svg>
+                        Status
+                    </button>
+                </div>
+
+                <div class="loc-search">
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="5" cy="5" r="3.4"/><path d="M7.6 7.6l2.6 2.6"/></svg>
+                    Search
+                </div>
+
+                <div class="loc-row loc-head">
+                    <span></span>
+                    <span>Location</span>
+                    <span>Status</span>
+                    <span class="sortable">Payment volume
+                        <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2v6M2.6 5.6L5 8l2.4-2.4"/></svg>
+                    </span>
+                    <span class="sortable">Tax liability covered
+                        <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2v6M2.6 5.6L5 8l2.4-2.4"/></svg>
+                    </span>
+                    <span></span>
+                </div>
+                <div class="loc-body" id="locBody"></div>
+
+                <div class="loc-foot">
+                    <span id="locCount"></span>
+                    <span class="loc-page">
+                        <button disabled>Previous</button>
+                        <button>Next</button>
+                    </span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -1300,6 +1461,118 @@ CONFIRM_BTN.addEventListener('click', () => {
   renderScope();
   renderSwitch();
   renderCards();
+});
+
+/* ===========================================================
+   Locations (Figma 26655:63683)
+   -----------------------------------------------------------
+   Where the account sells, and whether Stripe is managing it there. Volume is
+   the design's; tax covered is derived at 94% of it rather than repeated
+   verbatim, since the design's two columns carry the same number and the
+   Performance tab already puts coverage at 94.2%.
+
+   The counts on the tiles and in the footer are counted from this list rather
+   than authored, so they can't disagree with the rows underneath them.
+   =========================================================== */
+const LOCATIONS = [
+  { flag: '🇺🇸', name: 'United States',  on: true,  vol: 310500 },
+  { flag: '🇮🇪', name: 'Ireland',        on: true,  vol: 250200 },
+  { flag: '🇬🇧', name: 'United Kingdom', on: true,  vol: 219000 },
+  { flag: '🇩🇪', name: 'Germany',        on: true,  vol: 178800 },
+  { flag: '🇪🇸', name: 'Spain',          on: true,  vol: 154200 },
+  { flag: '🇮🇹', name: 'Italy',          on: true,  vol: 111300 },
+  { flag: '🇫🇷', name: 'France',         on: true,  vol: 103900 },
+  { flag: '🇧🇷', name: 'Brazil',         on: true,  vol: 92700 },
+  { flag: '🇮🇳', name: 'India',          on: true,  vol: 64200 },
+  { flag: '🇳🇱', name: 'Netherlands',    on: true,  vol: 58400 },
+  { flag: '🇯🇵', name: 'Japan',          on: true,  vol: 47900 },
+  { flag: '🇸🇪', name: 'Sweden',         on: true,  vol: 42000 },
+  { flag: '🇨🇦', name: 'Canada',         on: true,  vol: 39500 },
+  { flag: '🇦🇹', name: 'Austria',        on: true,  vol: 32200 },
+  { flag: '🇩🇿', name: 'Algeria',        on: true,  vol: 28800 },
+  { flag: '🇳🇬', name: 'Nigeria',        on: false },
+  { flag: '🇨🇴', name: 'Colombia',       on: false },
+  { flag: '🇦🇷', name: 'Argentina',      on: false },
+  { flag: '🇵🇹', name: 'Portugal',       on: false },
+  { flag: '🇸🇬', name: 'Singapore',      on: false },
+];
+
+let locFilter = 'all';
+
+const usdK = v => '$' + (v / 1000).toFixed(1) + 'K';
+
+/* A sparkline from the row's own volume, so no two are identical and none of
+   them is random — the same figure always draws the same shape. */
+function sparkline(seed) {
+  const bars = [];
+  let s = seed;
+  for (let i = 0; i < 11; i++) {
+    s = (s * 9301 + 49297) % 233280;
+    const h = 4 + (s / 233280) * 10;
+    bars.push(`<rect x="${i * 3}" y="${14 - h}" width="2" height="${h}" rx="0.5"/>`);
+  }
+  return `<svg class="loc-spark" viewBox="0 0 32 14" fill="var(--chart-with)" aria-hidden="true">${bars.join('')}</svg>`;
+}
+
+function renderLocations() {
+  const on = LOCATIONS.filter(l => l.on).length;
+  const tiles = [
+    { id: 'all', label: 'All locations', value: LOCATIONS.length },
+    { id: 'on',  label: 'Enabled',       value: on },
+    { id: 'off', label: 'Disabled',      value: LOCATIONS.length - on },
+  ];
+  document.getElementById('locTiles').innerHTML = tiles.map(t => `
+    <button class="loc-tile${t.id === locFilter ? ' active' : ''}" data-filter="${t.id}" aria-pressed="${t.id === locFilter}">
+      <span class="loc-tile-label">${t.label}</span>
+      <div class="loc-tile-value">${t.value}</div>
+    </button>`).join('');
+
+  const rows = LOCATIONS.filter(l => locFilter === 'all' || (locFilter === 'on') === l.on);
+  document.getElementById('locBody').innerHTML = rows.map(l => `
+    <div class="loc-row">
+      <span class="loc-flag">${l.flag}</span>
+      <span class="loc-name">${l.name}</span>
+      <span><span class="badge ${l.on ? 'on' : 'off'}">${l.on ? 'Enabled' : 'Disabled'}</span></span>
+      <span class="loc-figure">${l.vol ? usdK(l.vol) + sparkline(l.vol) : ''}</span>
+      <span class="loc-figure">${l.vol ? usdK(l.vol * 0.94) + sparkline(l.vol + 7) : ''}</span>
+      <span class="loc-actions">
+        <span class="loc-dots">···</span>
+        <span class="loc-qa">
+          ${l.on ? '' : `<button class="qa-main" data-enable="${l.name}">Enable</button>`}
+          <button class="qa-more${l.on ? ' only' : ''}" aria-label="More">···</button>
+        </span>
+      </span>
+    </div>`).join('');
+
+  document.getElementById('locCount').textContent = `${rows.length} of ${LOCATIONS.length} results`;
+}
+
+document.getElementById('locTiles').addEventListener('click', e => {
+  const t = e.target.closest('.loc-tile');
+  if (!t) return;
+  locFilter = t.dataset.filter;
+  renderLocations();
+});
+
+/* Enabling flips the row in place — the tiles recount themselves from it. */
+document.getElementById('locBody').addEventListener('click', e => {
+  const btn = e.target.closest('[data-enable]');
+  if (!btn) return;
+  const loc = LOCATIONS.find(l => l.name === btn.dataset.enable);
+  loc.on = true;
+  /* covered from today, so the figure columns stay empty until it has volume */
+  renderLocations();
+});
+
+const TABS = document.getElementById('tabs');
+TABS.addEventListener('click', e => {
+  const tab = e.target.closest('.tab');
+  if (!tab) return;
+  TABS.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === tab));
+  const locations = tab.dataset.tab === 'locations';
+  document.getElementById('panelPerformance').hidden = locations;
+  document.getElementById('panelLocations').hidden = !locations;
+  if (locations) renderLocations();
 });
 
 const STAGE_EL = document.getElementById('stageSwitch');
