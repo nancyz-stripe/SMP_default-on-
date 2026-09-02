@@ -215,6 +215,13 @@
             -webkit-mask: url(assets/nav/chevron.svg) no-repeat center / 8px 8px;
             mask: url(assets/nav/chevron.svg) no-repeat center / 8px 8px;
         }
+        /* The asset is a chevron-down, so an expanded group turns it over. */
+        .nav-item.open .nav-chevron { transform: rotate(180deg); }
+
+        /* Children of an expanded group are labels only, indented to where the
+           parent's label starts (24px icon + 8px gap) so the icon column stays
+           the group's rather than looking like a missing icon on each child. */
+        .nav-subitem { padding-left: 32px; }
 
         .side-foot { margin-top: auto; padding: 16px 20px; }
 
@@ -580,10 +587,32 @@
                     <span class="nav-label">Connect</span>
                     <span class="nav-chevron"></span>
                 </div>
-                <div class="nav-item">
+                <!-- Expanded, because this is where the page we're on lives -->
+                <div class="nav-item open">
                     <span class="nav-icobox"><span class="nav-ico" style="-webkit-mask-image:url(assets/nav/wallet.svg);mask-image:url(assets/nav/wallet.svg)"></span></span>
                     <span class="nav-label">Payments</span>
                     <span class="nav-chevron"></span>
+                </div>
+                <div class="nav-item nav-subitem">
+                    <span class="nav-label">Analytics</span>
+                </div>
+                <div class="nav-item nav-subitem active">
+                    <span class="nav-label">Managed Payments</span>
+                </div>
+                <div class="nav-item nav-subitem">
+                    <span class="nav-label">Disputes</span>
+                </div>
+                <div class="nav-item nav-subitem">
+                    <span class="nav-label">Radar</span>
+                </div>
+                <div class="nav-item nav-subitem">
+                    <span class="nav-label">Payment Links</span>
+                </div>
+                <div class="nav-item nav-subitem">
+                    <span class="nav-label">Terminal</span>
+                </div>
+                <div class="nav-item nav-subitem">
+                    <span class="nav-label">Agentic commerce</span>
                 </div>
                 <div class="nav-item">
                     <span class="nav-icobox"><span class="nav-ico" style="-webkit-mask-image:url(assets/nav/billing.svg);mask-image:url(assets/nav/billing.svg)"></span></span>

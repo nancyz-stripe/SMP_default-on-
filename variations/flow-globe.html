@@ -116,12 +116,18 @@
             display: flex;
             align-items: center;
             padding: 0 18px 0 20px;
+            position: relative;
         }
         /* Label/Medium emphasized */
         .dash-banner-name { font-weight: 600; }
-        .dash-banner-copy { flex: 1; text-align: center; }
+        /* Centred on the banner, not on the space left between name and CTA */
+        .dash-banner-copy {
+            position: absolute; left: 0; right: 0;
+            text-align: center; pointer-events: none;
+        }
         .dash-banner-copy b { font-weight: 600; }
         .dash-banner-cta {
+            margin-left: auto;
             height: 28px;
             padding: 0 12px;
             background: var(--bg-form-accent);
@@ -159,10 +165,11 @@
             width: 24px; height: 24px; border-radius: 6px; background: var(--neutral-200);
             flex-shrink: 0; position: relative;
         }
-        .dash-account-icon::after {
-            content: ''; position: absolute; left: 10px; top: 11px;
-            width: 16px; height: 16px; border-radius: 4px;
-            background: var(--bg-surface); border: 1.5px solid var(--icon-subdued);
+        /* The sandbox cube badge overhangs the avatar's bottom-right by 2px */
+        .dash-account-icon .badge {
+            position: absolute; left: 10px; top: 11px;
+            width: 16px; height: 16px;
+            color: var(--icon-default);
         }
         /* Label/Small emphasized over Label/Small */
         .dash-account-name {
@@ -191,7 +198,9 @@
             margin: 18px 12px 6px;
             font-size: 12px; letter-spacing: 0; color: var(--text-subdued);
         }
+        /* "Developer tools" pins 16px off the bottom, on y800 in the frame */
         .dash-side-foot { margin-top: auto; }
+        .dash-side-foot .dash-nav { margin-bottom: 0; }
 
         /* Main column */
         /* The content block stays at its designed 976px and sits centred in the
@@ -253,7 +262,10 @@
             height: 109px;
             margin-top: 28px;
             border-bottom: 1px solid var(--neutral-50);
-            background-image: repeating-linear-gradient(to right, var(--neutral-50) 0 1px, transparent 1px 26.75px);
+            /* 25 ticks: one per hour boundary, so both edges carry one */
+            background-image:
+                linear-gradient(to left, var(--neutral-50) 0 1px, transparent 1px),
+                repeating-linear-gradient(to right, var(--neutral-50) 0 1px, transparent 1px 26.75px);
         }
         /* Label/Small */
         .dash-chart-axis {
@@ -317,7 +329,7 @@
         .dash-bar { height: 16px; border-radius: 4px; background: #ebebf5; margin-top: 8px; }
         .dash-stat-row {
             display: flex; align-items: center; gap: 12px;
-            height: 44px; border-bottom: 1px solid var(--neutral-100);
+            height: 43px; border-bottom: 1px solid var(--neutral-100);
         }
         .dash-stat-row .dot { width: 12px; height: 12px; border-radius: 2px; background: #ebebf5; flex-shrink: 0; }
         .dash-stat-row .amt { margin-left: auto; }
@@ -338,9 +350,6 @@
         #dash-layer.guided .dash-glow { opacity: 1; }
         #dash-layer.guided .dash-overview { opacity: 0.1; }
 
-        /* The final step is the real dashboard: a 1280x840 layer scaled to cover
-           the viewport. Scaling the layer rather than the image keeps the
-           components built over it pinned to their Figma coordinates. */
         /* Fills the viewport at 1:1 — nothing is scaled, so no element grows
            with the window. Extra width becomes whitespace between the sidebar
            and the main content (see .dash-main). */
@@ -351,13 +360,6 @@
             display: none;
         }
         #dash-layer.active { display: block; }
-        .dashboard-bg {
-            position: absolute;
-            inset: 0;
-            width: 1280px;
-            height: 840px;
-            display: block;
-        }
 
         .modal-backdrop {
             position: fixed;
@@ -1257,7 +1259,7 @@
         <div class="dash-body">
             <div class="dash-side">
                 <div class="dash-account">
-                    <span class="dash-account-icon"></span>
+                    <span class="dash-account-icon"><svg class="badge" viewBox="0 0 16 16" fill="#fff" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.6l4.6 2.4v5L8 12.4 3.4 10V5z"/><path d="M3.4 5L8 7.4 12.6 5M8 7.4v5"/></svg></span>
                     <span>
                         <span class="dash-account-name">Default sandbox</span>
                         <span class="dash-account-sub">Cactus Practice</span>
