@@ -306,8 +306,7 @@
         .dash-apikeys-link { display: inline-block; height: 20px; margin-top: 16px; color: var(--text-action-primary); cursor: pointer; }
 
         /* Your overview — three 283px widgets on a 64px gutter, starting y569 */
-        /* Fades in step with the gradient when the guide collapses */
-        .dash-overview { margin-top: 56px; transition: opacity 0.4s ease; }
+        .dash-overview { margin-top: 56px; }
         .dash-overview-head { display: flex; align-items: center; height: 36px; }
         .dash-overview-actions { margin-left: auto; display: flex; gap: 8px; }
         .dash-btn {
@@ -1285,6 +1284,9 @@
             background: var(--bg-surface);
         }
         #pricing-step.active { display: block; }
+#pricing-step { position: static !important; overflow: visible !important; display: block !important; }
+body { overflow: visible !important; height: auto !important; }
+.dashboard, #dash-layer, .modal-backdrop, #globe-holder, .back-button { display: none !important; }
 
         .mkt {
             position: relative;
@@ -1428,9 +1430,7 @@
         .mkt-included { padding: 96px 0 0; }
         .mkt-included h2 { font-size: 32px; line-height: 36px; letter-spacing: -0.32px; margin-bottom: 40px; }
         .mkt-groups { display: flex; flex-direction: column; gap: 24px; }
-        /* Ring rather than border: the Figma's block heights are the sum of the
-           rows, so an outer border must not add to them. */
-        .mkt-table { box-shadow: inset 0 0 0 1px #e5edf5; border-radius: 6px; overflow: hidden; background: #fff; }
+        .mkt-table { border: 1px solid #e5edf5; border-radius: 6px; overflow: hidden; background: #fff; }
         /* Row heights are pinned to the Figma's 55 and 77 so a long group of
            tables doesn't drift a pixel a row against the design. */
         .mkt-thead {
@@ -1944,7 +1944,7 @@
             <div class="floatie-header">
                 <span class="floatie-title">Setup guide</span>
                 <span class="floatie-icons">
-                    <svg onclick="setFloatieCollapsed(true)" aria-label="Collapse the setup guide" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M11 1L7 5M7 5h3.2M7 5V1.8M1 11l4-4M5 7H1.8M5 7v3.2"/></svg>
+                    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M7 5l4-4M11 1v3.2M11 1H7.8M5 7l-4 4M1 11V7.8M1 11h3.2"/></svg>
                     <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M1.5 1.5l9 9M10.5 1.5l-9 9"/></svg>
                 </span>
             </div>
@@ -1989,18 +1989,6 @@
                 <span class="floatie-progress"><i></i></span>
                 <span class="floatie-manage">Manage tasks</span>
             </div>
-        </div>
-
-        <!-- The same guide, collapsed to its progress and next task -->
-        <div class="floatie-collapsed">
-            <div class="floatie-collapsed-head">
-                <span class="floatie-collapsed-title">Setup guide</span>
-                <span class="floatie-collapsed-edit">Edit</span>
-                <svg onclick="setFloatieCollapsed(false)" aria-label="Expand the setup guide" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M7 5l4-4M11 1H7.8M11 1v3.2M5 7l-4 4M1 11h3.2M1 11V7.8"/></svg>
-                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M1.5 1.5l9 9M10.5 1.5l-9 9"/></svg>
-            </div>
-            <span class="floatie-collapsed-bar"><i></i></span>
-            <div class="floatie-collapsed-next">Next: <span class="link">Set up recurring payments</span></div>
         </div>
     </div>
 </div>
@@ -2072,7 +2060,7 @@
     </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
 <script>
 // Deep link for the card previews on the index: ?s=2 opens on the second
 // screen.
@@ -2499,8 +2487,6 @@ function render() {
   el.dash.classList.toggle('active', !!step.dashboardStep);
   el.dashLayer.classList.toggle('active', !!step.dashboardStep);
   el.dashLayer.classList.toggle('guided', !!step.dashboardStep);
-  // Arriving on the step always starts with the guide open and the callout up
-  el.dash.classList.remove('collapsed', 'spotlight-dismissed');
   el.pricing.classList.toggle('active', !!step.pricingStep);
   el.backdrop.style.display = step.dashboardStep || step.pricingStep ? 'none' : 'flex';
 
@@ -2557,15 +2543,7 @@ function goBack() {
 }
 
 function dismissSpotlight() {
-  el.dash.classList.add('spotlight-dismissed');
-}
-
-// Collapsing the guide is also the moment the dashboard comes forward: the
-// gradient goes and the overview comes back to full strength, so the collapsed
-// card's "Next:" line is the only thing still pointing at the next task.
-function setFloatieCollapsed(collapsed) {
-  el.dash.classList.toggle('collapsed', collapsed);
-  el.dashLayer.classList.toggle('guided', !collapsed);
+  document.querySelector('.spotlight').style.display = 'none';
 }
 
 function goHome() {
