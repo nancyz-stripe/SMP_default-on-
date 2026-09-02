@@ -41,13 +41,15 @@
             width: 100vw;
         }
 
-        /* Same button as SMP Home's, which sits at the foot of its nav column.
-           There's no column to sit in here, so it floats — in the bottom-right
-           corner, on SMP Home's own 20px inset. */
+        /* SMP Home's button, to the pixel. There it sits at the foot of the nav
+           column in a 187px track inset 20px from the left and the bottom;
+           there's no column to sit in here, so it floats on the same corner and
+           the same track width. */
         .back-button {
             position: fixed;
-            right: 20px;
+            left: 20px;
             bottom: 20px;
+            width: 187px;
             z-index: 400;
             display: block;
             padding: 8px 16px;
