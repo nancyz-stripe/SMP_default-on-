@@ -41,17 +41,16 @@
             width: 100vw;
         }
 
-        /* SMP Home's button, to the pixel. There it sits at the foot of the nav
-           column in a 187px track inset 20px from the left and the bottom;
-           there's no column to sit in here, so it floats on the same corner and
-           the same track width. */
+        /* SMP Home's button: same corner, same 20px inset, same styling. It
+           hugs its label here, because on the flow's screens there's no nav
+           column setting a track for it to fill. */
         .back-button {
             position: fixed;
             left: 20px;
             bottom: 20px;
-            width: 187px;
             z-index: 400;
             display: block;
+            width: fit-content;
             padding: 8px 16px;
             background: var(--bg-surface);
             border: 1px solid var(--neutral-50);
@@ -62,6 +61,9 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.06);
         }
         .back-button:hover { background: var(--bg-offset); }
+        /* The sandbox dashboard is the one screen that does have that column, so
+           there the button keeps SMP Home's 187px track. */
+        body:has(#dash-layer.active) .back-button { width: 187px; }
 
         /* Background behind the modal — identical to the v1 variant's shell. */
         .dashboard { display: flex; height: 100vh; width: 100vw; }
