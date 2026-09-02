@@ -229,16 +229,15 @@
         .dash-search svg { width: 12px; height: 12px; }
 
         /* ---- Global search, open ----------------------------------------
-           Focusing the field grows it from the 240px pill to the 796px the
-           Figma header nav leaves before the icon cluster, and hangs the
-           results under it. It's an overlay off the collapsed pill so nothing
-           in the topbar reflows: the 48px field grows 8px either side of the
-           32px row it replaces. */
+           Opening only lengthens the field — same 32px height, radius, padding
+           and icon as the pill, so the one thing that changes is how far it
+           runs. It's an overlay off the pill, pinned to the same top edge, so
+           nothing in the topbar moves. */
         .dash-searchbox {
             display: none;
             position: absolute;
-            top: -8px; left: 0;
-            width: 796px;
+            top: 0; left: 0;
+            width: 517px;
             /* Above #dashboard-step's 150, so the panel isn't painted under the
                setup guide where the two overlap. .dash sets no z-index, so this
                competes in #dash-layer's stacking context directly. */
@@ -248,19 +247,19 @@
         .dash-search-wrap.open .dash-search { visibility: hidden; }
 
         .dash-searchfield {
-            height: 48px;
+            height: 32px;
             display: flex; align-items: center; gap: 8px;
-            padding: 0 12px;
-            border-radius: 8px;
+            padding: 0 10px;
+            border-radius: 6px;
             background: var(--bg-offset);
         }
-        .dash-searchfield > svg:first-child { width: 16px; height: 16px; color: var(--icon-subdued); flex-shrink: 0; }
-        /* Body/Large */
+        .dash-searchfield > svg:first-child { width: 12px; height: 12px; color: var(--icon-subdued); flex-shrink: 0; }
+        /* Label/Medium — the pill's own size, so the text doesn't jump either */
         .dash-searchfield input {
             flex: 1; min-width: 0;
             border: 0; background: none; outline: none;
-            font-family: inherit; font-size: 18px; line-height: 28px;
-            letter-spacing: -0.48px; color: var(--text-default);
+            font-family: inherit; font-size: 14px; line-height: 20px;
+            letter-spacing: -0.15px; color: var(--text-default);
         }
         .dash-searchfield input::placeholder { color: var(--text-subdued); }
         .dash-search-scope {
@@ -321,7 +320,7 @@
             display: flex; align-items: center;
             border-top: 1px solid var(--neutral-50);
             background: var(--bg-offset);
-            font-weight: 600; color: var(--text-action-primary); cursor: pointer;
+            color: var(--text-action-primary); cursor: pointer;
         }
         .dash-search-empty { padding: 8px 20px 16px; color: var(--text-subdued); }
         .dash-topbar-icons { margin-left: auto; display: flex; align-items: center; gap: 16px; color: var(--icon-default); }
