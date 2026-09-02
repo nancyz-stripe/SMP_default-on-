@@ -109,7 +109,9 @@
             letter-spacing: -0.15px;
             color: var(--text-subdued);
             cursor: pointer;
-            white-space: nowrap;
+            /* The qualified new-user labels are wider than the 187px column, so
+               they wrap rather than push out of the rounded container. */
+            text-align: left;
         }
         .stage-btn:hover { background: var(--bg-offset); }
         .stage-btn.active {
@@ -1255,16 +1257,21 @@ const CARDS = [
    blurred, the figure withheld, and an eye saying why (Figma 26655:71422, and the
    DPM incremental-conversion card's treatment below its reporting threshold).
    =========================================================== */
+/* `masked` is what the stage actually changes, so the two new-user stages both
+   carry the built new-user treatment and differ in name only for now. */
 const STAGES = [
-  { id: 'new',    label: 'New users' },
-  { id: 'volume', label: 'With volume' },
+  { id: 'new-smp',    label: 'New users (with SMP)',    masked: true },
+  { id: 'new-no-smp', label: 'New users (without SMP)', masked: true },
+  { id: 'volume',     label: 'With volume',             masked: false },
 ];
 
-let stageId = 'new';
+let stageId = 'new-smp';
+
+const stage = () => STAGES.find(s => s.id === stageId);
 
 /* `full` keeps the window's length so the axes don't depend on the stage. */
 function stageViews() {
-  const masked = stageId === 'new';
+  const masked = stage().masked;
   return CARDS.map(c => ({ ...c, full: c.with.length, masked }));
 }
 
@@ -1659,7 +1666,7 @@ function renderSwitch() {
 function renderCards() {
   VIEWS = stageViews();
   /* the pitch stands in for the figures that aren't there yet */
-  document.getElementById('apIntro').hidden = stageId !== 'new';
+  document.getElementById('apIntro').hidden = !stage().masked;
   document.getElementById('cards').innerHTML =
     cardHtml(VIEWS[0]) +
     `<div class="row">${cardHtml(VIEWS[1])}${cardHtml(VIEWS[2])}</div>` +
