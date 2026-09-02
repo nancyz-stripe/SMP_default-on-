@@ -543,28 +543,38 @@
         .bar-hit { fill: transparent; }
         .bar-group.dim { opacity: 0.55; }
 
-        /* Same tooltip as the DPM incremental-conversion chart, down to the 260px
-           width and the 14/20 rows. */
+        /* Figma 26774:97825. Tighter than it was: 8px padding rather than 12,
+           12/16 rows rather than 14/20, and the date at 14/20 regular over a rule
+           — so the figures stay the largest thing in it. */
         .chart-tip {
             position: absolute; pointer-events: none; z-index: 5; width: 260px; overflow: hidden;
-            background: var(--bg-surface); border-radius: 8px; box-shadow: var(--shadow-medium);
-            opacity: 0; transition: opacity .1s; color: var(--text-default);
+            background: var(--bg-surface); border-radius: 10px;
+            box-shadow: 0 7px 14px rgba(48, 49, 61, 0.08), 0 3px 6px rgba(0, 0, 0, 0.12);
+            opacity: 0; transition: opacity .1s; color: #1a2c44;
         }
-        .tip-head { padding: 12px 12px 8px; font-size: 14px; line-height: 20px; font-weight: 600; letter-spacing: -0.15px; }
-        .tip-rule { height: 1px; background: var(--border-default); }
-        .tip-rows { padding: 8px 12px 12px; }
-        .tip-row { display: flex; align-items: center; gap: 8px; padding: 1px 0; font-size: 14px; line-height: 20px; letter-spacing: -0.15px; }
-        .tip-row .sw { width: 12px; height: 12px; border-radius: 2px; flex: 0 0 12px; }
-        .tip-row .sw.without { background: var(--chart-without); }
+        .tip-body { padding: 8px; }
+        .tip-head {
+            padding-bottom: 4px; margin-bottom: 4px;
+            border-bottom: 1px solid #d4dee9;
+            font-size: 14px; line-height: 20px; letter-spacing: -0.15px;
+        }
+        .tip-row {
+            display: flex; align-items: flex-start; gap: 8px;
+            font-size: 12px; line-height: 16px; color: #1a2c44;
+        }
+        .tip-row + .tip-row { margin-top: 6px; }
+        /* square markers, and 2px down so they sit on the first line of a label
+           that wraps to two */
+        .tip-row .sw { width: 12px; height: 12px; flex: 0 0 12px; margin-top: 2px; }
+        .tip-row .sw.without { background: #95a4ba; }
         .tip-row .sw.with { background: var(--chart-with); }
-        .tip-row .tip-v { margin-left: auto; font-weight: 600; font-variant-numeric: tabular-nums; }
+        .tip-row .tip-v { margin-left: auto; padding-left: 6px; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
         .tip-foot {
-            display: flex; align-items: center; gap: 8px; padding: 12px;
-            background: var(--bg-offset); font-size: 14px; line-height: 20px;
-            letter-spacing: -0.15px; color: var(--text-default);
+            display: flex; align-items: center; gap: 8px; padding: 8px;
+            background: #f4f7fa; font-size: 12px; line-height: 16px; color: var(--text-default);
         }
         .tip-ico { width: 16px; height: 16px; flex: 0 0 16px; display: grid; place-items: center; color: #2b8700; }
-        .tip-ico svg { width: 14px; height: 14px; }
+        .tip-ico svg { width: 12px; height: 12px; }
 
         /* ---------------- Locations tab ----------------
            Figma 26655:63683. A 36px-row table over the three count tiles, the
@@ -1162,7 +1172,7 @@ const CARDS = [
     withoutLabel: 'Volume without',
     with:    [12500, 13200, 13900, 14700, 15300, 15700, 16100, 15800, 16400, 16800, 17100, 16700],
     without: [10200, 10700, 11100, 11500, 11800, 11800, 11900, 11400, 11600, 11600, 11600, 11000],
-    foot: d => `$${d} of this period's volume is attributed to Managed Payments.`,
+    foot: p => `Managed Payments contributed to ${p} uplift in volume.`,
   },
   {
     id: 'revenue',
@@ -1174,7 +1184,7 @@ const CARDS = [
     withoutLabel: 'Revenue without',
     with:    [10600, 11200, 11800, 12500, 13000, 13300, 13600, 13400, 14000, 14300, 14500, 14200],
     without: [8700, 9100, 9400, 9800, 10000, 10000, 10100, 9600, 9900, 9900, 9900, 9400],
-    foot: d => `$${d} of revenue attributed to Managed Payments.`,
+    foot: p => `Managed Payments contributed to ${p} uplift in revenue.`,
   },
   {
     id: 'tax',
@@ -1185,14 +1195,14 @@ const CARDS = [
     headline: 'last',
     /* the counterfactual is zero by definition: without Managed Payments the
        liability is all yours, so there is no coverage to plot */
-    withLabel: 'Covered by Stripe',
-    withoutLabel: 'Covered without Managed Payments',
+    withLabel: 'Tax coverage with Managed Payments',
+    withoutLabel: 'Tax coverage without',
     covered: 1884,
     determined: 2000,
     sub: c => `${c.covered.toLocaleString()} of ${c.determined.toLocaleString()} payments`,
     with:    [86.5, 87.8, 88.9, 89.8, 90.6, 91.3, 91.9, 92.4, 92.9, 93.4, 93.8, 94.2],
     without: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    foot: d => `${d}% of this period's payments covered by Stripe.`,
+    foot: p => `Managed Payments contributed to ${p} uplift tax coverage.`,
   },
   {
     id: 'fraud',
@@ -1209,7 +1219,7 @@ const CARDS = [
     withoutLabel: 'Prevented without',
     with:    [1040, 1140, 1240, 1320, 1400, 1420],
     without: [480, 520, 560, 600, 640, 660],
-    foot: d => `$${d} more fraud prevented than without Managed Payments.`,
+    foot: p => `Managed Payments contributed to ${p} more fraud prevention.`,
   },
   {
     id: 'disputes',
@@ -1220,7 +1230,7 @@ const CARDS = [
     unit: 'pct',
     seriesUnit: 'count',
     headline: 'rate',
-    withLabel: 'Won with Stripe\u2019s evidence',
+    withLabel: 'Won with Managed Payments',
     withoutLabel: 'Won without',
     recovered: 3800,
     sub: c => `${sum(c.with)} of ${sum(c.total)} \u00b7 $${c.recovered.toLocaleString()} recovered`,
@@ -1228,7 +1238,7 @@ const CARDS = [
     without: [1, 1, 1, 1, 1, 1],
     /* resolved disputes: the denominator the win rate is drawn from */
     total:   [3, 4, 4, 4, 5, 4],
-    foot: d => `${d} more disputes won than without Managed Payments.`,
+    foot: p => `Managed Payments contributed to ${p} more in successful disputes.`,
   },
 ];
 
@@ -1268,6 +1278,14 @@ let VIEWS = stageViews();
 
 /* Every metric is phrased so more is better, so the gap is always this way round. */
 const gapAt = (c, i) => c.with[i] - c.without[i];
+
+/* How much bigger `now` is than `then`, for the uplift a tooltip quotes. One
+   decimal under 10% and none above it, so a small difference stays legible
+   without a large one carrying precision it hasn't earned. */
+function pctChange(then, now) {
+  const pc = ((now - then) / then) * 100;
+  return (pc < 10 ? pc.toFixed(1) : Math.round(pc)) + '%';
+}
 const sum = a => a.reduce((x, y) => x + y, 0);
 
 /* A win rate over a slice of the window: what was won against what resolved. */
@@ -1796,17 +1814,24 @@ function showTip(card, c, i, cx, cy) {
   const svg = card.querySelector('.chartwrap svg');
   const u = seriesUnit(c);
   const w = c.with[i], wo = c.without[i];
-  const label = u === 'pct' ? gapAt(c, i).toFixed(1) : Math.round(gapAt(c, i)).toLocaleString();
-  const period = c.kind === 'bars' ? MONTHS[i] : monthLabel(i);
+  const period = c.kind === 'bars' ? `${MONTHS[i]} 1, 2026` : monthLabel(i);
+
+  /* The uplift the footer quotes is this point's own, measured against the
+     counterfactual: how much bigger the figure is for Managed Payments being
+     there. Tax has no counterfactual to divide by — without the product the
+     coverage is zero by definition — so there the whole of it is the uplift and
+     a percentage would be a division by zero dressed up as a number. */
+  const foot = wo > 0
+    ? c.foot(pctChange(wo, w))
+    : `Managed Payments accounts for all ${fmt[u](w)} of your tax coverage.`;
 
   tip.innerHTML =
-    `<div class="tip-head">${period}</div>` +
-    `<div class="tip-rule"></div>` +
-    `<div class="tip-rows">` +
+    `<div class="tip-body">` +
+      `<div class="tip-head">${period}</div>` +
       `<div class="tip-row"><span class="sw with"></span>${c.withLabel}<span class="tip-v">${fmt[u](w)}</span></div>` +
       `<div class="tip-row"><span class="sw without"></span>${c.withoutLabel}<span class="tip-v">${fmt[u](wo)}</span></div>` +
     `</div>` +
-    `<div class="tip-foot"><span class="tip-ico">${UPLIFT_SVG}</span><span>${c.foot(label)}</span></div>`;
+    `<div class="tip-foot"><span class="tip-ico">${UPLIFT_SVG}</span><span>${foot}</span></div>`;
 
   /* Sits beside the crosshair and flips side near the right edge, tracking the
      hovered point vertically — the DPM incremental-conversion chart's behaviour,
@@ -1823,7 +1848,7 @@ function showTip(card, c, i, cx, cy) {
 
 /* Six months across twelve points, so every other point starts a month. */
 function monthLabel(i) {
-  return `${MONTHS[Math.floor(i / 2)]} ${i % 2 ? '16' : '1'}`;
+  return `${MONTHS[Math.floor(i / 2)]} ${i % 2 ? '16' : '1'}, 2026`;
 }
 
 function bindHover(card, c) {
