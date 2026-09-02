@@ -544,6 +544,97 @@
         .tip-ico { width: 16px; height: 16px; flex: 0 0 16px; display: grid; place-items: center; color: #2b8700; }
         .tip-ico svg { width: 14px; height: 14px; }
 
+        /* ---------------- Coverage modal ----------------
+           Figma 26767:96108: a 648x500 card centred in the viewport, 32px padding,
+           the two choices in the middle and the buttons pinned to the bottom —
+           the height is fixed, so the space under the second choice is the
+           design's, not a gap left by the content. */
+        .modal-backdrop {
+            position: fixed; inset: 0; z-index: 100;
+            display: grid; place-items: center;
+            background: rgba(182, 192, 205, 0.7);
+        }
+        .modal-backdrop[hidden] { display: none; }
+        .modal {
+            position: relative;
+            width: 648px; height: 500px; padding: 32px;
+            background: var(--bg-surface); border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(48, 49, 61, 0.15), 0 5px 15px rgba(0, 0, 0, 0.10);
+        }
+        /* 16px from the top and right edges, so it sits inside the 32px padding */
+        .modal-close {
+            position: absolute; top: 16px; right: 16px;
+            width: 28px; height: 28px; padding: 0;
+            display: grid; place-items: center;
+            background: none; border: 0; border-radius: 6px;
+            color: var(--icon-default); cursor: pointer;
+        }
+        .modal-close:hover { background: var(--bg-offset); }
+        .modal-close svg { width: 12px; height: 12px; }
+
+        .modal-inner { height: 100%; display: flex; flex-direction: column; gap: 24px; }
+        .modal-head { display: flex; flex-direction: column; gap: 8px; }
+        .modal-title {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            font-size: 24px; line-height: 32px; font-weight: 700;
+            letter-spacing: 0.3px; color: var(--text-heading);
+        }
+        .modal-sub { font-size: 14px; line-height: 20px; letter-spacing: -0.15px; color: var(--text-subdued); }
+        /* flex-1 on the body, then on the list, is what pins the buttons down */
+        .modal-body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 32px; }
+        .choices { flex: 1; display: flex; flex-direction: column; gap: 16px; }
+
+        .choice {
+            display: flex; align-items: flex-start; gap: 8px;
+            padding: 12px; border-radius: 8px; cursor: pointer;
+            background: var(--bg-surface);
+            /* the selected keyline is 2px, so both states carry 2px and only the
+               colour changes — a 1px-to-2px swap would shift the text by a pixel */
+            border: 2px solid transparent; box-shadow: inset 0 0 0 1px #d8dee4;
+        }
+        .choice:hover { background: #fcfcfd; }
+        .choice.selected { border-color: var(--bg-form-accent); box-shadow: none; }
+
+        .choice-box { flex: 0 0 20px; height: 20px; display: grid; place-items: center; }
+        .choice-dot {
+            width: 14px; height: 14px; border-radius: 50%;
+            background: var(--bg-surface); border: 1px solid #d8dee4;
+            box-shadow: 0 1px 1px 0 rgba(33, 37, 44, 0.16);
+            display: grid; place-items: center;
+        }
+        .choice.selected .choice-dot {
+            background: var(--bg-form-accent); border-color: var(--bg-form-accent);
+            box-shadow: 0 1px 1px 0 rgba(10, 33, 86, 0.16);
+        }
+        .choice-dot::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #fff; opacity: 0; }
+        .choice.selected .choice-dot::after { opacity: 1; }
+
+        .choice-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+        .choice-lines { display: flex; flex-direction: column; gap: 2px; }
+        .choice-title { font-size: 14px; line-height: 20px; font-weight: 600; letter-spacing: -0.15px; color: var(--text-default); }
+        .choice-desc { font-size: 12px; line-height: 16px; color: var(--text-subdued); }
+        .choice-price { font-size: 12px; line-height: 16px; color: #667691; }
+        .choice-price u { text-decoration: underline; text-underline-position: from-font; }
+
+        .modal-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+        /* Both buttons are 94px in the design, so they read as a pair */
+        .btn-lg {
+            min-width: 94px; height: 40px; padding: 8px 16px;
+            border-radius: 8px; cursor: pointer;
+            font-family: inherit; font-size: 16px; line-height: 24px;
+            font-weight: 600; letter-spacing: -0.31px;
+        }
+        .btn-neutral {
+            background: var(--bg-surface); border: 1px solid #d8dee4;
+            color: var(--text-default); box-shadow: 0 1px 1px 0 rgba(33, 37, 44, 0.16);
+        }
+        .btn-neutral:hover { background: var(--bg-offset); }
+        .btn-accent {
+            background: var(--bg-form-accent); border: 0; color: #fff;
+            box-shadow: 0 1px 1px 0 rgba(47, 14, 99, 0.32);
+        }
+        .btn-accent:hover { background: #5b51e8; }
+
     </style>
 </head>
 <body>
@@ -722,7 +813,7 @@
                         </div>
                     </div>
                     <div class="ap-actions">
-                        <button class="btn-primary">Set up Managed Payments</button>
+                        <button class="btn-primary" id="setupBtn">Set up Managed Payments</button>
                         <a class="ap-link">Learn more</a>
                     </div>
                 </div>
@@ -762,6 +853,49 @@
             </div>
 
             <div class="cards" id="cards"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Figma 26767:96108 — what the hero's CTA opens -->
+<div class="modal-backdrop" id="coverageModal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="coverageTitle">
+        <button class="modal-close" id="coverageClose" aria-label="Close">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2.5 2.5l7 7M9.5 2.5l-7 7"/></svg>
+        </button>
+        <div class="modal-inner">
+            <div class="modal-head">
+                <div class="modal-title" id="coverageTitle">Which payments should Stripe manage?</div>
+                <p class="modal-sub">Managed Payments applies only to the payments you choose. The rest stay on your current setup, and you can change this at anytime.</p>
+            </div>
+            <div class="modal-body">
+                <div class="choices" id="coverageChoices" role="radiogroup" aria-labelledby="coverageTitle">
+                    <div class="choice selected" data-coverage="intl" role="radio" aria-checked="true" tabindex="0">
+                        <span class="choice-box"><span class="choice-dot"></span></span>
+                        <span class="choice-text">
+                            <span class="choice-lines">
+                                <span class="choice-title">International payments only</span>
+                                <span class="choice-desc">Stripe covers sales outside your country. Domestic sales stay on your current setup.</span>
+                            </span>
+                            <span class="choice-price"><u>+3.5% per international transaction</u></span>
+                        </span>
+                    </div>
+                    <div class="choice" data-coverage="all" role="radio" aria-checked="false" tabindex="0">
+                        <span class="choice-box"><span class="choice-dot"></span></span>
+                        <span class="choice-text">
+                            <span class="choice-lines">
+                                <span class="choice-title">All payments</span>
+                                <span class="choice-desc">Stripe covers every sale, domestic and international.</span>
+                            </span>
+                            <span class="choice-price"><u>+3.5% per international transaction</u> and <u>+2% per domestic transaction</u></span>
+                        </span>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-lg btn-neutral" id="coverageCancel">Cancel</button>
+                    <button class="btn-lg btn-accent" id="coverageConfirm">Confirm</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -1026,7 +1160,15 @@ function xLabels(c) {
    The three scopes the page can be read at. It sets what the page says it's
    showing; the series aren't split by scope, so the figures don't move.
    =========================================================== */
-const SCOPES = ['All payments', 'International payments', 'Domestic payments'];
+/* What the account has Stripe managing decides what the select can even offer:
+   on international-only there's one lens on the data, because domestic volume
+   isn't Stripe's to report on and "all payments" would claim coverage the
+   account hasn't bought. */
+const SCOPES_BY_COVERAGE = {
+  all:  ['All payments', 'International payments', 'Domestic payments'],
+  intl: ['International payments'],
+};
+let SCOPES = SCOPES_BY_COVERAGE.all;
 let scope = SCOPES[0];
 
 const CHECK_CIRCLE = '<svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="6" fill="currentColor"/><path d="M3.4 6.2l1.7 1.7 3.5-3.6" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -1065,6 +1207,58 @@ SCOPE_MENU.addEventListener('click', e => {
 /* anywhere else, and on Escape, closes it */
 document.addEventListener('click', () => setScopeOpen(false));
 document.addEventListener('keydown', e => { if (e.key === 'Escape') setScopeOpen(false); });
+
+/* ===========================================================
+   Coverage modal (Figma 26767:96108)
+   -----------------------------------------------------------
+   What the hero's CTA opens, and the only thing that turns the account on:
+   confirming moves the page to the with-volume stage and settles what the scope
+   select is allowed to offer from then on.
+   =========================================================== */
+const MODAL = document.getElementById('coverageModal');
+const CHOICES = document.getElementById('coverageChoices');
+/* the design opens with international-only chosen */
+let coverage = 'intl';
+
+const setModalOpen = open => { MODAL.hidden = !open; };
+
+function selectCoverage(id) {
+  coverage = id;
+  CHOICES.querySelectorAll('.choice').forEach(ch => {
+    const on = ch.dataset.coverage === id;
+    ch.classList.toggle('selected', on);
+    ch.setAttribute('aria-checked', on);
+  });
+}
+
+CHOICES.addEventListener('click', e => {
+  const ch = e.target.closest('.choice');
+  if (ch) selectCoverage(ch.dataset.coverage);
+});
+/* Space and Enter pick the focused choice, as they would on a real radio */
+CHOICES.addEventListener('keydown', e => {
+  const ch = e.target.closest('.choice');
+  if (!ch || (e.key !== ' ' && e.key !== 'Enter')) return;
+  e.preventDefault();
+  selectCoverage(ch.dataset.coverage);
+});
+
+document.getElementById('setupBtn').addEventListener('click', () => setModalOpen(true));
+document.getElementById('coverageClose').addEventListener('click', () => setModalOpen(false));
+document.getElementById('coverageCancel').addEventListener('click', () => setModalOpen(false));
+/* the backdrop dismisses, the card sitting on it doesn't */
+MODAL.addEventListener('click', e => { if (e.target === MODAL) setModalOpen(false); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') setModalOpen(false); });
+
+document.getElementById('coverageConfirm').addEventListener('click', () => {
+  SCOPES = SCOPES_BY_COVERAGE[coverage];
+  scope = SCOPES[0];
+  stageId = 'volume';
+  setModalOpen(false);
+  renderScope();
+  renderSwitch();
+  renderCards();
+});
 
 const STAGE_EL = document.getElementById('stageSwitch');
 
