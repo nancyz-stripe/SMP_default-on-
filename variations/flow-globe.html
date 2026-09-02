@@ -3161,7 +3161,7 @@ function choices(name, items) {
 // follows Managed payments. Everything before and after is trimmed away so
 // this stretch can be reviewed on its own.
 // ---------------------------------------------------------------------------
-const STEPS = [
+const ALL_STEPS = [
   {
     // Where the merchant arrives: the Managed Payments product page. Like the
     // pricing page it's a website rather than a screen in the flow, so it sits
@@ -3438,6 +3438,15 @@ const STEPS = [
     dashboardStep: true,
   },
 ];
+
+// The stripe.com pages are their own variant, so they're opt-in: ?site=1 is what
+// the index's Website card passes. Without it the flow is the Onboarding variant
+// and starts where the account does, at Welcome — the two pages aren't just
+// skipped past, they're not in the run at all, so Back can't reach them and ?s=
+// counts from Welcome.
+const STEPS = params.get('site') === '1'
+  ? ALL_STEPS
+  : ALL_STEPS.filter(s => !s.siteStep);
 
 // `sell` is a checkbox group, so it holds an array; `managed` is the single
 // choice on the last screen. Defaults mirror the Figma.

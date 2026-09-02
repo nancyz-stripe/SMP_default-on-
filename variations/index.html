@@ -489,22 +489,23 @@ const flowVariations = [
 // review sitting inside it. Previews open on the screen each variant is about.
 const exploreVariations = [
   {
-    // The stripe.com pages in front of the flow. One card for both: the landing
-    // page opens, and its nav reaches the pricing page in place — Pricing off
-    // the landing nav, Overview back off the pricing nav.
+    // The stripe.com pages, on their own. One card for both: the landing page
+    // opens, and its nav reaches the pricing page in place — Pricing off the
+    // landing nav, Overview back off the pricing nav. `site=1` is what puts them
+    // in the run; the Onboarding card below doesn't carry it.
     id: 'website',
     title: 'Website',
-    file: 'flow-globe.html?s=1',
+    file: 'flow-globe.html?site=1&s=1',
   },
   {
     // The flow, on the spotlight gradient, with the globe on the opt-in step —
-    // screen 8 now that the landing and pricing pages open the flow, and that's
-    // preview opens. No longer one of a pair, so it carries the plain name
-    // rather than a version.
+    // screen 6, counting from Welcome now that the website pages are the Website
+    // card's rather than this one's, and that's what preview opens. No longer one
+    // of a pair, so it carries the plain name rather than a version.
     id: 'flow-globe',
     title: 'Onboarding',
     file: 'flow-globe.html',
-    preview: 'flow-globe.html?s=8',
+    preview: 'flow-globe.html?s=6',
   },
   {
     // Not part of the flow: the post-signup surface, where the counterfactual
