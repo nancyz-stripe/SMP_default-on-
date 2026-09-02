@@ -1206,8 +1206,19 @@
         .sandbox-window-right .block { height: 44px; border-radius: 6px; background: rgba(255,255,255,0.75); }
 
         /* ---------- Final step: components over the dashboard image ---------- */
-        #dashboard-step { position: absolute; inset: 0; z-index: 150; display: none; }
+        /* The layer is only here to position the guide and the callout against
+           the frame, so it fills the viewport — which would otherwise put a
+           transparent sheet between the pointer and the whole dashboard. It
+           takes no clicks; the cards inside it take their own. */
+        #dashboard-step {
+            position: absolute;
+            inset: 0;
+            z-index: 150;
+            display: none;
+            pointer-events: none;
+        }
         #dashboard-step.active { display: block; }
+        #dashboard-step > * { pointer-events: auto; }
 
         /* Spotlight callout ("Next, set up recurring payments" + Got it) */
         /* Tracks the centred content block: its right edge sits
@@ -2809,6 +2820,8 @@ el.backdrop.addEventListener('click', (e) => {
 });
 
 window.addEventListener('keydown', (e) => {
+  // Arrows step the flow, but not while they're moving a caret in the search
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
   if (e.key === 'ArrowRight') goNext();
   if (e.key === 'ArrowLeft') goBack();
 });
