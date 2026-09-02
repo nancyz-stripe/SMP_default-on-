@@ -84,16 +84,19 @@
       border: none;
       pointer-events: none;
     }
-    /* Fitted rather than cropped, so the frame's own padding stays in view. The
-       preview takes the thumbnails' pale purple, which is also what their
-       rounded corners are cut out of — so the band left above and below the
-       fitted shot reads as the same field rather than as letterboxing. */
-    .card-preview.has-thumb { background: #f7f5fc; }
+    /* Fitted rather than cropped, so the frame's own 35px of side padding stays
+       in view. The preview takes the frames' own purple, which is also what
+       their rounded corners are cut out of, so whatever the fit leaves over
+       reads as the same field rather than as letterboxing.
+       Bottom-anchored: the shot runs flush to the bottom of its 615x400 frame,
+       so any slack has to go above it or the shot floats. */
+    .card-preview.has-thumb { background: #efecfc; }
     .card-thumb {
       display: block;
       width: 100%;
       height: 100%;
       object-fit: contain;
+      object-position: center bottom;
     }
     .card-preview-placeholder {
       color: var(--text-muted);
