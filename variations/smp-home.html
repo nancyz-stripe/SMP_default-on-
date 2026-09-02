@@ -614,7 +614,28 @@
         .choice-title { font-size: 14px; line-height: 20px; font-weight: 600; letter-spacing: -0.15px; color: var(--text-default); }
         .choice-desc { font-size: 12px; line-height: 16px; color: var(--text-subdued); }
         .choice-price { font-size: 12px; line-height: 16px; color: #667691; }
-        .choice-price u { text-decoration: underline; text-underline-position: from-font; }
+        /* The fee tooltip the onboarding flow uses on these same prices
+           (flow-globe.html .fee-tooltip): a 280px card above the line, anchored to
+           the link's left edge rather than centred — centred on a line this long
+           would hang off the card. A number like this means nothing without what
+           it sits on top of, so it's the same copy there and here. */
+        .fee-link {
+            position: relative;
+            text-decoration: underline; text-underline-position: from-font;
+            cursor: default;
+        }
+        .fee-tooltip {
+            position: absolute; bottom: calc(100% + 8px); left: 0; z-index: 50;
+            width: 280px; padding: 16px;
+            background: var(--bg-surface); border: 1px solid var(--neutral-100);
+            border-radius: 8px;
+            box-shadow: 0px 2px 2.5px rgba(64, 68, 82, 0.08), 0px 3px 4.5px rgba(64, 68, 82, 0.08);
+            font-size: 14px; line-height: 20px; letter-spacing: -0.15px;
+            color: #1a2c44; text-align: left; text-decoration: none;
+            white-space: normal;
+            opacity: 0; visibility: hidden; transition: opacity 0.15s;
+        }
+        .fee-link:hover .fee-tooltip { opacity: 1; visibility: visible; }
 
         .modal-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
         /* Both buttons are 94px in the design, so they read as a pair */
@@ -877,7 +898,7 @@
                                 <span class="choice-title">International payments only</span>
                                 <span class="choice-desc">Stripe covers sales outside your country. Domestic sales stay on your current setup.</span>
                             </span>
-                            <span class="choice-price"><u>+3.5% per international transaction</u></span>
+                            <span class="choice-price"><span class="fee-link">+3.5% per international transaction<span class="fee-tooltip">This fee is in addition to the standard international processing fee of 3.2%.</span></span></span>
                         </span>
                     </div>
                     <div class="choice" data-coverage="all" role="radio" aria-checked="false" tabindex="0">
@@ -887,7 +908,7 @@
                                 <span class="choice-title">All payments</span>
                                 <span class="choice-desc">Stripe covers every sale, domestic and international.</span>
                             </span>
-                            <span class="choice-price"><u>+3.5% per international transaction</u> and <u>+2% per domestic transaction</u></span>
+                            <span class="choice-price"><span class="fee-link">+3.5% per international transaction<span class="fee-tooltip">This fee is in addition to the standard international processing fee of 3.2%.</span></span> and <span class="fee-link">+2% per domestic transaction<span class="fee-tooltip">This fee is in addition to the standard domestic processing fee of 2%.</span></span></span>
                         </span>
                     </div>
                 </div>
@@ -1232,6 +1253,8 @@ function selectCoverage(id) {
 }
 
 CHOICES.addEventListener('click', e => {
+  /* reading the fee shouldn't change what's selected, as in the onboarding flow */
+  if (e.target.closest('.fee-link')) return;
   const ch = e.target.closest('.choice');
   if (ch) selectCoverage(ch.dataset.coverage);
 });
