@@ -41,15 +41,16 @@
             width: 100vw;
         }
 
+        /* Same button as SMP Home's, which sits at the foot of its nav column.
+           There's no column to sit in here, so it floats — in the bottom-right
+           corner, on SMP Home's own 20px inset. */
         .back-button {
             position: fixed;
-            top: 16px;
-            left: 16px;
+            right: 20px;
+            bottom: 20px;
             z-index: 400;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 14px;
+            display: block;
+            padding: 8px 16px;
             background: var(--bg-surface);
             border: 1px solid var(--neutral-50);
             border-radius: 8px;
