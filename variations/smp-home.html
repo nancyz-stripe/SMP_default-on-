@@ -353,7 +353,9 @@
         /* Title and standfirst are one unit at 4px, so the 16px in .ap-content is
            the gap to the rows rather than something the standfirst floats in. */
         .ap-head { display: flex; flex-direction: column; gap: 4px; }
-        .ap-desc { font-size: 12px; line-height: 16px; color: var(--text-subdued); }
+        /* Body/Small again in 26795:64306 — the row descriptions below it stay
+           12/16, so the standfirst reads as the lead rather than one of them. */
+        .ap-desc { font-size: 14px; line-height: 20px; letter-spacing: -0.15px; color: var(--text-subdued); }
         .ap-rows { display: flex; flex-direction: column; gap: 12px; }
         .ap-row { display: flex; align-items: flex-start; gap: 12px; }
         .ap-ico { width: 16px; flex-shrink: 0; padding-top: 2px; color: var(--icon-default); }
@@ -1001,7 +1003,7 @@
                             <span class="ap-ico"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2h5l3 3v9H4z"/><path d="M9 2v3h3"/><path d="M6 8.5h4M6 11h2.5"/></svg></span>
                             <span>
                                 <span class="ap-row-title">Takes on tax responsibility</span><br>
-                                <span class="ap-row-desc">Stripe registers where needed, charges the right amount, and sends it on—in 80+ countries. Enter a new one and coverage is already there.</span>
+                                <span class="ap-row-desc">Stripe registers, charges the right amount, and files—in 80+ countries.</span>
                             </span>
                         </div>
                         <div class="ap-row">
@@ -1015,7 +1017,7 @@
                             <span class="ap-ico"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2l5 2v4.2c0 3-2.1 5-5 6.3-2.9-1.3-5-3.3-5-6.3V4l5-2z"/><path d="M5.8 8l1.6 1.6L10.4 6.6"/></svg></span>
                             <span>
                                 <span class="ap-row-title">Manages disputes and fraud</span><br>
-                                <span class="ap-row-desc">If a customer disputes a charge, Stripe responds to their bank for you. It also screens every payment for fraud.</span>
+                                <span class="ap-row-desc">Stripe responds to disputes for you and screens every payment for fraud.</span>
                             </span>
                         </div>
                     </div>
@@ -1266,22 +1268,38 @@ const CARDS = [
    blurred, the figure withheld, and an eye saying why (Figma 26655:71422, and the
    DPM incremental-conversion card's treatment below its reporting threshold).
    =========================================================== */
-/* `masked` is what the stage actually changes, so the two new-user stages both
-   carry the built new-user treatment and differ in name only for now. */
+/* Both new-user stages withhold the figures; what separates them is why, and the
+   eye says which. Without the product there's nothing to report — the data
+   belongs to a service the account hasn't turned on. With it there's nothing to
+   report YET, which is a waiting state rather than a locked one, so it doesn't
+   carry the hero either: there's nothing left to sell. */
 const STAGES = [
-  { id: 'new-smp',    label: 'New users (with SMP)',    masked: true },
-  { id: 'new-no-smp', label: 'New users (without SMP)', masked: true },
-  { id: 'volume',     label: 'With volume',             masked: false },
+  {
+    id: 'new-smp',
+    label: 'New users (with SMP)',
+    masked: true,
+    hero: false,
+    note: 'Not enough data yet. Figures appear here once you start receiving payments.',
+  },
+  {
+    id: 'new-no-smp',
+    label: 'New users (without SMP)',
+    masked: true,
+    hero: true,
+    note: 'Data only available with Managed Payments.',
+  },
+  { id: 'volume', label: 'With volume', masked: false, hero: false },
 ];
 
 let stageId = 'new-smp';
 
 const stage = () => STAGES.find(s => s.id === stageId);
 
-/* `full` keeps the window's length so the axes don't depend on the stage. */
+/* `full` keeps the window's length so the axes don't depend on the stage. The
+   note rides along with the mask, since the eye that shows it is part of it. */
 function stageViews() {
-  const masked = stage().masked;
-  return CARDS.map(c => ({ ...c, full: c.with.length, masked }));
+  const { masked, note } = stage();
+  return CARDS.map(c => ({ ...c, full: c.with.length, masked, note }));
 }
 
 let VIEWS = stageViews();
@@ -1365,8 +1383,6 @@ const tick = (unit, v) => {
 /* ===========================================================
    Markup
    =========================================================== */
-const MASK_NOTE = 'Data only available with Managed Payments.';
-
 /* Masked, the card keeps its title and its chart and gives up everything else:
    no figure, no way into a report that has nothing in it, and an eye in place of
    the ⓘ carrying the reason. */
@@ -1378,8 +1394,8 @@ function cardHtml(c) {
           <div class="card-title">${c.title}</div>
           ${c.masked ? `
             <span class="masked-wrap">
-              <span class="masked-eye" tabindex="0" role="img" aria-label="${MASK_NOTE}">${EYE_CLOSED_SVG}</span>
-              <span class="masked-tip" role="tooltip">${MASK_NOTE}</span>
+              <span class="masked-eye" tabindex="0" role="img" aria-label="${c.note}">${EYE_CLOSED_SVG}</span>
+              <span class="masked-tip" role="tooltip">${c.note}</span>
             </span>` : `
             <span class="info">${INFO_SVG}<span class="info-tip">${c.desc}</span></span>`}
         </div>
@@ -1675,7 +1691,7 @@ function renderSwitch() {
 function renderCards() {
   VIEWS = stageViews();
   /* the pitch stands in for the figures that aren't there yet */
-  document.getElementById('apIntro').hidden = !stage().masked;
+  document.getElementById('apIntro').hidden = !stage().hero;
   document.getElementById('cards').innerHTML =
     cardHtml(VIEWS[0]) +
     `<div class="row">${cardHtml(VIEWS[1])}${cardHtml(VIEWS[2])}</div>` +
