@@ -60,15 +60,18 @@
             flex-direction: column;
         }
 
-        /* Controls sit on the gray above the container, outer edges flush with
-           its sides as the design has them: the way back on the left, as the
-           onboarding flow has it, and the stage switch on the right. */
+        /* The gray is only this band now — 77px, which is where the container's
+           top edge sits in Figma 26704:81359. Fixed rather than derived from the
+           controls, so the band matches the design whichever of the two is
+           taller; they centre in it, 20px in from each side as the design has
+           them: the way back on the left, as the onboarding flow has it, and the
+           stage switch on the right. */
         .page-top {
-            flex: 0 0 auto;
+            flex: 0 0 77px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 24px 52px 20px;
+            padding: 0 20px;
         }
         .back-button {
             padding: 8px 14px;
@@ -123,20 +126,20 @@
            asset URLs expire. They carry alpha only, so each is applied as a
            mask over currentColor, which is how the design composes them and
            what lets one shape serve both the default and active colours. */
-        /* The container: gray above it and to its sides, but it runs to the
-           bottom edge of the window — so the bottom corners are square and the
-           bottom keyline is dropped. Clipped to its own radius, and the only
-           thing on the page with a scrollbar, which it gives to the main column
-           so the nav stays put. */
+        /* The container: gray above it only. It runs to the left, right and
+           bottom edges of the window, so those three keylines are dropped and
+           only the top corners are rounded. Clipped to its own radius, and the
+           only thing on the page with a scrollbar, which it gives to the main
+           column so the nav stays put. */
         .shell {
             display: flex;
             /* fills what the control row leaves, down to the bottom edge */
             flex: 1;
             min-height: 0;
-            margin: 0 52px 0;
+            margin: 0;
             background: var(--bg-surface);
-            border: 1px solid var(--neutral-50);
-            border-bottom: 0;
+            border: 0;
+            border-top: 1px solid var(--neutral-50);
             border-radius: 12px 12px 0 0;
             box-shadow: 0 1px 2px rgba(48, 49, 61, 0.04), 0 12px 32px -8px rgba(48, 49, 61, 0.10);
             overflow: hidden;
