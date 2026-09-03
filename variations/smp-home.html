@@ -760,6 +760,40 @@
         /* an enabled location has nothing to enable, so it keeps just the overflow */
         .loc-qa .qa-more.only { border-radius: 6px; border-left: 1px solid #d8dee4; }
 
+        /* ---------------- Empty state ----------------
+           Sail's EmptyState at the medium size (sail-next EmptyState.tsx): a
+           464px-tall area with the content held in a 448px column, centred in the
+           area but left-aligned within itself. The small size is the dashed,
+           centred one — it's for pages carrying several empty sections, which this
+           isn't. Tokens: xxlarge 48, medium 16, xsmall 4. */
+        .empty-state { display: none; }
+        /* the table and its controls have nothing to show, so they go entirely */
+        .panel.empty > :not(.empty-state) { display: none; }
+        .panel.empty .empty-state {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            width: 100%; min-height: 464px; padding: 48px;
+            text-align: left;
+        }
+        .empty-inner {
+            display: flex; flex-direction: column; align-items: flex-start;
+            gap: 16px; width: 448px; max-width: 100%;
+        }
+        /* contained icon: a 20px glyph on 16px of padding, so a 52px tile */
+        .empty-icon {
+            display: grid; place-items: center;
+            padding: 16px; border-radius: 6px;
+            background: var(--bg-offset); color: var(--icon-subdued);
+        }
+        .empty-icon svg { width: 20px; height: 20px; display: block; }
+        .empty-copy { display: flex; flex-direction: column; gap: 4px; }
+        .empty-title {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            font-size: 20px; line-height: 28px; font-weight: 700;
+            letter-spacing: 0.3px; color: var(--text-heading);
+        }
+        .empty-desc { font-size: 14px; line-height: 20px; letter-spacing: -0.15px; color: var(--text-subdued); }
+
         .loc-foot {
             display: flex; align-items: center; justify-content: space-between;
             padding-top: 12px;
@@ -1162,6 +1196,19 @@
                         <button>Next</button>
                     </span>
                 </div>
+
+                <div class="empty-state" id="locEmpty">
+                    <div class="empty-inner">
+                        <span class="empty-icon">
+                            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="7.6"/><path d="M2.4 10h15.2"/><path d="M10 2.4c2 2.1 3.1 4.8 3.1 7.6S12 15.5 10 17.6C8 15.5 6.9 12.8 6.9 10S8 4.5 10 2.4Z"/></svg>
+                        </span>
+                        <div class="empty-copy">
+                            <div class="empty-title">No locations covered yet</div>
+                            <p class="empty-desc">Stripe covers sales where Managed Payments is on. Set it up to see the locations you sell in and turn on the ones you want covered.</p>
+                        </div>
+                        <button class="btn-primary" id="locEmptyCta">Set up Managed Payments</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1335,17 +1382,17 @@ const STAGES = [
     id: 'new-no-smp',
     label: 'New users (without SMP)',
     masked: true,
-    hero: true,
+    smp: false,
     note: 'Data only available with Managed Payments.',
   },
   {
     id: 'new-smp',
     label: 'New users (with SMP)',
     masked: true,
-    hero: false,
+    smp: true,
     note: 'Nothing to show yet. Data will appear once payments start coming in.',
   },
-  { id: 'volume', label: 'With volume', masked: false, hero: false },
+  { id: 'volume', label: 'With volume', masked: false, smp: true },
 ];
 
 /* Arriving from the onboarding flow, the search result that got here carries the
@@ -1634,6 +1681,8 @@ document.addEventListener('click', () => setQaOpen(false));
 document.addEventListener('keydown', e => { if (e.key === 'Escape') setQaOpen(false); });
 
 document.getElementById('setupBtn').addEventListener('click', openModal);
+/* the Locations empty state offers the same thing the hero does */
+document.getElementById('locEmptyCta').addEventListener('click', openModal);
 document.getElementById('configureBtn').addEventListener('click', () => {
   setQaOpen(false);
   openModal();
@@ -1739,6 +1788,10 @@ function figure(v, seed = 0) {
 }
 
 function renderLocations() {
+  /* Nothing is covered without the product, so there's no list to show and no
+     counts or filters worth offering over it. */
+  document.getElementById('panelLocations').classList.toggle('empty', !stage().smp);
+
   const on = locRows.filter(l => l.on).length;
   const tiles = [
     { id: 'all', label: 'All locations', value: locRows.length },
@@ -1846,7 +1899,7 @@ function renderStage() {
 function renderCards() {
   VIEWS = stageViews();
   /* the pitch stands in for the figures that aren't there yet */
-  document.getElementById('apIntro').hidden = !stage().hero;
+  document.getElementById('apIntro').hidden = stage().smp;
   document.getElementById('cards').innerHTML =
     cardHtml(VIEWS[0]) +
     `<div class="row">${cardHtml(VIEWS[1])}${cardHtml(VIEWS[2])}</div>` +
