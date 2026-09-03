@@ -1352,14 +1352,34 @@ const STAGES = [
    stage the account's own choice puts it in — opting into Managed Payments lands
    on the with-SMP stage, handling it yourself on the without. Opened on its own,
    Home still starts on with-SMP. */
-/* The stage is the page's slug too: #volume, ?stage=volume, or /smp-home/volume
-   through the rewrites in vercel.json — so any stage can be linked to directly. */
-function stageAsked() {
+/* The slug is the stage and, where it isn't the default, the tab: #volume,
+   #volume-locations, ?stage=volume&tab=locations, or /smp-home/volume/locations
+   through the rewrites in vercel.json — so any pairing can be linked to directly. */
+const TAB_IDS = ['performance', 'locations'];
+
+function slugAsked() {
   const hash = decodeURIComponent(location.hash.replace(/^#/, ''));
-  return hash || new URLSearchParams(location.search).get('stage') || '';
+  if (hash) return hash;
+  const q = new URLSearchParams(location.search);
+  const stage = q.get('stage') || '';
+  const tab = q.get('tab') || '';
+  return stage && tab ? `${stage}-${tab}` : stage;
 }
 
-let stageId = STAGES.some(s => s.id === stageAsked()) ? stageAsked() : 'new-smp';
+/* A slug splits on its last hyphen only if what follows is a tab, since the stage
+   ids carry hyphens of their own (new-no-smp). */
+function readSlug(slug) {
+  const tab = TAB_IDS.find(t => slug === t || slug.endsWith('-' + t));
+  const stage = tab ? slug.slice(0, slug.length - tab.length).replace(/-$/, '') : slug;
+  return {
+    stage: STAGES.some(s => s.id === stage) ? stage : null,
+    tab: tab || null,
+  };
+}
+
+const asked = readSlug(slugAsked());
+let stageId = asked.stage || 'new-smp';
+let tabId = asked.tab || 'performance';
 
 const stage = () => STAGES.find(s => s.id === stageId);
 
@@ -1770,14 +1790,20 @@ document.getElementById('locBody').addEventListener('click', e => {
 });
 
 const TABS = document.getElementById('tabs');
-TABS.addEventListener('click', e => {
-  const tab = e.target.closest('.tab');
-  if (!tab) return;
-  TABS.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === tab));
-  const locations = tab.dataset.tab === 'locations';
+
+function showTab(id) {
+  tabId = TAB_IDS.includes(id) ? id : 'performance';
+  const locations = tabId === 'locations';
+  TABS.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabId));
   document.getElementById('panelPerformance').hidden = locations;
   document.getElementById('panelLocations').hidden = !locations;
   if (locations) renderLocations();
+  syncSlug();
+}
+
+TABS.addEventListener('click', e => {
+  const tab = e.target.closest('.tab');
+  if (tab) showTab(tab.dataset.tab);
 });
 
 const STAGE_EL = document.getElementById('stageSwitch');
@@ -1800,10 +1826,16 @@ function renderAccount() {
 
 /* The stage owns both tabs, so changing it re-seeds the table too — otherwise the
    Locations tab would still be showing the previous stage's coverage. */
+/* replaceState rather than a hash assignment: switching stages or tabs shouldn't
+   fill up the back button. Performance is the default, so it stays out of the
+   slug — #volume and #volume-performance are the same page. */
+function syncSlug() {
+  const slug = tabId === 'performance' ? stageId : `${stageId}-${tabId}`;
+  try { history.replaceState(null, '', '#' + slug); } catch (e) { /* file:// */ }
+}
+
 function renderStage() {
-  /* replaceState rather than a hash assignment: switching stages shouldn't fill
-     up the back button. */
-  try { history.replaceState(null, '', '#' + stageId); } catch (e) { /* file:// */ }
+  syncSlug();
   renderSwitch();
   renderAccount();
   renderCards();
@@ -1836,13 +1868,14 @@ document.querySelector('.side-nav').addEventListener('click', e => {
 });
 
 /* Delegated, so re-rendering the buttons doesn't drop the handler. */
-/* Editing the slug in the address bar, or going back to one, moves the stage. */
+/* Editing the slug in the address bar, or going back to one, moves the page. */
 window.addEventListener('hashchange', () => {
-  const asked = stageAsked();
-  if (asked && asked !== stageId && STAGES.some(s => s.id === asked)) {
-    stageId = asked;
+  const want = readSlug(slugAsked());
+  if (want.stage && want.stage !== stageId) {
+    stageId = want.stage;
     renderStage();
   }
+  if ((want.tab || 'performance') !== tabId) showTab(want.tab || 'performance');
 });
 
 STAGE_EL.addEventListener('click', e => {
@@ -2052,6 +2085,8 @@ function drawAll() {
 
 renderScope();
 renderStage();
+// A slug can name the Locations tab, so open on whichever one it asked for
+showTab(tabId);
 window.addEventListener('resize', drawAll);
 </script>
 </body>

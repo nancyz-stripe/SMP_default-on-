@@ -18,6 +18,7 @@
 
     { "source": "/smp-home", "destination": "/variations/smp-home.html" },
     { "source": "/smp-home/:stage", "destination": "/variations/smp-home.html?stage=:stage" },
+    { "source": "/smp-home/:stage/:tab", "destination": "/variations/smp-home.html?stage=:stage&tab=:tab" },
 
     { "source": "/email/first-payment", "destination": "/variations/email-first-payment.html" },
     { "source": "/email/tax-threshold", "destination": "/variations/email-tax-threshold.html" }
