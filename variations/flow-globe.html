@@ -1075,7 +1075,8 @@
             appearance: none;
             -webkit-appearance: none;
             width: 100%;
-            padding: 12px 38px 12px 14px;
+            /* 40px on the left clears the flag, 38px on the right the arrow */
+            padding: 12px 38px 12px 40px;
             border: 1px solid var(--border-default);
             border-radius: 8px;
             font-size: 14px;
@@ -1091,14 +1092,24 @@
             border-color: var(--border-action-primary);
             box-shadow: 0 0 0 3px rgba(103, 93, 255, 0.12);
         }
-        .field-caret {
+        /* The flag sits over the field; a select can't hold an image itself */
+        .field-flag {
             position: absolute;
-            right: 14px;
+            left: 16px;
             top: 50%;
             transform: translateY(-50%);
-            width: 12px;
+            width: 16px;
             height: 12px;
-            color: var(--text-default);
+            pointer-events: none;
+        }
+        .field-caret {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 10px;
+            height: 10px;
+            color: #3c4f69;
             pointer-events: none;
         }
 
@@ -3225,17 +3236,18 @@
                     <div class="act-field">
                         <label class="act-label" for="act-location">Business location <svg class="field-info" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="1.5" width="11" height="11" rx="2"/><path d="M7 6.2v4M7 4.1v.6"/></svg></label>
                         <div class="field-select">
-                            <select id="act-location">
-                                <option>🇺🇸 United States</option>
-                                <option>🇨🇦 Canada</option>
-                                <option>🇬🇧 United Kingdom</option>
-                                <option>🇮🇪 Ireland</option>
-                                <option>🇩🇪 Germany</option>
-                                <option>🇦🇺 Australia</option>
-                                <option>🇸🇬 Singapore</option>
-                                <option>🇯🇵 Japan</option>
+                            <img class="field-flag" src="assets/flags/US.svg" alt="">
+                            <select id="act-location" onchange="setFlag(this)">
+                                <option>United States</option>
+                                <option>Canada</option>
+                                <option>United Kingdom</option>
+                                <option>Ireland</option>
+                                <option>Germany</option>
+                                <option>Australia</option>
+                                <option>Singapore</option>
+                                <option>Japan</option>
                             </select>
-                            <svg class="field-caret" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 5L6 2.5 8.5 5"/><path d="M3.5 7L6 9.5 8.5 7"/></svg>
+                            <svg class="field-caret" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.03097 4.66406C6.35434 4.40537 6.82687 4.458 7.08566 4.78124C7.34441 5.1047 7.29192 5.57718 6.96847 5.83593L4.46847 7.83593C4.19458 8.05492 3.80482 8.05499 3.53097 7.83593L1.03097 5.83593C0.707765 5.57716 0.655188 5.10461 0.913782 4.78124C1.17248 4.45788 1.64503 4.40551 1.96847 4.66406L3.99972 6.28906L6.03097 4.66406Z" fill="currentColor"/><path d="M3.63839 0.0927679C3.90013 -0.0512708 4.22867 -0.0276259 4.46847 0.164057L6.96847 2.16406C7.29192 2.42281 7.34441 2.89529 7.08566 3.21874C6.82688 3.54206 6.35437 3.59464 6.03097 3.33593L3.99972 1.71093L1.96847 3.33593C1.64503 3.59454 1.1725 3.54213 0.913782 3.21874C0.655241 2.89536 0.707736 2.42279 1.03097 2.16406L3.53097 0.164057L3.63839 0.0927679Z" fill="currentColor"/></svg>
                         </div>
                     </div>
 
@@ -3573,17 +3585,18 @@ const ALL_STEPS = [
       <div class="field">
         <label class="field-label" for="biz-location">Business location <svg class="field-info" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="1.5" width="11" height="11" rx="2"/><path d="M7 6.2v4M7 4.1v.6"/></svg></label>
         <div class="field-select">
-          <select id="biz-location">
-            <option>🇺🇸 United States</option>
-            <option>🇨🇦 Canada</option>
-            <option>🇬🇧 United Kingdom</option>
-            <option>🇮🇪 Ireland</option>
-            <option>🇩🇪 Germany</option>
-            <option>🇦🇺 Australia</option>
-            <option>🇸🇬 Singapore</option>
-            <option>🇯🇵 Japan</option>
+          <img class="field-flag" src="assets/flags/US.svg" alt="">
+                            <select id="biz-location" onchange="setFlag(this)">
+            <option>United States</option>
+            <option>Canada</option>
+            <option>United Kingdom</option>
+            <option>Ireland</option>
+            <option>Germany</option>
+            <option>Australia</option>
+            <option>Singapore</option>
+            <option>Japan</option>
           </select>
-          <svg class="field-caret" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 5L6 2.5 8.5 5"/><path d="M3.5 7L6 9.5 8.5 7"/></svg>
+          <svg class="field-caret" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.03097 4.66406C6.35434 4.40537 6.82687 4.458 7.08566 4.78124C7.34441 5.1047 7.29192 5.57718 6.96847 5.83593L4.46847 7.83593C4.19458 8.05492 3.80482 8.05499 3.53097 7.83593L1.03097 5.83593C0.707765 5.57716 0.655188 5.10461 0.913782 4.78124C1.17248 4.45788 1.64503 4.40551 1.96847 4.66406L3.99972 6.28906L6.03097 4.66406Z" fill="currentColor"/><path d="M3.63839 0.0927679C3.90013 -0.0512708 4.22867 -0.0276259 4.46847 0.164057L6.96847 2.16406C7.29192 2.42281 7.34441 2.89529 7.08566 3.21874C6.82688 3.54206 6.35437 3.59464 6.03097 3.33593L3.99972 1.71093L1.96847 3.33593C1.64503 3.59454 1.1725 3.54213 0.913782 3.21874C0.655241 2.89536 0.707736 2.42279 1.03097 2.16406L3.53097 0.164057L3.63839 0.0927679Z" fill="currentColor"/></svg>
         </div>
       </div>`,
   },
@@ -4239,6 +4252,18 @@ function smpHomeHref() {
 
 function goToSmpHome() {
   window.location.href = smpHomeHref();
+}
+
+/* A select can't hold an image, so the flag is drawn over the field and swapped
+   when the choice changes. The assets are the 16x12 set the Locations table uses. */
+const FLAG_CODES = {
+  'United States': 'US', 'Canada': 'CA', 'United Kingdom': 'GB', 'Ireland': 'IE',
+  'Germany': 'DE', 'Australia': 'AU', 'Singapore': 'SG', 'Japan': 'JP',
+};
+
+function setFlag(sel) {
+  const flag = sel.parentNode.querySelector('.field-flag');
+  if (flag) flag.src = `assets/flags/${FLAG_CODES[sel.value] || 'US'}.svg`;
 }
 
 function goHome() {
