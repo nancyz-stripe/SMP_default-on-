@@ -1150,6 +1150,22 @@
             margin-bottom: 4px;
         }
         .option-row .row-label { display: block; font-size: 13px; line-height: 18px; color: var(--text-subdued); }
+        /* Outside the rows, on the column's own left edge, so it captions the row
+           below it. The 4px rides on the list's 8px gap for 12px either side. */
+        .option-note {
+            display: block;
+            margin: 4px 0;
+            font-size: 14px;
+            line-height: 20px;
+            color: var(--text-subdued);
+        }
+        .row-info {
+            width: 14px;
+            height: 14px;
+            margin-left: 8px;
+            vertical-align: -2px;
+            color: var(--icon-subdued);
+        }
         .text-link {
             display: inline-block;
             margin-top: 16px;
@@ -3432,12 +3448,17 @@ const CHECK = '<svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke
 
 // Checkbox rows: multi-select, so any number of choices can be on at once.
 // `name` keys an array of selected indexes in `state`.
+const ROW_INFO = '<svg class="row-info" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="1.5" width="11" height="11" rx="2"/><path d="M7 6.2v4M7 4.1v.6"/></svg>';
+
+/* `note` captions the row it sits above, outside the row so it reads as a note
+   about it rather than as part of it; `info` hangs the hint icon off the title. */
 function rows(name, items) {
   return `<div class="options">${items.map((it, i) => `
+    ${it.note ? `<span class="option-note">${it.note}</span>` : ''}
     <div class="option-row${state[name].includes(i) ? ' selected' : ''}" onclick="toggle('${name}', ${i})">
       <span class="box">${CHECK}</span>
       <span style="flex:1">
-        <span class="row-title">${it.title}</span>
+        <span class="row-title">${it.title}${it.info ? ROW_INFO : ''}</span>
         ${it.label ? `<span class="row-label">${it.label}</span>` : ''}
       </span>
     </div>`).join('')}</div>`;
@@ -3587,11 +3608,12 @@ const ALL_STEPS = [
     plain: true,
     actions: ['skip', 'continue'],
     render: () => `
-      <div class="headline">Select how you want to use Stripe. <span class="muted">You can always add or remove products later.</span></div>
+      <div class="headline">What do you need to get started? <span class="muted">You can always change your setup later.</span></div>
       ${rows('use', [
-        { title: 'Non-recurring payments', label: 'Let your users collect payments, or collect them yourself and send payouts' },
-        { title: 'Recurring payments', label: 'Let your users collect payments, or collect them yourself and send payouts' },
-        { title: 'Build a platform or marketplace', label: 'Use Connect to enable money movement between multiple parties.' },
+        { title: 'Accept online payments', label: 'Sell products or services through an online checkout.' },
+        { title: 'Create subscriptions', label: 'Bill for products or services on a recurring schedule.' },
+        { title: 'Build a platform', label: 'Let your customers accept payments and receive payouts through your product.',
+          info: true, note: 'Includes tools for onboarding and verifying seller identity' },
       ])}
       <span class="text-link">I need something else</span>`,
   },
