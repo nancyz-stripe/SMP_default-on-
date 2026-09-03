@@ -1731,6 +1731,8 @@
         .mkt-subnav-name { font-size: 18px; font-weight: 500; line-height: 19.6px; color: #061b31; }
         .mkt-subnav-links { display: flex; align-items: center; gap: 20px; font-size: 14px; font-weight: 500; line-height: 19.6px; }
         .mkt-subnav-links a { color: #061b31; text-decoration: none; cursor: pointer; }
+        /* Accent marks what's navigable — the other page and Docs. The page
+           you're on stays #061b31, so purple reads as "go here". */
         .mkt-subnav-links a.on, .mkt-subnav-links a.ext { color: #533afd; }
         .mkt-subnav-links a.ext { display: inline-flex; align-items: center; gap: 5px; }
         .mkt-subnav-links a.ext svg { width: 10px; height: 10px; }
@@ -2260,8 +2262,8 @@
       <div class="mkt-row">
         <span class="mkt-subnav-name">Managed Payments</span>
         <span class="mkt-subnav-links">
-          <a class="on">Overview</a>
-          <a onclick="goTo('pricing')">Pricing</a>
+          <a>Overview</a>
+          <a class="on" onclick="goTo('pricing')">Pricing</a>
           <span class="mkt-subnav-sep"></span>
           <a class="ext">Docs <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3.6 1h5.4v5.4"/><path d="M9 1L4 6"/><path d="M7 6.6V9H1V3h2.4"/></svg></a>
         </span>
@@ -2682,8 +2684,8 @@
       <div class="mkt-row">
         <span class="mkt-subnav-name">Managed Payments</span>
         <span class="mkt-subnav-links">
-          <a onclick="goTo('landing')">Overview</a>
-          <a class="on">Pricing</a>
+          <a class="on" onclick="goTo('landing')">Overview</a>
+          <a>Pricing</a>
           <span class="mkt-subnav-sep"></span>
           <a class="ext">Docs <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3.6 1h5.4v5.4"/><path d="M9 1L4 6"/><path d="M7 6.6V9H1V3h2.4"/></svg></a>
         </span>
