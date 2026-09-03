@@ -26,7 +26,7 @@
             --font-display: 'SF Pro Display', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
             /* How far through the setup guide we are — one source for both the
                expanded card's footer bar and the collapsed card's bar. */
-            --setup-progress: 18%;
+            --setup-progress: 2%;
             --shadow-overlay: 0px 15px 35px 0px rgba(48, 49, 61, 0.08), 0px 5px 15px 0px rgba(0, 0, 0, 0.12);
         }
 
@@ -487,19 +487,8 @@
         .dash-stat-row .amt { margin-left: auto; }
         .dash-overview-col .dash-metric-value { margin-top: 8px; }
 
-        /* Guided state: the setup-guide moment fades "Your overview" back to
-           10% and brings up the design's wave-wall gradient over it. The image
-           is the Figma asset, anchored to the frame's bottom-right corner. */
-        .dash-glow {
-            position: absolute;
-            right: 4px; bottom: -1px;
-            width: 1181px; height: 372px;
-            background: url('assets/dash-wave-wall.png') no-repeat center / 100% 100%;
-            opacity: 0;
-            transition: opacity 0.4s ease;
-            pointer-events: none;
-        }
-        #dash-layer.guided .dash-glow { opacity: 1; }
+        /* Guided state: the setup-guide moment fades "Your overview" back to 10%
+           so the card carries the screen on its own. */
         #dash-layer.guided .dash-overview { opacity: 0.1; }
 
         /* Fills the viewport at 1:1 — nothing is scaled, so no element grows
@@ -720,14 +709,6 @@
         }
         /* 12.031 / 302.432 */
         .globe-card-subtitle { font-size: calc(var(--gc-w) * 0.03978); color: #667691; }
-        .globe-card-check {
-            /* 12 / 302.432 */
-            width: calc(var(--gc-w) * 0.03968);
-            height: calc(var(--gc-w) * 0.03968);
-            flex-shrink: 0;
-            color: #30b271;
-        }
-
         /* Staggered right-left-right-left down the globe. Each card's top-left
            in the Figma frame, expressed against the sphere's own top-left
            (245.576, 252.204) as a fraction of its 499.493 diameter:
@@ -786,32 +767,35 @@
             color: var(--text-subdued);
         }
         .brief-icon svg { width: 12px; height: 12px; }
+        /* Same type as .option-row .row-title, so these read like the option
+           headers on the steps before. */
         .brief-title {
             display: block;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 600;
-            line-height: 20px;
-            letter-spacing: -0.15px;
             color: var(--text-default);
             margin-bottom: 4px;
         }
+        /* Same type as .option-row .row-label, the sub under an option header. */
         .brief-desc {
             display: block;
-            font-size: 12px;
-            line-height: 16px;
-            color: var(--text-default);
+            font-size: 13px;
+            line-height: 18px;
+            color: var(--text-subdued);
         }
 
         /* Radio cards: the recommended option carries its benefits inline, the
-           alternative is a single line. Unselected takes a 1px keyline (Figma
-           26702:75400); selected thickens to 2px in the accent colour, and gives
-           back the extra pixel in padding so nothing shifts. */
+           alternative is a single line. Unselected rests on the same grey fill the
+           checkbox rows use, keyline kept transparent rather than absent; selected
+           turns white and thickens to 2px in the accent colour, and gives back the
+           extra pixel in padding so nothing shifts. */
         .choice-list { display: flex; flex-direction: column; gap: 16px; }
         .choice-card {
-            border: 1px solid var(--neutral-50);
+            border: 1px solid transparent;
             border-radius: 8px;
             padding: 17px;
-            background: var(--bg-surface);
+            background: var(--bg-offset);
+            transition: background 0.15s, border-color 0.15s;
             display: flex;
             gap: 12px;
             align-items: flex-start;
@@ -849,14 +833,14 @@
 
         .choice-body { flex: 1; display: flex; flex-direction: column; gap: 8px; }
         .choice-title-row { display: flex; align-items: center; gap: 16px; }
+        /* Same type as .option-row .row-title, so a card's copy reads like the
+           checkbox rows on the steps before it. */
         .choice-title {
-            font-size: 16px;
-            font-weight: 700;
-            line-height: 24px;
-            letter-spacing: -0.31px;
+            font-size: 15px;
+            font-weight: 600;
             color: var(--text-default);
         }
-        .choice-sub { font-size: 12px; line-height: 16px; color: var(--text-subdued); }
+        .choice-sub { font-size: 13px; line-height: 18px; color: var(--text-subdued); }
 
         .choice-benefits { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
         .choice-benefit { display: flex; gap: 8px; align-items: flex-start; }
@@ -869,18 +853,16 @@
         }
         .choice-benefit-title {
             display: block;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 600;
-            line-height: 20px;
-            letter-spacing: -0.15px;
-            color: #3c4f69;
+            color: var(--text-default);
             margin-bottom: 4px;
         }
         .choice-benefit-desc {
             display: block;
-            font-size: 12px;
-            line-height: 16px;
-            color: #3c4f69;
+            font-size: 13px;
+            line-height: 18px;
+            color: var(--text-subdued);
         }
 
         .choice-fee { margin-top: 8px; font-size: 12px; line-height: 16px; color: var(--text-subdued); }
@@ -1065,27 +1047,47 @@
             border-color: var(--border-action-primary);
             box-shadow: 0 0 0 3px rgba(103, 93, 255, 0.12);
         }
-
-        .inline-field {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 14px;
-            color: var(--text-default);
-        }
-        .info-icon {
+        /* The "what counts as your location" hint, riding beside the label. */
+        .field-info {
             width: 14px;
             height: 14px;
-            color: var(--text-muted);
-            flex-shrink: 0;
+            margin-left: 2px;
+            vertical-align: -2px;
+            color: var(--icon-subdued);
         }
-        .location-value {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+        /* Business location: the same shell as .field input, with the flag in
+           the option text and the caret drawn over the native control. */
+        .field-select { position: relative; }
+        .field-select select {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 100%;
+            padding: 12px 38px 12px 14px;
+            border: 1px solid var(--border-default);
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: inherit;
+            color: var(--text-default);
+            background: var(--bg-surface);
+            outline: none;
+            box-shadow: 0px 1px 1px 0px rgba(48, 49, 61, 0.04);
             cursor: pointer;
         }
-        .chevron { width: 10px; height: 10px; color: var(--text-subdued); }
+        .field-select select:focus {
+            border-color: var(--border-action-primary);
+            box-shadow: 0 0 0 3px rgba(103, 93, 255, 0.12);
+        }
+        .field-caret {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            color: var(--text-default);
+            pointer-events: none;
+        }
 
         /* Selectable rows ("product with details" in the Figma) */
         .options { display: flex; flex-direction: column; gap: 8px; }
@@ -1129,12 +1131,12 @@
            pairing as .brief-title/.brief-desc. */
         .option-row .row-title {
             display: block;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 600;
             color: var(--text-default);
             margin-bottom: 4px;
         }
-        .option-row .row-label { display: block; font-size: 12px; line-height: 16px; color: var(--text-subdued); }
+        .option-row .row-label { display: block; font-size: 13px; line-height: 18px; color: var(--text-subdued); }
         .text-link {
             display: inline-block;
             margin-top: 16px;
@@ -1192,7 +1194,7 @@
         .sandbox-split { display: flex; gap: 40px; align-items: flex-start; }
         .sandbox-copy { width: 400px; flex-shrink: 0; }
         .steps-list { display: flex; flex-direction: column; position: relative; }
-        .steps-list-item { display: flex; gap: 12px; padding-bottom: 20px; position: relative; }
+        .steps-list-item { display: flex; align-items: flex-start; gap: 12px; padding-bottom: 20px; position: relative; }
         .steps-list-item:last-child { padding-bottom: 0; }
         .steps-list-item::before {
             content: '';
@@ -1219,8 +1221,18 @@
             position: relative;
             z-index: 1;
         }
-        .step-num-title { font-size: 13px; font-weight: 600; color: var(--text-default); margin-bottom: 2px; }
-        .step-num-label { font-size: 12px; color: var(--text-subdued); line-height: 1.45; }
+        /* Both blocks, so the detail sits under the title rather than running on
+           from it. The title's line-height matches .step-num's 17px, which is what
+           centres the numeral on the first line of text. */
+        .step-num-title {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 17px;
+            color: var(--text-default);
+            margin-bottom: 2px;
+        }
+        .step-num-label { display: block; font-size: 13px; color: var(--text-subdued); line-height: 18px; }
 
         .sandbox-art {
             flex: 1;
@@ -1274,43 +1286,214 @@
         #dashboard-step.active { display: block; }
         #dashboard-step > * { pointer-events: auto; }
 
-        /* Spotlight callout ("Next, set up recurring payments" + Got it) */
-        /* Tracks the centred content block: its right edge sits
-           (100vw - 1216px)/2 from the window edge, which is 32px at the frame's
-           1280px. That lands the 312px callout on x557, and the bottom inset
-           puts its last line on y776 with "Got it" below. */
-        .spotlight {
+        /* Collapsing is the guide getting out of the way, so it also drops the
+           dimmed overview: the dashboard reads in full (Figma 26767:92929). */
+        #dashboard-step.collapsed .floatie { display: none; }
+
+        /* ---------------- Account activation overlay ----------------
+           Its own page over the dashboard: a top bar, the stage rail on the
+           left, and one question in a 400px column. Above .back-button (400) so
+           nothing from the prototype frame shows through. */
+        .act {
+            position: fixed;
+            inset: 0;
+            z-index: 500;
+            display: none;
+            background: var(--bg-surface);
+            overflow-y: auto;
+        }
+        .act.open { display: block; }
+        .act-top {
+            height: 56px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 0 25px;
+            border-bottom: 1px solid var(--neutral-50);
+        }
+        .act-close { width: 14px; height: 14px; color: var(--icon-default); cursor: pointer; }
+        .act-close:hover { color: var(--text-default); }
+        .act-top-sep { width: 1px; height: 20px; background: var(--neutral-100); }
+        .act-top-title { font-size: 14px; color: var(--text-default); }
+
+        /* The rail comes out of the flow and stays pinned to the left edge; the
+           padding reserves its column, so the question column centres in what's
+           left between the rail and the right edge of the page. */
+        .act-body { position: relative; padding: 48px 24px 80px 290px; }
+        .act-page { display: none; }
+        .act-page.active { display: block; }
+
+        /* Stage rail. One dashed line runs the height of the rail; the markers
+           carry a white fill, so they sit on it rather than over it. */
+        .act-rail { position: absolute; left: 50px; top: 48px; width: 240px; }
+        /* Runs from the first marker's centre to the last one's, which the white
+           marker fills mask, so it only shows in the gaps between them. */
+        .act-rail::before {
+            content: '';
             position: absolute;
-            right: calc(379px + (100vw - 1216px) / 2);
-            bottom: 36px;
-            width: 312px;
+            left: 10.5px;
+            top: 11px;
+            bottom: 11px;
+            border-left: 1px dashed var(--neutral-100);
         }
-        /* Display/Small */
-        .spotlight-title {
-            font-family: var(--font-display);
-            font-size: 32px;
-            font-weight: 700;
-            line-height: 40px;
-            letter-spacing: 0.41px;
-            color: var(--text-default);
+        .act-stage { position: relative; display: flex; align-items: center; gap: 12px; height: 22px; cursor: pointer; }
+        .act-stage + .act-stage { margin-top: 30px; }
+        /* Upcoming: a dashed outline */
+        .act-marker {
+            position: relative;
+            z-index: 1;
+            flex-shrink: 0;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 1.5px dashed var(--neutral-200);
+            background: var(--bg-surface);
         }
-        .spotlight-link {
-            display: inline-block;
+        /* Part-run: a solid track with one arc in the accent colour */
+        .act-marker.progress {
+            border: 2.5px solid var(--neutral-100);
+            border-top-color: var(--text-action-primary);
+            transform: rotate(-45deg);
+        }
+        /* Open, and the stage you're on: a plain track, nothing run yet */
+        .act-marker.open { border: 1.5px solid var(--neutral-100); }
+        .act-marker.done {
+            border: none;
+            background: var(--text-action-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .act-marker.done svg { width: 11px; height: 11px; color: #fff; }
+        /* A run stage joins the next one with a solid line, over the dashed one */
+        .act-stage.linked::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: -30px;
+            height: 30px;
+            border-left: 2px solid var(--text-action-primary);
+        }
+        .act-stage-title { font-size: 16px; color: var(--text-heading); }
+        .act-stage.current .act-stage-title { font-weight: 600; }
+
+        .act-subs { position: relative; margin: 13px 0 30px; }
+        .act-sub {
+            display: flex;
+            align-items: center;
+            gap: 8px;
             height: 20px;
-            margin-top: 8px;
             font-size: 14px;
-            line-height: 20px;
             color: var(--text-default);
-            text-decoration: underline;
             cursor: pointer;
         }
+        .act-sub + .act-sub { margin-top: 11px; }
+        .act-sub .act-dot {
+            position: relative;
+            z-index: 1;
+            flex-shrink: 0;
+            /* Indented clear of the rail's line, which runs behind them */
+            margin-left: 36px;
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background: var(--neutral-100);
+        }
+        .act-sub.current { color: var(--text-action-primary); font-weight: 600; }
+        .act-sub.current .act-dot {
+            background: var(--bg-surface);
+            border: 2px solid var(--text-action-primary);
+        }
 
-        /* Collapsing is the guide getting out of the way, so it also drops the
-           gradient and the dimmed overview: the dashboard reads in full
-           (Figma 26767:92929). */
-        #dashboard-step.collapsed .floatie,
-        #dashboard-step.collapsed .spotlight,
-        #dashboard-step.spotlight-dismissed .spotlight { display: none; }
+        .act-main { width: 100%; max-width: 462px; margin: 0 auto; }
+        .act-h1 {
+            font-size: 28px;
+            font-weight: 700;
+            line-height: 36px;
+            letter-spacing: -0.4px;
+            color: var(--text-heading);
+        }
+        .act-lede { margin-top: 8px; font-size: 16px; line-height: 24px; color: var(--text-default); }
+        .act-link { color: var(--text-action-primary); cursor: pointer; }
+        .act-link:hover { text-decoration: underline; }
+
+        .act-field { margin-top: 24px; }
+        .act-field-types { margin-top: 48px; }
+        .act-label { display: block; font-size: 14px; font-weight: 600; color: var(--text-default); margin-bottom: 8px; }
+
+        .act-cards { display: flex; flex-direction: column; gap: 12px; }
+        /* The recommended card wears its badge as a tab off its top-left corner,
+           so the room for it comes from the group rather than the card: 40px of
+           air above the 20px badge. */
+        .act-cards-badged { margin-top: 60px; }
+        /* left/bottom are set against the padding box, so -2px and 100% put the
+           tab flush with the outer left edge and over the top border — it reads
+           as one outline with the card rather than a shape sitting on it. */
+        .act-badge {
+            position: absolute;
+            left: -2px;
+            bottom: 100%;
+            padding: 2px 10px;
+            border-radius: 8px 8px 0 0;
+            background: var(--text-action-primary);
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 16px;
+            color: #fff;
+        }
+        /* The tab carries the corner, so the card's own top-left goes square */
+        .act-card-badged.selected { border-top-left-radius: 0; }
+        /* The badge is the recommendation, so it goes once the choice moves off it */
+        .act-card:not(.selected) .act-badge { display: none; }
+        .act-card {
+            position: relative;
+            display: block;
+            width: 100%;
+            padding: 15px 16px;
+            border: 1px solid var(--border-default);
+            border-radius: 8px;
+            background: var(--bg-surface);
+            box-shadow: 0px 1px 1px 0px rgba(48, 49, 61, 0.04);
+            font-family: inherit;
+            text-align: left;
+            cursor: pointer;
+        }
+        .act-card:hover { border-color: var(--neutral-200); }
+        /* Selected thickens to 2px and gives the pixel back in padding */
+        .act-card.selected { border: 2px solid var(--border-action-primary); padding: 14px 15px; }
+        .act-card-title { display: block; font-size: 15px; font-weight: 600; color: var(--text-default); margin-bottom: 4px; }
+        .act-card.selected .act-card-title { color: var(--text-action-primary); }
+        .act-card-desc { display: block; font-size: 14px; line-height: 20px; color: var(--text-subdued); }
+
+        .act-continue {
+            width: 100%;
+            height: 40px;
+            margin-top: 48px;
+            border: none;
+            border-radius: 6px;
+            background: var(--text-action-primary);
+            color: #fff;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .act-continue:hover { background: #4a32e8; }
+        .act-secondary {
+            width: 100%;
+            height: 40px;
+            margin-top: 12px;
+            border: 1px solid var(--border-default);
+            border-radius: 6px;
+            background: var(--bg-surface);
+            box-shadow: 0px 1px 1px 0px rgba(48, 49, 61, 0.04);
+            color: var(--text-default);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .act-secondary:hover { background: var(--bg-offset); }
         #dashboard-step.collapsed .floatie-collapsed { display: block; }
 
         /* Collapsed setup guide — 292x78, same bottom-right corner as the
@@ -1356,7 +1539,8 @@
             position: absolute;
             right: 20px;
             bottom: 20px;
-            width: 342px;
+            /* Same 292px as the collapsed card, so collapsing doesn't resize it */
+            width: 292px;
             background: var(--bg-surface);
             border-radius: 8px;
             box-shadow: 0px 15px 35px rgba(48, 49, 61, 0.1), 0px 5px 15px rgba(0, 0, 0, 0.08);
@@ -1369,14 +1553,24 @@
             align-items: center;
             justify-content: space-between;
             padding: 0 12px;
-            border-bottom: 1px solid var(--neutral-50);
         }
         .floatie-title { font-size: 13px; font-weight: 600; color: var(--text-default); }
+        /* Same affordance the collapsed card carries, in the expanded header. */
+        .floatie-edit { font-size: 13px; font-weight: 600; color: var(--text-action-primary); cursor: pointer; }
+        .floatie-edit:hover { text-decoration: underline; }
         .floatie-icons { display: flex; align-items: center; gap: 12px; color: var(--text-muted); }
         .floatie-icons svg { width: 12px; height: 12px; cursor: pointer; }
         .floatie-icons svg:hover { color: var(--text-default); }
 
         .floatie-section { padding: 4px; }
+        /* The open group and its tasks sit together on a panel; the closed group
+           rows sit straight on the card. */
+        .floatie-group {
+            background: var(--bg-offset);
+            border-radius: 6px;
+            padding-bottom: 6px;
+            margin-bottom: 4px;
+        }
         .floatie-group-row {
             display: flex;
             align-items: center;
@@ -1385,7 +1579,9 @@
             border-radius: 6px;
             cursor: pointer;
         }
-        .floatie-group-row:hover { background: var(--bg-offset); }
+        /* One step darker than the group panel, so hover reads both on the panel
+           and on the card. */
+        .floatie-group-row:hover { background: var(--neutral-50); }
         .floatie-group-title { font-size: 13px; font-weight: 600; color: var(--text-default); }
         .floatie-group-title.locked { color: var(--text-default); }
         .floatie-group-row .chev { width: 8px; height: 8px; color: var(--text-subdued); }
@@ -1400,7 +1596,7 @@
             border-radius: 6px;
             cursor: pointer;
         }
-        .floatie-task:hover { background: var(--bg-offset); }
+        .floatie-task:hover { background: var(--neutral-50); }
         .floatie-task .tick { width: 14px; height: 14px; flex-shrink: 0; color: var(--neutral-200); }
         .floatie-task .tick.current { color: var(--neutral-200); }
         .floatie-task-label { flex: 1; font-size: 13px; color: var(--text-default); }
@@ -1420,17 +1616,16 @@
         }
         .floatie-go svg { width: 10px; height: 10px; }
 
-        .floatie-footer {
-            height: 38px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 12px;
-            border-top: 1px solid var(--neutral-50);
+        /* Under the header rather than in a footer, full width less the card's
+           12px inset — the same bar the collapsed card shows. */
+        .floatie-progress {
+            display: block;
+            height: 4px;
+            margin: 2px 12px 8px;
+            border-radius: 2px;
+            background: var(--neutral-100);
+            overflow: hidden;
         }
-        .floatie-progress { width: 76px; height: 4px; border-radius: 2px; background: var(--neutral-50); overflow: hidden; }
-        .floatie-manage { font-size: 12px; color: var(--text-action-primary); cursor: pointer; }
-        .floatie-manage:hover { text-decoration: underline; }
 
         /* ---------------- Step 1: Managed Payments pricing page ----------------
            Figma 26767:91767. The stripe.com page the merchant lands on before
@@ -1494,7 +1689,7 @@
 
         /* Site nav */
         .mkt-nav { border-bottom: 1px solid #e5edf5; }
-        .mkt-nav .mkt-row { height: 72px; display: flex; align-items: center; justify-content: space-between; }
+        .mkt-nav .mkt-row { height: 88px; display: flex; align-items: center; justify-content: space-between; }
         .mkt-nav-left { display: flex; align-items: center; gap: 24px; }
         .mkt-nav-links { display: flex; align-items: center; gap: 8px; }
         .mkt-nav-link {
@@ -1513,13 +1708,11 @@
         .mkt-nav-link svg { width: 9px; height: 6px; color: #3c4f69; }
         .mkt-nav-actions { display: flex; gap: 8px; }
 
-        .lp-nav .mkt-row { height: 88px; }
-
         /* Product subnav */
         .mkt-subnav .mkt-row { padding: 24px 0; display: flex; align-items: center; justify-content: space-between; }
         .mkt-subnav-name { font-size: 18px; font-weight: 500; line-height: 19.6px; color: #061b31; }
         .mkt-subnav-links { display: flex; align-items: center; gap: 20px; font-size: 14px; font-weight: 500; line-height: 19.6px; }
-        .mkt-subnav-links a { color: #061b31; text-decoration: none; }
+        .mkt-subnav-links a { color: #061b31; text-decoration: none; cursor: pointer; }
         .mkt-subnav-links a.on, .mkt-subnav-links a.ext { color: #533afd; }
         .mkt-subnav-links a.ext { display: inline-flex; align-items: center; gap: 5px; }
         .mkt-subnav-links a.ext svg { width: 10px; height: 10px; }
@@ -2024,7 +2217,7 @@
   <div class="mkt lp">
     <div class="mkt-rules"><i></i><i></i></div>
 
-    <div class="mkt-nav lp-nav">
+    <div class="mkt-nav">
       <div class="mkt-row">
         <div class="mkt-nav-left">
           <svg viewBox="0 0 60 25" fill="#061b31" xmlns="http://www.w3.org/2000/svg" style="width:60px;height:25px">
@@ -2461,8 +2654,8 @@
           </div>
         </div>
         <div class="mkt-nav-actions">
-          <span class="mkt-nav-link">Sign in</span>
-          <button class="mkt-btn mkt-btn-primary mkt-btn-compact">Contact sales <svg viewBox="0 0 5 8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l3 3-3 3"/></svg></button>
+          <button class="mkt-btn mkt-btn-secondary">Sign in</button>
+          <button class="mkt-btn mkt-btn-primary">Contact sales <svg viewBox="0 0 5 8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l3 3-3 3"/></svg></button>
         </div>
       </div>
     </div>
@@ -2919,65 +3112,41 @@
             </div>
         </div>
 
-        <!-- Glow behind the setup-guide moment -->
-        <div class="dash-glow"></div>
     </div>
 
     <!-- Step 8: the setup guide + callout, built over the dashboard image -->
     <div id="dashboard-step">
-        <div class="spotlight">
-            <div class="spotlight-title">Next, set up recurring payments</div>
-            <span class="spotlight-link" onclick="dismissSpotlight()">Got it</span>
-        </div>
-
         <div class="floatie">
             <div class="floatie-header">
                 <span class="floatie-title">Setup guide</span>
                 <span class="floatie-icons">
+                    <span class="floatie-edit">Edit</span>
                     <svg onclick="setFloatieCollapsed(true)" aria-label="Collapse the setup guide" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M11 1L7 5M7 5h3.2M7 5V1.8M1 11l4-4M5 7H1.8M5 7v3.2"/></svg>
                     <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M1.5 1.5l9 9M10.5 1.5l-9 9"/></svg>
                 </span>
             </div>
 
+            <span class="floatie-progress"><i></i></span>
+
             <div class="floatie-section">
-                <div class="floatie-group-row">
-                    <span class="floatie-group-title">Set up recurring payments</span>
-                    <svg class="chev" viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5l3-3 3 3"/></svg>
+                <div class="floatie-group">
+                    <div class="floatie-group-row">
+                        <span class="floatie-group-title">Set up payments</span>
+                        <svg class="chev" viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5l3-3 3 3"/></svg>
+                    </div>
+                    <div class="floatie-task">
+                        <svg class="tick current" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" fill="#d8dee7"/></svg>
+                        <span class="floatie-task-label">Choose how to accept payments</span>
+                    </div>
+                    <div class="floatie-task">
+                        <svg class="tick" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" fill="#d8dee7"/></svg>
+                        <span class="floatie-task-label">Create a non-recurring product</span>
+                    </div>
                 </div>
-
-                <div class="floatie-task">
-                    <svg class="tick current" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" fill="#d8dee7"/></svg>
-                    <span class="floatie-task-label">Choose a pricing model</span>
-                    <button class="floatie-go" aria-label="Start task">
-                        <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 1l4 4-4 4"/></svg>
-                    </button>
-                </div>
-                <div class="floatie-task">
-                    <svg class="tick" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="7" cy="7" r="6"/><path d="M3.5 10.5l7-7"/></svg>
-                    <span class="floatie-task-label">Choose how to accept recurring payments</span>
-                </div>
-                <div class="floatie-task">
-                    <svg class="tick" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="7" cy="7" r="6"/><path d="M3.5 10.5l7-7"/></svg>
-                    <span class="floatie-task-label">Create a recurring product</span>
-                </div>
-                <div class="floatie-task muted">
-                    <svg class="tick" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="7" cy="7" r="6"/><path d="M3.5 10.5l7-7"/></svg>
-                    <span class="floatie-task-label">Build your Checkout integration</span>
-                </div>
-
-                <div class="floatie-group-row">
-                    <span class="floatie-group-title">Finish your setup</span>
+                <div class="floatie-group-row" onclick="openActivation()">
+                    <span class="floatie-group-title">Verify your account</span>
                     <svg class="chev" viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 3l3 3 3-3"/></svg>
                 </div>
-                <div class="floatie-group-row">
-                    <span class="floatie-group-title locked">Go Live</span>
-                    <svg class="lock" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="2.5" y="5.5" width="7" height="5.5" rx="1"/><path d="M4.2 5.5V4a1.8 1.8 0 013.6 0v1.5"/></svg>
-                </div>
-            </div>
-
-            <div class="floatie-footer">
-                <span class="floatie-progress"><i></i></span>
-                <span class="floatie-manage">Manage tasks</span>
             </div>
         </div>
 
@@ -2990,7 +3159,194 @@
                 <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M1.5 1.5l9 9M10.5 1.5l-9 9"/></svg>
             </div>
             <span class="floatie-collapsed-bar"><i></i></span>
-            <div class="floatie-collapsed-next">Next: <span class="link">Set up recurring payments</span></div>
+            <div class="floatie-collapsed-next">Next: <span class="link">Set up payments</span></div>
+        </div>
+
+        <!-- Account activation, opened from the guide's "Verify your account"
+             row. A page of its own over the dashboard, so it carries its own top
+             bar and closes back to where it came from. -->
+        <div class="act" id="activation">
+            <div class="act-top">
+                <svg class="act-close" onclick="closeActivation()" aria-label="Close activation" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M2 2l10 10M12 2L2 12"/></svg>
+                <span class="act-top-sep"></span>
+                <span class="act-top-title">Activate your account</span>
+            </div>
+
+            <div class="act-body act-page active" id="act-page-type">
+                <div class="act-rail">
+                    <div class="act-stage current">
+                        <span class="act-marker progress"></span>
+                        <span class="act-stage-title">Verify your business</span>
+                    </div>
+                    <div class="act-subs">
+                        <div class="act-sub current"><span class="act-dot"></span>Business type</div>
+                        <div class="act-sub"><span class="act-dot"></span>Business details</div>
+                        <div class="act-sub"><span class="act-dot"></span>Products or services</div>
+                        <div class="act-sub"><span class="act-dot"></span>Public details</div>
+                    </div>
+                    <div class="act-stage">
+                        <span class="act-marker"></span>
+                        <span class="act-stage-title">Secure your account</span>
+                    </div>
+                    <div class="act-stage" onclick="actGoTo('act-page-extras')">
+                        <span class="act-marker"></span>
+                        <span class="act-stage-title">Add extras</span>
+                    </div>
+                    <div class="act-stage">
+                        <span class="act-marker"></span>
+                        <span class="act-stage-title">Review and submit</span>
+                    </div>
+                </div>
+
+                <div class="act-main">
+                    <h1 class="act-h1">Let's start with your business type</h1>
+                    <p class="act-lede">This helps Stripe set up your account correctly. Not sure which to choose? <span class="act-link">Learn about business types</span></p>
+
+                    <div class="act-field">
+                        <label class="act-label" for="act-location">Business location <svg class="field-info" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="1.5" width="11" height="11" rx="2"/><path d="M7 6.2v4M7 4.1v.6"/></svg></label>
+                        <div class="field-select">
+                            <select id="act-location">
+                                <option>🇺🇸 United States</option>
+                                <option>🇨🇦 Canada</option>
+                                <option>🇬🇧 United Kingdom</option>
+                                <option>🇮🇪 Ireland</option>
+                                <option>🇩🇪 Germany</option>
+                                <option>🇦🇺 Australia</option>
+                                <option>🇸🇬 Singapore</option>
+                                <option>🇯🇵 Japan</option>
+                            </select>
+                            <svg class="field-caret" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 5L6 2.5 8.5 5"/><path d="M3.5 7L6 9.5 8.5 7"/></svg>
+                        </div>
+                    </div>
+
+                    <div class="act-field act-field-types">
+                        <span class="act-label">Business type <svg class="field-info" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="1.5" width="11" height="11" rx="2"/><path d="M7 6.2v4M7 4.1v.6"/></svg></span>
+                        <div class="act-cards">
+                            <button class="act-card" onclick="pickBizType(this)">
+                                <span class="act-card-title">Unregistered business</span>
+                                <span class="act-card-desc">Owned by one person and not registered with the government</span>
+                            </button>
+                            <button class="act-card" onclick="pickBizType(this)">
+                                <span class="act-card-title">Registered business</span>
+                                <span class="act-card-desc">LLC, partnership, or corporation</span>
+                            </button>
+                            <button class="act-card" onclick="pickBizType(this)">
+                                <span class="act-card-title">Nonprofit organization</span>
+                                <span class="act-card-desc">Tax-exempt organization with 501(c)(3) status</span>
+                            </button>
+                            <button class="act-card" onclick="pickBizType(this)">
+                                <span class="act-card-title">Government entity</span>
+                                <span class="act-card-desc">Federal, state, or local government organization</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button class="act-continue">Continue</button>
+                </div>
+            </div>
+
+            <!-- Add extras → Fraud protection -->
+            <div class="act-body act-page" id="act-page-extras">
+                <div class="act-rail">
+                    <div class="act-stage" onclick="actGoTo('act-page-type')">
+                        <span class="act-marker done"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6.4l2.6 2.6L10 3.6"/></svg></span>
+                        <span class="act-stage-title">Verify your business</span>
+                    </div>
+                    <div class="act-stage linked">
+                        <span class="act-marker done"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6.4l2.6 2.6L10 3.6"/></svg></span>
+                        <span class="act-stage-title">Secure your account</span>
+                    </div>
+                    <div class="act-stage current linked">
+                        <span class="act-marker open"></span>
+                        <span class="act-stage-title">Add extras</span>
+                    </div>
+                    <div class="act-subs">
+                        <div class="act-sub current"><span class="act-dot"></span>Managed Payments</div>
+                        <div class="act-sub"><span class="act-dot"></span>Climate contributions</div>
+                    </div>
+                    <div class="act-stage">
+                        <span class="act-marker"></span>
+                        <span class="act-stage-title">Review and submit</span>
+                    </div>
+                </div>
+
+                <div class="act-main">
+                    <h1 class="act-h1">Sell globally without the complexity</h1>
+                    <p class="act-lede">Make Stripe the merchant of record for your sales to simplify your operations and maximize global revenue. Choose the coverage that’s right for your business.<br><span class="act-link">Learn more about Managed payments</span></p>
+
+                    <div class="act-cards act-cards-badged">
+                        <button class="act-card act-card-badged selected" onclick="pickCoverage(this, 'international coverage')">
+                            <span class="act-badge">Recommended</span>
+                            <span class="act-card-title">International coverage (+3.5% per transaction)</span>
+                            <span class="act-card-desc">Have Stripe handle your international sales by reducing declined payments, taking tax responsibility, and managing disputes and fraud.</span>
+                        </button>
+                        <button class="act-card" onclick="pickCoverage(this, 'full coverage')">
+                            <span class="act-card-title">Full coverage (+3.5% per international transactions, +2% per domestic transaction)</span>
+                            <span class="act-card-desc">Have Stripe handle all of your payments, in your home market and abroad.</span>
+                        </button>
+                        <button class="act-card" onclick="pickCoverage(this, 'no coverage')">
+                            <span class="act-card-title">No coverage</span>
+                            <span class="act-card-desc">You stay the merchant of record and can use extras like Stripe Tax and Radar to manage taxes and fraud.</span>
+                        </button>
+                    </div>
+
+                    <button class="act-continue" id="act-coverage-continue" onclick="continueCoverage()">Continue with international coverage</button>
+                </div>
+            </div>
+
+            <!-- Add extras → Fraud protection. Only reachable by declining
+                 coverage: without Managed Payments, fraud and tax are the
+                 merchant's own to set up, so they become steps of their own. -->
+            <div class="act-body act-page" id="act-page-radar">
+                <div class="act-rail">
+                    <div class="act-stage" onclick="actGoTo('act-page-type')">
+                        <span class="act-marker done"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6.4l2.6 2.6L10 3.6"/></svg></span>
+                        <span class="act-stage-title">Verify your business</span>
+                    </div>
+                    <div class="act-stage linked">
+                        <span class="act-marker done"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6.4l2.6 2.6L10 3.6"/></svg></span>
+                        <span class="act-stage-title">Secure your account</span>
+                    </div>
+                    <div class="act-stage current linked">
+                        <span class="act-marker open"></span>
+                        <span class="act-stage-title">Add extras</span>
+                    </div>
+                    <div class="act-subs">
+                        <div class="act-sub" onclick="actGoTo('act-page-extras')"><span class="act-dot"></span>Managed Payments</div>
+                        <div class="act-sub current"><span class="act-dot"></span>Fraud protection</div>
+                        <div class="act-sub"><span class="act-dot"></span>Tax calculation</div>
+                        <div class="act-sub"><span class="act-dot"></span>Climate contributions</div>
+                    </div>
+                    <div class="act-stage">
+                        <span class="act-marker"></span>
+                        <span class="act-stage-title">Review and submit</span>
+                    </div>
+                </div>
+
+                <div class="act-main">
+                    <h1 class="act-h1">Protect your business from fraud</h1>
+                    <p class="act-lede">Choose the level of protection that’s right for your business.<br><span class="act-link">Learn more about Radar</span></p>
+
+                    <div class="act-cards act-cards-badged">
+                        <button class="act-card act-card-badged selected" onclick="pickRadar(this, 'Standard')">
+                            <span class="act-badge">Recommended</span>
+                            <span class="act-card-title">Standard ($0.05 per screened transaction)</span>
+                            <span class="act-card-desc">Protect against a broad range of fraud across all payment methods with AI-based protection. On average, businesses block 42% more fraud compared to Lite.</span>
+                        </button>
+                        <button class="act-card" onclick="pickRadar(this, 'Plus')">
+                            <span class="act-card-title">Plus ($0.07 per screened transaction)</span>
+                            <span class="act-card-desc">Configure Radar for your business with custom rules, risk controls, and advanced analytics.</span>
+                        </button>
+                        <button class="act-card" onclick="pickRadar(this, 'Pro')">
+                            <span class="act-card-title">Pro ($0.09 per screened transaction)</span>
+                            <span class="act-card-desc">Get the most advanced protection against emerging fraud threats and customer abuse.</span>
+                        </button>
+                    </div>
+
+                    <button class="act-continue" id="act-radar-continue">Continue with Standard</button>
+                    <button class="act-secondary">Use baseline protection with Lite (included)</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -3002,7 +3358,7 @@
         <div class="modal-header">
             <div class="stripe-logo">
                 <svg viewBox="0 0 60 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" clip-rule="evenodd" d="M60 12.9C60 8.6 57.9 5.3 54 5.3C50.1 5.3 47.6 8.6 47.6 12.9C47.6 17.9 50.5 20.5 54.6 20.5C56.6 20.5 58.1 20 59.3 19.2V16C58.1 16.7 56.7 17.2 55 17.2C53.3 17.2 51.8 16.6 51.6 14.5H59.9C59.9 14.3 60 13.4 60 12.9ZM51.5 11.7C51.5 9.7 52.7 8.9 53.9 8.9C55.1 8.9 56.3 9.7 56.3 11.7H51.5ZM41.2 5.3C39.5 5.3 38.4 6.1 37.8 6.6L37.6 5.6H34V24.5L37.9 23.7V20.1C38.5 20.5 39.4 21.1 40.9 21.1C44.1 21.1 46.9 18.5 46.9 12.9C46.9 8 44 5.3 41.2 5.3ZM40.3 17.5C39.2 17.5 38.6 17.1 38.2 16.7L37.9 9.5C38.3 9.1 39 8.7 40 8.7C41.6 8.7 42.7 10.5 42.7 13.1C42.7 15.8 41.6 17.5 40.3 17.5ZM28.3 4.5L32.2 3.7V0.5L28.3 1.3V4.5ZM28.3 5.6H32.2V20.2H28.3V5.6ZM24.2 6.8L24 5.6H20.5V20.2H24.4V10C25.3 8.8 26.8 9 27.3 9.2V5.6C26.7 5.4 25 5.1 24.2 6.8ZM16.5 2L12.7 2.8V16.1C12.7 18.6 14.6 20.5 17.1 20.5C18.5 20.5 19.5 20.3 20 20V16.8C19.6 17 16.5 17.8 16.5 15.3V9H20V5.6H16.5V2ZM4.7 9.8C4.7 9.2 5.2 8.9 6 8.9C7.1 8.9 8.6 9.2 9.7 9.9V6.2C8.5 5.7 7.3 5.3 6 5.3C2.6 5.3 0.5 7 0.5 9.9C0.5 14.5 6.7 13.8 6.7 15.8C6.7 16.5 6.1 16.8 5.2 16.8C4 16.8 2.4 16.3 1.1 15.5V19.2C2.6 19.9 4 20.2 5.2 20.2C8.7 20.2 10.9 18.6 10.9 15.7C10.9 10.7 4.7 11.5 4.7 9.8Z" fill="#635BFF"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M60 12.9C60 8.6 57.9 5.3 54 5.3C50.1 5.3 47.6 8.6 47.6 12.9C47.6 17.9 50.5 20.5 54.6 20.5C56.6 20.5 58.1 20 59.3 19.2V16C58.1 16.7 56.7 17.2 55 17.2C53.3 17.2 51.8 16.6 51.6 14.5H59.9C59.9 14.3 60 13.4 60 12.9ZM51.5 11.7C51.5 9.7 52.7 8.9 53.9 8.9C55.1 8.9 56.3 9.7 56.3 11.7H51.5ZM41.2 5.3C39.5 5.3 38.4 6.1 37.8 6.6L37.6 5.6H34V24.5L37.9 23.7V20.1C38.5 20.5 39.4 21.1 40.9 21.1C44.1 21.1 46.9 18.5 46.9 12.9C46.9 8 44 5.3 41.2 5.3ZM40.3 17.5C39.2 17.5 38.6 17.1 38.2 16.7L37.9 9.5C38.3 9.1 39 8.7 40 8.7C41.6 8.7 42.7 10.5 42.7 13.1C42.7 15.8 41.6 17.5 40.3 17.5ZM28.3 4.5L32.2 3.7V0.5L28.3 1.3V4.5ZM28.3 5.6H32.2V20.2H28.3V5.6ZM24.2 6.8L24 5.6H20.5V20.2H24.4V10C25.3 8.8 26.8 9 27.3 9.2V5.6C26.7 5.4 25 5.1 24.2 6.8ZM16.5 2L12.7 2.8V16.1C12.7 18.6 14.6 20.5 17.1 20.5C18.5 20.5 19.5 20.3 20 20V16.8C19.6 17 16.5 17.8 16.5 15.3V9H20V5.6H16.5V2ZM4.7 9.8C4.7 9.2 5.2 8.9 6 8.9C7.1 8.9 8.6 9.2 9.7 9.9V6.2C8.5 5.7 7.3 5.3 6 5.3C2.6 5.3 0.5 7 0.5 9.9C0.5 14.5 6.7 13.8 6.7 15.8C6.7 16.5 6.1 16.8 5.2 16.8C4 16.8 2.4 16.3 1.1 15.5V19.2C2.6 19.9 4 20.2 5.2 20.2C8.7 20.2 10.9 18.6 10.9 15.7C10.9 10.7 4.7 11.5 4.7 9.8Z" fill="#000000"/>
                 </svg>
             </div>
             <div class="progress-bar">
@@ -3031,32 +3387,32 @@
         <div class="globe-card tax" id="card-tax">
             <img class="globe-card-logo" src="assets/logos/lovable.svg" alt="">
             <div class="globe-card-text">
-                <span class="globe-card-title">Lovable <svg class="globe-card-check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                <span class="globe-card-subtitle">crossed a tax threshold managed by Stripe</span>
+                <span class="globe-card-title">Lovable</span>
+                <span class="globe-card-subtitle">Crossed a tax threshold managed by Stripe</span>
             </div>
         </div>
 
         <div class="globe-card fraud" id="card-fraud">
             <img class="globe-card-logo" src="assets/logos/unity.svg" alt="">
             <div class="globe-card-text">
-                <span class="globe-card-title">Unity <svg class="globe-card-check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                <span class="globe-card-subtitle">avoided a fraud attempt caught by Stripe</span>
+                <span class="globe-card-title">Unity</span>
+                <span class="globe-card-subtitle">Avoided a fraud attempt caught by Stripe</span>
             </div>
         </div>
 
         <div class="globe-card payment" id="card-payment">
             <img class="globe-card-logo" src="assets/logos/revenuecat.svg" alt="">
             <div class="globe-card-text">
-                <span class="globe-card-title">RevenueCat <svg class="globe-card-check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                <span class="globe-card-subtitle">recovered a payment optimized by Stripe</span>
+                <span class="globe-card-title">RevenueCat</span>
+                <span class="globe-card-subtitle">Recovered a payment optimized by Stripe</span>
             </div>
         </div>
 
         <div class="globe-card dispute" id="card-dispute">
             <img class="globe-card-logo" src="assets/logos/mobbin.svg" alt="">
             <div class="globe-card-text">
-                <span class="globe-card-title">Mobbin.com <svg class="globe-card-check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                <span class="globe-card-subtitle">won a dispute managed by Stripe</span>
+                <span class="globe-card-title">Mobbin.com</span>
+                <span class="globe-card-subtitle">Won a dispute managed by Stripe</span>
             </div>
         </div>
     </div>
@@ -3189,14 +3545,21 @@ const ALL_STEPS = [
         <label class="field-label" for="biz-name">Business name*</label>
         <input id="biz-name" type="text" placeholder="Acme Inc.">
       </div>
-      <div class="inline-field">
-        <span>Business location</span>
-        <svg class="info-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="1.5" width="11" height="11" rx="2"/><path d="M7 6.2v4M7 4.1v.6"/></svg>
-        <span>:</span>
-        <span class="location-value">
-          <span>🇺🇸</span><span>United States</span>
-          <svg class="chevron" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 3.5L5 7l3.5-3.5"/></svg>
-        </span>
+      <div class="field">
+        <label class="field-label" for="biz-location">Business location <svg class="field-info" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="1.5" width="11" height="11" rx="2"/><path d="M7 6.2v4M7 4.1v.6"/></svg></label>
+        <div class="field-select">
+          <select id="biz-location">
+            <option>🇺🇸 United States</option>
+            <option>🇨🇦 Canada</option>
+            <option>🇬🇧 United Kingdom</option>
+            <option>🇮🇪 Ireland</option>
+            <option>🇩🇪 Germany</option>
+            <option>🇦🇺 Australia</option>
+            <option>🇸🇬 Singapore</option>
+            <option>🇯🇵 Japan</option>
+          </select>
+          <svg class="field-caret" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 5L6 2.5 8.5 5"/><path d="M3.5 7L6 9.5 8.5 7"/></svg>
+        </div>
       </div>`,
   },
   {
@@ -3232,14 +3595,14 @@ const ALL_STEPS = [
     id: 'types-of-goods',
     // The one screen with no background treatment, exactly as V1 has it.
     plain: true,
-    actions: ['continue'],
+    actions: ['later', 'continue'],
     render: () => `
-      <div class="headline">Next, tell us what you sell. <span class="muted">This helps us get you the best setup.</span></div>
+      <div class="headline">Next, tell us what you sell. <span class="muted">This helps us tailor your setup.</span></div>
       ${rows('sell', [
-        // AI services lead the examples: it's the fastest-growing thing sold
+        // AI products lead the examples: it's the fastest-growing thing sold
         // this way, and it's what a reader scanning for themselves looks for
         // first (Figma 26608:46700).
-        { title: 'Digital goods', label: 'AI services, software as a service, video games, eBooks, online courses and others.' },
+        { title: 'Digital goods', label: 'AI products, software as a service, video games, eBooks, online courses and others.' },
         { title: 'Physical goods', label: 'Magazines, keyboards, food, clothing and others.' },
         { title: 'Services', label: 'Landscaping, hairdressing, training and others.' },
       ])}`,
@@ -3290,7 +3653,7 @@ const ALL_STEPS = [
           ${choices('managed', [
             {
               title: 'Managed payments',
-              label: 'Stripe becomes the merchant of record—the business legally responsible for these sales.',
+              label: 'Stripe becomes the merchant of record, the business legally responsible for these sales.',
               benefits: [
                 {
                   title: 'Reduces declined payments',
@@ -3328,13 +3691,13 @@ const ALL_STEPS = [
     actions: ['skip', 'continue'],
     when: () => state.managed === 0,
     render: () => `
-      <div class="headline">Want Managed Payments to cover your domestic sales too? <span class="muted">This will give you full payments coverage.</span></div>
+      <div class="headline">Do you want Managed Payments to cover your domestic sales too? <span class="muted">This will give you full payments coverage.</span></div>
       <div class="choice-list">
         <div class="choice-card${state.domestic ? ' selected' : ''}" role="checkbox" aria-checked="${state.domestic}" onclick="toggleDomestic()">
           <span class="check-box">${CHECK}</span>
           <span class="choice-body">
             <span class="choice-title-row">
-              <span class="choice-title">Cover domestic sales too</span>
+              <span class="choice-title">Cover domestic sales</span>
             </span>
             <span class="choice-sub">We’re liable for sales tax in your home market, and we handle fraud, disputes, and customer support on every domestic sale.</span>
             ${feeLink('+2% per domestic transaction', 'This fee is in addition to the standard domestic processing fee of 2%.')}
@@ -3448,9 +3811,10 @@ const STEPS = params.get('site') === '1'
   ? ALL_STEPS
   : ALL_STEPS.filter(s => !s.siteStep);
 
-// `sell` is a checkbox group, so it holds an array; `managed` is the single
-// choice on the last screen. Defaults mirror the Figma.
-const state = { use: [1], sell: [0], managed: 0, domestic: false, setup: 0 };
+// `use` and `sell` are checkbox groups, so they hold arrays; `managed` is the
+// single choice on the last screen. Both groups start empty so the merchant
+// answers for themselves rather than confirming a guess.
+const state = { use: [], sell: [], managed: 0, domestic: false, setup: 0 };
 let stepIndex = 0;
 
 const el = {
@@ -3462,6 +3826,7 @@ const el = {
   gradient: document.getElementById('modalGradient'),
   dash: document.getElementById('dashboard-step'),
   dashLayer: document.getElementById('dash-layer'),
+  activation: document.getElementById('activation'),
   // The website steps ahead of the flow, keyed by the id their step names
   site: {
     'landing-step': document.getElementById('landing-step'),
@@ -3490,6 +3855,7 @@ function mountGlobe(host) {
 const ACTIONS = {
   continue: '<button class="btn-continue" onclick="goNext()">Continue</button>',
   skip: '<button class="btn-secondary" onclick="goNext()">Skip</button>',
+  later: '<button class="btn-secondary" onclick="goNext()">I’ll decide later</button>',
   live: '<button class="btn-secondary" onclick="goNext()">Get your account live now</button>',
   sandbox: '<button class="btn-continue" onclick="goNext()">Go to sandbox</button>',
 };
@@ -3520,8 +3886,9 @@ function render() {
   el.dash.classList.toggle('active', !!step.dashboardStep);
   el.dashLayer.classList.toggle('active', !!step.dashboardStep);
   el.dashLayer.classList.toggle('guided', !!step.dashboardStep);
-  // Arriving on the step always starts with the guide open and the callout up
-  el.dash.classList.remove('collapsed', 'spotlight-dismissed');
+  // Arriving on the step always starts with the guide open and activation shut
+  el.dash.classList.remove('collapsed');
+  closeActivation();
   closeDashSearch();
   Object.entries(el.site).forEach(([id, layer]) => layer.classList.toggle('active', step.siteStep === id));
   el.backdrop.style.display = step.dashboardStep || step.siteStep ? 'none' : 'flex';
@@ -3590,10 +3957,6 @@ function goBack() {
 function goTo(id) {
   const at = STEPS.findIndex(s => s.id === id);
   if (at !== -1) { stepIndex = at; render(); }
-}
-
-function dismissSpotlight() {
-  el.dash.classList.add('spotlight-dismissed');
 }
 
 /* SMP Home's nav-group toggle: delegated off the nav, and it only fires for
@@ -3739,6 +4102,54 @@ document.addEventListener('keydown', e => {
 function setFloatieCollapsed(collapsed) {
   el.dash.classList.toggle('collapsed', collapsed);
   el.dashLayer.classList.toggle('guided', !collapsed);
+}
+
+// Activation: opened from the guide's "Verify your account" row, closed by the
+// X in its own top bar. It opens with nothing chosen, so reopening starts over.
+function openActivation() {
+  el.activation.classList.add('open');
+  actGoTo('act-page-type');
+}
+
+function closeActivation() {
+  el.activation.classList.remove('open');
+  actGoTo('act-page-type');
+  // Business type opens with nothing chosen; the extras page keeps its
+  // recommended default, which is what the design lands on.
+  document.querySelectorAll('#act-page-type .act-card.selected').forEach(c => c.classList.remove('selected'));
+  pickCoverage(document.querySelector('#act-page-extras .act-card'), 'international coverage');
+  pickRadar(document.querySelector('#act-page-radar .act-card'), 'Standard');
+}
+
+// The overlay's pages: one shown at a time, the rail switching between them.
+function actGoTo(page) {
+  el.activation.querySelectorAll('.act-page').forEach(p => p.classList.toggle('active', p.id === page));
+}
+
+function pickBizType(card) {
+  card.parentNode.querySelectorAll('.act-card').forEach(c => c.classList.toggle('selected', c === card));
+}
+
+// The button carries the choice, so selecting a level of coverage renames it.
+// The choice is kept, because it's what Continue routes on.
+let actCoverage = 'international coverage';
+
+function pickCoverage(card, coverage) {
+  actCoverage = coverage;
+  pickBizType(card);
+  document.getElementById('act-coverage-continue').textContent = 'Continue with ' + coverage;
+}
+
+// Declining coverage hands fraud and tax back to the merchant, so those become
+// steps of their own and the flow carries on into Radar. Taking coverage has
+// nowhere further to go yet.
+function continueCoverage() {
+  if (actCoverage === 'no coverage') actGoTo('act-page-radar');
+}
+
+function pickRadar(card, tier) {
+  pickBizType(card);
+  document.getElementById('act-radar-continue').textContent = 'Continue with ' + tier;
 }
 
 function goHome() {
