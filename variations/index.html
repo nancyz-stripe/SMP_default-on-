@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SMP default-on in onboarding</title>
+  <title>Managed Payments default-on</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -407,17 +407,16 @@
 <body>
 
 <div class="header">
-  <h1>SMP onboarding default-on</h1>
+  <h1>Managed Payments default-on</h1>
 </div>
 
 <div class="tabs" id="tabs">
-  <button class="tab active" data-tab="explorations">Explorations</button>
+  <button class="tab active" data-tab="explorations">Latest</button>
   <button class="tab" data-tab="archive">Archive</button>
 </div>
 
 <div class="tab-panel active" id="panel-explorations">
   <div class="section">
-    <div class="section-heading">SMP Flows</div>
     <div class="grid" id="grid-explore"></div>
   </div>
 </div>
@@ -515,6 +514,14 @@ const exploreVariations = [
     file: 'flow-globe.html',
     preview: 'flow-globe.html?s=6',
     thumb: 'assets/thumbs/onboarding.png',
+  },
+  {
+    // The activation flow the setup guide opens: the card deep-links straight to
+    // it, which is what clicking "Verify your account" on the dashboard does.
+    id: 'account-app',
+    title: 'Account app',
+    file: 'flow-globe.html?s=10&activate=1',
+    preview: 'flow-globe.html?s=10&activate=1',
   },
   {
     // Not part of the flow: the post-signup surface, where the counterfactual
