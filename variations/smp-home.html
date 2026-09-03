@@ -1352,8 +1352,14 @@ const STAGES = [
    stage the account's own choice puts it in — opting into Managed Payments lands
    on the with-SMP stage, handling it yourself on the without. Opened on its own,
    Home still starts on with-SMP. */
-const stageParam = new URLSearchParams(location.search).get('stage');
-let stageId = STAGES.some(s => s.id === stageParam) ? stageParam : 'new-smp';
+/* The stage is the page's slug too: #volume, ?stage=volume, or /smp-home/volume
+   through the rewrites in vercel.json — so any stage can be linked to directly. */
+function stageAsked() {
+  const hash = decodeURIComponent(location.hash.replace(/^#/, ''));
+  return hash || new URLSearchParams(location.search).get('stage') || '';
+}
+
+let stageId = STAGES.some(s => s.id === stageAsked()) ? stageAsked() : 'new-smp';
 
 const stage = () => STAGES.find(s => s.id === stageId);
 
@@ -1795,6 +1801,9 @@ function renderAccount() {
 /* The stage owns both tabs, so changing it re-seeds the table too — otherwise the
    Locations tab would still be showing the previous stage's coverage. */
 function renderStage() {
+  /* replaceState rather than a hash assignment: switching stages shouldn't fill
+     up the back button. */
+  try { history.replaceState(null, '', '#' + stageId); } catch (e) { /* file:// */ }
   renderSwitch();
   renderAccount();
   renderCards();
@@ -1827,6 +1836,15 @@ document.querySelector('.side-nav').addEventListener('click', e => {
 });
 
 /* Delegated, so re-rendering the buttons doesn't drop the handler. */
+/* Editing the slug in the address bar, or going back to one, moves the stage. */
+window.addEventListener('hashchange', () => {
+  const asked = stageAsked();
+  if (asked && asked !== stageId && STAGES.some(s => s.id === asked)) {
+    stageId = asked;
+    renderStage();
+  }
+});
+
 STAGE_EL.addEventListener('click', e => {
   const btn = e.target.closest('.stage-btn');
   if (!btn || btn.dataset.stage === stageId) return;

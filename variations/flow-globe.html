@@ -3653,7 +3653,7 @@ const ALL_STEPS = [
           ${choices('managed', [
             {
               title: 'Managed Payments',
-              label: 'Stripe becomes the merchant of record, the business legally responsible for these sales.',
+              label: 'Stripe becomes the merchant of record, the business legally responsible for your international sales.',
               benefits: [
                 {
                   title: 'Reduces declined payments',
@@ -3807,7 +3807,24 @@ const ALL_STEPS = [
 // and starts where the account does, at Welcome — the two pages aren't just
 // skipped past, they're not in the run at all, so Back can't reach them and ?s=
 // counts from Welcome.
-const STEPS = params.get('site') === '1'
+/* The slug in the URL is the page's name: #managed-payments, ?step=managed-payments,
+   or /onboarding/managed-payments through the rewrites in vercel.json. The overlay
+   pages carry their own, prefixed with activate. Asking for a website page puts the
+   website pages in the run, so ?site=1 isn't needed alongside the slug. */
+const ACT_SLUGS = {
+  'activate': 'act-page-type',
+  'activate-managed-payments': 'act-page-extras',
+  'activate-fraud-protection': 'act-page-radar',
+};
+
+function slugAsked() {
+  const hash = decodeURIComponent(location.hash.replace(/^#/, ''));
+  return hash || params.get('step') || '';
+}
+
+const SITE_SLUGS = ALL_STEPS.filter(s => s.siteStep).map(s => s.id);
+const askedSlug = slugAsked();
+const STEPS = params.get('site') === '1' || SITE_SLUGS.includes(askedSlug)
   ? ALL_STEPS
   : ALL_STEPS.filter(s => !s.siteStep);
 
@@ -3878,6 +3895,7 @@ function progressFor(i) {
 
 function render() {
   const step = STEPS[stepIndex];
+  syncSlug();
 
   el.progress.style.width = progressFor(stepIndex) + '%';
   el.gradient.classList.toggle('hidden', !!step.plain);
@@ -3954,6 +3972,39 @@ function goBack() {
 
 // Jump straight to a named step. The website pages link to each other and skip
 // into the flow, so they can't rely on next/back alone.
+/* The address bar follows the flow, so the link to hand someone is whatever is
+   in it. replaceState rather than a hash assignment: no history entry per step,
+   which would otherwise fight the flow's own Back. */
+function syncSlug() {
+  const step = STEPS[stepIndex];
+  let slug = step.id;
+  if (el.activation && el.activation.classList.contains('open')) {
+    const open = el.activation.querySelector('.act-page.active');
+    slug = Object.keys(ACT_SLUGS).find(k => ACT_SLUGS[k] === (open && open.id)) || 'activate';
+  }
+  try { history.replaceState(null, '', '#' + slug); } catch (e) { /* file:// — leave it */ }
+}
+
+/* A slug names either a step or one of the account app's pages. */
+function openSlug(slug) {
+  if (!slug) return false;
+  if (ACT_SLUGS[slug]) {
+    const at = STEPS.findIndex(st => st.dashboardStep);
+    if (at === -1) return false;
+    stepIndex = at;
+    render();
+    openActivation();
+    actGoTo(ACT_SLUGS[slug]);
+    syncSlug();
+    return true;
+  }
+  const at = STEPS.findIndex(st => st.id === slug);
+  if (at === -1) return false;
+  stepIndex = at;
+  render();
+  return true;
+}
+
 function goTo(id) {
   const at = STEPS.findIndex(s => s.id === id);
   if (at !== -1) { stepIndex = at; render(); }
@@ -4108,6 +4159,7 @@ function setFloatieCollapsed(collapsed) {
 function openActivation() {
   el.activation.classList.add('open');
   actGoTo('act-page-type');
+  syncSlug();
 }
 
 function closeActivation() {
@@ -4123,6 +4175,7 @@ function closeActivation() {
 // The overlay's pages: one shown at a time, the rail switching between them.
 function actGoTo(page) {
   el.activation.querySelectorAll('.act-page').forEach(p => p.classList.toggle('active', p.id === page));
+  syncSlug();
 }
 
 function pickBizType(card) {
@@ -4472,15 +4525,29 @@ function runValueCards() {
   setTimeout(runCycle, 1000);
 }
 
-// ?s=2 is 1-based, to read the same way the screens are talked about.
-const startAt = parseInt(params.get('s'), 10);
-if (startAt >= 1 && startAt <= STEPS.length) stepIndex = startAt - 1;
+/* A slug wins; ?s= is the old numbered form, kept so links already out there
+   still land. ?activate=1 is the same, now that /account-app says it by name. */
+if (!openSlug(askedSlug)) {
+  // ?s=2 is 1-based, to read the same way the screens are talked about.
+  const startAt = parseInt(params.get('s'), 10);
+  if (startAt >= 1 && startAt <= STEPS.length) stepIndex = startAt - 1;
+  render();
+  if (params.get('activate') === '1') openActivation();
+}
 
-render();
-
-// ?activate=1 opens the account app straight away — the same thing clicking
-// "Verify your account" in the setup guide does. After render(), which shuts it.
-if (params.get('activate') === '1') openActivation();
+/* Editing the slug in the address bar, or going back to one, moves the flow. */
+window.addEventListener('hashchange', () => {
+  const slug = slugAsked();
+  const step = STEPS[stepIndex];
+  const openPage = el.activation.classList.contains('open')
+    ? (el.activation.querySelector('.act-page.active') || {}).id : null;
+  const showing = openPage
+    ? Object.keys(ACT_SLUGS).find(k => ACT_SLUGS[k] === openPage) : step.id;
+  if (slug && slug !== showing) {
+    if (!ACT_SLUGS[slug]) closeActivation();
+    openSlug(slug);
+  }
+});
 </script>
 </body>
 </html>

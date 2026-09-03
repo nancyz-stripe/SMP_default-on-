@@ -1,5 +1,25 @@
 {
   "redirects": [
     { "source": "/", "destination": "/variations/index.html", "permanent": false }
+  ],
+  "rewrites": [
+    { "source": "/gallery", "destination": "/variations/index.html" },
+
+    { "source": "/website", "destination": "/variations/flow-globe.html?step=landing" },
+    { "source": "/pricing", "destination": "/variations/flow-globe.html?step=pricing" },
+
+    { "source": "/onboarding", "destination": "/variations/flow-globe.html?step=welcome" },
+    { "source": "/onboarding/:slug", "destination": "/variations/flow-globe.html?step=:slug" },
+
+    { "source": "/dashboard", "destination": "/variations/flow-globe.html?step=dashboard" },
+
+    { "source": "/account-app", "destination": "/variations/flow-globe.html?step=activate" },
+    { "source": "/account-app/:slug", "destination": "/variations/flow-globe.html?step=activate-:slug" },
+
+    { "source": "/smp-home", "destination": "/variations/smp-home.html" },
+    { "source": "/smp-home/:stage", "destination": "/variations/smp-home.html?stage=:stage" },
+
+    { "source": "/email/first-payment", "destination": "/variations/email-first-payment.html" },
+    { "source": "/email/tax-threshold", "destination": "/variations/email-tax-threshold.html" }
   ]
 }
