@@ -2032,18 +2032,23 @@
         .lp-link.down svg { width: 8px; height: 9px; }
 
         /* Hero ------------------------------------------------------------ */
-        .lp-hero { position: relative; height: 522px; overflow: hidden; }
-        .lp-hero-copy { position: relative; z-index: 2; width: 1264px; margin: 0 auto; padding: 142px 16px 0; }
-        .lp-hero-copy .lp-h-lg { width: 545px; }
-        .lp-hero-actions { display: flex; gap: 8px; margin-top: 32px; }
+        /* The copy leads and the globe follows it, both centred: the hero is a
+           column rather than a two-up, and it clips the globe's lower half. */
+        .lp-hero { position: relative; overflow: hidden; }
+        .lp-hero-copy { position: relative; z-index: 2; width: 1264px; margin: 0 auto; padding: 72px 16px 0; text-align: center; }
+        .lp-hero-copy .lp-h-lg { width: auto; max-width: 780px; margin: 0 auto; }
+        .lp-hero-sub { max-width: 620px; margin: 16px auto 0; font-size: 20px; line-height: 28px; color: #64748d; }
+        .lp-hero-actions { display: flex; justify-content: center; gap: 8px; margin-top: 32px; }
 
-        /* The globe and its two feed cards sit on the 1600 grid the Figma uses,
-           centred so they hold their place against the content column. */
-        .lp-hero-visual { position: absolute; top: 0; left: 50%; margin-left: -800px; width: 1600px; height: 100%; z-index: 1; }
-        /* Sized so the sphere comes out at the Figma's 552px across — buildGlobe()
-           derives the radius from the host's short side — and offset so its centre
-           lands where the Figma puts it. The hero clips what overhangs. */
-        .lp-globe-host { position: absolute; left: 548px; top: -199px; width: 1128px; height: 1128px; z-index: 0; }
+        /* The feed cards keep the 1600 grid the Figma uses, centred, so they hold
+           their place against the content column. 440px of the sphere shows; the
+           rest runs under the logo wall. */
+        .lp-hero-visual { position: relative; left: 50%; margin: 36px 0 0 -800px; width: 1600px; height: 440px; z-index: 1; }
+        /* The camera is orthographic, so a world unit is a pixel and the sphere
+           comes out at 2 * (100 + min(w,h)/4) * 0.7225 across: 1795 gives the
+           design's 793px. Pulled up by half the slack around it, which lands the
+           sphere's top edge on the band's, and the hero clips the rest. */
+        .lp-globe-host { position: absolute; left: -98px; top: -501px; width: 1795px; height: 1795px; z-index: 0; }
         /* The globe brings its own value cards; this page has its own pair */
         .lp-globe-host .globe-card { display: none !important; }
 
@@ -2076,9 +2081,9 @@
         .lp-feed-title { font-size: 14px; line-height: 19.6px; font-weight: 500; color: #061b31; }
         .lp-feed-sub { font-size: 12px; line-height: 16px; color: #50617a; }
         .lp-feed-tick { width: 14px; height: 14px; flex-shrink: 0; color: #061b31; }
-        .lp-feed-1 { left: 747px; top: 368px; }
-        .lp-feed-2 { left: 1071px; top: 120px; }
-        .lp-feed-3 { left: 960px; top: 250px; }
+        .lp-feed-1 { left: 1050px; top: 56px; }
+        .lp-feed-3 { left: 320px; top: 168px; }
+        .lp-feed-2 { left: 1010px; top: 300px; }
 
         /* Logo wall ------------------------------------------------------- */
         /* Seven 142x34 logotype slots on a 174px pitch, centred in the band —
@@ -2298,6 +2303,14 @@
     </div>
 
     <div class="lp-hero">
+      <div class="lp-hero-copy">
+        <p class="lp-h-lg">Sell globally without the complexity</p>
+        <p class="lp-hero-sub">Focus on growth while Stripe Managed Payments handles tax, fraud, disputes, and more as your merchant of record.</p>
+        <div class="lp-hero-actions">
+          <button class="mkt-btn mkt-btn-primary" onclick="goTo('welcome')">Start now <svg viewBox="0 0 5 8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l3 3-3 3"/></svg></button>
+          <button class="mkt-btn mkt-btn-secondary">Contact sales</button>
+        </div>
+      </div>
       <div class="lp-hero-visual">
         <div class="lp-globe-host" id="lp-globe-host"></div>
         <div class="lp-feed lp-feed-1">
@@ -2323,13 +2336,6 @@
             <span class="lp-feed-sub">Dispute countered by Stripe</span>
           </span>
           <svg class="lp-feed-tick" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7.4l3.2 3.2L12 3.8"/></svg>
-        </div>
-      </div>
-      <div class="lp-hero-copy">
-        <p class="lp-h-lg">Sell globally without the complexity. <span class="rest">Focus on growth while Stripe Managed Payments handles tax, fraud, disputes, and more as your merchant of record.</span></p>
-        <div class="lp-hero-actions">
-          <button class="mkt-btn mkt-btn-primary" onclick="goTo('welcome')">Start now <svg viewBox="0 0 5 8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l3 3-3 3"/></svg></button>
-          <button class="mkt-btn mkt-btn-secondary">Contact sales</button>
         </div>
       </div>
     </div>
@@ -3712,7 +3718,7 @@ const ALL_STEPS = [
             },
             {
               title: 'I’ll handle this myself',
-              label: 'You stay the merchant of record. You handle registration, filing, disputes, and fraud in each country—Stripe Tax and Radar can help.',
+              label: 'You stay the merchant of record. You handle taxes, disputes, and fraud in each country—Stripe Tax and Radar can help.',
             },
           ])}
         </div>
