@@ -1028,7 +1028,7 @@
             color: var(--text-heading);
             margin-bottom: 24px;
         }
-        .headline .muted { font-weight: 400; color: var(--text-muted); }
+        .headline .muted { font-weight: 400; color: var(--text-subdued); }
         .headline .accent { color: var(--text-action-primary); }
 
         /* Form fields */
@@ -3623,7 +3623,7 @@ const ALL_STEPS = [
     plain: true,
     actions: ['later', 'continue'],
     render: () => `
-      <div class="headline">Next, tell us what you sell. <span class="muted">This helps us tailor your setup.</span></div>
+      <div class="headline">Next, tell us what you sell. <span class="muted">This helps tailor our recommendations.</span></div>
       ${rows('sell', [
         // AI products lead the examples: it's the fastest-growing thing sold
         // this way, and it's what a reader scanning for themselves looks for
