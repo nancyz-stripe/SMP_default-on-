@@ -24,9 +24,7 @@ export function FeeRate({ rate }: { rate: string }) {
     setArriving(true)
     previous.current = rate
 
-    const frame = requestAnimationFrame(() =>
-      requestAnimationFrame(() => setArriving(false)),
-    )
+    const frame = requestAnimationFrame(() => requestAnimationFrame(() => setArriving(false)))
     const timer = window.setTimeout(() => setLeaving(null), TRANSITION_MS)
     return () => {
       cancelAnimationFrame(frame)

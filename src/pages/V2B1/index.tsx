@@ -241,7 +241,8 @@ export default function V2B1() {
       ) : (
         <>
           <b>Step 4 Confirm.</b> Branches on the step 2 choice. The self-managed branch is the
-          honesty test: if it reads as a consolation prize, the recommendation upstream was coercive.
+          honesty test: if it reads as a consolation prize, the recommendation upstream was
+          coercive.
         </>
       )
     return (
@@ -349,7 +350,12 @@ export default function V2B1() {
         <div className="cp-group">
           <div className="cp-label">Peer stat</div>
           <div className="cp-btns">
-            {([[true, 'With X%'], [false, 'Without']] as const).map(([value, label]) => (
+            {(
+              [
+                [true, 'With X%'],
+                [false, 'Without'],
+              ] as const
+            ).map(([value, label]) => (
               <button
                 key={label}
                 className={`cp-btn${stat === value ? ' on' : ''}`}

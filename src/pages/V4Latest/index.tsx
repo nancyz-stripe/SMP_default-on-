@@ -40,10 +40,7 @@ export default function V4Latest() {
   const selectAutopilot = () => setMode((current) => (current === 'all' ? 'all' : 'cross_border'))
 
   const scope = (id: 'cross_border' | 'all', title: string, desc: string) => (
-    <div
-      className={`scope-card${mode === id ? ' selected' : ''}`}
-      onClick={() => setMode(id)}
-    >
+    <div className={`scope-card${mode === id ? ' selected' : ''}`} onClick={() => setMode(id)}>
       <div className="scope-card-group">
         <div className="radio-circle">
           <div className="radio-inner-dot"></div>
@@ -106,7 +103,11 @@ export default function V4Latest() {
                     </div>
 
                     <div className="scope-panel">
-                      {scope('cross_border', 'Cross-border only', 'Manage only international payments.')}
+                      {scope(
+                        'cross_border',
+                        'Cross-border only',
+                        'Manage only international payments.',
+                      )}
                       {scope(
                         'all',
                         'All payments',

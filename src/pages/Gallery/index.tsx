@@ -68,9 +68,7 @@ function ArchiveCard({
   const [dragging, setDragging] = useState(false)
   const [over, setOver] = useState(false)
 
-  const classes = ['card', dragging && 'dragging', over && 'drag-over']
-    .filter(Boolean)
-    .join(' ')
+  const classes = ['card', dragging && 'dragging', over && 'drag-over'].filter(Boolean).join(' ')
 
   return (
     <Link
@@ -245,9 +243,7 @@ export default function Gallery() {
 
         <div className="section">
           <div className="section-heading">Past explorations</div>
-          <div className="grid">
-            {sections.past.map((v, i) => archiveCard('past', v, i))}
-          </div>
+          <div className="grid">{sections.past.map((v, i) => archiveCard('past', v, i))}</div>
         </div>
       </div>
 

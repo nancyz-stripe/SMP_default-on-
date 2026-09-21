@@ -1,8 +1,6 @@
 /** Sampled down the reference gradient, warm end to purple end, so the pieces
  *  carry the same ramp the fee badge sweeps through. */
-export const WARM_PARTICLES = [
-  '#f7dcb5', '#f1c1a6', '#ecb4b4', '#e0a0c8', '#c280e8', '#a478f3',
-]
+export const WARM_PARTICLES = ['#f7dcb5', '#f1c1a6', '#ecb4b4', '#e0a0c8', '#c280e8', '#a478f3']
 
 /** Purples from the palette, plus one pink to echo the globe's glow. */
 export const PURPLE_PARTICLES = ['#675dff', '#8f83ff', '#b9a9f7', '#e2a4ea']
@@ -22,11 +20,7 @@ export type BurstOptions = {
  *  ancestor can clip them, and remove themselves when their animation
  *  finishes. Nothing about them belongs in React's tree. */
 export function burstFrom(el: HTMLElement, options: BurstOptions = {}) {
-  const {
-    colors: PARTICLE_COLORS = WARM_PARTICLES,
-    duration = 810,
-    jitter = 270,
-  } = options
+  const { colors: PARTICLE_COLORS = WARM_PARTICLES, duration = 810, jitter = 270 } = options
   const r = el.getBoundingClientRect()
   const cx = r.left + r.width / 2
   const cy = r.top + r.height / 2

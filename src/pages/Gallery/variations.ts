@@ -205,8 +205,7 @@ export const pastVariations: Variation[] = [
   {
     id: 'v7-mode-no-gradient',
     title: 'Nested choices + value cards',
-    description:
-      'Nested options under "Automatic" and animated value prop cards on the globe.',
+    description: 'Nested options under "Automatic" and animated value prop cards on the globe.',
     to: '/v/v7-mode-no-gradient',
   },
   {

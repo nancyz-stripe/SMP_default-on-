@@ -123,9 +123,7 @@ export default function V7ModeNoGradient() {
                 </div>
               </div>
 
-              <p className="reassurance">
-                Changes can be made anytime in Managed Payment settings
-              </p>
+              <p className="reassurance">Changes can be made anytime in Managed Payment settings</p>
             </div>
 
             <div className="modal-right-wrapper">

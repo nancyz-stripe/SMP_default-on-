@@ -60,7 +60,10 @@ export default function V3Treatments() {
             <small>{pct(RATE.dom)} on domestic, unchanged. Nothing until you sell abroad.</small>
           </div>
         </div>
-        <div className={`choice${choice === 'self' ? ' on' : ''}`} onClick={() => setChoice('self')}>
+        <div
+          className={`choice${choice === 'self' ? ' on' : ''}`}
+          onClick={() => setChoice('self')}
+        >
           <div className="choice-head">
             <span className="choice-title">You handle it</span>
             <span className="tag-alt">Also supported</span>

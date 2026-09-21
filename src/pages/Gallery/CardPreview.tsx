@@ -26,9 +26,7 @@ export function CardPreview({ src }: { src: string }) {
     return () => observer.disconnect()
   }, [])
 
-  const scale = box
-    ? Math.max(box.width / FRAME_WIDTH, box.height / FRAME_HEIGHT)
-    : 0
+  const scale = box ? Math.max(box.width / FRAME_WIDTH, box.height / FRAME_HEIGHT) : 0
 
   return (
     <div className="card-preview" ref={container}>

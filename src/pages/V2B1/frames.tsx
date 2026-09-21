@@ -82,8 +82,8 @@ export const FRAMES: Record<FrameKey, Frame> = {
       <>
         <b>International-anchored.</b> Most specific, and the version where the fee is easiest to
         justify &mdash; the obligations named are unmistakably international. Costs the most in
-        presumption: a domestic-only merchant has to read past a premise that isn&rsquo;t theirs. Note
-        the headline and the anchor paragraph are anchored to different things here.
+        presumption: a domestic-only merchant has to read past a premise that isn&rsquo;t theirs.
+        Note the headline and the anchor paragraph are anchored to different things here.
       </>
     ),
   },
@@ -104,8 +104,8 @@ export const FRAMES: Record<FrameKey, Frame> = {
             </>
           ) : (
             <>
-              Businesses like yours usually end up selling internationally, so we&rsquo;ve set you up
-              for it.
+              Businesses like yours usually end up selling internationally, so we&rsquo;ve set you
+              up for it.
             </>
           )}
         </span>
@@ -129,10 +129,10 @@ export const FRAMES: Record<FrameKey, Frame> = {
     ),
     note: (
       <>
-        <b>Growth → markets.</b> The synthesis: growth anchors the sentence, international arrives as
-        its consequence rather than its premise. Works for a new or an established business
-        (John&rsquo;s point) while keeping the specificity that makes the fee defensible. Currently my
-        pick.
+        <b>Growth → markets.</b> The synthesis: growth anchors the sentence, international arrives
+        as its consequence rather than its premise. Works for a new or an established business
+        (John&rsquo;s point) while keeping the specificity that makes the fee defensible. Currently
+        my pick.
       </>
     ),
   },
@@ -176,10 +176,11 @@ export const FRAMES: Record<FrameKey, Frame> = {
     ),
     note: (
       <>
-        <b>Growth-anchored.</b> Least presumptuous and the most inclusive of business stage. The risk
-        is vagueness: &ldquo;a few new things&rdquo; could be anything, and the obligations listed
-        below are specifically international, so the anchor paragraph has to introduce geography{' '}
-        <i>and</i> the conditional cost by itself. Watch whether the fee still feels earned.
+        <b>Growth-anchored.</b> Least presumptuous and the most inclusive of business stage. The
+        risk is vagueness: &ldquo;a few new things&rdquo; could be anything, and the obligations
+        listed below are specifically international, so the anchor paragraph has to introduce
+        geography <i>and</i> the conditional cost by itself. Watch whether the fee still feels
+        earned.
       </>
     ),
   },

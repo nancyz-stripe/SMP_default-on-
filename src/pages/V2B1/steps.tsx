@@ -1,14 +1,6 @@
 import { useState } from 'react'
 import { MerchantOfRecord } from '../../components/Term'
-import {
-  MIX,
-  RATE,
-  domRate,
-  effRate,
-  intlRate,
-  pct,
-  type Scope,
-} from '../../components/pricing'
+import { MIX, RATE, domRate, effRate, intlRate, pct, type Scope } from '../../components/pricing'
 import { AnchorCopy, TRIGGERS, type Frame } from './frames'
 import { SelfColumn, SmpColumn, WORKLOAD, type Choice } from './columns'
 
@@ -116,8 +108,8 @@ export function Step2({
             </div>
             <div className="rb-body">
               Digital goods sell across borders from day one, which means tax thresholds, disputes,
-              and local payment methods arrive early. Both options are below, priced. Either is fully
-              supported.
+              and local payment methods arrive early. Both options are below, priced. Either is
+              fully supported.
             </div>
           </div>
         </div>
@@ -300,9 +292,9 @@ export function Step3({
           <div className="scope-change">
             <span>&#9888;</span>
             <span>
-              This changes what you pay at home. Your domestic rate goes from{' '}
-              <b>{pct(RATE.dom)}</b> to <b>{pct(RATE.dom + RATE.smp)}</b>, and applies to sales
-              you&rsquo;re already making &mdash; not only to future international ones.
+              This changes what you pay at home. Your domestic rate goes from <b>{pct(RATE.dom)}</b>{' '}
+              to <b>{pct(RATE.dom + RATE.smp)}</b>, and applies to sales you&rsquo;re already making
+              &mdash; not only to future international ones.
             </span>
           </div>
         </div>
@@ -441,9 +433,7 @@ export function Step4({ choice, scope }: { choice: Choice; scope: Scope }) {
     return (
       <>
         {head}
-        <h1 className="headline">
-          You&rsquo;re set up to manage international selling yourself.
-        </h1>
+        <h1 className="headline">You&rsquo;re set up to manage international selling yourself.</h1>
         <div className="sum-card">
           <div className="sum-head">
             <span className="sum-title">Self-managed</span>
@@ -453,8 +443,8 @@ export function Step4({ choice, scope }: { choice: Choice; scope: Scope }) {
             <div className="sum-row">
               <span className="k">What you pay</span>
               <span className="v">
-                Standard processing &mdash; <b>{pct(RATE.dom)}</b> domestic,{' '}
-                <b>{pct(RATE.intl)}</b> international. No added fee.
+                Standard processing &mdash; <b>{pct(RATE.dom)}</b> domestic, <b>{pct(RATE.intl)}</b>{' '}
+                international. No added fee.
               </span>
             </div>
             <div className="sum-row">
@@ -544,9 +534,9 @@ export function Step4({ choice, scope }: { choice: Choice; scope: Scope }) {
             </>
           ) : (
             <>
-              <b>You&rsquo;re paying nothing extra today.</b> The Managed Payments fee applies only to
-              international sales, so it starts the first time you make one. If that never happens, it
-              never costs you anything.
+              <b>You&rsquo;re paying nothing extra today.</b> The Managed Payments fee applies only
+              to international sales, so it starts the first time you make one. If that never
+              happens, it never costs you anything.
             </>
           )}
         </span>
@@ -557,5 +547,3 @@ export function Step4({ choice, scope }: { choice: Choice; scope: Scope }) {
     </>
   )
 }
-
-

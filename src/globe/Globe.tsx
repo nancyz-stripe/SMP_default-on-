@@ -90,6 +90,8 @@ export function Globe({
     handleRef,
     () => ({
       setMode: (mode) => globe.current?.setMode(mode),
+      setColors: (colors) => globe.current?.setColors(colors),
+      setRoutes: (routes) => globe.current?.setRoutes(routes),
       dispose: () => globe.current?.dispose(),
     }),
     [],

@@ -37,8 +37,7 @@ export function useValueCardCycle(enabled = true): Set<CardId> {
     const timers: number[] = []
     const at = (delay: number, fn: () => void) => timers.push(window.setTimeout(fn, delay))
 
-    const show = (id: CardId) =>
-      setVisible((current) => new Set(current).add(id))
+    const show = (id: CardId) => setVisible((current) => new Set(current).add(id))
     const hide = (id: CardId) =>
       setVisible((current) => {
         const next = new Set(current)

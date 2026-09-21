@@ -1,10 +1,5 @@
 import * as THREE from 'three'
-import {
-  COVERAGE_FRAGMENT,
-  COVERAGE_VERTEX,
-  PLAIN_VERTEX,
-  plainFragment,
-} from './shaders'
+import { COVERAGE_FRAGMENT, COVERAGE_VERTEX, PLAIN_VERTEX, plainFragment } from './shaders'
 
 /** The dotted globe with the travelling arcs, shared by the 15 prototypes that
  *  show it. Each of those had its own copy of this scene; the copies differed
@@ -40,30 +35,60 @@ type City = { lat: number; lng: number }
 
 /** Endpoints the arcs pick from. */
 const MAJOR_CITIES: City[] = [
-  { lat: 40.7, lng: -74 }, { lat: 37.8, lng: -122.4 }, { lat: 19.4, lng: -99.1 },
-  { lat: -23.5, lng: -46.6 }, { lat: 51.5, lng: -0.1 }, { lat: 48.9, lng: 2.3 },
-  { lat: 52.5, lng: 13.4 }, { lat: 55.8, lng: 37.6 }, { lat: 25.2, lng: 55.3 },
-  { lat: 19.1, lng: 72.9 }, { lat: 39.9, lng: 116.4 }, { lat: 35.7, lng: 139.7 },
-  { lat: 1.3, lng: 103.8 }, { lat: -33.9, lng: 151.2 }, { lat: 6.5, lng: 3.4 },
-  { lat: 30, lng: 31.2 }, { lat: -26.2, lng: 28 }, { lat: 43.7, lng: -79.4 },
+  { lat: 40.7, lng: -74 },
+  { lat: 37.8, lng: -122.4 },
+  { lat: 19.4, lng: -99.1 },
+  { lat: -23.5, lng: -46.6 },
+  { lat: 51.5, lng: -0.1 },
+  { lat: 48.9, lng: 2.3 },
+  { lat: 52.5, lng: 13.4 },
+  { lat: 55.8, lng: 37.6 },
+  { lat: 25.2, lng: 55.3 },
+  { lat: 19.1, lng: 72.9 },
+  { lat: 39.9, lng: 116.4 },
+  { lat: 35.7, lng: 139.7 },
+  { lat: 1.3, lng: 103.8 },
+  { lat: -33.9, lng: 151.2 },
+  { lat: 6.5, lng: 3.4 },
+  { lat: 30, lng: 31.2 },
+  { lat: -26.2, lng: 28 },
+  { lat: 43.7, lng: -79.4 },
   { lat: 41.9, lng: -87.6 },
 ]
 
 /** The coverage variant splits the pool, so an arc can be shown as domestic or
  *  as cross-border depending on what's being managed. */
 const HOME_CITIES: City[] = [
-  { lat: 40.7, lng: -74 }, { lat: 37.8, lng: -122.4 }, { lat: 41.9, lng: -87.6 },
-  { lat: 34.05, lng: -118.24 }, { lat: 25.8, lng: -80.2 }, { lat: 47.6, lng: -122.3 },
-  { lat: 30.3, lng: -97.7 }, { lat: 39.7, lng: -105.0 }, { lat: 33.75, lng: -84.4 },
+  { lat: 40.7, lng: -74 },
+  { lat: 37.8, lng: -122.4 },
+  { lat: 41.9, lng: -87.6 },
+  { lat: 34.05, lng: -118.24 },
+  { lat: 25.8, lng: -80.2 },
+  { lat: 47.6, lng: -122.3 },
+  { lat: 30.3, lng: -97.7 },
+  { lat: 39.7, lng: -105.0 },
+  { lat: 33.75, lng: -84.4 },
 ]
 
 const INTL_CITIES: City[] = [
-  { lat: 19.4, lng: -99.1 }, { lat: -23.5, lng: -46.6 }, { lat: 51.5, lng: -0.1 },
-  { lat: 48.9, lng: 2.3 }, { lat: 52.5, lng: 13.4 }, { lat: 55.8, lng: 37.6 },
-  { lat: 25.2, lng: 55.3 }, { lat: 19.1, lng: 72.9 }, { lat: 39.9, lng: 116.4 },
-  { lat: 35.7, lng: 139.7 }, { lat: 1.3, lng: 103.8 }, { lat: -33.9, lng: 151.2 },
-  { lat: 6.5, lng: 3.4 }, { lat: 30, lng: 31.2 }, { lat: -26.2, lng: 28 },
-  { lat: 43.7, lng: -79.4 }, { lat: 52.4, lng: 4.9 }, { lat: 59.3, lng: 18.1 },
+  { lat: 19.4, lng: -99.1 },
+  { lat: -23.5, lng: -46.6 },
+  { lat: 51.5, lng: -0.1 },
+  { lat: 48.9, lng: 2.3 },
+  { lat: 52.5, lng: 13.4 },
+  { lat: 55.8, lng: 37.6 },
+  { lat: 25.2, lng: 55.3 },
+  { lat: 19.1, lng: 72.9 },
+  { lat: 39.9, lng: 116.4 },
+  { lat: 35.7, lng: 139.7 },
+  { lat: 1.3, lng: 103.8 },
+  { lat: -33.9, lng: 151.2 },
+  { lat: 6.5, lng: 3.4 },
+  { lat: 30, lng: 31.2 },
+  { lat: -26.2, lng: 28 },
+  { lat: 43.7, lng: -79.4 },
+  { lat: 52.4, lng: 4.9 },
+  { lat: 59.3, lng: 18.1 },
   { lat: 37.6, lng: 127.0 },
 ]
 
@@ -80,6 +105,38 @@ const HOME = { latMin: 24, latMax: 50, lngMin: -125, lngMax: -66 }
 const HOME_ANCHOR = { lat: 39.5, lng: -98.35 }
 
 export type GlobePalette = 'soft' | 'flat'
+
+/** Every colour in the scene. The playground exposes these as live controls; the
+ *  prototypes take whichever palette's defaults they were built against. */
+export type GlobeColors = {
+  globe: string
+  dot: string
+  ambient: string
+  back: string
+  front: string
+  /** Only painted when `opaque` is set — otherwise the canvas is transparent and
+   *  the page's own background shows through. */
+  background: string
+}
+
+const PALETTE_COLORS: Record<GlobePalette, GlobeColors> = {
+  soft: {
+    globe: '#f7f6fc',
+    dot: '#b8c0f0',
+    ambient: '#F8F7FC',
+    back: '#666677',
+    front: '#777788',
+    background: '#ffffff',
+  },
+  flat: {
+    globe: '#f1f2f8',
+    dot: '#b8c0f0',
+    ambient: '#ECEBF5',
+    back: '#222222',
+    front: '#44444f',
+    background: '#ffffff',
+  },
+}
 
 export type GlobeOptions = {
   /** Multiplier on the base radius. The prototypes use 1 (large), 0.85,
@@ -106,6 +163,28 @@ export type GlobeOptions = {
   /** Called with the globe's diameter in px whenever it changes, so the page
    *  can size a glow circle or publish a CSS variable the value cards read. */
   onDiameter?: (diameter: number) => void
+  /** `random` spawns arcs between arbitrary cities forever, which is what all but
+   *  one of the prototypes do — there the globe is decoration.
+   *
+   *  `routes` draws only the routes handed to `setRoutes` and keeps them. The
+   *  treatments screen uses that: its arcs run from the home market to the
+   *  regions the user named, and the domestic one appears only once Managed
+   *  Payments covers domestic volume. */
+  arcs?: 'random' | 'routes'
+  /** The routes to draw at build time, for `arcs: 'routes'`. A host can be
+   *  hidden when the page first sets its routes — the scene is only built once
+   *  the host has a size — so the current set is read here rather than relying on
+   *  a `setRoutes` call that would land before there was anything to call. */
+  routes?: Route[]
+  /** Overrides individual colours on top of the palette's defaults. */
+  colors?: Partial<GlobeColors>
+  /** Paints the background colour instead of leaving the canvas transparent.
+   *  Only the playground does this — the prototypes sit the globe on a page
+   *  that has its own background. */
+  opaque?: boolean
+  /** Replaces the radius formula. The playground fills the window and sizes
+   *  against a capped width rather than the smaller dimension. */
+  radius?: (width: number, height: number) => number
   /** Refit on resize by zooming the camera rather than rebuilding the scene.
    *  The sphere, dots and arcs are built once at the initial radius, so this is
    *  much cheaper and is what the onboarding flow uses. */
@@ -119,7 +198,22 @@ export type GlobeHandle = {
   /** Coverage variant only. Sets the target state the frame loop tweens
    *  towards, and which arcs are allowed. */
   setMode: (mode: CoverageMode) => void
+  /** Repaints the scene's colours in place, without rebuilding it. */
+  setColors: (colors: Partial<GlobeColors>) => void
+  /** `arcs: 'routes'` only. Replaces the drawn routes with these. */
+  setRoutes: (routes: Route[]) => void
   dispose: () => void
+}
+
+/** A named route, for the variant whose arcs are state rather than decoration:
+ *  they run from the home market to whichever regions the user picked. */
+export type Route = {
+  from: City
+  to: City
+  colorFrom: number
+  colorTo: number
+  /** Staggers the draw, so the routes arrive one after another. */
+  delay?: number
 }
 
 type Arc = {
@@ -129,6 +223,8 @@ type Arc = {
   totalPoints: number
   created: number
   drawDuration: number
+  /** Random arcs hold and then fade; routes are drawn and kept, so these are
+   *  Infinity for a route. */
   holdDuration: number
   fadeDuration: number
 }
@@ -145,26 +241,34 @@ export function createGlobe(container: HTMLElement, options: GlobeOptions = {}):
     palette = 'soft',
     dotDarken = palette === 'soft' ? 0.55 : 0.75,
     coverage = false,
+    arcs: arcSource = 'random',
+    routes: initialRoutes,
     longitude = coverage ? 'true' : 'shifted',
+    colors: colorOverrides,
+    opaque = false,
+    radius,
     onDiameter,
     refitByZoom = false,
   } = options
+
+  const colors: GlobeColors = { ...PALETTE_COLORS[palette], ...colorOverrides }
 
   const w = container.clientWidth
   const h = container.clientHeight
 
   const scene = new THREE.Scene()
   const camera = new THREE.OrthographicCamera(-w / 2, w / 2, h / 2, -h / 2, 1, 10000)
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: !opaque })
   renderer.setSize(w, h)
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-  renderer.setClearColor(0x000000, 0)
+  if (opaque) renderer.setClearColor(new THREE.Color(colors.background), 1)
+  else renderer.setClearColor(0x000000, 0)
   renderer.outputColorSpace = THREE.LinearSRGBColorSpace
   renderer.sortObjects = false
   container.appendChild(renderer.domElement)
 
-  const radiusFor = (width: number, height: number) =>
-    (100 + Math.min(width, height) * 0.25) * scale
+  const radiusFor =
+    radius ?? ((width: number, height: number) => (100 + Math.min(width, height) * 0.25) * scale)
 
   const globeRadius = radiusFor(w, h)
   const globeSegments = Math.floor((globeRadius / 250) * 10) + 20
@@ -177,39 +281,34 @@ export function createGlobe(container: HTMLElement, options: GlobeOptions = {}):
   globeContainer.rotation.y = Math.PI * 0.55
   scene.add(globeContainer)
 
+  const soft = palette === 'soft'
+
   const sphereGeometry = new THREE.SphereGeometry(globeRadius, globeSegments, globeSegments)
-  const sphereMaterial =
-    palette === 'soft'
-      ? new THREE.MeshPhongMaterial({
-          color: new THREE.Color('#f7f6fc'),
-          shininess: 3,
-          transparent: true,
-          opacity: 0.85,
-        })
-      : new THREE.MeshPhongMaterial({ color: new THREE.Color('#f1f2f8'), shininess: 5 })
+  const sphereMaterial = new THREE.MeshPhongMaterial(
+    soft
+      ? { color: new THREE.Color(colors.globe), shininess: 3, transparent: true, opacity: 0.85 }
+      : { color: new THREE.Color(colors.globe), shininess: 5 },
+  )
   globeContainer.add(new THREE.Mesh(sphereGeometry, sphereMaterial))
 
   // Point lights pass decay 0 — see the note at the top of this file.
-  if (palette === 'soft') {
-    scene.add(new THREE.AmbientLight(new THREE.Color('#F8F7FC'), 1.3))
-    const backLight = new THREE.PointLight(new THREE.Color('#666677'), 0.08, 0, 0)
-    backLight.position.set(-1000, -1100, -3300)
-    scene.add(backLight)
-    const frontLight = new THREE.PointLight(new THREE.Color('#777788'), 0.5, 0, 0)
-    frontLight.position.set(-3000, 3000, 3300)
-    scene.add(frontLight)
-    // Soft fill from the lower right to lift the shaded side of the sphere.
+  const ambientLight = new THREE.AmbientLight(new THREE.Color(colors.ambient), soft ? 1.3 : 1.0)
+  scene.add(ambientLight)
+
+  const backLight = new THREE.PointLight(new THREE.Color(colors.back), soft ? 0.08 : 0.2, 0, 0)
+  backLight.position.set(-1000, -1100, -3300)
+  scene.add(backLight)
+
+  const frontLight = new THREE.PointLight(new THREE.Color(colors.front), soft ? 0.5 : 0.8, 0, 0)
+  frontLight.position.set(-3000, 3000, 3300)
+  scene.add(frontLight)
+
+  if (soft) {
+    // Soft fill from the lower right to lift the shaded side of the sphere. The
+    // flat palette has no fill, which is most of why it reads harder.
     const fillLight = new THREE.DirectionalLight(new THREE.Color('#FFFFFF'), 0.35)
     fillLight.position.set(2, -2, 2)
     scene.add(fillLight)
-  } else {
-    scene.add(new THREE.AmbientLight(new THREE.Color('#ECEBF5'), 1.0))
-    const backLight = new THREE.PointLight(new THREE.Color('#222222'), 0.2, 0, 0)
-    backLight.position.set(-1000, -1100, -3300)
-    scene.add(backLight)
-    const frontLight = new THREE.PointLight(new THREE.Color('#44444f'), 0.8, 0, 0)
-    frontLight.position.set(-3000, 3000, 3300)
-    scene.add(frontLight)
   }
 
   const dotUniforms: Record<string, THREE.IUniform> = coverage
@@ -225,7 +324,7 @@ export function createGlobe(container: HTMLElement, options: GlobeOptions = {}):
       }
     : {
         u_time: { value: 0 },
-        u_color: { value: new THREE.Color('#b8c0f0') },
+        u_color: { value: new THREE.Color(colors.dot) },
         u_cameraDir: { value: new THREE.Vector3(0, 0, 1) },
       }
 
@@ -262,10 +361,7 @@ export function createGlobe(container: HTMLElement, options: GlobeOptions = {}):
       const theta = Math.sqrt(DOT_COUNT * Math.PI) * phi
       const latDeg = 90 - (phi * 180) / Math.PI
       const lngDeg = (((theta * 180) / Math.PI) % 360) - 180
-      const u =
-        longitude === 'true'
-          ? (((lngDeg % 360) + 360) % 360) / 360
-          : (lngDeg + 180) / 360
+      const u = longitude === 'true' ? (((lngDeg % 360) + 360) % 360) / 360 : (lngDeg + 180) / 360
       const v = (90 - latDeg) / 180
       const px = Math.floor(u * c.width) % c.width
       const py = Math.floor(v * c.height) % c.height
@@ -301,11 +397,17 @@ export function createGlobe(container: HTMLElement, options: GlobeOptions = {}):
       // inverse of how it was sampled.
       geo.setAttribute(
         'a_region',
-        new THREE.Float32BufferAttribute(regions.map((r) => (r === 1 ? 0 : 1)), 1),
+        new THREE.Float32BufferAttribute(
+          regions.map((r) => (r === 1 ? 0 : 1)),
+          1,
+        ),
       )
       geo.setAttribute(
         'a_dist',
-        new THREE.Float32BufferAttribute(dists.map((d) => d / maxDist), 1),
+        new THREE.Float32BufferAttribute(
+          dists.map((d) => d / maxDist),
+          1,
+        ),
       )
     }
 
@@ -332,7 +434,7 @@ export function createGlobe(container: HTMLElement, options: GlobeOptions = {}):
   // --- Arcs ----------------------------------------------------------------
   const arcs: Arc[] = []
 
-  const pick = <T,>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)]
+  const pick = <T>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)]
 
   /** Which arcs are allowed depends on what Stripe is managing: nothing when
    *  self-managed, home↔international under cross-border, and domestic pairs
@@ -384,12 +486,16 @@ export function createGlobe(container: HTMLElement, options: GlobeOptions = {}):
     marker.userData.ringMat.opacity = opacity
   }
 
-  function createArc() {
-    if (disposed || arcs.length >= MAX_ARCS) return
-    const pair = pickPair()
-    if (!pair) return
-    const [cityA, cityB] = pair
-
+  /** Builds one arc between two cities and adds it to the scene. Shared by both
+   *  arc modes — they differ only in which pairs they ask for and how long the
+   *  result lives. */
+  function buildArc(
+    cityA: City,
+    cityB: City,
+    from: number,
+    to: number,
+    { delay = 0, permanent = false }: { delay?: number; permanent?: boolean } = {},
+  ) {
     const start = cityToVec3(cityA)
     const end = cityToVec3(cityB)
     const dist = start.distanceTo(end)
@@ -409,7 +515,6 @@ export function createGlobe(container: HTMLElement, options: GlobeOptions = {}):
     )
     const points = curve.getPoints(64)
 
-    const [from, to] = ARC_COLOURS[Math.floor(Math.random() * ARC_COLOURS.length)]
     const colorFrom = new THREE.Color(from)
     const colorTo = new THREE.Color(to)
 
@@ -428,7 +533,9 @@ export function createGlobe(container: HTMLElement, options: GlobeOptions = {}):
     glowEnd.position.copy(end)
     glowStart.lookAt(start.clone().multiplyScalar(2))
     glowEnd.lookAt(end.clone().multiplyScalar(2))
-    setMarkerOpacity(glowStart, 1)
+    // A route's near end fades up with the line; a random arc's is there from the
+    // start.
+    setMarkerOpacity(glowStart, permanent ? 0 : 1)
     setMarkerOpacity(glowEnd, 0)
     globeContainer.add(glowStart, glowEnd)
 
@@ -438,15 +545,50 @@ export function createGlobe(container: HTMLElement, options: GlobeOptions = {}):
       glowStart,
       glowEnd,
       totalPoints: 65,
-      created: Date.now(),
-      drawDuration: 600,
-      holdDuration: 3000,
+      created: Date.now() + delay,
+      drawDuration: permanent ? 700 : 600,
+      // A route is drawn and kept, so it never leaves the hold phase.
+      holdDuration: permanent ? Infinity : 3000,
       fadeDuration: 800,
     })
   }
 
-  const firstArc = window.setTimeout(createArc, 500)
-  const arcTimer = window.setInterval(createArc, 1000)
+  function createArc() {
+    if (disposed || arcs.length >= MAX_ARCS) return
+    const pair = pickPair()
+    if (!pair) return
+    const [from, to] = ARC_COLOURS[Math.floor(Math.random() * ARC_COLOURS.length)]
+    buildArc(pair[0], pair[1], from, to)
+  }
+
+  function disposeArc(arc: Arc) {
+    globeContainer.remove(arc.line, arc.glowStart, arc.glowEnd)
+    arc.line.geometry.dispose()
+    ;(arc.line.material as THREE.Material).dispose()
+    arc.glowStart.userData.dotMat.dispose()
+    arc.glowStart.userData.ringMat.dispose()
+    arc.glowEnd.userData.dotMat.dispose()
+    arc.glowEnd.userData.ringMat.dispose()
+  }
+
+  function setRoutes(routes: Route[]) {
+    if (arcSource !== 'routes') return
+    for (const arc of arcs) disposeArc(arc)
+    arcs.length = 0
+    for (const route of routes) {
+      buildArc(route.from, route.to, route.colorFrom, route.colorTo, {
+        delay: route.delay,
+        permanent: true,
+      })
+    }
+  }
+
+  if (initialRoutes) setRoutes(initialRoutes)
+
+  // Routes are handed in by the page; only the random mode spawns its own.
+  const spawnsOwnArcs = arcSource === 'random'
+  const firstArc = spawnsOwnArcs ? window.setTimeout(createArc, 500) : undefined
+  const arcTimer = spawnsOwnArcs ? window.setInterval(createArc, 1000) : undefined
 
   /** Retires arcs that no longer belong to the selected mode, by ageing them
    *  into their fade. */
@@ -479,16 +621,6 @@ export function createGlobe(container: HTMLElement, options: GlobeOptions = {}):
     setMode('cross_border')
   }
   const igniteFallback = coverage ? window.setTimeout(ignite, 2500) : undefined
-
-  function disposeArc(arc: Arc) {
-    globeContainer.remove(arc.line, arc.glowStart, arc.glowEnd)
-    arc.line.geometry.dispose()
-    ;(arc.line.material as THREE.Material).dispose()
-    arc.glowStart.userData.dotMat.dispose()
-    arc.glowStart.userData.ringMat.dispose()
-    arc.glowEnd.userData.dotMat.dispose()
-    arc.glowEnd.userData.ringMat.dispose()
-  }
 
   // --- Frame loop ----------------------------------------------------------
   const clock = new THREE.Clock()
@@ -530,6 +662,9 @@ export function createGlobe(container: HTMLElement, options: GlobeOptions = {}):
       const totalLife = arc.drawDuration + arc.holdDuration + arc.fadeDuration
       const material = arc.line.material as THREE.LineBasicMaterial
 
+      // A staggered route hasn't started yet.
+      if (age < 0) continue
+
       if (age > totalLife) {
         disposeArc(arc)
         arcs.splice(i, 1)
@@ -539,8 +674,14 @@ export function createGlobe(container: HTMLElement, options: GlobeOptions = {}):
         const p = age / arc.drawDuration
         arc.line.geometry.setDrawRange(0, Math.floor(p * arc.totalPoints))
         material.opacity = 1
-        setMarkerOpacity(arc.glowStart, 1)
-        setMarkerOpacity(arc.glowEnd, p > 0.9 ? (p - 0.9) / 0.1 : 0)
+        // A route's near marker fades up with the line rather than being there
+        // before it — the route is arriving, not already present.
+        const route = arc.holdDuration === Infinity
+        setMarkerOpacity(arc.glowStart, route ? Math.min(1, p * 3) : 1)
+        setMarkerOpacity(
+          arc.glowEnd,
+          route ? (p > 0.85 ? (p - 0.85) / 0.15 : 0) : p > 0.9 ? (p - 0.9) / 0.1 : 0,
+        )
       } else if (age < arc.drawDuration + arc.holdDuration) {
         arc.line.geometry.setDrawRange(0, arc.totalPoints)
         material.opacity = 1
@@ -583,6 +724,18 @@ export function createGlobe(container: HTMLElement, options: GlobeOptions = {}):
 
   return {
     setMode,
+    setRoutes,
+    setColors(next) {
+      Object.assign(colors, next)
+      sphereMaterial.color.set(colors.globe)
+      ambientLight.color.set(colors.ambient)
+      backLight.color.set(colors.back)
+      frontLight.color.set(colors.front)
+      if (opaque) renderer.setClearColor(new THREE.Color(colors.background), 1)
+      // The coverage shader has two dot colours of its own, neither of which is
+      // the single `dot` this sets.
+      if (!coverage) (dotUniforms.u_color.value as THREE.Color).set(colors.dot)
+    },
     dispose() {
       disposed = true
       cancelAnimationFrame(frame)

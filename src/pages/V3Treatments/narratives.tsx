@@ -79,22 +79,22 @@ export const TREATMENT_NOTES: Record<TreatmentKey, ReactNode> = {
   editorial: (
     <>
       <b>T2 Editorial type.</b> Fixes the timidity. No cards, no borders, 42px lede, one thought.
-      Premium reads as confidence and confidence looks like empty space. Least informative per screen
-      &mdash; would need more screens.
+      Premium reads as confidence and confidence looks like empty space. Least informative per
+      screen &mdash; would need more screens.
     </>
   ),
   stage: (
     <>
       <b>T3 Split stage.</b> Fixes the missing subject &mdash; restores a focal point to look at. A
-      scatter field of markets standing by, with live dots pulsing. Deliberately not a globe, per the
-      Aug 27 decision.
+      scatter field of markets standing by, with live dots pulsing. Deliberately not a globe, per
+      the Aug 27 decision.
     </>
   ),
   ambient: (
     <>
-      <b>T4 Ambient depth.</b> Fixes the flat template surface. Same layout, different material: deep
-      field, real elevation, layered glass. Signals premium the way a paid product looks unlike a
-      settings page. Furthest from current Stripe onboarding.
+      <b>T4 Ambient depth.</b> Fixes the flat template surface. Same layout, different material:
+      deep field, real elevation, layered glass. Signals premium the way a paid product looks unlike
+      a settings page. Furthest from current Stripe onboarding.
     </>
   ),
 }

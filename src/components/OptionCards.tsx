@@ -45,9 +45,7 @@ export function OptionCards({
               {option.title}
               {option.badge && <span className="badge-recommended">{option.badge}</span>}
             </div>
-            {option.description && (
-              <div className="option-description">{option.description}</div>
-            )}
+            {option.description && <div className="option-description">{option.description}</div>}
           </div>
         </div>
       ))}

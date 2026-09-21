@@ -60,8 +60,8 @@ export default function V3Latest() {
                     </span>
                   </div>
                   <div className="coverage-desc">
-                    Stripe will manage your international payments. You can change your setup anytime
-                    for specific markets or payments.
+                    Stripe will manage your international payments. You can change your setup
+                    anytime for specific markets or payments.
                   </div>
                 </div>
 

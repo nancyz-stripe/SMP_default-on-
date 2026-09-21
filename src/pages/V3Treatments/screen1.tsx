@@ -29,7 +29,11 @@ function Handoff({ n }: { n: Narrative }) {
           <div className="lane-head">Stripe</div>
           <div className="lane-items">
             {THINGS.map(([what, how], i) => (
-              <div className="lane-item" key={what} style={{ animationDelay: `${460 + i * 190}ms` }}>
+              <div
+                className="lane-item"
+                key={what}
+                style={{ animationDelay: `${460 + i * 190}ms` }}
+              >
                 {what}
                 <small>{how}</small>
               </div>
@@ -164,7 +168,11 @@ function Ambient({ n }: { n: Narrative }) {
             </span>
           </div>
           {THINGS.map(([what, how], i) => (
-            <div className="amb-row seq" key={what} style={{ animationDelay: `${480 + i * 130}ms` }}>
+            <div
+              className="amb-row seq"
+              key={what}
+              style={{ animationDelay: `${480 + i * 130}ms` }}
+            >
               <span className="amb-what">
                 {what}
                 <small>{how}</small>

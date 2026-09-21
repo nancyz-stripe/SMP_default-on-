@@ -21,8 +21,8 @@ const NOTES: Record<number, React.ReactNode> = {
   2: (
     <>
       <b>Step 2 &mdash; Autopilot or the controls.</b> &ldquo;Take the controls&rdquo; is the reason
-      to run this framing: the first self-managed label that sounds skilled rather than apologetic or
-      contrarian.
+      to run this framing: the first self-managed label that sounds skilled rather than apologetic
+      or contrarian.
     </>
   ),
   3: (
@@ -67,8 +67,7 @@ export default function V2Autopilot() {
 
   const stage = () => {
     if (step === 1) return <Step1 />
-    if (step === 2)
-      return <Step2 choice={choice} exception={exception} onPick={setChoice} />
+    if (step === 2) return <Step2 choice={choice} exception={exception} onPick={setChoice} />
     if (step === 3) return <Step3 scope={scope} onSetScope={setScope} />
     return <Step4 choice={choice} scope={scope} />
   }
@@ -182,7 +181,12 @@ export default function V2Autopilot() {
         <div className="cp-group">
           <div className="cp-label">Merchant-of-record exception</div>
           <div className="cp-btns">
-            {([['on', 'Shown'], ['off', 'Hidden']] as const).map(([value, label]) => (
+            {(
+              [
+                ['on', 'Shown'],
+                ['off', 'Hidden'],
+              ] as const
+            ).map(([value, label]) => (
               <button
                 key={value}
                 className={`cp-btn${(exception ? 'on' : 'off') === value ? ' on' : ''}`}

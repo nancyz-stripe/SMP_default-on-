@@ -43,15 +43,7 @@ function GlobeIcon() {
       <circle cx="16" cy="16" r="11" stroke="#675dff" strokeWidth="2" />
       <ellipse cx="16" cy="16" rx="5" ry="11" stroke="#675dff" strokeWidth="1.5" />
       <line x1="5" y1="16" x2="27" y2="16" stroke="#675dff" strokeWidth="1.5" />
-      <line
-        x1="16"
-        y1="5"
-        x2="16"
-        y2="27"
-        stroke="#675dff"
-        strokeWidth="1.5"
-        strokeOpacity="0.4"
-      />
+      <line x1="16" y1="5" x2="16" y2="27" stroke="#675dff" strokeWidth="1.5" strokeOpacity="0.4" />
     </svg>
   )
 }

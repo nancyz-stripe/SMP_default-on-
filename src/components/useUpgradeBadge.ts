@@ -105,7 +105,12 @@ export function useUpgradeBadge(options: UpgradeOptions = {}) {
     domestic,
     toggle,
     rates: domestic ? table.on : table.off,
-    badgeClass: ['fee-badge', domestic && 'upgraded', received && 'received', settling && 'settling']
+    badgeClass: [
+      'fee-badge',
+      domestic && 'upgraded',
+      received && 'received',
+      settling && 'settling',
+    ]
       .filter(Boolean)
       .join(' '),
     /** The switch's own pop, for the variants whose control animates. */

@@ -57,9 +57,7 @@ export default function V1GlobeCrossborder() {
 
               <OptionCards options={OPTIONS} selected={selected} onSelect={setSelected} />
 
-              <p className="reassurance">
-                Changes can be made anytime in Managed Payment settings
-              </p>
+              <p className="reassurance">Changes can be made anytime in Managed Payment settings</p>
             </div>
 
             <div className="modal-right-wrapper">

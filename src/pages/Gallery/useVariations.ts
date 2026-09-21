@@ -89,16 +89,13 @@ export function useVariations() {
     setSections(next)
   }, [])
 
-  const update = useCallback(
-    (section: Section, fn: (list: Variation[]) => Variation[]) => {
-      setSections((current) => {
-        const next = { ...current, [section]: fn(current[section]) }
-        localStorage.setItem(ORDER_KEY, JSON.stringify(next))
-        return next
-      })
-    },
-    [],
-  )
+  const update = useCallback((section: Section, fn: (list: Variation[]) => Variation[]) => {
+    setSections((current) => {
+      const next = { ...current, [section]: fn(current[section]) }
+      localStorage.setItem(ORDER_KEY, JSON.stringify(next))
+      return next
+    })
+  }, [])
 
   /** Moves a card to another card's position, which is what a drop does. */
   const reorder = useCallback(
@@ -114,9 +111,7 @@ export function useVariations() {
 
   const rename = useCallback(
     (section: Section, id: string, title: string, description: string) =>
-      update(section, (list) =>
-        list.map((v) => (v.id === id ? { ...v, title, description } : v)),
-      ),
+      update(section, (list) => list.map((v) => (v.id === id ? { ...v, title, description } : v))),
     [update],
   )
 

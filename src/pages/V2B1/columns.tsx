@@ -79,10 +79,7 @@ export function SmpColumn({
   priceOnly?: boolean
 }) {
   return (
-    <div
-      className={`col ${className}${choice === 'smp' ? ' selected' : ''}`}
-      onClick={onPick}
-    >
+    <div className={`col ${className}${choice === 'smp' ? ' selected' : ''}`} onClick={onPick}>
       <div className="col-head">
         <span className="col-title">Managed Payments</span>
         <span className="tag-rec">Recommended</span>
@@ -119,10 +116,7 @@ export function SelfColumn({
   priceOnly?: boolean
 }) {
   return (
-    <div
-      className={`col ${className}${choice === 'self' ? ' selected' : ''}`}
-      onClick={onPick}
-    >
+    <div className={`col ${className}${choice === 'self' ? ' selected' : ''}`} onClick={onPick}>
       <div className="col-head">
         <span className="col-title">Self-managed</span>
         <span className="tag-neutral">Fully supported</span>

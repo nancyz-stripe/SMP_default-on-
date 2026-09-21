@@ -45,10 +45,7 @@ export default function V3Narratives() {
           {n.body}
         </p>
         {n.thingsIntro && (
-          <div
-            className="body-copy seq"
-            style={{ animationDelay: '300ms', marginBottom: '8px' }}
-          >
+          <div className="body-copy seq" style={{ animationDelay: '300ms', marginBottom: '8px' }}>
             {n.thingsIntro}
           </div>
         )}
@@ -93,9 +90,7 @@ export default function V3Narratives() {
           </div>
           <div className="choice-price">
             {pct(intlRate())} on international sales
-            <small>
-              {pct(RATE.dom)} on domestic, unchanged. Nothing until you sell abroad.
-            </small>
+            <small>{pct(RATE.dom)} on domestic, unchanged. Nothing until you sell abroad.</small>
           </div>
         </div>
         <div
@@ -315,10 +310,7 @@ export default function V3Narratives() {
         <div className="cp-title">V3 — narratives</div>
         <div className="cp-group">
           <div className="cp-label">Narrative</div>
-          <div
-            className="cp-btns"
-            style={{ flexDirection: 'column', alignItems: 'stretch' }}
-          >
+          <div className="cp-btns" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
             {(Object.keys(NARRATIVES) as NarrativeKey[]).map((key) => (
               <button
                 key={key}

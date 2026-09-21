@@ -23,6 +23,7 @@ const Treatments = () => page(() => import('./pages/Treatments'))
 const EmailFirstPayment = () => page(() => import('./pages/EmailFirstPayment'))
 const EmailTaxThreshold = () => page(() => import('./pages/EmailTaxThreshold'))
 const Exploration = () => page(() => import('./pages/Exploration'))
+const GlobePrototype = () => page(() => import('./pages/GlobePrototype'))
 
 // The paths vercel.json served, kept as-is so existing links and the deep links
 // the prototypes build (`/onboarding/<step>`, `/smp-home/<stage>/<tab>`) still
@@ -54,6 +55,11 @@ export const router = createBrowserRouter([
   // The v1–v8 archive and the baseline. One route, one component, because they
   // differ only in which exploration module it renders.
   { path: '/v/:slug', element: <Exploration /> },
+
+  // The globe playground that the prototypes' globes were copied from. It was
+  // the repo's root index.html, which is now the app's entry, so it moves to a
+  // path of its own.
+  { path: '/globe-prototype', element: <GlobePrototype /> },
 
   { path: '*', element: <Navigate to="/gallery" replace /> },
 ])

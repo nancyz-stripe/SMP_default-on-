@@ -139,10 +139,7 @@ export function Step2({
         </span>
       </h1>
       <div className="modes">
-        <div
-          className={`mode${choice === 'smp' ? ' selected' : ''}`}
-          onClick={() => onPick('smp')}
-        >
+        <div className={`mode${choice === 'smp' ? ' selected' : ''}`} onClick={() => onPick('smp')}>
           <div className="mode-head">
             <span className="mode-title">Autopilot</span>
             <span className="tag-rec">Recommended</span>
@@ -223,13 +220,7 @@ export function Step2({
  *  and symmetrically: the honest difference is conditional versus near-certain,
  *  not later versus today — nothing is charged in either scope until a
  *  transaction happens. */
-export function Step3({
-  scope,
-  onSetScope,
-}: {
-  scope: Scope
-  onSetScope: (scope: Scope) => void
-}) {
+export function Step3({ scope, onSetScope }: { scope: Scope; onSetScope: (scope: Scope) => void }) {
   const all = scope === 'all'
 
   return (
@@ -294,7 +285,8 @@ export function Step3({
               </span>
             </div>
             <div className="opt-desc">
-              Autopilot flies the whole route &mdash; one way of working across your entire business.
+              Autopilot flies the whole route &mdash; one way of working across your entire
+              business.
             </div>
             <div className="opt-when">
               <b>Starts with your first sale, domestic or international.</b> Your domestic rate goes
@@ -334,8 +326,8 @@ export function Step4({ choice, scope }: { choice: Choice; scope: Scope }) {
             <div className="sum-row">
               <span className="k">What you pay</span>
               <span className="v">
-                Standard processing &mdash; <b>{pct(RATE.dom)}</b> domestic,{' '}
-                <b>{pct(RATE.intl)}</b> international. No added fee.
+                Standard processing &mdash; <b>{pct(RATE.dom)}</b> domestic, <b>{pct(RATE.intl)}</b>{' '}
+                international. No added fee.
               </span>
             </div>
             <div className="sum-row">

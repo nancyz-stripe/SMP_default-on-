@@ -26,7 +26,8 @@ export default function V2Latest() {
    *  scope card has already set the scope by the time this runs; a click
    *  elsewhere in the box falls back to Cross-border, but never overwrites a
    *  scope already chosen. */
-  const selectAutopilot = () => setMode((current) => (current === 'self' ? 'cross_border' : current))
+  const selectAutopilot = () =>
+    setMode((current) => (current === 'self' ? 'cross_border' : current))
 
   return (
     <PageRoot slug="v2-latest">

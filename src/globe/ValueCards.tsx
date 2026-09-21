@@ -5,7 +5,10 @@ import { CARD_IDS, useValueCardCycle, useValueCardLayout, type CardId } from './
  *  rather than the panel's, which is how they stay put across the variants'
  *  different globe sizes. */
 
-const CARDS: Record<CardId, { className: string; title: string; subtitle: string; icon: React.ReactNode }> = {
+const CARDS: Record<
+  CardId,
+  { className: string; title: string; subtitle: string; icon: React.ReactNode }
+> = {
   'card-disputes': {
     className: 'disputes',
     title: 'Dispute handling',
