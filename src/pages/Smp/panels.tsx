@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { BenefitList, RevenueTooltip } from '../../components/BenefitList'
 import { CheckBox } from '../../components/CheckBox'
 import { FeeRate } from '../../components/FeeRate'
-import { ScopeFeeIcon } from '../../components/ScopeFeeIcon'
+import { InfoIcon } from '../../components/InfoIcon'
 import { useUpgradeBadge } from '../../components/useUpgradeBadge'
 
 /** The left half of the modal, one panel per framework. These are the three
@@ -14,7 +14,7 @@ import { useUpgradeBadge } from '../../components/useUpgradeBadge'
 function InlineFee({ rate, note }: { rate: string; note: string }) {
   return (
     <span className="fee-badge" onClick={(e) => e.stopPropagation()}>
-      {rate} <ScopeFeeIcon />
+      {rate} <InfoIcon />
       <span className="fee-tooltip">{note}</span>
     </span>
   )
@@ -98,7 +98,7 @@ export function AutopilotPanel() {
       </div>
       <div className="scope-fee">
         3.5% fee
-        <ScopeFeeIcon />
+        <InfoIcon />
       </div>
     </div>
   )
@@ -159,7 +159,7 @@ export function ExpandPanel() {
             <div className="coverage-title">Managed Payments</div>
             <span className={badgeClass} ref={badgeRef}>
               <FeeRate rate={rates.rate} />
-              <ScopeFeeIcon className="fee-icon" />
+              <InfoIcon className="fee-icon" />
               <span className="fee-tooltip">{rates.note}</span>
             </span>
           </div>

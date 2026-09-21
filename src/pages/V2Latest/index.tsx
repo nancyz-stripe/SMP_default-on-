@@ -6,7 +6,7 @@ import { DashboardShell } from '../../components/DashboardShell'
 import { StripeWordmark } from '../../components/StripeWordmark'
 import { useFlowEmbed } from '../../components/useFlowEmbed'
 import { GlobePanel } from '../../components/GlobePanel'
-import { ScopeFeeIcon } from '../../components/ScopeFeeIcon'
+import { InfoIcon } from '../../components/InfoIcon'
 import './styles.css'
 
 /** v2 — Autopilot vs Self-managed. Two Autopilot scopes sit inside the
@@ -92,7 +92,7 @@ export default function V2Latest() {
                         </div>
                         <div className="scope-fee">
                           3.5% fee
-                          <ScopeFeeIcon />
+                          <InfoIcon />
                         </div>
                       </div>
 
@@ -113,7 +113,7 @@ export default function V2Latest() {
                         </div>
                         <div className="scope-fee">
                           3.5% fee
-                          <ScopeFeeIcon />
+                          <InfoIcon />
                         </div>
                       </div>
                     </div>

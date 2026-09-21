@@ -6,7 +6,7 @@ import { CheckBox } from '../../components/CheckBox'
 import { DashboardShell } from '../../components/DashboardShell'
 import { FeeRate } from '../../components/FeeRate'
 import { GlobePanel } from '../../components/GlobePanel'
-import { ScopeFeeIcon } from '../../components/ScopeFeeIcon'
+import { InfoIcon } from '../../components/InfoIcon'
 import { StripeWordmark } from '../../components/StripeWordmark'
 import { useFlowEmbed } from '../../components/useFlowEmbed'
 import { useUpgradeBadge } from '../../components/useUpgradeBadge'
@@ -55,7 +55,7 @@ export default function V3Latest() {
                     <div className="coverage-title">Managed Payments</div>
                     <span className={badgeClass} ref={badgeRef}>
                       <FeeRate rate={rates.rate} />
-                      <ScopeFeeIcon className="fee-icon" />
+                      <InfoIcon className="fee-icon" />
                       <span className="fee-tooltip">{rates.note}</span>
                     </span>
                   </div>

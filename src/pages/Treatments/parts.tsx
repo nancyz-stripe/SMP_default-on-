@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { ScopeFeeIcon } from '../../components/ScopeFeeIcon'
+import { InfoIcon } from '../../components/InfoIcon'
 import { FeeRate } from '../../components/FeeRate'
 import { Term } from '../../components/Term'
 import { OBLIGATIONS, eff, pct, type Choice } from './state'
@@ -13,7 +13,7 @@ export function FeeBadge({ rate, note }: { rate: string; note: string }) {
   return (
     <span className="fee-badge">
       <FeeRate rate={rate} />
-      <ScopeFeeIcon className="fee-icon" />
+      <InfoIcon className="fee-icon" />
       <span className="fee-tooltip">{note}</span>
     </span>
   )

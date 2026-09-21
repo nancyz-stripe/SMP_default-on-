@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { PageRoot } from '../../components/PageRoot'
 import { BackHome } from '../../components/BackHome'
 import { DashboardShell } from '../../components/DashboardShell'
-import { ScopeFeeIcon } from '../../components/ScopeFeeIcon'
+import { InfoIcon } from '../../components/InfoIcon'
 import { StripeWordmark } from '../../components/StripeWordmark'
 import { useFlowEmbed } from '../../components/useFlowEmbed'
 import { Globe } from '../../globe/Globe'
@@ -52,7 +52,7 @@ export default function V4Latest() {
       </div>
       <div className="scope-fee">
         3.5% fee
-        <ScopeFeeIcon />
+        <InfoIcon />
       </div>
     </div>
   )

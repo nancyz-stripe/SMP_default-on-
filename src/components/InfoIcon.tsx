@@ -1,6 +1,6 @@
-/** The small info glyph beside a scope's fee, shared by the explorations that
- *  show one. Fill comes from whatever the surrounding `.scope-fee` rule sets. */
-export function ScopeFeeIcon({ className }: { className?: string }) {
+/** The small info glyph: beside a fee on the explorations, and beside a card's
+ *  title on SMP Home. Fill comes from whatever rule surrounds it. */
+export function InfoIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 12 12" aria-hidden="true">
       <path
