@@ -5,15 +5,20 @@ import { COVERAGE_FRAGMENT, COVERAGE_VERTEX, PLAIN_VERTEX, plainFragment } from 
  *  show it. Each of those had its own copy of this scene; the copies differed
  *  only in the handful of values that are options here.
  *
- *  Ported from three r128 to 0.186, which needs two deliberate opt-outs to
- *  keep the original's appearance:
+ *  Ported from three r128 to 0.186, which needs three deliberate opt-outs to
+ *  keep the original's appearance. All three exist because the prototypes' light
+ *  and colour values were tuned against r128's non-physical lighting:
  *
  *  1. Colour management. r128 fed colours to the GPU as authored. Modern three
  *     converts sRGB to linear on the way in and back on the way out, which
  *     lightens every colour in this scene. Disabled so the tokens land exactly
  *     as the prototypes chose them.
  *
- *  2. Light falloff. These point lights are thousands of units from the globe
+ *  2. Light intensity. r128 multiplied irradiance by PI internally; r155 stopped,
+ *     which divides every one of these intensities by PI and renders the sphere
+ *     a flat mid-grey instead of near-white. See LEGACY_INTENSITY.
+ *
+ *  3. Light falloff. These point lights are thousands of units from the globe
  *     and were written for r128's non-physical lighting, where a light with
  *     `distance: 0` did not attenuate at all. Modern three always applies
  *     `decay`, so at decay 2 the inverse-square falloff over that distance
@@ -23,6 +28,16 @@ import { COVERAGE_FRAGMENT, COVERAGE_VERTEX, PLAIN_VERTEX, plainFragment } from 
 
 // r128 semantics, set once before any material is built.
 THREE.ColorManagement.enabled = false
+
+/** r128 scaled light irradiance by PI inside the shader; r155 removed that, and
+ *  r165 removed the `useLegacyLights` switch that used to restore it. Every
+ *  intensity below is one the prototypes tuned under the old behaviour, so each is
+ *  scaled by PI to mean what it meant then.
+ *
+ *  Without it the sphere's diffuse works out at roughly
+ *  `albedo x ambient x intensity / PI` — about 0.39 on a near-white globe — which
+ *  is the flat grey disc this produced before the scaling was added. */
+const LEGACY_INTENSITY = Math.PI
 
 /** Sampled for land: a dot is kept where the map is opaque. */
 const MAP_URL =
@@ -291,22 +306,39 @@ export function createGlobe(container: HTMLElement, options: GlobeOptions = {}):
   )
   globeContainer.add(new THREE.Mesh(sphereGeometry, sphereMaterial))
 
-  // Point lights pass decay 0 — see the note at the top of this file.
-  const ambientLight = new THREE.AmbientLight(new THREE.Color(colors.ambient), soft ? 1.3 : 1.0)
+  // Intensities are the prototypes' own, scaled by PI, and the point lights pass
+  // decay 0 — see notes 2 and 3 at the top of this file.
+  const ambientLight = new THREE.AmbientLight(
+    new THREE.Color(colors.ambient),
+    (soft ? 1.3 : 1.0) * LEGACY_INTENSITY,
+  )
   scene.add(ambientLight)
 
-  const backLight = new THREE.PointLight(new THREE.Color(colors.back), soft ? 0.08 : 0.2, 0, 0)
+  const backLight = new THREE.PointLight(
+    new THREE.Color(colors.back),
+    (soft ? 0.08 : 0.2) * LEGACY_INTENSITY,
+    0,
+    0,
+  )
   backLight.position.set(-1000, -1100, -3300)
   scene.add(backLight)
 
-  const frontLight = new THREE.PointLight(new THREE.Color(colors.front), soft ? 0.5 : 0.8, 0, 0)
+  const frontLight = new THREE.PointLight(
+    new THREE.Color(colors.front),
+    (soft ? 0.5 : 0.8) * LEGACY_INTENSITY,
+    0,
+    0,
+  )
   frontLight.position.set(-3000, 3000, 3300)
   scene.add(frontLight)
 
   if (soft) {
     // Soft fill from the lower right to lift the shaded side of the sphere. The
     // flat palette has no fill, which is most of why it reads harder.
-    const fillLight = new THREE.DirectionalLight(new THREE.Color('#FFFFFF'), 0.35)
+    const fillLight = new THREE.DirectionalLight(
+      new THREE.Color('#FFFFFF'),
+      0.35 * LEGACY_INTENSITY,
+    )
     fillLight.position.set(2, -2, 2)
     scene.add(fillLight)
   }
