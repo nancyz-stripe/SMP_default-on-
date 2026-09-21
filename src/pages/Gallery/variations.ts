@@ -73,10 +73,10 @@ export const flowVariations: Variation[] = [
   },
 ]
 
-/** Explorations: the full onboarding flow, with the cross-border stretch under
- *  review sitting inside it. Previews open on the screen each variant is
- *  about. */
-export const exploreVariations: Variation[] = [
+/** Product Review: the current surfaces — the website pages, the onboarding flow
+ *  with the cross-border stretch inside it, the account app, SMP Home, and the two
+ *  emails. Previews open on the screen each one is about. */
+export const productReviewVariations: Variation[] = [
   {
     // The stripe.com pages, on their own. One card for both: the landing page
     // opens, and its nav reaches the pricing page in place — Pricing off the

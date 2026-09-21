@@ -4,21 +4,25 @@ import { PageRoot } from '../../components/PageRoot'
 import { CardPreview } from './CardPreview'
 import { RenameDialog } from './RenameDialog'
 import { isLocal, useVariations, type Section } from './useVariations'
-import { exploreVariations, flowVariations, uxrVariations, type Variation } from './variations'
+import {
+  flowVariations,
+  productReviewVariations,
+  uxrVariations,
+  type Variation,
+} from './variations'
 import './styles.css'
 
-const TABS = ['uxr', 'explorations', 'archive'] as const
+const TABS = ['uxr', 'archive'] as const
 type Tab = (typeof TABS)[number]
 
 const TAB_LABELS: Record<Tab, string> = {
   uxr: 'UXR',
-  explorations: 'Latest',
   archive: 'Archive',
 }
 
-/** Explorations card: the preview and the title, nothing else. The whole card
- *  is the link, so there's no CTA. */
-function ExploreCard({ v }: { v: Variation }) {
+/** A preview and a title, nothing else — the whole card is the link, so there's no
+ *  CTA. */
+function PreviewCard({ v }: { v: Variation }) {
   return (
     <Link className="card" to={v.to}>
       {v.thumb ? (
@@ -222,23 +226,22 @@ export default function Gallery() {
         <div className="section">
           <div className="grid">
             {uxrVariations.map((v) => (
-              <ExploreCard key={v.id} v={v} />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className={`tab-panel${tab === 'explorations' ? ' active' : ''}`}>
-        <div className="section">
-          <div className="grid">
-            {exploreVariations.map((v) => (
-              <ExploreCard key={v.id} v={v} />
+              <PreviewCard key={v.id} v={v} />
             ))}
           </div>
         </div>
       </div>
 
       <div className={`tab-panel${tab === 'archive' ? ' active' : ''}`}>
+        <div className="section">
+          <div className="section-heading">Product Review</div>
+          <div className="grid">
+            {productReviewVariations.map((v) => (
+              <PreviewCard key={v.id} v={v} />
+            ))}
+          </div>
+        </div>
+
         <div className="section">
           <div className="section-heading">Onboarding flow</div>
           <div className="grid">
