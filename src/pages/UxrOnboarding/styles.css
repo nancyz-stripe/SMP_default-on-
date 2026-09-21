@@ -690,6 +690,14 @@
      the copy 51.2% of the split, and 1.164 : 1 takes it to 53.8%. */
   .modal-body.flush { padding: 0; align-items: stretch; }
 
+  /* No scrollbars on the globe step. .modal-body scrolls (overflow-y: auto), and
+     a single auto axis stops the other from being visible — so .split's
+     translateX(5%) below, which is layout-invisible but paints past the right
+     edge, was enough to raise a horizontal scrollbar, and on a wide viewport 5%
+     is ~90px of it. This step is a full-bleed split sized to the modal, so
+     there's nothing here to scroll to. */
+  .modal-body.flush { overflow: hidden; }
+
   .modal-body.flush .step { flex: 1; display: flex; }
 
   .split {
