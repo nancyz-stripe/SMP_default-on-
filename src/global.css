@@ -1,0 +1,18 @@
+/* The only global rules in the app. Each prototype's own stylesheet is scoped
+   to its `.page-*` root, so anything a prototype needs from the document —
+   fonts, background, overflow — it sets on that root itself. */
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+/* Prototypes that filled the viewport did it with `body { overflow: hidden }`,
+   which now lands on their page root instead. The document has to allow that
+   root to be the scroll container, hence the full-height chain above. */
+#root {
+  isolation: isolate;
+}

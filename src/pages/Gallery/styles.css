@@ -1,0 +1,447 @@
+.page-gallery {
+  &, & * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  & {
+    --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+    --text-default: #353a44;
+    --text-subdued: #596171;
+    --text-muted: #99a5b8;
+    --bg-surface: #ffffff;
+    --bg-offset: #f5f6f8;
+    --border: #ebeef1;
+    --primary: #533afd;
+    --primary-hover: #4a32e8;
+  }
+
+  & {
+    font-family: var(--font);
+    background: var(--bg-offset);
+    min-height: 100vh;
+    padding: 48px;
+  }
+
+  .header {
+    max-width: 960px;
+    margin: 0 auto 40px;
+  }
+
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-default);
+    letter-spacing: -0.3px;
+  }
+
+  .grid {
+    max-width: 960px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  .card {
+    background: var(--bg-surface);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: box-shadow 0.2s, transform 0.15s;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+
+  .card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
+
+  .card-preview {
+    height: 200px;
+    background: var(--bg-offset);
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-preview iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1280px;
+    height: 800px;
+    transform-origin: top left;
+    border: none;
+    pointer-events: none;
+  }
+
+  /* Fitted rather than cropped, so the frame's own 35px of side padding stays
+     in view. The preview takes the frames' own purple, which is also what
+     their rounded corners are cut out of, so whatever the fit leaves over
+     reads as the same field rather than as letterboxing.
+     Bottom-anchored: the shot runs flush to the bottom of its 615x400 frame,
+     so any slack has to go above it or the shot floats. */
+  .card-preview.has-thumb { background: #efecfc; }
+
+  .card-thumb {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center bottom;
+  }
+
+  .card-preview-placeholder {
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  .card-body {
+    padding: 16px 20px;
+  }
+
+  .card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-default);
+    margin-bottom: 4px;
+    letter-spacing: -0.15px;
+  }
+
+  .card-description {
+    font-size: 13px;
+    color: var(--text-subdued);
+    line-height: 1.4;
+  }
+
+  .card-tag {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: #efeaff;
+    color: var(--primary);
+  }
+
+  /* Drag and drop */
+  .card { position: relative; }
+
+  .card.dragging { opacity: 0.4; }
+
+  .card.drag-over { box-shadow: 0 0 0 2px var(--primary); }
+
+  .card-order {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 2;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-subdued);
+  }
+
+  .overflow-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 3;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 18px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 8px;
+    line-height: 1;
+  }
+
+  .overflow-btn:hover { background: var(--bg-offset); color: var(--text-default); }
+
+  .overflow-menu {
+    position: absolute;
+    top: 38px;
+    right: 12px;
+    z-index: 10;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    min-width: 140px;
+    padding: 4px;
+    display: none;
+  }
+
+  .overflow-menu.open { display: block; }
+
+  .overflow-menu-item {
+    display: block;
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: var(--text-default);
+    text-align: left;
+    background: none;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .overflow-menu-item:hover { background: var(--bg-offset); }
+
+  .overflow-menu-item.danger { color: #df1b41; }
+
+  .overflow-menu-item.danger:hover { background: #fef0f2; }
+
+  /* Rename modal */
+  .rename-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.3);
+    z-index: 300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .rename-modal {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.15);
+  }
+
+  .rename-modal h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-default);
+    margin-bottom: 16px;
+  }
+
+  .rename-field {
+    margin-bottom: 12px;
+  }
+
+  .rename-field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-subdued);
+    margin-bottom: 4px;
+  }
+
+  .rename-field input, .rename-field textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+  }
+
+  .rename-field input:focus, .rename-field textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.1);
+  }
+
+  .rename-field textarea {
+    resize: vertical;
+    min-height: 60px;
+  }
+
+  .rename-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .rename-actions button {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .rename-btn-cancel {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-subdued);
+  }
+
+  .rename-btn-cancel:hover { background: var(--bg-offset); }
+
+  .rename-btn-save {
+    background: var(--primary);
+    border: none;
+    color: white;
+  }
+
+  .rename-btn-save:hover { background: var(--primary-hover); }
+
+  /* Add new card */
+  .card-add {
+    border: 2px dashed var(--border);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 260px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .card-add:hover {
+    border-color: var(--primary);
+    background: rgba(99, 91, 255, 0.02);
+    transform: none;
+    box-shadow: none;
+  }
+
+  .card-add-content {
+    text-align: center;
+  }
+
+  .card-add-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--bg-offset);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    font-size: 20px;
+    color: var(--text-muted);
+  }
+
+  .card-add:hover .card-add-icon {
+    background: #efeaff;
+    color: var(--primary);
+  }
+
+  .card-add-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-subdued);
+  }
+
+  .card-add:hover .card-add-label {
+    color: var(--primary);
+  }
+
+  /* Onboarding flow cards: a "Start flow" button stands in for the subtext */
+  .card-flow-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-default);
+    margin-bottom: 12px;
+    letter-spacing: -0.15px;
+  }
+
+  /* Same title as a flow card, without the button under it. */
+  .card-explore-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-default);
+    letter-spacing: -0.15px;
+  }
+
+  .btn-start-flow {
+    display: block;
+    width: 100%;
+    padding: 6px 12px;
+    background: var(--bg-surface);
+    border: 1px solid #d8dee7;
+    border-radius: 6px;
+    box-shadow: 0 1px 1px rgba(48, 49, 61, 0.05);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-default);
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+
+  .btn-start-flow:hover {
+    background: var(--bg-offset);
+    border-color: #c3cbd6;
+  }
+
+  .section {
+    max-width: 960px;
+    margin: 0 auto 72px;
+  }
+
+  .section-heading {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--text-default);
+    margin-bottom: 20px;
+  }
+
+  /* Tabs */
+  .tabs {
+    max-width: 960px;
+    margin: 0 auto 32px;
+    display: flex;
+    gap: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tab {
+    position: relative;
+    padding: 0 2px 12px;
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-subdued);
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+
+  .tab:hover { color: var(--text-default); }
+
+  .tab.active { color: var(--primary); }
+
+  .tab.active::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    border-radius: 2px 2px 0 0;
+    background: var(--primary);
+  }
+
+  .tab-panel { display: none; }
+
+  .tab-panel.active { display: block; }
+
+  .empty-state {
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+    padding: 48px 24px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+}

@@ -1,0 +1,518 @@
+@keyframes pv2-b1-fade-up { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+
+.page-v2-b1 {
+  /* Tokens and shell lifted from smp.html / treatments.html so this reads as
+     the same product rather than a separate sketch. */
+  & {
+      --bg-surface: #ffffff;
+      --bg-offset: #f5f6f8;
+      --text-default: #353a44;
+      --text-subdued: #596171;
+      --text-heading: #21252c;
+      --text-muted: #99a5b8;
+      --text-action-primary: #533afd;
+      --icon-action-primary: #675dff;
+      --border-action-primary-strong: #533afd;
+      --border-default: #d4dee9;
+      --bg-form-accent: #675dff;
+      --neutral-200: #b6c0cd;
+      --neutral-50: #ebeef1;
+      --shadow-overlay: 0px 15px 35px 0px rgba(48, 49, 61, 0.08), 0px 5px 15px 0px rgba(0, 0, 0, 0.12);
+  }
+
+  &, & * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  & {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+      background: var(--bg-offset); overflow: hidden; height: 100vh; width: 100vw;
+  }
+
+  /* ---------- dashboard shell ---------- */
+  .dashboard { display: flex; height: 100vh; width: 100vw; }
+
+  .sidebar {
+      width: 240px; background: var(--bg-surface); border-right: 1px solid var(--neutral-50);
+      padding: 24px 16px; display: flex; flex-direction: column; gap: 4px;
+  }
+
+  .sidebar-logo { padding: 8px 12px; margin-bottom: 20px; }
+
+  .nav-item { padding: 8px 12px; border-radius: 6px; font-size: 14px; color: var(--text-subdued); }
+
+  .nav-item.active { background: var(--bg-offset); color: var(--text-default); font-weight: 500; }
+
+  .main-content { flex: 1; background: var(--bg-offset); padding: 32px; }
+
+  .content-placeholder { height: 200px; background: var(--bg-surface); border-radius: 8px; border: 1px solid var(--neutral-50); }
+
+  /* ---------- modal ---------- */
+  .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(182, 192, 205, 0.7);
+      display: flex; align-items: center; justify-content: center; z-index: 100;
+  }
+
+  .modal {
+      width: 90%; height: 90%; max-width: 1180px; background: var(--bg-surface);
+      border-radius: 12px; box-shadow: var(--shadow-overlay);
+      display: flex; flex-direction: column; overflow: hidden; position: relative; padding: 16px;
+  }
+
+  .modal-gradient {
+      position: absolute; inset: 16px; border-radius: 8px; z-index: 0;
+      background:
+          radial-gradient(52% 70% at 46% 70%, rgba(207, 226, 255, 0.24) 0%, rgba(207, 226, 255, 0) 94%),
+          radial-gradient(105% 45% at 93% 37%, rgba(216, 128, 236, 0.26) 0%, rgba(216, 128, 236, 0) 79%),
+          radial-gradient(60% 46% at 105% 72%, rgba(254, 180, 203, 0.42) 0%, rgba(254, 180, 203, 0) 103%),
+          #fefefe;
+  }
+
+  .modal-header, .modal-body, .modal-footer { position: relative; z-index: 1; }
+
+  .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 28px 56px 0; flex-shrink: 0;
+  }
+
+  .stripe-logo svg { width: 64px; height: 26px; }
+
+  .progress-bar { width: 125px; height: 5px; background: var(--bg-offset); border-radius: 100px; overflow: hidden; }
+
+  .progress-fill { height: 100%; background: var(--icon-action-primary); border-radius: 100px; transition: width 0.4s ease; }
+
+  .modal-body {
+      flex: 1; min-height: 0; overflow-y: auto; padding: 32px 56px 8px;
+      display: flex; flex-direction: column; justify-content: center;
+  }
+
+  .modal-body > .inner { width: 100%; max-width: 860px; margin: 0 auto; }
+
+  .modal-footer {
+      flex-shrink: 0; padding: 16px 56px 24px; display: flex; align-items: center;
+      justify-content: space-between; gap: 16px;
+  }
+
+  /* ---------- type ---------- */
+  .step-eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 10px;
+  }
+
+  h1.headline {
+      font-size: 26px; line-height: 33px; font-weight: 600; letter-spacing: -0.5px;
+      color: var(--text-heading); margin-bottom: 12px;
+  }
+
+  h1.headline .muted { color: var(--text-muted); font-weight: 600; }
+
+  /* Unsourced peer stat. Marked in the UI rather than filled with a
+     plausible invented number — a made-up figure about the merchant's own
+     peer group is the fastest way to lose them, and it's the line most
+     likely to get quoted back at us. */
+  .needs-data {
+      position: relative; background: #fdf3e7; border-bottom: 2px dashed #e0ad5e;
+      border-radius: 3px; padding: 0 4px; color: #7a4f0f;
+  }
+
+  .nd-flag {
+      position: absolute; top: -6px; left: 50%; transform: translate(-50%, -100%);
+      white-space: nowrap; font-size: 9px; font-weight: 700; letter-spacing: 0.4px;
+      text-transform: uppercase; background: #8a5a11; color: #fff;
+      padding: 2px 6px; border-radius: 3px;
+  }
+
+  /* The anchor copy. Rendered as one block, verbatim, never split across
+     screens — the reassurance only works if the condition travels with it. */
+  .anchor-copy {
+      font-size: 15px; line-height: 23px; color: var(--text-subdued);
+      letter-spacing: -0.15px; max-width: 640px; margin-bottom: 24px;
+  }
+
+  .anchor-copy strong { color: var(--text-default); font-weight: 600; }
+
+  /* ---------- buttons ---------- */
+  .btn {
+      font-family: inherit; font-size: 14px; font-weight: 600; letter-spacing: -0.15px;
+      padding: 9px 16px; border-radius: 6px; cursor: pointer; border: 1px solid transparent;
+      transition: filter 0.15s, background 0.15s;
+  }
+
+  .btn-primary { background: var(--bg-form-accent); color: #fff; box-shadow: 0 1px 1px rgba(0,0,0,0.12); }
+
+  .btn-primary:hover { filter: brightness(1.06); }
+
+  .btn-secondary { background: var(--bg-surface); border-color: var(--border-default); color: var(--text-default); }
+
+  .btn-secondary:hover { background: var(--bg-offset); }
+
+  .btn-ghost {
+      background: none; border: none; color: var(--text-subdued); font-family: inherit;
+      font-size: 14px; cursor: pointer; padding: 9px 4px;
+  }
+
+  .btn-ghost:hover { color: var(--text-default); }
+
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  /* ---------- 1B: collapsible trigger list ---------- */
+  .trig-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .trig {
+      background: rgba(255,255,255,0.74); border: 1px solid var(--border-default);
+      border-radius: 8px; padding: 12px 14px; animation: pv2-b1-fade-up 0.3s ease both;
+  }
+
+  .trig-head {
+      display: flex; align-items: baseline; gap: 12px; cursor: pointer;
+      font-size: 14px; line-height: 20px; color: var(--text-default);
+  }
+
+  .trig-when {
+      flex-shrink: 0; width: 132px; font-size: 12px; font-weight: 600;
+      color: var(--text-action-primary);
+  }
+
+  .trig-what { flex: 1; font-weight: 500; }
+
+  /* Who handles it is stated on the collapsed row. The whole argument of the
+     framing step is the right-hand column always saying "Stripe". */
+  .trig-owner {
+      flex-shrink: 0; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px;
+      background: #efecfc; border: 1px solid #c3b6fb; color: #44139f;
+  }
+
+  .trig-toggle {
+      flex-shrink: 0; background: none; border: none; font-family: inherit; padding: 0;
+      font-size: 16px; line-height: 1; color: var(--text-muted); cursor: pointer; width: 14px;
+  }
+
+  .trig-detail {
+      display: none; font-size: 13px; line-height: 19px; color: var(--text-subdued);
+      padding: 10px 0 0 144px;
+  }
+
+  .trig.open .trig-detail { display: block; }
+
+  .trig.open .trig-toggle { color: var(--text-action-primary); }
+
+  /* ---------- 2: comparison columns ---------- */
+  .cmp { display: flex; gap: 16px; align-items: stretch; }
+
+  .col {
+      flex: 1; min-width: 0; background: var(--bg-surface); border: 2px solid var(--border-default);
+      border-radius: 10px; padding: 18px; cursor: pointer; display: flex; flex-direction: column;
+      transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .col:hover { border-color: var(--neutral-200); }
+
+  .col.selected { border-color: var(--border-action-primary-strong); box-shadow: 0 0 0 1px var(--border-action-primary-strong); }
+
+  /* 2B asymmetry: the recommendation gets visual primacy, the alternative
+     stays complete and correctly priced. Recommended, not only. */
+  .cmp.asym .col.rec { flex: 1.25; }
+
+  .cmp.asym .col.alt { background: rgba(255,255,255,0.6); }
+
+  .col-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+
+  .col-title { font-size: 15px; font-weight: 600; color: var(--text-heading); }
+
+  .col-sub { font-size: 13px; line-height: 18px; color: var(--text-subdued); margin-bottom: 14px; }
+
+  .tag-rec {
+      display: inline-flex; align-items: center; padding: 2px 9px; background: var(--icon-action-primary);
+      border-radius: 4px; font-size: 11px; font-weight: 600; color: #fff; letter-spacing: 0.2px;
+  }
+
+  .tag-neutral {
+      display: inline-flex; align-items: center; padding: 2px 9px; background: var(--bg-offset);
+      border: 1px solid var(--border-default); border-radius: 4px; font-size: 11px;
+      font-weight: 600; color: var(--text-subdued); letter-spacing: 0.2px;
+  }
+
+  /* Price block is always rendered, never behind a disclosure. "Don't worry
+     about it now" is only honest if the number is unavoidable here. */
+  .price-block {
+      padding: 12px 14px; background: var(--bg-offset); border-radius: 8px; margin-bottom: 14px;
+  }
+
+  .price-main {
+      font-size: 20px; font-weight: 700; letter-spacing: -0.3px; color: var(--text-heading);
+      font-variant-numeric: tabular-nums;
+  }
+
+  .price-rows { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+
+  .price-row {
+      display: flex; justify-content: space-between; gap: 10px;
+      font-size: 12px; line-height: 17px; color: var(--text-subdued);
+  }
+
+  .price-row b { color: var(--text-default); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  .price-note { font-size: 11px; line-height: 15px; color: var(--text-muted); margin-top: 8px; }
+
+  .feat-list { display: flex; flex-direction: column; gap: 9px; margin-top: auto; }
+
+  .feat { display: flex; gap: 8px; font-size: 13px; line-height: 19px; color: var(--text-default); }
+
+  .feat .ic { width: 13px; height: 13px; flex-shrink: 0; margin-top: 3px; }
+
+  .feat.off { color: var(--text-muted); }
+
+  .feat-head {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase;
+      color: var(--text-muted); margin: 4px 0 2px;
+  }
+
+  /* ---------- 2E: recommendation card ---------- */
+  .rec-card {
+      background: var(--bg-surface); border: 2px solid var(--border-action-primary-strong);
+      border-radius: 10px; padding: 20px; max-width: 620px;
+  }
+
+  .rec-card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+
+  .rec-card-body { font-size: 14px; line-height: 20px; color: var(--text-subdued); margin-bottom: 14px; }
+
+  .rec-price {
+      padding: 12px 14px; background: var(--bg-offset); border-radius: 8px; margin-bottom: 16px;
+      font-size: 18px; font-weight: 700; letter-spacing: -0.2px; color: var(--text-heading);
+      font-variant-numeric: tabular-nums;
+  }
+
+  .rec-price-sub {
+      display: block; margin-top: 5px; font-size: 12px; line-height: 17px; font-weight: 400;
+      letter-spacing: 0; color: var(--text-subdued);
+  }
+
+  /* Accept and decline sit side by side at the same size. An opt-out that
+     costs more effort than the opt-in isn't an opt-out. */
+  .rec-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+
+  .compare-link {
+      background: none; border: none; font-family: inherit; padding: 0;
+      font-size: 14px; font-weight: 500; color: var(--text-action-primary); cursor: pointer;
+      letter-spacing: -0.15px;
+  }
+
+  .compare-link:hover { text-decoration: underline; }
+
+  /* recommendation banner (2A) */
+  .rec-banner {
+      display: flex; gap: 12px; padding: 14px 16px; background: rgba(255,255,255,0.8);
+      border: 1px solid var(--border-default); border-left: 3px solid var(--icon-action-primary);
+      border-radius: 8px; margin-bottom: 18px;
+  }
+
+  .rec-banner .rb-title { font-size: 14px; font-weight: 600; color: var(--text-heading); margin-bottom: 3px; }
+
+  .rec-banner .rb-body { font-size: 13px; line-height: 19px; color: var(--text-subdued); }
+
+  /* 2C: workload diff */
+  .diff { display: flex; flex-direction: column; gap: 2px; }
+
+  .diff-row {
+      display: flex; align-items: center; gap: 12px; padding: 11px 0;
+      border-top: 1px solid var(--neutral-50); font-size: 13px; line-height: 18px;
+  }
+
+  .diff-row:first-child { border-top: none; }
+
+  .diff-what { flex: 1; color: var(--text-default); font-weight: 500; }
+
+  .diff-cell { width: 190px; flex-shrink: 0; }
+
+  .owner {
+      display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border-radius: 4px;
+      font-size: 12px; line-height: 16px; font-weight: 500;
+  }
+
+  /* Both owners carry the same weight. "You do it" is a real answer, not a
+     warning state — only the hue differs. */
+  .owner.you { background: #fdf3e7; border: 1px solid #f3d9b0; color: #8a5a11; }
+
+  .owner.stripe { background: #efecfc; border: 1px solid #c3b6fb; color: #44139f; }
+
+  .diff-headrow {
+      display: flex; gap: 12px; padding-bottom: 8px; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.4px; text-transform: uppercase; color: var(--text-muted);
+  }
+
+  /* ---------- 3A: volume bar ---------- */
+  .scope-card {
+      background: var(--bg-surface); border: 2px solid var(--border-default); border-radius: 10px;
+      padding: 18px; display: flex; flex-direction: column; gap: 16px;
+  }
+
+  .vol-bar { height: 42px; display: flex; border-radius: 7px; overflow: hidden; background: var(--bg-offset); }
+
+  .vol-seg {
+      display: flex; align-items: center; justify-content: center; gap: 6px; text-align: center;
+      font-size: 11px; font-weight: 600; white-space: nowrap; padding: 0 8px;
+      transition: background 0.42s cubic-bezier(0.2,0.8,0.2,1), color 0.42s ease;
+  }
+
+  .vol-seg.dom { flex: 0 0 68%; background: #c3cbd6; color: var(--text-heading); }
+
+  .vol-seg.dom.covered { background: #675dff; color: #fff; }
+
+  .vol-seg.intl { flex: 0 0 32%; background: #675dff; color: #fff; }
+
+  .vol-legend { display: flex; gap: 18px; font-size: 12px; color: var(--text-subdued); flex-wrap: wrap; }
+
+  .vol-legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 6px; }
+
+  .vol-caption { font-size: 11px; line-height: 15px; color: var(--text-muted); }
+
+  .scope-opts { display: flex; flex-direction: column; gap: 10px; }
+
+  .scope-opt {
+      display: flex; gap: 12px; align-items: flex-start; padding: 13px 14px;
+      border: 2px solid var(--border-default); border-radius: 8px; cursor: pointer;
+      background: var(--bg-surface); transition: border-color 0.15s;
+  }
+
+  .scope-opt.selected { border-color: var(--border-action-primary-strong); }
+
+  .radio {
+      width: 16px; height: 16px; border-radius: 50%; border: 1px solid var(--neutral-200);
+      flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center;
+      background: var(--bg-surface);
+  }
+
+  .scope-opt.selected .radio { border-color: var(--bg-form-accent); border-width: 5px; }
+
+  .scope-body { flex: 1; }
+
+  .scope-title {
+      display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+      font-size: 14px; font-weight: 600; color: var(--text-default);
+  }
+
+  .scope-rate { font-size: 13px; font-weight: 600; color: var(--text-heading); font-variant-numeric: tabular-nums; }
+
+  .scope-desc { font-size: 12px; line-height: 17px; color: var(--text-subdued); margin-top: 4px; }
+
+  /* The domestic rate change is volunteered, not disclosed on request. This
+     callout is the screen retiring the "only costs you on global sales" claim. */
+  .scope-change {
+      display: flex; gap: 9px; margin-top: 8px; padding: 9px 11px; border-radius: 6px;
+      background: #fdf3e7; border: 1px solid #f3d9b0;
+      font-size: 12px; line-height: 17px; color: #7a4f0f;
+  }
+
+  .scope-change b { font-weight: 700; }
+
+  .rate-strip {
+      display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+      padding: 11px 13px; background: var(--bg-offset); border-radius: 7px;
+  }
+
+  .rate-strip .label { font-size: 12px; color: var(--text-subdued); }
+
+  .rate-strip .value {
+      font-size: 18px; font-weight: 700; color: var(--text-heading);
+      letter-spacing: -0.2px; font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- 4: confirm ---------- */
+  .sum-card {
+      background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 10px;
+      padding: 18px; margin-bottom: 14px;
+  }
+
+  .sum-head {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid var(--neutral-50);
+  }
+
+  .sum-title { font-size: 15px; font-weight: 600; color: var(--text-heading); }
+
+  .sum-rows { display: flex; flex-direction: column; gap: 9px; }
+
+  .sum-row { display: flex; gap: 12px; font-size: 13px; line-height: 19px; }
+
+  .sum-row .k { width: 190px; flex-shrink: 0; color: var(--text-subdued); }
+
+  .sum-row .v { flex: 1; color: var(--text-default); }
+
+  .sum-row .v b { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  /* The payoff of the anchor copy: the confirmation says, in numbers, that
+     nothing is owed today. */
+  .today-note {
+      display: flex; gap: 9px; padding: 11px 13px; border-radius: 7px;
+      background: #edf7ee; border: 1px solid #b9e0bd; color: #1c5e26;
+      font-size: 13px; line-height: 19px; margin-top: 14px;
+  }
+
+  .alc-list { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+
+  .alc {
+      display: flex; gap: 10px; align-items: baseline; padding: 10px 12px;
+      background: rgba(255,255,255,0.7); border: 1px solid var(--border-default); border-radius: 7px;
+      font-size: 13px; line-height: 18px;
+  }
+
+  .alc-name { font-weight: 600; color: var(--text-default); width: 132px; flex-shrink: 0; }
+
+  .alc-desc { color: var(--text-subdued); flex: 1; }
+
+  .todo-flag {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase;
+      color: #8a5a11; background: #fdf3e7; border: 1px solid #f3d9b0;
+      padding: 1px 6px; border-radius: 3px; margin-left: 8px;
+  }
+
+  .reversible { font-size: 13px; line-height: 19px; color: var(--text-subdued); margin-top: 14px; }
+
+  /* ---------- glossary term ---------- */
+  .term { position: relative; border-bottom: 1px dotted var(--neutral-200); cursor: help; }
+
+  .term-pop {
+      position: absolute; bottom: calc(100% + 8px); left: -8px; width: 300px; padding: 14px;
+      background: var(--bg-surface); border: 1px solid #d4dee9; border-radius: 8px;
+      box-shadow: 0px 3px 4.5px rgba(64,68,82,0.12); font-size: 13px; line-height: 19px;
+      color: #1a2c44; text-align: left; opacity: 0; visibility: hidden;
+      transition: opacity 0.15s; z-index: 60; font-weight: 400;
+  }
+
+  .term:hover .term-pop { opacity: 1; visibility: visible; }
+
+  /* ---------- control panel ---------- */
+  .control-panel {
+      position: fixed; bottom: 16px; left: 16px; z-index: 500; width: 296px;
+      padding: 14px; background: var(--bg-surface); border-radius: 12px;
+      border: 1px solid var(--neutral-50); box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+      font-size: 12px; max-height: calc(100vh - 32px); overflow-y: auto;
+  }
+
+  .cp-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 10px;
+  }
+
+  .cp-group { margin-bottom: 12px; }
+
+  .cp-label { font-size: 11px; font-weight: 600; color: var(--text-subdued); margin-bottom: 5px; }
+
+  .cp-btns { display: flex; gap: 5px; flex-wrap: wrap; }
+
+  .cp-btn {
+      font-family: inherit; font-size: 11px; padding: 4px 9px; border-radius: 5px;
+      border: 1px solid var(--border-default); background: var(--bg-surface);
+      color: var(--text-subdued); cursor: pointer;
+  }
+
+  .cp-btn.on { background: var(--bg-form-accent); border-color: var(--bg-form-accent); color: #fff; font-weight: 600; }
+
+  .cp-btn.instr { border-style: dashed; }
+
+  .cp-note {
+      font-size: 11px; line-height: 16px; color: var(--text-muted);
+      border-top: 1px solid var(--neutral-50); padding-top: 10px;
+  }
+
+  .cp-note b { color: var(--text-subdued); }
+}

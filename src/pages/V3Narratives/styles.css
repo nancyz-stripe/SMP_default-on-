@@ -1,0 +1,303 @@
+@keyframes pv3-narratives-screen-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+@keyframes pv3-narratives-seq-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.page-v3-narratives {
+  /* Same tokens as the rest of the family. */
+  & {
+      --bg-surface: #ffffff;
+      --bg-offset: #f5f6f8;
+      --text-default: #353a44;
+      --text-subdued: #596171;
+      --text-heading: #21252c;
+      --text-muted: #99a5b8;
+      --text-action-primary: #533afd;
+      --icon-action-primary: #675dff;
+      --border-action-primary-strong: #533afd;
+      --border-default: #d4dee9;
+      --bg-form-accent: #675dff;
+      --neutral-200: #b6c0cd;
+      --neutral-50: #ebeef1;
+      --shadow-overlay: 0px 15px 35px 0px rgba(48, 49, 61, 0.08), 0px 5px 15px 0px rgba(0, 0, 0, 0.12);
+  }
+
+  &, & * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  & {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+      background: var(--bg-offset); overflow: hidden; height: 100vh; width: 100vw;
+  }
+
+  .dashboard { display: flex; height: 100vh; width: 100vw; }
+
+  .sidebar {
+      width: 240px; background: var(--bg-surface); border-right: 1px solid var(--neutral-50);
+      padding: 24px 16px; display: flex; flex-direction: column; gap: 4px;
+  }
+
+  .sidebar-logo { padding: 8px 12px; margin-bottom: 20px; }
+
+  .nav-item { padding: 8px 12px; border-radius: 6px; font-size: 14px; color: var(--text-subdued); }
+
+  .nav-item.active { background: var(--bg-offset); color: var(--text-default); font-weight: 500; }
+
+  .main-content { flex: 1; background: var(--bg-offset); padding: 32px; }
+
+  .content-placeholder { height: 200px; background: var(--bg-surface); border-radius: 8px; border: 1px solid var(--neutral-50); }
+
+  .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(182, 192, 205, 0.7);
+      display: flex; align-items: center; justify-content: center; z-index: 100;
+  }
+
+  .modal {
+      width: 86%; height: 84%; max-width: 940px; background: var(--bg-surface);
+      border-radius: 12px; box-shadow: var(--shadow-overlay);
+      display: flex; flex-direction: column; overflow: hidden; position: relative; padding: 16px;
+  }
+
+  .modal-gradient {
+      position: absolute; inset: 16px; border-radius: 8px; z-index: 0;
+      background:
+          radial-gradient(52% 70% at 46% 70%, rgba(207, 226, 255, 0.24) 0%, rgba(207, 226, 255, 0) 94%),
+          radial-gradient(105% 45% at 93% 37%, rgba(216, 128, 236, 0.22) 0%, rgba(216, 128, 236, 0) 79%),
+          radial-gradient(60% 46% at 105% 72%, rgba(254, 180, 203, 0.36) 0%, rgba(254, 180, 203, 0) 103%),
+          #fefefe;
+  }
+
+  .modal-header, .modal-body, .modal-footer { position: relative; z-index: 1; }
+
+  .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 26px 48px 0; flex-shrink: 0;
+  }
+
+  .progress { display: flex; gap: 5px; }
+
+  .pip {
+      width: 22px; height: 4px; border-radius: 2px; background: var(--neutral-50);
+      transition: background 0.5s ease;
+  }
+
+  .pip.on { background: var(--icon-action-primary); }
+
+  .modal-body {
+      flex: 1; min-height: 0; overflow-y: auto; padding: 28px 48px 8px;
+      display: flex; flex-direction: column; justify-content: center;
+  }
+
+  .modal-body > .inner { width: 100%; max-width: 660px; margin: 0 auto; }
+
+  .modal-footer {
+      flex-shrink: 0; padding: 14px 48px 24px; display: flex; align-items: center;
+      justify-content: space-between; gap: 16px;
+  }
+
+  /* ---------- fluidity ----------
+     Every screen fades up as one piece, then its parts settle in sequence.
+     Only opacity and transform animate — animating layout is what made the
+     older upgrade moment glitch. */
+  .inner { animation: pv3-narratives-screen-in 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+
+  .seq { animation: pv3-narratives-seq-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .inner, .seq { animation: none; }
+  }
+
+  /* ---------- type ---------- */
+  h1.lede {
+      font-size: 25px; line-height: 33px; font-weight: 600; letter-spacing: -0.5px;
+      color: var(--text-heading); margin-bottom: 14px;
+  }
+
+  h1.lede .muted { color: var(--text-muted); font-weight: 600; }
+
+  .body-copy {
+      font-size: 15px; line-height: 23px; color: var(--text-subdued);
+      letter-spacing: -0.15px; margin-bottom: 20px;
+  }
+
+  /* The closing reassurance. Quiet on purpose — it's the last thing read,
+     not the loudest. */
+  .closer {
+      font-size: 14px; line-height: 21px; color: var(--text-default);
+      padding-top: 16px; margin-top: 4px; border-top: 1px solid var(--neutral-50);
+  }
+
+  /* ---------- the things that come up ----------
+     They arrive on their own, staggered. Nothing to expand: the reveal is
+     the progressive disclosure, so the screen stays a reading experience
+     rather than a set of controls. */
+  .things { display: flex; flex-direction: column; gap: 1px; }
+
+  .thing {
+      display: flex; align-items: center; gap: 14px; padding: 12px 2px;
+      border-top: 1px solid var(--neutral-50);
+  }
+
+  .thing:first-child { border-top: none; }
+
+  .thing-what { flex: 1; font-size: 14px; line-height: 20px; color: var(--text-default); }
+
+  .thing-what small { display: block; font-size: 12px; line-height: 17px; color: var(--text-muted); margin-top: 1px; }
+
+  .thing-who {
+      flex-shrink: 0; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 4px;
+      background: #efecfc; border: 1px solid #c3b6fb; color: #44139f;
+  }
+
+  /* ---------- choices ----------
+     Two cards, three lines each. No feature lists: the narrative already
+     said what Stripe does, so repeating it here would be the wall again. */
+  .choices { display: flex; gap: 14px; }
+
+  .choice {
+      flex: 1; min-width: 0; background: var(--bg-surface); border: 2px solid var(--border-default);
+      border-radius: 10px; padding: 17px; cursor: pointer;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  }
+
+  .choice:hover { border-color: var(--neutral-200); transform: translateY(-1px); }
+
+  .choice.on { border-color: var(--border-action-primary-strong); box-shadow: 0 0 0 1px var(--border-action-primary-strong); }
+
+  .choice-head { display: flex; align-items: center; gap: 9px; margin-bottom: 5px; flex-wrap: wrap; }
+
+  .choice-title { font-size: 15px; font-weight: 600; color: var(--text-heading); }
+
+  .choice-line { font-size: 13px; line-height: 19px; color: var(--text-subdued); margin-bottom: 12px; }
+
+  .choice-price {
+      font-size: 15px; font-weight: 700; color: var(--text-heading); letter-spacing: -0.2px;
+      font-variant-numeric: tabular-nums;
+  }
+
+  .choice-price small {
+      display: block; font-size: 12px; line-height: 17px; font-weight: 400; letter-spacing: 0;
+      color: var(--text-subdued); margin-top: 3px;
+  }
+
+  .tag-rec {
+      display: inline-flex; padding: 2px 8px; background: var(--icon-action-primary);
+      border-radius: 4px; font-size: 10px; font-weight: 600; color: #fff; letter-spacing: 0.3px;
+  }
+
+  .tag-alt {
+      display: inline-flex; padding: 2px 8px; background: var(--bg-offset);
+      border: 1px solid var(--border-default); border-radius: 4px; font-size: 10px;
+      font-weight: 600; color: var(--text-subdued); letter-spacing: 0.3px;
+  }
+
+  /* ---------- confirm ---------- */
+  .done-row {
+      display: flex; align-items: flex-start; gap: 11px; font-size: 14px; line-height: 21px;
+      color: var(--text-default); padding: 9px 0;
+  }
+
+  .tick {
+      flex-shrink: 0; width: 18px; height: 18px; border-radius: 50%; background: #2f9e44;
+      color: #fff; display: flex; align-items: center; justify-content: center; margin-top: 1px;
+  }
+
+  .tick svg { width: 10px; height: 10px; }
+
+  /* The soft expansion offer. Deliberately not a step of its own: extending
+     to domestic is an addition, not a gate, so it sits under the
+     confirmation where it can be ignored entirely. */
+  .expand {
+      margin-top: 20px; padding: 16px 17px; border-radius: 10px;
+      background: rgba(255,255,255,0.72); border: 1px solid var(--border-default);
+  }
+
+  .expand-title { font-size: 14px; font-weight: 600; color: var(--text-heading); margin-bottom: 4px; }
+
+  .expand-body { font-size: 13px; line-height: 19px; color: var(--text-subdued); }
+
+  .expand-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 13px;
+  }
+
+  /* Both timings stated symmetrically. Nothing is charged today either way —
+     the honest difference is "might never" vs. "starts with your first sale". */
+  .expand-when { font-size: 12px; line-height: 17px; color: var(--text-default); }
+
+  .expand-when b { font-weight: 600; }
+
+  .switch {
+      flex-shrink: 0; width: 40px; height: 23px; border-radius: 100px; background: var(--neutral-200);
+      border: none; cursor: pointer; padding: 0; position: relative;
+      transition: background 0.24s ease;
+  }
+
+  .switch.on { background: var(--bg-form-accent); }
+
+  .switch i {
+      position: absolute; top: 3px; left: 3px; width: 17px; height: 17px; border-radius: 50%;
+      background: #fff; transition: transform 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .switch.on i { transform: translateX(17px); }
+
+  .rate-line {
+      display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+      margin-top: 14px; padding: 10px 12px; background: var(--bg-offset); border-radius: 7px;
+  }
+
+  .rate-line span { font-size: 12px; color: var(--text-subdued); }
+
+  .rate-line b { font-size: 16px; color: var(--text-heading); font-variant-numeric: tabular-nums; }
+
+  .quiet { font-size: 13px; line-height: 19px; color: var(--text-subdued); margin-top: 16px; }
+
+  .todo-flag {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase;
+      color: #8a5a11; background: #fdf3e7; border: 1px solid #f3d9b0;
+      padding: 1px 6px; border-radius: 3px; margin-left: 8px;
+  }
+
+  .btn {
+      font-family: inherit; font-size: 14px; font-weight: 600; letter-spacing: -0.15px;
+      padding: 9px 17px; border-radius: 6px; cursor: pointer; border: 1px solid transparent;
+      transition: filter 0.15s, background 0.15s;
+  }
+
+  .btn-primary { background: var(--bg-form-accent); color: #fff; box-shadow: 0 1px 1px rgba(0,0,0,0.12); }
+
+  .btn-primary:hover { filter: brightness(1.06); }
+
+  .btn-ghost {
+      background: none; border: none; color: var(--text-subdued); font-family: inherit;
+      font-size: 14px; cursor: pointer; padding: 9px 4px;
+  }
+
+  .btn-ghost:hover { color: var(--text-default); }
+
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  .control-panel {
+      position: fixed; bottom: 16px; left: 16px; z-index: 500; width: 292px;
+      padding: 14px; background: var(--bg-surface); border-radius: 12px;
+      border: 1px solid var(--neutral-50); box-shadow: 0 6px 20px rgba(0,0,0,0.12); font-size: 12px;
+  }
+
+  .cp-title { font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
+
+  .cp-group { margin-bottom: 12px; }
+
+  .cp-label { font-size: 11px; font-weight: 600; color: var(--text-subdued); margin-bottom: 5px; }
+
+  .cp-btns { display: flex; gap: 5px; flex-wrap: wrap; }
+
+  .cp-btn {
+      font-family: inherit; font-size: 11px; padding: 4px 9px; border-radius: 5px;
+      border: 1px solid var(--border-default); background: var(--bg-surface);
+      color: var(--text-subdued); cursor: pointer; text-align: left;
+  }
+
+  .cp-btn.on { background: var(--bg-form-accent); border-color: var(--bg-form-accent); color: #fff; font-weight: 600; }
+
+  .cp-note { font-size: 11px; line-height: 16px; color: var(--text-muted); border-top: 1px solid var(--neutral-50); padding-top: 10px; }
+
+  .cp-note b { color: var(--text-subdued); }
+}

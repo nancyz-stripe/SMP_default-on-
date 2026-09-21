@@ -1,0 +1,186 @@
+.page-email-first-payment {
+  /* ===========================================================
+     First-payment email (Figma 26799:123149)
+     -----------------------------------------------------------
+     A single screen: the mail client's own chrome across the top, and the
+     600px email below it. The email's palette is its own — #1a2c44 text
+     rather than the dashboard's #353a44 — so the tokens below are scoped
+     to this page rather than borrowed from the product surfaces.
+     =========================================================== */
+  &, & * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  & {
+      --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+      --font-display: 'SF Pro Display', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      --text-default: #1a2c44;
+      --text-subdued: #596171;
+      --action-primary: #533afd;
+      --bg-surface: #ffffff;
+      --bg-offset: #f5f6f8;
+      --bg-details: #f7f9fc;
+      --rule: #e3e8ee;
+  }
+
+  & {
+      font-family: var(--font);
+      /* Body/Medium is the email's base, so the parts that use it don't
+         each have to restate it. */
+      font-size: 16px;
+      line-height: 24px;
+      letter-spacing: -0.31px;
+      color: var(--text-default);
+      background: var(--bg-offset);
+  }
+
+  /* Same floating control the other screens carry, bottom left */
+  .back-button {
+      position: fixed;
+      left: 20px;
+      bottom: 20px;
+      z-index: 400;
+      display: block;
+      width: fit-content;
+      padding: 8px 16px;
+      background: var(--bg-surface);
+      border: 1px solid #ebeef1;
+      border-radius: 8px;
+      color: var(--text-subdued);
+      font-size: 13px;
+      text-decoration: none;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  .back-button:hover { background: var(--bg-offset); }
+
+  /* ---- Mail client chrome: a 92px white band ---------------------- */
+  .chrome {
+      height: 92px;
+      background: var(--bg-surface);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      /* The client's own type, a size down from the email's */
+      font-size: 14px;
+      line-height: 22px;
+      letter-spacing: -0.15px;
+  }
+
+  .sender { display: flex; align-items: center; gap: 16px; }
+
+  .avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--action-primary);
+      display: grid; place-items: center;
+      flex-shrink: 0;
+  }
+
+  .avatar svg { width: 26px; height: 11px; fill: #fff; }
+
+  .sender-from { display: block; }
+
+  .sender-from b { font-weight: 600; }
+
+  .sender-from span { color: var(--text-subdued); }
+
+  .sender-to { display: block; color: var(--text-subdued); }
+
+  .chrome-actions {
+      margin-left: auto;
+      display: flex; align-items: center; gap: 20px;
+      color: var(--text-subdued);
+  }
+
+  .chrome-date { white-space: nowrap; }
+
+  .chrome-actions svg { display: block; cursor: pointer; }
+
+  .chrome-actions .star { width: 18px; height: 18px; }
+
+  .chrome-actions .reply { width: 22px; height: 22px; }
+
+  .chrome-actions .more { width: 4px; height: 16px; }
+
+  /* ---- The email ------------------------------------------------- */
+  /* 48px under the chrome and 56px below the card, which is the frame's
+     own 981px height at a 1280 window. */
+  .mail { padding: 48px 0 56px; }
+
+  /* The 600px wrapper the email is built to, centred in the window */
+  .email {
+      width: 600px;
+      margin: 0 auto;
+      padding: 48px;
+      background: var(--bg-surface);
+      border-radius: 16px;
+      /* 48px between the logo and everything under it */
+      display: flex;
+      flex-direction: column;
+      gap: 48px;
+  }
+
+  .email-logo { width: 70px; height: 30px; }
+
+  .email-logo svg { display: block; width: 70px; height: 29px; fill: var(--action-primary); }
+
+  /* 16px under the heading, then 32px between the body, the box and the
+     footer — the design's own rhythm. */
+  .email-body { display: flex; flex-direction: column; gap: 16px; }
+
+  /* Heading/XLarge */
+  .email-h1 {
+      font-family: var(--font-display);
+      font-size: 28px; line-height: 36px; font-weight: 700;
+      letter-spacing: 0.38px;
+  }
+
+  .email-stack { display: flex; flex-direction: column; gap: 32px; }
+
+  .email-copy { display: flex; flex-direction: column; gap: 24px; }
+
+  /* The amount is bold rather than semibold, as drawn */
+  .email-copy b { font-weight: 700; }
+
+  /* Details box: 270px tall as drawn, its sections split by a white rule */
+  .details {
+      background: var(--bg-details);
+      border-radius: 12px;
+      padding: 24px;
+  }
+
+  .details-label {
+      display: block;
+      font-size: 12px; line-height: 16px; letter-spacing: 0;
+      color: var(--text-subdued);
+      margin-bottom: 6px;
+  }
+
+  .details-amount { font-weight: 700; color: var(--action-primary); }
+
+  /* Full-bleed, so it has to come back out of the box's 24px padding */
+  .details-rule {
+      height: 1px;
+      background: var(--bg-surface);
+      margin: 20px -24px;
+  }
+
+  .details-customer { color: var(--text-default); }
+
+  .details-email { margin-top: 2px; color: var(--text-subdued); }
+
+  .details-btn {
+      display: flex; align-items: center; justify-content: center;
+      height: 44px; margin-top: 20px;
+      background: var(--action-primary);
+      border-radius: 8px;
+      color: #fff; font-weight: 600;
+      text-decoration: none;
+  }
+
+  .email-foot { display: flex; flex-direction: column; gap: 32px; }
+
+  .email-foot-rule { height: 1px; background: var(--rule); }
+
+  .email-foot a { color: var(--action-primary); font-weight: 600; text-decoration: none; }
+
+  .email-foot a:hover { text-decoration: underline; }
+}

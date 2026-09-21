@@ -1,0 +1,497 @@
+.page-v8-latest {
+  & {
+      --bg-surface: #ffffff;
+      --bg-offset: #f5f6f8;
+      --text-default: #353a44;
+      --text-subdued: #596171;
+      --text-heading: #21252c;
+      --text-muted: #99a5b8;
+      --text-action-primary: #533afd;
+      --icon-action-primary: #675dff;
+      --border-action-primary: #675dff;
+      --bg-form-accent: #675dff;
+      --border-form-default: #d4dee9;
+      --neutral-200: #b6c0cd;
+      --neutral-50: #ebeef1;
+      --shadow-overlay: 0px 15px 35px 0px rgba(48, 49, 61, 0.08), 0px 5px 15px 0px rgba(0, 0, 0, 0.12);
+  }
+
+  &, & * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+  }
+
+  & {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+      background: var(--bg-offset);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+  }
+
+  /* Back button */
+  .back-button {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: var(--bg-surface);
+      border: 1px solid var(--neutral-50);
+      border-radius: 8px;
+      color: var(--text-subdued);
+      font-size: 13px;
+      text-decoration: none;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      transition: background 0.15s;
+  }
+
+  .back-button:hover {
+      background: var(--bg-offset);
+  }
+
+  /* Dashboard shell */
+  .dashboard {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+  }
+
+  .sidebar {
+      width: 240px;
+      background: var(--bg-surface);
+      border-right: 1px solid var(--neutral-50);
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+  }
+
+  .sidebar-logo {
+      padding: 8px 12px;
+      margin-bottom: 20px;
+  }
+
+  .sidebar-logo svg {
+      width: 60px;
+      height: 24px;
+  }
+
+  .nav-item {
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      color: var(--text-subdued);
+      cursor: pointer;
+  }
+
+  .nav-item.active {
+      background: var(--bg-offset);
+      color: var(--text-default);
+      font-weight: 500;
+  }
+
+  .main-content {
+      flex: 1;
+      background: var(--bg-offset);
+      padding: 32px;
+  }
+
+  .content-placeholder {
+      height: 200px;
+      background: var(--bg-surface);
+      border-radius: 8px;
+      border: 1px solid var(--neutral-50);
+  }
+
+  /* Modal backdrop */
+  .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(182, 192, 205, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+  }
+
+  /* Modal */
+  .modal {
+      width: 90%;
+      height: 90%;
+      background: var(--bg-surface);
+      border-radius: 12px;
+      box-shadow: var(--shadow-overlay);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+      padding: 16px;
+  }
+
+  /* Full-screen gradient background (from "Default-on & expand") */
+  .modal-gradient {
+      position: absolute;
+      inset: 16px;
+      background: linear-gradient(135deg, #e8edf8 0%, #dce4f5 25%, #ecddf7 65%, #e8d5f3 100%);
+      border-radius: 8px;
+      z-index: 0;
+      opacity: 0.6;
+  }
+
+  .modal-header, .modal-split, .modal-footer {
+      position: relative;
+      z-index: 1;
+  }
+
+  .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 32px 42px 0;
+      flex-shrink: 0;
+  }
+
+  .stripe-logo svg {
+      width: 60px;
+      height: 25px;
+  }
+
+  .progress-bar {
+      width: 125px;
+      height: 5px;
+      background: var(--bg-offset);
+      border-radius: 100px;
+      overflow: hidden;
+  }
+
+  .progress-fill {
+      height: 100%;
+      background: var(--icon-action-primary);
+      border-radius: 100px;
+      transition: width 0.4s ease;
+  }
+
+  .modal-split {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+  }
+
+  /* Left half - Content */
+  .modal-left {
+      flex: 1;
+      padding: 48px 32px 48px 100px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      /* Not auto: overflow-y:auto makes overflow-x compute to auto too, which
+         clipped the fee tooltip at the panel edge. */
+      overflow: visible;
+  }
+
+  /* Right half - Globe */
+  .modal-right-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: stretch;
+      padding: 16px 100px 16px 0;
+  }
+
+  .modal-right {
+      flex: 1;
+      background: transparent;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border-radius: 12px;
+  }
+
+  .globe-glow-circle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: white;
+      box-shadow:
+          -10px 0 20px 5px rgba(255, 140, 200, 0.2),
+          10px 0 20px 5px rgba(140, 100, 255, 0.2);
+      z-index: 0;
+  }
+
+  .modal-right canvas {
+      position: relative;
+      z-index: 1;
+      display: block;
+      width: 100%;
+      height: 100%;
+  }
+
+  .globe-card {
+      position: absolute;
+      z-index: 2;
+      background: white;
+      border-radius: 5px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 30px -2px rgba(0, 55, 112, 0.1), 0 4px 14px -2px rgba(0, 59, 137, 0.04);
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+      pointer-events: none;
+      width: 39%;
+  }
+
+  .globe-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+  }
+
+  .globe-card-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      border: 1px solid #d6d9fc;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+  }
+
+  .globe-card-icon svg { width: 12px; height: 12px; }
+
+  .globe-card-text { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+
+  .globe-card-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #061b31;
+      letter-spacing: -0.1px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+  }
+
+  .globe-card-subtitle { font-size: 10px; color: #667691; }
+
+  .globe-card-check {
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0;
+      color: #30b271;
+  }
+
+  .globe-card.disputes { top: 25%; left: 53%; }
+
+  .globe-card.tax { top: 40%; left: 10%; }
+
+  .globe-card.fraud { top: 64%; left: 56%; }
+
+  /* Footer pinned at bottom */
+  .modal-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 42px 32px;
+      flex-shrink: 0;
+  }
+
+  .back-link {
+      font-size: 16px;
+      line-height: 24px;
+      letter-spacing: -0.31px;
+      color: var(--text-action-primary);
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: inherit;
+  }
+
+  .back-link:hover { text-decoration: underline; }
+
+  .btn-continue {
+      background: var(--bg-form-accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      letter-spacing: -0.15px;
+      line-height: 20px;
+      box-shadow: 0px 1px 1px 0px rgba(47, 14, 99, 0.32);
+      transition: background 0.15s;
+  }
+
+  .btn-continue:hover { background: #5b52e6; }
+
+  .stripe-logo {
+      margin-bottom: 32px;
+  }
+
+  .stripe-logo svg {
+      width: 64px;
+      height: 26px;
+  }
+
+  .modal-headline {
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 28px;
+      letter-spacing: 0.3px;
+      color: var(--text-heading);
+      margin-bottom: 16px;
+  }
+
+  .modal-headline .muted {
+      font-weight: 400;
+      color: var(--text-muted);
+  }
+
+  /* Option cards */
+  .option-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px;
+  }
+
+  .option-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      background: var(--bg-surface);
+      cursor: pointer;
+      transition: all 0.15s;
+  }
+
+  .option-card.selected {
+      background: var(--bg-surface);
+      border-color: var(--border-action-primary);
+  }
+
+  .radio-circle {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid var(--border-form-default);
+      flex-shrink: 0;
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+  }
+
+  .option-card.selected .radio-circle {
+      border-color: var(--bg-form-accent);
+      background: var(--bg-form-accent);
+  }
+
+  .radio-inner-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: white;
+      opacity: 0;
+      transition: opacity 0.15s;
+  }
+
+  .option-card.selected .radio-inner-dot {
+      opacity: 1;
+  }
+
+  .option-content {
+      flex: 1;
+  }
+
+  .option-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-default);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+  }
+
+  .option-description {
+      font-size: 13px;
+      color: var(--text-subdued);
+      line-height: 1.5;
+  }
+
+  /* Fee badge + tooltip */
+  .fee-badge {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #f4f7fa;
+      border: 1px solid #d4dee9;
+      font-size: 12px;
+      line-height: 16px;
+      font-weight: 400;
+      color: #50617a;
+      white-space: nowrap;
+      cursor: default;
+  }
+
+  .fee-badge svg {
+      width: 12px;
+      height: 12px;
+      display: block;
+      fill: #667691;
+      flex-shrink: 0;
+  }
+
+  .fee-tooltip {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      /* Centred on the badge */
+      left: 50%;
+      transform: translateX(-50%);
+      width: 280px;
+      padding: 16px;
+      background: var(--bg-surface);
+      border: 1px solid #d4dee9;
+      border-radius: 8px;
+      box-shadow: 0px 2px 2.5px rgba(64, 68, 82, 0.08), 0px 3px 4.5px rgba(64, 68, 82, 0.08);
+      font-size: 14px;
+      line-height: 20px;
+      letter-spacing: -0.15px;
+      color: #1a2c44;
+      white-space: normal;
+      text-align: left;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.15s;
+      z-index: 50;
+  }
+
+  .fee-badge:hover .fee-tooltip {
+      opacity: 1;
+      visibility: visible;
+  }
+}

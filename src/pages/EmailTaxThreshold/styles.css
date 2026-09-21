@@ -1,0 +1,146 @@
+.page-email-tax-threshold {
+  /* ===========================================================
+     Approaching-tax-threshold email (Figma 26799:123215)
+     -----------------------------------------------------------
+     Same shape as the first-payment email: the mail client's chrome, then
+     the 600px email under it. All copy this time — no details box — so the
+     body is a 16px-gap stack of paragraphs with the button and the sign-off
+     24px apart under it.
+
+     Self-contained like every other page here, so the chrome and tokens
+     are repeated rather than shared.
+     =========================================================== */
+  &, & * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  & {
+      --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+      --text-default: #1a2c44;
+      --text-subdued: #596171;
+      --action-primary: #533afd;
+      --bg-surface: #ffffff;
+      --bg-offset: #f5f6f8;
+  }
+
+  & {
+      font-family: var(--font);
+      /* Body/Medium is the email's base */
+      font-size: 16px;
+      line-height: 24px;
+      letter-spacing: -0.31px;
+      color: var(--text-default);
+      background: var(--bg-offset);
+  }
+
+  /* Same floating control the other screens carry, bottom left */
+  .back-button {
+      position: fixed;
+      left: 20px;
+      bottom: 20px;
+      z-index: 400;
+      display: block;
+      width: fit-content;
+      padding: 8px 16px;
+      background: var(--bg-surface);
+      border: 1px solid #ebeef1;
+      border-radius: 8px;
+      color: var(--text-subdued);
+      font-size: 13px;
+      text-decoration: none;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  .back-button:hover { background: var(--bg-offset); }
+
+  /* ---- Mail client chrome: a 92px white band ---------------------- */
+  .chrome {
+      height: 92px;
+      background: var(--bg-surface);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      /* The client's own type, a size down from the email's */
+      font-size: 14px;
+      line-height: 22px;
+      letter-spacing: -0.15px;
+  }
+
+  .sender { display: flex; align-items: center; gap: 16px; }
+
+  .avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--action-primary);
+      display: grid; place-items: center;
+      flex-shrink: 0;
+  }
+
+  .avatar svg { width: 26px; height: 11px; fill: #fff; }
+
+  .sender-from { display: block; }
+
+  .sender-from b { font-weight: 600; }
+
+  .sender-from span { color: var(--text-subdued); }
+
+  .sender-to { display: block; color: var(--text-subdued); }
+
+  .chrome-actions {
+      margin-left: auto;
+      display: flex; align-items: center; gap: 20px;
+      color: var(--text-subdued);
+  }
+
+  .chrome-date { white-space: nowrap; }
+
+  .chrome-actions svg { display: block; cursor: pointer; }
+
+  .chrome-actions .star { width: 18px; height: 18px; }
+
+  .chrome-actions .reply { width: 22px; height: 22px; }
+
+  .chrome-actions .more { width: 4px; height: 16px; }
+
+  /* ---- The email ------------------------------------------------- */
+  /* 48px under the chrome and 80px below the card, which is the frame's
+     own 1014px height at a 1280 window. */
+  .mail { padding: 48px 0 80px; }
+
+  .email {
+      width: 600px;
+      margin: 0 auto;
+      padding: 48px;
+      background: var(--bg-surface);
+      border-radius: 16px;
+      /* 48px between the logo and everything under it */
+      display: flex;
+      flex-direction: column;
+      gap: 48px;
+  }
+
+  .email-logo { width: 70px; height: 30px; }
+
+  .email-logo svg { display: block; width: 70px; height: 29px; fill: var(--action-primary); }
+
+  /* The body, the button and the sign-off, 24px apart */
+  .email-body { display: flex; flex-direction: column; gap: 24px; align-items: flex-start; }
+
+  /* The paragraphs themselves sit 16px apart */
+  .email-copy { display: flex; flex-direction: column; gap: 16px; }
+
+  .email-copy b { font-weight: 600; }
+
+  .email-copy .product { font-weight: 600; color: var(--action-primary); }
+
+  /* The middle three are one block in the design, split by blank lines —
+     which is a 24px gap rather than the 16px between the others. */
+  .email-steps { display: flex; flex-direction: column; gap: 24px; }
+
+  .email-btn {
+      display: flex; align-items: center; justify-content: center;
+      height: 44px; padding: 0 20px;
+      background: var(--action-primary);
+      border-radius: 8px;
+      color: #fff; font-weight: 600;
+      text-decoration: none;
+      white-space: nowrap;
+  }
+}

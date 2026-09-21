@@ -1,0 +1,991 @@
+@keyframes psmp-fee-gradient-settle {
+    0%   { --fee-sweep-angle: 0deg; opacity: 0; }
+    14%  { opacity: 1; }
+    72%  { opacity: 0.9; }
+    100% { --fee-sweep-angle: 360deg; opacity: 0; }
+}
+
+@keyframes psmp-fee-receive {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.14); }
+    100% { transform: scale(1); }
+}
+
+.page-smp {
+  /* Registered so it interpolates: the fee badge's keyline sweep rotates
+     this angle, and unregistered custom properties don't animate. */
+  @property --fee-sweep-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  & {
+      --bg-surface: #ffffff;
+      --bg-offset: #f5f6f8;
+      --text-default: #353a44;
+      --text-subdued: #596171;
+      --text-heading: #21252c;
+      --text-muted: #99a5b8;
+      --text-action-primary: #533afd;
+      --icon-action-primary: #675dff;
+      --border-action-primary: #675dff;
+      --border-action-primary-strong: #533afd;
+      --border-default: #d4dee9;
+      --bg-form-accent: #675dff;
+      --border-form-default: #d4dee9;
+      --neutral-200: #b6c0cd;
+      --neutral-50: #ebeef1;
+      --shadow-overlay: 0px 15px 35px 0px rgba(48, 49, 61, 0.08), 0px 5px 15px 0px rgba(0, 0, 0, 0.12);
+  }
+
+  &, & * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+  }
+
+  & {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+      background: var(--bg-offset);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+  }
+
+  /* Back button */
+  .back-button {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: var(--bg-surface);
+      border: 1px solid var(--neutral-50);
+      border-radius: 8px;
+      color: var(--text-subdued);
+      font-size: 13px;
+      text-decoration: none;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      transition: background 0.15s;
+  }
+
+  .back-button:hover {
+      background: var(--bg-offset);
+  }
+
+  /* Dashboard shell */
+  .dashboard {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+  }
+
+  .sidebar {
+      width: 240px;
+      background: var(--bg-surface);
+      border-right: 1px solid var(--neutral-50);
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+  }
+
+  .sidebar-logo {
+      padding: 8px 12px;
+      margin-bottom: 20px;
+  }
+
+  .sidebar-logo svg {
+      width: 60px;
+      height: 24px;
+  }
+
+  .nav-item {
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      color: var(--text-subdued);
+      cursor: pointer;
+  }
+
+  .nav-item.active {
+      background: var(--bg-offset);
+      color: var(--text-default);
+      font-weight: 500;
+  }
+
+  .main-content {
+      flex: 1;
+      background: var(--bg-offset);
+      padding: 32px;
+  }
+
+  .content-placeholder {
+      height: 200px;
+      background: var(--bg-surface);
+      border-radius: 8px;
+      border: 1px solid var(--neutral-50);
+  }
+
+  /* Modal backdrop */
+  .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(182, 192, 205, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+  }
+
+  /* Modal */
+  .modal {
+      width: 90%;
+      height: 90%;
+      background: var(--bg-surface);
+      border-radius: 12px;
+      box-shadow: var(--shadow-overlay);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+      padding: 16px;
+  }
+
+  /* Full-screen gradient background (from "Default-on & expand") */
+  .modal-gradient {
+      position: absolute;
+      inset: 16px;
+      background: linear-gradient(135deg, #e8edf8 0%, #dce4f5 25%, #ecddf7 65%, #e8d5f3 100%);
+      border-radius: 8px;
+      z-index: 0;
+      opacity: 0.6;
+  }
+
+  .modal-header, .modal-split, .modal-footer {
+      position: relative;
+      z-index: 1;
+  }
+
+  .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 32px 42px 0;
+      flex-shrink: 0;
+  }
+
+  .stripe-logo svg {
+      width: 60px;
+      height: 25px;
+  }
+
+  .progress-bar {
+      width: 125px;
+      height: 5px;
+      background: var(--bg-offset);
+      border-radius: 100px;
+      overflow: hidden;
+  }
+
+  .progress-fill {
+      height: 100%;
+      background: var(--icon-action-primary);
+      border-radius: 100px;
+      transition: width 0.4s ease;
+  }
+
+  .modal-split {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+  }
+
+  /* Left half - Content */
+  .modal-left {
+      flex: 1;
+      padding: 48px 32px 48px 100px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      /* Not auto: overflow-y:auto makes overflow-x compute to auto too, which
+         clipped the fee tooltip at the panel edge. */
+      overflow: visible;
+  }
+
+  /* Right half - Globe */
+  .modal-right-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: stretch;
+      padding: 16px 100px 16px 0;
+  }
+
+  .modal-right {
+      flex: 1;
+      background: transparent;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border-radius: 12px;
+  }
+
+  .globe-glow-circle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: white;
+      box-shadow:
+          -10px 0 20px 5px rgba(255, 140, 200, 0.2),
+          10px 0 20px 5px rgba(140, 100, 255, 0.2);
+      z-index: 0;
+  }
+
+  .modal-right canvas {
+      position: relative;
+      z-index: 1;
+      display: block;
+      width: 100%;
+      height: 100%;
+  }
+
+  .globe-card {
+      position: absolute;
+      z-index: 2;
+      background: white;
+      border-radius: 5px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 30px -2px rgba(0, 55, 112, 0.1), 0 4px 14px -2px rgba(0, 59, 137, 0.04);
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+      pointer-events: none;
+      width: 39%;
+  }
+
+  .globe-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+  }
+
+  .globe-card-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      border: 1px solid #d6d9fc;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+  }
+
+  .globe-card-icon svg { width: 12px; height: 12px; }
+
+  .globe-card-text { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+
+  .globe-card-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #061b31;
+      letter-spacing: -0.1px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+  }
+
+  .globe-card-subtitle { font-size: 10px; color: #667691; }
+
+  .globe-card-check {
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0;
+      color: #30b271;
+  }
+
+  .globe-card.disputes { top: 25%; left: 53%; }
+
+  .globe-card.tax { top: 40%; left: 10%; }
+
+  .globe-card.fraud { top: 64%; left: 56%; }
+
+  /* Footer pinned at bottom */
+  .modal-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 42px 32px;
+      flex-shrink: 0;
+  }
+
+  .back-link {
+      font-size: 16px;
+      line-height: 24px;
+      letter-spacing: -0.31px;
+      color: var(--text-action-primary);
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: inherit;
+  }
+
+  .back-link:hover { text-decoration: underline; }
+
+  .btn-continue {
+      background: var(--bg-form-accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      letter-spacing: -0.15px;
+      line-height: 20px;
+      box-shadow: 0px 1px 1px 0px rgba(47, 14, 99, 0.32);
+      transition: background 0.15s;
+  }
+
+  .btn-continue:hover { background: #5b52e6; }
+
+  .stripe-logo {
+      margin-bottom: 32px;
+  }
+
+  .stripe-logo svg {
+      width: 64px;
+      height: 26px;
+  }
+
+  .modal-headline {
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 28px;
+      letter-spacing: 0.3px;
+      color: var(--text-heading);
+      margin-bottom: 16px;
+  }
+
+  .modal-headline .muted {
+      font-weight: 400;
+      color: var(--text-muted);
+  }
+
+  /* Option cards */
+  .option-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px;
+  }
+
+  .option-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      background: var(--bg-surface);
+      cursor: pointer;
+      transition: all 0.15s;
+  }
+
+  .option-card.selected {
+      background: var(--bg-surface);
+      border-color: var(--border-action-primary);
+  }
+
+  .radio-circle {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid var(--border-form-default);
+      flex-shrink: 0;
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+  }
+
+  .option-card.selected .radio-circle {
+      border-color: var(--bg-form-accent);
+      background: var(--bg-form-accent);
+  }
+
+  .radio-inner-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: white;
+      opacity: 0;
+      transition: opacity 0.15s;
+  }
+
+  .option-card.selected .radio-inner-dot {
+      opacity: 1;
+  }
+
+  .option-content {
+      flex: 1;
+  }
+
+  .option-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-default);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+  }
+
+  .option-description {
+      font-size: 13px;
+      color: var(--text-subdued);
+      line-height: 1.5;
+  }
+
+  /* Fee badge + tooltip */
+  .fee-badge {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #f4f7fa;
+      border: 1px solid #d4dee9;
+      font-size: 12px;
+      line-height: 16px;
+      font-weight: 400;
+      color: #50617a;
+      white-space: nowrap;
+      cursor: default;
+  }
+
+  .fee-badge svg {
+      width: 12px;
+      height: 12px;
+      display: block;
+      fill: #667691;
+      flex-shrink: 0;
+  }
+
+  .fee-tooltip {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      /* Centred on the badge */
+      left: 50%;
+      transform: translateX(-50%);
+      width: 280px;
+      padding: 16px;
+      background: var(--bg-surface);
+      border: 1px solid #d4dee9;
+      border-radius: 8px;
+      box-shadow: 0px 2px 2.5px rgba(64, 68, 82, 0.08), 0px 3px 4.5px rgba(64, 68, 82, 0.08);
+      font-size: 14px;
+      line-height: 20px;
+      letter-spacing: -0.15px;
+      color: #1a2c44;
+      white-space: normal;
+      text-align: left;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.15s;
+      z-index: 50;
+  }
+
+  .fee-badge:hover .fee-tooltip {
+      opacity: 1;
+      visibility: visible;
+  }
+
+  /* "more revenue" — the claim links out to how it's actually earned,
+     per Figma 26463:14817. Same tooltip treatment as the fee badge, but
+     anchored to the link's left edge: centring a 300px card on a link
+     this far into the panel would hang off the edge.
+
+     The tooltip is a sibling of the link rather than a child, so it stays
+     clear of the gradient text-fill below — clipping a background to the
+     link's glyphs would take the tooltip's own text with it. */
+  .revenue-wrap {
+      position: relative;
+      white-space: nowrap;
+  }
+
+  /* Gradient per Figma: the fill is clipped to the glyphs, so `color` is
+     left to carry the underline. */
+  .revenue-link {
+      background-image: linear-gradient(121deg, #955ef4 3%, #2079f6 99%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: #7a68f5;
+      text-decoration: underline;
+      text-decoration-color: #7a68f5;
+      text-decoration-skip-ink: none;
+      text-underline-position: from-font;
+      cursor: default;
+  }
+
+  .revenue-tooltip {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: -12px;
+      width: 300px;
+      padding: 16px;
+      background: var(--bg-surface);
+      border: 1px solid #d4dee9;
+      border-radius: 8px;
+      box-shadow: 0px 2px 2.5px rgba(64, 68, 82, 0.08), 0px 3px 4.5px rgba(64, 68, 82, 0.08);
+      font-size: 14px;
+      line-height: 20px;
+      letter-spacing: -0.15px;
+      color: #1a2c44;
+      white-space: normal;
+      text-align: left;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.15s;
+      z-index: 50;
+  }
+
+  .revenue-wrap:hover .revenue-tooltip, .revenue-link:focus-visible + .revenue-tooltip {
+      opacity: 1;
+      visibility: visible;
+  }
+
+  /* ---------- scope framework ---------- */
+  [data-fw="scope"] .option-cards { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+
+  [data-fw="scope"] .option-card { display: flex; align-items: flex-start; gap: 12px; padding: 16px; border-radius: 8px; border: 2px solid transparent; background: var(--bg-surface); cursor: pointer; transition: all 0.15s; }
+
+  [data-fw="scope"] .option-card.selected { background: var(--bg-surface); border-color: var(--border-action-primary); }
+
+  [data-fw="scope"] .option-card.selected .radio-circle { border-color: var(--bg-form-accent); background: var(--bg-form-accent); }
+
+  [data-fw="scope"] .option-card.selected .radio-inner-dot { opacity: 1; }
+
+  [data-fw="scope"] .option-content { flex: 1; }
+
+  [data-fw="scope"] .option-title { font-size: 14px; font-weight: 600; color: var(--text-default); margin-bottom: 4px; display: flex; align-items: center; gap: 16px; }
+
+  [data-fw="scope"] .option-description { font-size: 13px; color: var(--text-subdued); line-height: 1.5; }
+
+  [data-fw="scope"] .radio-circle { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border-form-default); flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+
+  [data-fw="scope"] .radio-inner-dot { width: 6px; height: 6px; border-radius: 50%; background: white; opacity: 0; transition: opacity 0.15s; }
+
+  [data-fw="scope"] .fee-badge { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 2px 6px; border-radius: 4px; background: #f4f7fa; border: 1px solid #d4dee9; font-size: 12px; line-height: 16px; font-weight: 400; color: #50617a; white-space: nowrap; cursor: default; }
+
+  [data-fw="scope"] .fee-badge svg { width: 12px; height: 12px; display: block; fill: #667691; flex-shrink: 0; }
+
+  [data-fw="scope"] .modal-left { flex: 1; padding: 48px 32px 48px 100px; display: flex; flex-direction: column; justify-content: center; /* Not auto: overflow-y:auto makes overflow-x compute to auto too, which
+         clipped the fee tooltip at the panel edge. */
+      overflow: visible; }
+
+  /* ---------- autopilot framework ---------- */
+  [data-fw="autopilot"] .mode-group { display: flex; flex-direction: column; gap: 16px; }
+
+  [data-fw="autopilot"] .mode-title { font-size: 16px; font-weight: 600; line-height: 24px; letter-spacing: -0.31px; color: var(--text-default); margin-bottom: 4px; }
+
+  [data-fw="autopilot"] .mode-desc { font-size: 14px; font-weight: 400; line-height: 20px; letter-spacing: -0.15px; color: var(--text-subdued); }
+
+  [data-fw="autopilot"] .autopilot-card { display: flex; flex-direction: column; align-items: flex-start; border-radius: 8px; cursor: pointer; }
+
+  [data-fw="autopilot"] .autopilot-body { width: 100%; display: flex; flex-direction: column; gap: 24px; padding: 16px; background: var(--bg-surface); border: 2px solid var(--border-action-primary-strong); border-radius: 0 8px 8px 8px; transition: border-color 0.15s, background 0.15s; }
+
+  [data-fw="autopilot"] .autopilot-card.dimmed .autopilot-body { border-color: var(--border-form-default); background: rgba(255, 255, 255, 0.6); }
+
+  [data-fw="autopilot"] .highlight-tag { display: flex; align-items: center; justify-content: center; padding: 4px 16px; background: var(--icon-action-primary); border: 2px solid var(--icon-action-primary); border-bottom: none; border-radius: 8px 8px 0 0; font-size: 12px; font-weight: 600; line-height: 16px; letter-spacing: -0.02px; color: #ffffff; transition: background 0.15s, border-color 0.15s; }
+
+  [data-fw="autopilot"] .autopilot-card.dimmed .highlight-tag { background: var(--neutral-200); border-color: var(--neutral-200); }
+
+  [data-fw="autopilot"] .scope-panel { display: flex; gap: 8px; padding: 8px; background: linear-gradient(135deg, #f1efff 0%, #f6edff 50%, #fcebff 100%); border-radius: 8px; overflow: hidden; position: relative; }
+
+  [data-fw="autopilot"] .autopilot-card.dimmed .scope-panel { background: var(--bg-offset); }
+
+  [data-fw="autopilot"] .scope-card { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; background: var(--bg-surface); border-radius: 8px; cursor: pointer; }
+
+  [data-fw="autopilot"] .scope-card-group { display: flex; gap: 12px; align-items: flex-start; padding: 16px 16px 8px; }
+
+  [data-fw="autopilot"] .scope-card.selected .radio-circle { border-color: var(--border-action-primary-strong); background: var(--bg-form-accent); box-shadow: 0px 1px 1px 0px rgba(10, 33, 86, 0.16); }
+
+  [data-fw="autopilot"] .scope-card.selected .radio-inner-dot { opacity: 1; }
+
+  [data-fw="autopilot"] .scope-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+
+  [data-fw="autopilot"] .scope-title { font-size: 12px; font-weight: 600; line-height: 16px; letter-spacing: -0.02px; color: var(--text-default); }
+
+  [data-fw="autopilot"] .scope-desc { font-size: 12px; font-weight: 400; line-height: 16px; color: var(--text-subdued); }
+
+  [data-fw="autopilot"] .scope-fee { display: flex; align-items: center; justify-content: center; gap: 4px; padding: 8px; background: var(--bg-offset); border-radius: 0 0 8px 8px; font-size: 12px; line-height: 16px; color: var(--text-subdued); }
+
+  [data-fw="autopilot"] .scope-fee svg { width: 12px; height: 12px; fill: #667691; flex-shrink: 0; }
+
+  [data-fw="autopilot"] .self-card { padding: 16px; background: var(--bg-offset); border: 2px solid var(--border-default); border-radius: 8px; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+
+  [data-fw="autopilot"] .self-card.selected { background: var(--bg-surface); border-color: var(--border-action-primary-strong); }
+
+  [data-fw="autopilot"] .self-card .mode-title { font-size: 14px; line-height: 19px; letter-spacing: -0.15px; margin-bottom: 8px; }
+
+  [data-fw="autopilot"] .self-card .mode-desc { font-size: 12px; line-height: 16px; letter-spacing: 0; }
+
+  [data-fw="autopilot"] .radio-circle { width: 14px; height: 14px; border-radius: 50%; border: 1px solid var(--border-form-default); background: var(--bg-surface); box-shadow: 0px 1px 1px 0px rgba(33, 37, 44, 0.16); flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+
+  [data-fw="autopilot"] .radio-inner-dot { width: 6px; height: 6px; border-radius: 50%; background: white; opacity: 0; transition: opacity 0.15s; }
+
+  [data-fw="autopilot"] .modal-left { flex: 1.25; padding: 48px 32px 48px 100px; display: flex; flex-direction: column; justify-content: center; /* Not auto: overflow-y:auto makes overflow-x compute to auto too, which
+         clipped the fee tooltip at the panel edge. */
+      overflow: visible; }
+
+  /* ---------- expand framework ---------- */
+  [data-fw="expand"] .coverage-card { display: flex; flex-direction: column; gap: 16px; padding: 16px; background: var(--bg-surface); border: 2px solid #d4dee9; border-radius: 8px; }
+
+  [data-fw="expand"] .coverage-head { display: flex; flex-direction: column; gap: 8px; }
+
+  /* Badge sits directly beside the title, 12px after it (Figma 26398:41161). */
+  [data-fw="expand"] .coverage-title-row { display: flex; align-items: center; gap: 12px; }
+
+  [data-fw="expand"] .coverage-title { font-size: 14px; font-weight: 600; line-height: 19px; letter-spacing: -0.15px; color: var(--text-default); }
+
+  [data-fw="expand"] .coverage-desc { font-size: 12px; line-height: 16px; color: var(--text-subdued); }
+
+  [data-fw="expand"] .coverage-divider { height: 1px; border-top: 1px solid #d4dee9; }
+
+  /* Benefit rows: a plain check, no icon chip */
+  [data-fw="expand"] .benefit-list { display: flex; flex-direction: column; gap: 12px; }
+
+  [data-fw="expand"] .benefit-row { display: flex; align-items: flex-start; gap: 8px; }
+
+  [data-fw="expand"] .benefit-check { width: 12px; height: 12px; flex-shrink: 0; margin-top: 4px; color: var(--text-default); }
+
+  [data-fw="expand"] .benefit-text { font-size: 14px; line-height: 20px; letter-spacing: -0.15px; color: var(--text-default); }
+
+  [data-fw="expand"] .coverage-toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; border-radius: 4px; }
+
+  [data-fw="expand"] .coverage-toggle-left { display: flex; align-items: center; gap: 12px; }
+
+  /* The same checkbox as the flow's option rows (`.option-row .box`).
+     Checking it is instant — the motion all sits on the fee badge. */
+  [data-fw="expand"] .box { width: 16px; height: 16px; border-radius: 4px; border: 1px solid var(--neutral-200); background: var(--bg-surface); flex-shrink: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+  [data-fw="expand"] .box.on { border-color: var(--bg-form-accent); background: var(--bg-form-accent); }
+
+  [data-fw="expand"] .box svg { width: 10px; height: 10px; opacity: 0; color: #fff; }
+
+  [data-fw="expand"] .box.on svg { opacity: 1; }
+
+  [data-fw="expand"] .switch-label { font-size: 14px; line-height: 20px; letter-spacing: -0.15px; color: var(--text-default); }
+
+  /* ---------- Upgrade moment (expand framework) ----------
+     Covering domestic payments is an upgrade, not a surcharge: the fee
+     badge drops its rate and turns purple, the Save 30% incentive is
+     spent, and a short burst fires from the badge. */
+  [data-fw="expand"] .save-badge {
+      flex-shrink: 0;
+      /* Sail brand badge: brand/50 fill, brand/200 keyline, brand/800 text. */
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #efecfc;
+      border: 1px solid #c3b6fb;
+      color: #44139f;
+      font-size: 12px;
+      line-height: 16px;
+      white-space: nowrap;
+      transform-origin: center;
+      transition: opacity 0.4s ease, transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1), margin 0.5s ease;
+  }
+
+  [data-fw="expand"] .save-badge.spent {
+      opacity: 0;
+      transform: scale(0.6) translateY(-4px);
+      /* cancels the row's 12px gap so nothing is left behind */
+      margin-left: -12px;
+      width: 0;
+      padding: 2px 0;
+      border-width: 0;
+      overflow: hidden;
+  }
+
+  /* Rate swap: the old value leaves upward, the new arrives from below. */
+  [data-fw="expand"] .fee-rate-slot { display: inline-grid; overflow: hidden; }
+
+  [data-fw="expand"] .fee-rate-slot > .fee-rate { grid-area: 1 / 1; }
+
+  [data-fw="expand"] .fee-rate { display: block; transition: transform 0.52s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.52s ease; }
+
+  [data-fw="expand"] .fee-rate.leaving { transform: translateY(-110%); opacity: 0; }
+
+  [data-fw="expand"] .fee-rate.arriving { transform: translateY(110%); opacity: 0; }
+
+  /* The badge: grey -> purple, and a bump as it receives the saving. */
+  [data-fw="expand"] .fee-badge { transition: background 0.55s ease, border-color 0.55s ease, color 0.55s ease; }
+
+  [data-fw="expand"] .fee-badge.upgraded { background: #f3f0ff; border-color: #b9a9f7; color: var(--text-action-primary); }
+
+  /* On the upgrade, the badge's keyline runs the particles' ramp clockwise
+     once, then fades out and leaves the settled purple border underneath.
+     The fill is never touched: the ring is a 1px frame masked out of the
+     overlay, sitting over the badge's own border box.
+
+     A conic gradient carries the hues around the ring, and rotating its
+     `from` angle turns it clockwise. The angle is a registered custom
+     property so it can be animated; unregistered ones don't interpolate.
+     The stops return to the warm end at 360deg, so the loop has no seam. */
+  [data-fw="expand"] .fee-badge::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      /* one step out from the badge's 4px, so the ring stays concentric */
+      border-radius: 5px;
+      padding: 1px;
+      opacity: 0;
+      pointer-events: none;
+      background: conic-gradient(from var(--fee-sweep-angle),
+          #f7dcb5 0deg, #f1c1a6 60deg, #e0a0c8 120deg, #c280e8 180deg,
+          #a478f3 240deg, #d895d4 300deg, #f7dcb5 360deg);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+  }
+
+  /* linear, so the rotation holds a steady speed; the fade is shaped by
+     the opacity stops instead. */
+  [data-fw="expand"] .fee-badge.settling::before {
+      animation: psmp-fee-gradient-settle 1.3s linear forwards;
+  }
+
+  [data-fw="expand"] .fee-badge.upgraded .fee-icon { fill: var(--icon-action-primary); }
+
+  [data-fw="expand"] .fee-badge.received { animation: psmp-fee-receive 0.72s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+  /* A small burst from the badge when the discount lands. Deliberately
+     sparse and short — 12 pieces, under a second, no layout impact. */
+  .particle {
+      position: fixed;
+      z-index: 999;
+      border-radius: 50%;
+      pointer-events: none;
+      will-change: transform, opacity;
+  }
+
+  .particle.chip { border-radius: 1px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-fw="expand"] .save-badge, [data-fw="expand"] .fee-rate, [data-fw="expand"] .fee-badge { transition: none; }
+    [data-fw="expand"] .fee-badge.received, [data-fw="expand"] .fee-badge.settling::before { animation: none; }
+  }
+
+  [data-fw="expand"] .link-later { font-size: 14px; color: var(--text-action-primary); cursor: pointer; background: none; border: none; font-family: inherit; padding: 0; letter-spacing: -0.15px; text-align: left; align-self: flex-start; margin-top: 16px; }
+
+  [data-fw="expand"] .link-later:hover { text-decoration: underline; }
+
+  /* The option list already carries a bottom margin, so the link relies on
+     that alone and matches the 16px gap used in the expand framework. */
+  [data-fw="scope"] .link-later { font-size: 14px; color: var(--text-action-primary); cursor: pointer; background: none; border: none; font-family: inherit; padding: 0; letter-spacing: -0.15px; text-align: left; align-self: flex-start; }
+
+  [data-fw="scope"] .link-later:hover { text-decoration: underline; }
+
+  [data-fw="expand"] .fee-badge { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 2px 6px; border-radius: 4px; background: #f4f7fa; border: 1px solid #d4dee9; font-size: 12px; line-height: 16px; font-weight: 400; color: #50617a; white-space: nowrap; cursor: default; flex-shrink: 0; }
+
+  [data-fw="expand"] .fee-badge .fee-icon { width: 12px; height: 12px; display: block; fill: #667691; flex-shrink: 0; }
+
+  [data-fw="expand"] .modal-left { flex: 1.05; padding: 48px 32px 48px 100px; display: flex; flex-direction: column; justify-content: center; /* Not auto: overflow-y:auto makes overflow-x compute to auto too, which
+         clipped the fee tooltip at the panel edge. */
+      overflow: visible; }
+
+  /* Gradient treatments: "full" is the V1/V3 wash (already defined on
+     .modal-gradient); "spotlight" is V2's layered radials. */
+  /* Unselected choices need a border only against the near-white
+     spotlight background; on the full-screen wash the tinted backdrop
+     already separates them, so the border would be redundant.
+     :not(.selected) keeps this clear of the selected-state rules. */
+  [data-fw="scope"][data-grad="spotlight"] .option-card:not(.selected) {
+      border-color: var(--border-default);
+  }
+
+  [data-fw="expand"][data-grad="full"] .coverage-card {
+      border-color: transparent;
+  }
+
+  .modal-gradient[data-grad="spotlight"] {
+      opacity: 1;
+      background:
+          /* cool blue wash, left */
+          radial-gradient(52% 70% at 46% 70%, rgba(207, 226, 255, 0.24) 0%, rgba(207, 226, 255, 0) 94%),
+          /* lilac, right upper-mid */
+          radial-gradient(105% 45% at 93% 37%, rgba(216, 128, 236, 0.26) 0%, rgba(216, 128, 236, 0) 79%),
+          /* pink, right lower-mid */
+          radial-gradient(45% 83% at 136% 64%, rgba(214, 159, 199, 0.37) 0%, rgba(214, 159, 199, 0) 79%),
+          /* peach, bottom-right */
+          radial-gradient(60% 46% at 105% 72%, rgba(254, 180, 203, 0.52) 0%, rgba(254, 180, 203, 0) 103%),
+          #fefefe;
+  }
+
+  /* ---------------- Control panel ----------------
+     Matches the Figma (26334:37510): a card at the bottom left, grouped
+     boxes for variants / gradient / globe, value cards on a switch. */
+  .control-panel {
+      position: fixed;
+      bottom: 16px;
+      left: 16px;
+      z-index: 500;
+      width: 313px;
+      padding: 16px;
+      background: var(--bg-surface);
+      border-radius: 12px;
+      box-shadow: 0px 15px 35px rgba(48, 49, 61, 0.1), 0px 5px 15px rgba(0, 0, 0, 0.08);
+  }
+
+  .control-panel-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+      height: 20px;
+  }
+
+  .control-panel-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-heading);
+      letter-spacing: -0.15px;
+  }
+
+  .control-panel-caret {
+      margin-left: auto;
+      width: 12px;
+      height: 12px;
+      color: var(--text-subdued);
+      transition: transform 0.15s;
+  }
+
+  .control-panel.collapsed .control-panel-caret { transform: rotate(-90deg); }
+
+  .control-panel-body { margin-top: 16px; }
+
+  .control-panel.collapsed .control-panel-body { display: none; }
+
+  /* Grouped box per property */
+  .control-group {
+      padding: 8px;
+      border: 1px solid var(--neutral-50);
+      border-radius: 8px;
+  }
+
+  .control-group + .control-group { margin-top: 12px; }
+
+  .control-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-heading);
+      line-height: 16px;
+  }
+
+  .control-label.caps {
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+  }
+
+  .control-rows { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+
+  .control-rows.side-by-side { flex-direction: row; gap: 4px; }
+
+  /* Only the side-by-side pairs share the width; stacked rows keep their
+     own height, which flex-basis would otherwise collapse. */
+  .control-rows.side-by-side .opt { flex: 1; min-width: 0; }
+
+  .opt {
+      flex: none;
+      height: 24px;
+      padding: 0 8px;
+      display: flex;
+      align-items: center;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      background: var(--bg-offset);
+      color: var(--text-default);
+      font-family: inherit;
+      font-size: 12px;
+      line-height: 16px;
+      text-align: left;
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: background 0.12s, border-color 0.12s, color 0.12s;
+  }
+
+  .opt:hover { background: #eceff3; }
+
+  .opt.on {
+      background: #f0ecfe;
+      border-color: #b9a9f7;
+      color: var(--text-action-primary);
+      font-weight: 500;
+  }
+
+  /* Value cards switch */
+  .control-switch-row {
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 20px;
+  }
+
+  .control-switch {
+      width: 26px;
+      height: 14px;
+      flex-shrink: 0;
+      border-radius: 100px;
+      background: var(--neutral-200);
+      position: relative;
+      cursor: pointer;
+      transition: background 0.15s;
+  }
+
+  .control-switch.on { background: var(--bg-form-accent); }
+
+  .control-switch i {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 1px rgba(48, 49, 61, 0.2);
+      transition: transform 0.15s;
+  }
+
+  .control-switch.on i { transform: translateX(12px); }
+
+  .control-switch-label { font-size: 12px; color: var(--text-default); line-height: 16px; }
+
+  /* Value cards are a toggle, so the globe hides them wholesale. */
+  .modal-right.no-cards .globe-card { display: none !important; }
+}
