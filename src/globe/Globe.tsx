@@ -7,11 +7,12 @@ import { createGlobe, type GlobeHandle, type GlobeOptions } from './createGlobe'
  *  would mean rebuilding it, which none of the prototypes do. Anything that
  *  does change at runtime (the coverage wave) goes through the handle. */
 export function Globe({
-  className = 'globe-container',
+  className,
   id,
   options,
   handleRef,
   onDiameter,
+  onBox,
   children,
 }: {
   className?: string
@@ -19,6 +20,9 @@ export function Globe({
   options?: GlobeOptions
   handleRef?: Ref<GlobeHandle>
   onDiameter?: (diameter: number) => void
+  /** The host's own size. Anything positioned from the globe's centre — the
+   *  value cards — needs this as well as the diameter. */
+  onBox?: (box: { width: number; height: number }) => void
   /** Anything that sits inside the globe's box — the glow circle, the value
    *  cards. The canvas is appended after these, as it was in the originals. */
   children?: ReactNode
@@ -28,8 +32,21 @@ export function Globe({
 
   // Kept in refs so a new inline callback or options object on re-render
   // doesn't tear the scene down and rebuild it.
-  const latest = useRef({ options, onDiameter })
-  latest.current = { options, onDiameter }
+  const latest = useRef({ options, onDiameter, onBox })
+  latest.current = { options, onDiameter, onBox }
+
+  // Reported separately from the scene's own resize handling, because the cards
+  // need it whether or not the scene has finished building.
+  useEffect(() => {
+    const el = host.current
+    if (!el || !onBox) return
+    const observer = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect
+      if (width && height) latest.current.onBox?.({ width, height })
+    })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [onBox])
 
   useEffect(() => {
     const el = host.current
@@ -72,7 +89,7 @@ export function Globe({
   useImperativeHandle(
     handleRef,
     () => ({
-      setCoverage: (state) => globe.current?.setCoverage(state),
+      setMode: (mode) => globe.current?.setMode(mode),
       dispose: () => globe.current?.dispose(),
     }),
     [],
