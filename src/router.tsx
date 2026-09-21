@@ -24,7 +24,8 @@ const EmailFirstPayment = () => page(() => import('./pages/EmailFirstPayment'))
 const EmailTaxThreshold = () => page(() => import('./pages/EmailTaxThreshold'))
 const Exploration = () => page(() => import('./pages/Exploration'))
 const GlobePrototype = () => page(() => import('./pages/GlobePrototype'))
-const UxrOnboarding = () => page(() => import('./pages/UxrOnboarding'))
+const UxrOnboardingV1 = () => page(() => import('./pages/UxrOnboardingV1'))
+const UxrOnboardingV2 = () => page(() => import('./pages/UxrOnboardingV2'))
 
 // The paths vercel.json served, kept as-is so existing links and the deep links
 // the prototypes build (`/onboarding/<step>`, `/smp-home/<stage>/<tab>`) still
@@ -41,10 +42,13 @@ export const router = createBrowserRouter([
   { path: '/account-app', element: <FlowGlobe /> },
   { path: '/account-app/:step', element: <FlowGlobe /> },
 
-  // The research fork of the onboarding flow. One path names every step, rather
-  // than the five /onboarding inherited from the static build.
-  { path: '/uxr', element: <UxrOnboarding /> },
-  { path: '/uxr/:step', element: <UxrOnboarding /> },
+  // The research forks of the onboarding flow, one path per version. Each names
+  // every step, rather than the five /onboarding inherited from the static build.
+  { path: '/uxr', element: <Navigate to="/uxr/v1" replace /> },
+  { path: '/uxr/v1', element: <UxrOnboardingV1 /> },
+  { path: '/uxr/v1/:step', element: <UxrOnboardingV1 /> },
+  { path: '/uxr/v2', element: <UxrOnboardingV2 /> },
+  { path: '/uxr/v2/:step', element: <UxrOnboardingV2 /> },
 
   { path: '/smp-home', element: <SmpHome /> },
   { path: '/smp-home/:stage', element: <SmpHome /> },

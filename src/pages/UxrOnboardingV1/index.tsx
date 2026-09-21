@@ -25,14 +25,17 @@ import './styles.css'
 
 /** The onboarding flow as it goes in front of research participants.
  *
- *  A fork of the flow at /onboarding, taken so it can diverge without disturbing
- *  the build the team is iterating on. Nothing here is shared with it beyond the
- *  app's own machinery — the globe scene, PageRoot, the wordmark — so any screen,
- *  any copy, and the whole stylesheet can change on either side independently.
+ *  Version 1: the flow as it stands, forked from /onboarding so it can diverge
+ *  without disturbing the build the team is iterating on. Version 2 is the variant
+ *  being tested against it.
  *
- *  It lives under one path rather than the five the original inherited from the
- *  static build: /uxr/<step>, with the Dashboard and the account app's pages named
- *  as steps like any other. */
+ *  The two UXR versions share nothing with each other or with /onboarding beyond
+ *  the app's own machinery — the globe scene, PageRoot, the wordmark. Every screen,
+ *  all the copy and the whole stylesheet can change in one without touching the
+ *  others.
+ *
+ *  Every step is named by one path, /uxr/v1/<step>, with the Dashboard and the
+ *  account app's pages named as steps like any other. */
 
 type Action = 'continue' | 'skip' | 'later' | 'live' | 'sandbox'
 
@@ -165,7 +168,7 @@ export default function FlowGlobe() {
     const slug = actOpen
       ? (Object.keys(ACT_SLUGS).find((k) => ACT_SLUGS[k] === actPage) ?? 'activate')
       : step.id
-    navigate(`/uxr/${slug}`, { replace: true })
+    navigate(`/uxr/v1/${slug}`, { replace: true })
   }, [step, actOpen, actPage, navigate])
 
   // Arriving on the dashboard always starts with the guide open and the overlay
@@ -271,7 +274,7 @@ export default function FlowGlobe() {
   const inModal = !step.siteStep && !step.dashboardStep
 
   return (
-    <PageRoot slug="uxr-onboarding">
+    <PageRoot slug="uxr-onboarding-v1">
       <Link to="/gallery" className="back-button">
         &larr; Home
       </Link>

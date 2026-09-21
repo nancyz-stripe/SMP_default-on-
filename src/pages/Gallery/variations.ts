@@ -130,16 +130,25 @@ export const productReviewVariations: Variation[] = [
 
 /** UXR: what goes in front of participants.
  *
- *  A fork of the onboarding flow rather than a link to it, so what research is
- *  testing can change without disturbing the build the team is iterating on. The
- *  two are identical today. */
+ *  Two versions of the onboarding flow, tested against each other. Both are forks
+ *  rather than links, so what research is testing can change without disturbing the
+ *  build the team is iterating on — and either version can change without moving
+ *  the other. */
 export const uxrVariations: Variation[] = [
   {
-    id: 'uxr-onboarding',
-    title: 'Onboarding',
-    description: 'The onboarding flow, end to end.',
-    to: '/uxr',
-    preview: '/uxr/managed-payments',
+    id: 'uxr-onboarding-v1',
+    title: 'Onboarding v1',
+    description: 'The flow as it stands.',
+    to: '/uxr/v1',
+    preview: '/uxr/v1/managed-payments',
+    thumb: '/assets/thumbs/onboarding.png',
+  },
+  {
+    id: 'uxr-onboarding-v2',
+    title: 'Onboarding v2',
+    description: 'The variant tested against v1.',
+    to: '/uxr/v2',
+    preview: '/uxr/v2/managed-payments',
     thumb: '/assets/thumbs/onboarding.png',
   },
 ]
