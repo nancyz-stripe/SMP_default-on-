@@ -4,11 +4,17 @@ import { PageRoot } from '../../components/PageRoot'
 import { CardPreview } from './CardPreview'
 import { RenameDialog } from './RenameDialog'
 import { isLocal, useVariations, type Section } from './useVariations'
-import { exploreVariations, flowVariations, type Variation } from './variations'
+import { exploreVariations, flowVariations, uxrVariations, type Variation } from './variations'
 import './styles.css'
 
-const TABS = ['explorations', 'archive'] as const
+const TABS = ['uxr', 'explorations', 'archive'] as const
 type Tab = (typeof TABS)[number]
+
+const TAB_LABELS: Record<Tab, string> = {
+  uxr: 'UXR',
+  explorations: 'Latest',
+  archive: 'Archive',
+}
 
 /** Explorations card: the preview and the title, nothing else. The whole card
  *  is the link, so there's no CTA. */
@@ -155,7 +161,7 @@ export default function Gallery() {
   // The hash keeps the tab across reloads, so a shared link lands on the same
   // one.
   const hash = location.hash.slice(1) as Tab
-  const tab: Tab = TABS.includes(hash) ? hash : 'explorations'
+  const tab: Tab = TABS.includes(hash) ? hash : TABS[0]
 
   const [openMenu, setOpenMenu] = useState<string | null>(null)
   const [editing, setEditing] = useState<{ section: Section; v: Variation } | null>(null)
@@ -205,13 +211,23 @@ export default function Gallery() {
             className={`tab${tab === name ? ' active' : ''}`}
             onClick={() => navigate(`#${name}`, { replace: true })}
           >
-            {name === 'explorations' ? 'Latest' : 'Archive'}
+            {TAB_LABELS[name]}
           </button>
         ))}
       </div>
 
-      {/* Both panels stay mounted — the previews in the hidden one are only
+      {/* Every panel stays mounted — the previews in the hidden one are only
           built once it's revealed and its cards get a width. */}
+      <div className={`tab-panel${tab === 'uxr' ? ' active' : ''}`}>
+        <div className="section">
+          <div className="grid">
+            {uxrVariations.map((v) => (
+              <ExploreCard key={v.id} v={v} />
+            ))}
+          </div>
+        </div>
+      </div>
+
       <div className={`tab-panel${tab === 'explorations' ? ' active' : ''}`}>
         <div className="section">
           <div className="grid">

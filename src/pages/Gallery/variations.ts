@@ -128,6 +128,20 @@ export const exploreVariations: Variation[] = [
   },
 ]
 
+/** UXR: what goes in front of participants. The onboarding flow as it currently
+ *  stands — the same build the Latest tab lists, so research is looking at what's
+ *  actually there rather than at a copy that can drift from it. */
+export const uxrVariations: Variation[] = [
+  {
+    id: 'uxr-onboarding',
+    title: 'Onboarding',
+    description: 'The current onboarding flow, end to end.',
+    to: '/onboarding',
+    preview: '/onboarding/managed-payments',
+    thumb: '/assets/thumbs/onboarding.png',
+  },
+]
+
 export const pastVariations: Variation[] = [
   {
     // Duplicated from v2, to gain the domestic expand toggle on top of the
