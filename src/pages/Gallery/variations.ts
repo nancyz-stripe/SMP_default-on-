@@ -128,16 +128,18 @@ export const exploreVariations: Variation[] = [
   },
 ]
 
-/** UXR: what goes in front of participants. The onboarding flow as it currently
- *  stands — the same build the Latest tab lists, so research is looking at what's
- *  actually there rather than at a copy that can drift from it. */
+/** UXR: what goes in front of participants.
+ *
+ *  A fork of the onboarding flow rather than a link to it, so what research is
+ *  testing can change without disturbing the build the team is iterating on. The
+ *  two are identical today. */
 export const uxrVariations: Variation[] = [
   {
     id: 'uxr-onboarding',
     title: 'Onboarding',
-    description: 'The current onboarding flow, end to end.',
-    to: '/onboarding',
-    preview: '/onboarding/managed-payments',
+    description: 'The onboarding flow, end to end.',
+    to: '/uxr',
+    preview: '/uxr/managed-payments',
     thumb: '/assets/thumbs/onboarding.png',
   },
 ]

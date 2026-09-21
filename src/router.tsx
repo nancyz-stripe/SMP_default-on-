@@ -24,6 +24,7 @@ const EmailFirstPayment = () => page(() => import('./pages/EmailFirstPayment'))
 const EmailTaxThreshold = () => page(() => import('./pages/EmailTaxThreshold'))
 const Exploration = () => page(() => import('./pages/Exploration'))
 const GlobePrototype = () => page(() => import('./pages/GlobePrototype'))
+const UxrOnboarding = () => page(() => import('./pages/UxrOnboarding'))
 
 // The paths vercel.json served, kept as-is so existing links and the deep links
 // the prototypes build (`/onboarding/<step>`, `/smp-home/<stage>/<tab>`) still
@@ -39,6 +40,11 @@ export const router = createBrowserRouter([
   { path: '/dashboard', element: <FlowGlobe /> },
   { path: '/account-app', element: <FlowGlobe /> },
   { path: '/account-app/:step', element: <FlowGlobe /> },
+
+  // The research fork of the onboarding flow. One path names every step, rather
+  // than the five /onboarding inherited from the static build.
+  { path: '/uxr', element: <UxrOnboarding /> },
+  { path: '/uxr/:step', element: <UxrOnboarding /> },
 
   { path: '/smp-home', element: <SmpHome /> },
   { path: '/smp-home/:stage', element: <SmpHome /> },
