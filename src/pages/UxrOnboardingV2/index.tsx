@@ -11,7 +11,6 @@ import { SetupGuide } from './SetupGuide'
 import { SharedGlobe } from './SharedGlobe'
 import {
   AboutBusiness,
-  CrossBorderBrief,
   DomesticCoverage,
   GetStarted,
   HowToStart,
@@ -25,9 +24,10 @@ import './styles.css'
 
 /** The onboarding flow as it goes in front of research participants.
  *
- *  Version 2: the variant tested against version 1. Duplicated from it, so the two
- *  are identical until this one is tweaked — whatever is changed here is the thing
- *  the research is measuring.
+ *  Version 2: the variant tested against version 1, and identical to it but for one
+ *  thing — the cross-border brief is gone, so the goods question leads straight to
+ *  the Managed Payments offer. What the research measures is whether the offer needs
+ *  that screen's framing to land.
  *
  *  The two UXR versions share nothing with each other or with /onboarding beyond
  *  the app's own machinery — the globe scene, PageRoot, the wordmark. Every screen,
@@ -73,7 +73,8 @@ const ALL_STEPS: Step[] = [
   { id: 'about-business', plain: true, width: 'narrow', actions: ['skip', 'continue'] },
   { id: 'how-to-start', plain: true, actions: ['skip', 'continue'] },
   { id: 'types-of-goods', plain: true, actions: ['later', 'continue'] },
-  { id: 'cross-border-brief', actions: ['skip', 'continue'] },
+  // No cross-border brief here: in this version the goods question leads straight
+  // to the offer. V1 has the brief in between, and the difference is the test.
   { id: 'managed-payments', width: 'full', globe: true, actions: ['skip', 'continue'] },
   { id: 'domestic-coverage', actions: ['skip', 'continue'] },
   { id: 'type-of-setup', plain: true, actions: ['continue'] },
@@ -254,8 +255,6 @@ export default function FlowGlobe() {
         return <HowToStart selected={use} onToggle={toggle(setUse)} />
       case 'types-of-goods':
         return <TypesOfGoods selected={sell} onToggle={toggle(setSell)} />
-      case 'cross-border-brief':
-        return <CrossBorderBrief />
       case 'managed-payments':
         return (
           <ManagedPayments selected={managed} onSelect={setManaged} globeHost={globe.hostRef} />

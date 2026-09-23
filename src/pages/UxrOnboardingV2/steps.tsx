@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react'
 import {
   CheckRows,
   Choices,
@@ -11,9 +10,12 @@ import {
   type Row,
 } from './fields'
 
-/** A cut of the onboarding flow: the goods question, the cross-border brief it
- *  leads into, the managed-payments choice, and the domestic upsell that only
- *  follows Managed payments. */
+/** A cut of the onboarding flow: the goods question, the managed-payments choice it
+ *  leads straight into, and the domestic upsell that only follows Managed payments.
+ *
+ *  V1 sits a cross-border brief between the goods question and the choice — a screen
+ *  listing what selling abroad brings with it. This version drops it, so the offer
+ *  arrives without that framing. That omission is what the research measures. */
 
 export function Welcome({
   location,
@@ -126,86 +128,6 @@ export function TypesOfGoods({
         <span className="muted">This helps tailor our recommendations.</span>
       </Headline>
       <CheckRows items={SELL_ROWS} selected={selected} onToggle={onToggle} />
-    </>
-  )
-}
-
-const BRIEF_ICONS = {
-  bank: <path d="M1 4.4L6 1.6l5 2.8M2.2 4.8v4.4M4.7 4.8v4.4M7.3 4.8v4.4M9.8 4.8v4.4M1 10.4h10" />,
-  document: (
-    <>
-      <path d="M3 1.2h3.6L9 3.6v7.2H3z" />
-      <path d="M6.4 1.4v2.4h2.4" />
-      <path d="M4.4 6.4h3.2M4.4 8.4h3.2" />
-    </>
-  ),
-  warning: (
-    <>
-      <path d="M6 1.6l4.6 8H1.4z" />
-      <path d="M6 4.8v2.4M6 8.6v.4" />
-    </>
-  ),
-}
-
-const BRIEF: { icon: ReactNode; title: ReactNode; label: string }[] = [
-  {
-    icon: BRIEF_ICONS.bank,
-    title: 'Banks are stricter across borders',
-    label:
-      'Foreign banks decline more payments, even when the card is valid. Every decline is revenue you lose.',
-  },
-  {
-    icon: BRIEF_ICONS.document,
-    title: 'Tax rules differ in every country',
-    label:
-      'Tax is owed where your customer is, and each country has its own process for registering, collecting, and filing.',
-  },
-  {
-    icon: BRIEF_ICONS.warning,
-    title: <>Disputes follow your customer&rsquo;s local rules</>,
-    label:
-      'Each country sets its own process and deadlines, and fraud looks different in each market.',
-  },
-]
-
-/** The simplified screen (Figma 26702:75374, headline 26799:94394): no gradient, no
- *  globe, no choice to make. The peer group is digital goods sellers rather than
- *  "businesses like yours", and the home market is named, so the list below reads
- *  as what leaving it brings with it.
- *
- *  The share is the design's own "x%" — a placeholder standing in until the figure
- *  is settled, so don't read it as a number that's gone missing. */
-export function CrossBorderBrief() {
-  return (
-    <>
-      <Headline>
-        x% of digital goods businesses on Stripe sell globally.{' '}
-        <span className="muted">
-          Here&rsquo;s what comes with selling outside of the United States.
-        </span>
-      </Headline>
-      <div className="brief-card">
-        {BRIEF.map((item, i) => (
-          <div className="brief-row" key={i}>
-            <span className="brief-icon">
-              <svg
-                viewBox="0 0 12 12"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                {item.icon}
-              </svg>
-            </span>
-            <span style={{ flex: 1 }}>
-              <span className="brief-title">{item.title}</span>
-              <span className="brief-desc">{item.label}</span>
-            </span>
-          </div>
-        ))}
-      </div>
     </>
   )
 }

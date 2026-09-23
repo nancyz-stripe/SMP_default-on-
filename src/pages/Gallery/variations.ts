@@ -146,7 +146,7 @@ export const uxrVariations: Variation[] = [
   {
     id: 'uxr-onboarding-v2',
     title: 'Onboarding v2',
-    description: 'The variant tested against v1.',
+    description: 'The variant tested against v1: no cross-border brief.',
     to: '/uxr/v2',
     preview: '/uxr/v2/managed-payments',
     thumb: '/assets/thumbs/onboarding.png',

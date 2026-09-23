@@ -881,52 +881,6 @@
 
   .step.wide { max-width: 824px; }
 
-  /* Informational card: icon, title, detail per row. No art, no colour —
-     the screen only has to be read. */
-  .brief-card {
-      background: var(--bg-surface);
-      border: 1px solid var(--neutral-50);
-      border-radius: 8px;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-  }
-
-  .brief-row { display: flex; gap: 16px; align-items: flex-start; }
-
-  .brief-icon {
-      flex-shrink: 0;
-      width: 20px;
-      height: 20px;
-      border-radius: 4px;
-      background: var(--neutral-50);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-subdued);
-  }
-
-  .brief-icon svg { width: 12px; height: 12px; }
-
-  /* Same type as .option-row .row-title, so these read like the option
-     headers on the steps before. */
-  .brief-title {
-      display: block;
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--text-default);
-      margin-bottom: 4px;
-  }
-
-  /* Same type as .option-row .row-label, the sub under an option header. */
-  .brief-desc {
-      display: block;
-      font-size: 13px;
-      line-height: 18px;
-      color: var(--text-subdued);
-  }
-
   /* Radio cards: the recommended option carries its benefits inline, the
      alternative is a single line. Unselected rests on the same grey fill the
      checkbox rows use, keyline kept transparent rather than absent; selected
@@ -1324,8 +1278,7 @@
   .option-row.selected .box svg { opacity: 1; }
 
   /* Both blocks, so the examples sit under the title rather than running on
-     from it — the margin below was doing nothing on an inline span. Same
-     pairing as .brief-title/.brief-desc. */
+     from it — the margin below was doing nothing on an inline span. */
   .option-row .row-title {
       display: block;
       font-size: 15px;
