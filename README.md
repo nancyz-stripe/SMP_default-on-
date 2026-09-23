@@ -30,6 +30,15 @@ npm run typecheck
 These are the paths the old static build served, so existing links still
 resolve.
 
+## Deploying
+
+`vercel.json` builds with `npm run build` to `dist/`, and rewrites everything
+that isn't under `/assets/` to `index.html` — a single-page app, so the router
+owns every path and a deep link like `/uxr/v2/managed-payments` has to reach it
+rather than 404 as a missing file. The rewrite's reason lives here because
+`vercel.json` is strict JSON validated against a closed schema: a `comment` key
+alongside `source` fails the build.
+
 ## How the port is laid out
 
 ```

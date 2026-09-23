@@ -4,7 +4,6 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
-      "comment": "A single-page app: the router owns every path, so anything that isn't a built asset is handed to it. The paths the old static build served — /website, /pricing, /onboarding/:step, /dashboard, /account-app/:page, /smp-home/:stage/:tab, /email/* — are routes now, so links against them still resolve.",
       "source": "/((?!assets/).*)",
       "destination": "/index.html"
     }
